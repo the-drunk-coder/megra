@@ -1,3 +1,5 @@
+(require 'incudine)
+
 (load "megra-event-processors")
 
 (defclass dispatcher ()
@@ -7,7 +9,8 @@
 
 (defmethod dispatch ((d dispatcher) (e event-processor) &key)
   (handle-events d (pull-events e))
-  (handle-transition d (pull-transition e)))
+  (let ((next (+ (incudine:now) (* 1 (handle-transition d (pull-transition e))))))
+    (incudine:at next #'dispatch d e)))
 
 (defclass string-dispatcher (dispatcher) ())
 
@@ -16,9 +19,12 @@
   (princ "the following events should be handled: ")
   (mapc #'(lambda (event)
 	    (princ (event-message event))
-	    (princ " ")) events))
+	    (princ " from ")
+	    (princ (event-source event))
+	    (princ ", ")) events))
 
 (defmethod handle-transition ((s string-dispatcher) (tr transition) &key)
   (fresh-line)
   (princ "the next events should happen in: ")
-  (princ (transition-duration tr)))
+  (princ (transition-duration tr))
+  (transition-duration tr))	 
