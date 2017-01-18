@@ -54,10 +54,18 @@
 
 (defparameter *dispatcher* (make-instance 'string-dispatcher))
 
+(require 'incudine)
+
+(defun simple-test (time)
+  (princ "BLA")
+  (let ((next (+ time 500)))
+    (incudine:at next #'simple-test next)))
+
+
 (incudine:rt-start)
 (incudine:rt-stop)
 
-(incudine:now)
+(simple-test (incudine:now))
 
-(dispatch *dispatcher* *test-graph-processor-1*)
+(dispatch-2 *dispatcher* *test-graph-processor-1* (incudine:now))
 
