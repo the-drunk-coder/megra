@@ -1,4 +1,8 @@
 (require 'incudine)
+
+(defparameter *graph-directory* (make-hash-table :test 'eql))
+(defparameter *dispatcher-directory* (make-hash-table :test 'eql))
+
 					; structural
 (defun node (id &rest content)
   (make-instance 'node :id id :content content))
@@ -8,21 +12,26 @@
 
 (defun graph (name &rest graphdata)
   (let ((new-graph (make-instance 'graph)))
-    (setf (graph-id new-graph) name)
+    (setf (graph-id new-graph) name)    
     (mapc #'(lambda (obj)
 	      (cond ((typep obj 'edge) (insert-edge new-graph obj))
 		    ((typep obj 'node) (insert-node new-graph obj))))
 	  graphdata)
-    (make-instance 'graph-event-processor :graph new-graph :current-node 1)))
+    (if (gethash name *graph-directory*)
+	(setf (source-graph (gethash name *graph-directory*)) new-graph)
+	(setf (gethash name *graph-directory*) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
+  name)
 
 					; dispatching
-(defun dispatch (dispatcher &rest event-processors)
-  (labels
-      ((connect (processors)
-	 (if (cadr processors)
-	     (setf (successor (car processors)) (cadr processors)))))
-   (connect event-processors))
-  (perform-dispatch dispatcher (car event-processors) (incudine:now)))
+(defun dispatch (&rest event-processors)
+  (let ((dispatcher (make-instance 'event-dispatcher)))
+    (labels
+	((connect (processors)
+	   (when (cadr processors)
+	     (setf (successor (gethash (car processors) *graph-directory*)) (gethash (cadr processors) *graph-directory*) )
+	     (connect (cdr processors)))))
+      (connect event-processors))
+    (perform-dispatch dispatcher (car event-processors) (incudine:now))))
 
 					; events
 (defun string-event (msg)
@@ -32,5 +41,9 @@
   (make-instance 'midi-event :pitch pitch :level lvl :duration dur))
 
 					; miscellaneous
-(defun deactivate (event-processor)
-  (setf (is-active event-processor) NIL))
+(defun deactivate (event-processor-id)
+  (setf (is-active (gethash event-processor-id *graph-directory*)) NIL))
+
+
+(defun activate (event-processor-id)
+  (setf (is-active (gethash event-processor-id *graph-directory*)) t))
