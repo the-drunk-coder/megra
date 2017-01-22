@@ -24,8 +24,13 @@
    (connect event-processors))
   (perform-dispatch dispatcher (car event-processors) (incudine:now)))
 
-
-
 					; events
 (defun string-event (msg)
   (make-instance 'string-event :msg msg))
+
+(defun midi (pitch &key dur lvl)
+  (make-instance 'midi-event :pitch pitch :level lvl :duration dur))
+
+					; miscellaneous
+(defun deactivate (event-processor)
+  (setf (is-active event-processor) NIL))

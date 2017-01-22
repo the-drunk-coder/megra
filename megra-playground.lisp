@@ -16,8 +16,16 @@
        (edge 1 2 :prob 100 :dur 2000)
        (edge 2 1 :prob 100 :dur 2000)))
 
+(defparameter *string-dispatcher* (make-instance 'string-dispatcher))
 
-(defparameter *dispatcher* (make-instance 'string-dispatcher))
+(defparameter *midi-graph*
+  (graph 'uno
+       (node 1 (midi 65 :lvl .4 :dur 50) (midi 67 :lvl .4 :dur 50))
+       (node 2 (midi 61 :lvl .4 :dur 50) (midi 69 :lvl .4 :dur 50))
+       (edge 1 2 :prob 100 :dur 2000)
+       (edge 2 1 :prob 100 :dur 2000)))
+
+(defparameter *dispatcher* (make-instance 'event-dispatcher))
 
 (incudine:rt-start)
 
@@ -26,8 +34,6 @@
 (incudine:rt-stop)
 
 (dispatch *dispatcher*
-	  *test-graph-1*
-	  *test-graph-2*)
+	  *midi-graph*)
 
-
-(deactivate *test-graph-1*)
+(deactivate *midi-graph*)
