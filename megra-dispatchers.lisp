@@ -3,19 +3,19 @@
 (load "megra-event-processors")
 
 (defclass dispatcher ()
-  ((dispatch)
+  ((perform-dispatch)
    (handle-events)
    (handle-transition)))
 
-(defmethod dispatch ((d dispatcher) (e event-processor) time &key)
-  (fresh-line)
-  (handle-events d (pull-events e))
-  (force-output)
-  (if (is-active e)
-  (let ((next (+ time (* 50 (handle-transition d (pull-transition e))))))
-    (incudine:at next #'dispatch d e next))))
+(defmethod perform-dispatch ((d dispatcher) (e event-processor) time &key)
+  (when (is-active e)  
+    (fresh-line)
+    (handle-events d (pull-events e))
+    (force-output)
+    (let ((next (+ time (* 50 (handle-transition d (pull-transition e))))))
+      (incudine:at next #'perform-dispatch d e next))))
 
-
+					; dummy for testing and development 
 (defclass string-dispatcher (dispatcher) ())
 
 (defmethod handle-events ((s string-dispatcher) events &key)
