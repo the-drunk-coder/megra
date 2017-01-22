@@ -3,6 +3,21 @@
 (defparameter *graph-directory* (make-hash-table :test 'eql))
 (defparameter *dispatcher-directory* (make-hash-table :test 'eql))
 
+(in-package :cm)
+(defun init-megra ()
+  (incudine:rt-start)
+  (sleep 1)
+  (midi-open-default :direction :input)
+  (midi-open-default :direction :output)
+  ;(osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
+  ;(osc-open-default :host "127.0.0.1" :port 3003 :direction :output)
+  ;(fudi-open-default :host "127.0.0.1" :port 3011 :direction :input)
+  ;(fudi-open-default :host "127.0.0.1" :port 3012 :direction :output)
+  (setf *out* (new incudine-stream))
+  (setf *rts-out* *out*))
+
+(in-package :common-lisp-user)
+
 					; structural
 (defun node (id &rest content)
   (make-instance 'node :id id :content content))
