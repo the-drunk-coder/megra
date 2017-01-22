@@ -47,8 +47,8 @@
 
 					; graph-based event-generator ... 
 (defclass graph-event-processor (event-processor) 
-  ((source-graph :accessor source-graph :initarg graph)
-   (current-node :accessor current-node)
+  ((source-graph :accessor source-graph :initarg :graph)
+   (current-node :accessor current-node :initarg :current-node)
    (path)))
 
 (defmethod current-events ((g graph-event-processor) &key)
