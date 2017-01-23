@@ -31,11 +31,14 @@
 
 (dispatch 'tres-midi)
 
+; tree-like dispatch branching ?
+
 (dispatch
  'uno-midi
+					; start value is optional, if not specified,
+					; original event stuff is taken
+ (oscillate-between 'o2 'lvl 0.1 0.5 :start 0.4) 
  'dos-midi)
-
-(oscillate-between 'lvl 0.1 0.5 :start 0.4)
 
 (deactivate 'tres-midi)
 

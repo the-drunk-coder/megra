@@ -74,8 +74,26 @@
 (defmethod apply-self ((g graph-event-processor) events &key)
   (combine-events (current-events g) events))
 
-(defclass modifying-event-processor (event-processor) ())
-  
+(defclass modifying-event-processor (event-processor)
+  ((property :accessor modified-property :initarg mod-prop)
+   (last-values-by-source :accessor lastval)))
+
+(defclass oscillate-between (modifying-event-processor)
+  ((upper-boundary :accessor upper-boundary :initarg upper-boundary)
+   (lower-boundary :accessor lower-boundary :initarg lower-boundary)
+   (start :accessor start :initarg start)
+   (type :accessor osc-type :initarg type)))
+
+(defclass brownian-motion (modifying-event-processor)
+  ((upper-boundary :accessor upper-boundary :initarg upper-boundary)
+   (lower-boundary :accessor lower-boundary :initarg lower-boundary)
+   (start :accessor start :initarg start)
+   (step-size :accessor step-size :initarg step)
+   (is-bounded :accessor is-bounded :initarg is-bounded)
+   (is-wrapped :accessor is-wrapped :initarg is-wrapped)))
+
+
+
 					;contains additional method "just-process"
 
 
