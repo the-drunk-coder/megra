@@ -7,23 +7,6 @@
 (load "megra-event-processors")
 					; incudine/midi init
 
-
-
-(in-package :cm)
-(progn
-  (incudine:rt-start)
-  (sleep 1)
-  (midi-open-default :direction :input)
-  (midi-open-default :direction :output)
-  (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-  (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)
-  (fudi-open-default :host "127.0.0.1" :port 3011 :direction :input)
-  (fudi-open-default :host "127.0.0.1" :port 3012 :direction :output)
-  (setf *out* (new incudine-stream))
-  (setf *rts-out* *out*))
-
-(in-package :common-lisp-user)
-
 (defclass dispatcher ()
   ((perform-dispatch)
    (handle-events)

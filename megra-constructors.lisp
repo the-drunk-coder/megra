@@ -33,8 +33,8 @@
 		    ((typep obj 'node) (insert-node new-graph obj))))
 	  graphdata)
     (if (gethash name *graph-directory*)
-	(setf (source-graph (gethash name *graph-directory*)) new-graph)
-	(setf (gethash name *graph-directory*) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
+	(setf (source-graph (get-graph name)) new-graph)
+	(setf (get-graph name) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
   name)
 
 					; dispatching
@@ -43,7 +43,7 @@
     (labels
 	((connect (processors)
 	   (when (cadr processors)
-	     (setf (successor (gethash (car processors) *graph-directory*)) (gethash (cadr processors) *graph-directory*) )
+	     (setf (successor (get-graph (car processors))) (get-graph (cadr processors)) )
 	     (connect (cdr processors)))))
       (connect event-processors))
     (perform-dispatch dispatcher (car event-processors) (incudine:now))))
@@ -57,8 +57,11 @@
 
 					; miscellaneous
 (defun deactivate (event-processor-id)
-  (setf (is-active (gethash event-processor-id *graph-directory*)) NIL))
+  (setf (is-active (get-graph event-processor-id)) NIL))
 
 
 (defun activate (event-processor-id)
-  (setf (is-active (gethash event-processor-id *graph-directory*)) t))
+  (setf (is-active (get-graph event-processor-id)) t))
+
+(defmacro get-graph (graph-id)
+  `(gethash ,graph-id *graph-directory*))
