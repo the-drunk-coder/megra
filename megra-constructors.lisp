@@ -3,7 +3,7 @@
 (defparameter *graph-directory* (make-hash-table :test 'eql))
 (defparameter *dispatcher-directory* (make-hash-table :test 'eql))
 
-(in-package :cm)
+
 (defun init-megra ()
   (incudine:rt-start)
   (sleep 1)
