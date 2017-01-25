@@ -1,4 +1,6 @@
 (load "megra-dispatchers")
+
+
 (load "megra-constructors")
 
 (in-package :cm)
@@ -30,6 +32,9 @@
        (edge 1 1 :prob 100 :dur 520))
 
 (dispatch 'tres-midi)
+
+
+(defparameter *test-event* (midi 67 :lvl .2 :dur 350))
 
 ; tree-like dispatch branching ?
 

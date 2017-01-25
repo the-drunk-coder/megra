@@ -75,35 +75,69 @@
   (combine-events (current-events g) events))
 
 (defclass modifying-event-processor (event-processor)
-  ((property :accessor modified-property :initarg mod-prop)
+  ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)))
 
+(defmethod initialize-instance :after ((m modifying-event-processor) &key)
+  (setf (lastval m) (make-hash-table :test 'eql)))
+
+(defmethod apply-self :before ((m modifying-event-processor) events &key)
+  (mapc #'(lambda (event)
+	    (unless (gethash (event-source event) (lastval m))  
+	      (setf (gethash (event-source event) (lastval m))
+		    (funcall (symbol-function (modified-property m)) event)))) events))
+
+
+(defparameter *bae* (midi 31 :lvl .1))
+(defparameter *bla* (make-instance 'modifying-event-processor))
+
+(setf (event-source *bae*) '(TEST.1))
+
+(setf ((symbol-function 'lvl) *bae*) 1)
+
+					; switch to preserve/not preserve state ?
+
 (defclass oscillate-between (modifying-event-processor)
-  ((upper-boundary :accessor upper-boundary :initarg upper-boundary)
-   (lower-boundary :accessor lower-boundary :initarg lower-boundary)
-   (start :accessor start :initarg start)
-   (type :accessor osc-type :initarg type)))
+  ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
+   (lower-boundary :accessor lower-boundary :initarg :lower-boundary)   
+   (type :accessor osc-type :initarg :type)))
 
 (defclass brownian-motion (modifying-event-processor)
-  ((upper-boundary :accessor upper-boundary :initarg upper-boundary)
-   (lower-boundary :accessor lower-boundary :initarg lower-boundary)
-   (start :accessor start :initarg start)
-   (step-size :accessor step-size :initarg step)
-   (is-bounded :accessor is-bounded :initarg is-bounded)
-   (is-wrapped :accessor is-wrapped :initarg is-wrapped)))
+  ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
+   (lower-boundary :accessor lower-boundary :initarg :lower-boundary)
+   (step-size :accessor step-size :initarg :step)
+   (is-bounded :accessor is-bounded :initarg :is-bounded)
+   (is-wrapped :accessor is-wrapped :initarg :is-wrapped)))
+
+(defmethod cap ((b brownian-motion) value &key)
+  (cond ((is-bounded b)
+	 (cond ((< value (lower-boundary b)) (lower-boundary b))
+	       ((> value (upper-boundary b)) (upper-boundary b))
+	       (t value)))
+	((is-wrapped b)
+	 (cond ((< value (lower-boundary b)) (upper-boundary b))
+	       ((> value (upper-boundary b)) (lower-boundary b))
+	       (t value)))
+	(t value)))
+
+(defmethod apply-self ((b brownian-motion) events &key)
+  (mapc #'(lambda (event)
+	    (let* ((current-value (gethash (event-source event) (lastval b)))
+		   (new-value (cap b (+ current-value (* (nth (random 2) '(-1 1)) (step-size b))))))	      	      (setf (gethash (event-source event) (lastval b)) new-value)
+	      (setf (slot-value event (modified-property b)) new-value))) events))
 
 
+(defparameter *bro* (make-instance 'brownian-motion :step 1 :mod-prop 'pitch
+				   :upper-boundary 80
+				   :lower-boundary 30
+				   :is-bounded nil
+				   :is-wrapped t))
 
-					;contains additional method "just-process"
+(slot-value *bae* 'pitch)
 
+(defparameter *bae-mod* (apply-self *bro* (list *bae*)))
 
-					; next-event recursively calls next-event of successors
-					; maybe reverse list (or keep them in order, and let reversal be done by macros)
-					; then return (apply-events (next-events successor) to handle event combination
-					; BUT this leaves out pure modificatiors ! 
-
-
-
+(pitch (car *bae-mod*))
 
 
 

@@ -1,8 +1,7 @@
 (require 'incudine)
 
-(defparameter *graph-directory* (make-hash-table :test 'eql))
+(defparameter *processor-directory* (make-hash-table :test 'eql))
 (defparameter *dispatcher-directory* (make-hash-table :test 'eql))
-
 
 (defun init-megra ()
   (incudine:rt-start)
@@ -32,9 +31,9 @@
 	      (cond ((typep obj 'edge) (insert-edge new-graph obj))
 		    ((typep obj 'node) (insert-node new-graph obj))))
 	  graphdata)
-    (if (gethash name *graph-directory*)
-	(setf (source-graph (get-graph name)) new-graph)
-	(setf (get-graph name) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
+    (if (gethash name *processor-directory*)
+	(setf (source-graph (get-processor name)) new-graph)
+	(setf (get-processor name) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
   name)
 
 					; dispatching
@@ -43,7 +42,7 @@
     (labels
 	((connect (processors)
 	   (when (cadr processors)
-	     (setf (successor (get-graph (car processors))) (get-graph (cadr processors)) )
+	     (setf (successor (get-processor (car processors))) (get-processor (cadr processors)) )
 	     (connect (cdr processors)))))
       (connect event-processors))
     (perform-dispatch dispatcher (car event-processors) (incudine:now))))
@@ -57,11 +56,11 @@
 
 					; miscellaneous
 (defun deactivate (event-processor-id)
-  (setf (is-active (get-graph event-processor-id)) NIL))
+  (setf (is-active (get-processor event-processor-id)) NIL))
 
 
 (defun activate (event-processor-id)
-  (setf (is-active (get-graph event-processor-id)) t))
+  (setf (is-active (get-processor event-processor-id)) t))
 
-(defmacro get-graph (graph-id)
-  `(gethash ,graph-id *graph-directory*))
+(defmacro get-processor (processor-id)
+  `(gethash ,processor-id *processor-directory*))
