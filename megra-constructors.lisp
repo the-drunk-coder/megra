@@ -3,6 +3,9 @@
 (defparameter *processor-directory* (make-hash-table :test 'eql))
 (defparameter *dispatcher-directory* (make-hash-table :test 'eql))
 
+(defmacro get-processor (processor-id)
+  `(gethash ,processor-id *processor-directory*))
+
 (defun init-megra ()
   (incudine:rt-start)
   (sleep 1)
@@ -47,6 +50,15 @@
       (connect event-processors))
     (perform-dispatch dispatcher (car event-processors) (incudine:now))))
 
+					; modifying
+(defun brownian-motion (name param &key step wrap limit ubound lbound)
+  (setf (get-processor name) (make-instance 'brownian-motion :step step :mod-prop param
+					    :upper-boundary ubound
+					    :lower-boundary lbound
+					    :is-bounded limit
+					    :is-wrapped wrap)))
+  
+
 					; events
 (defun string-event (msg)
   (make-instance 'string-event :msg msg))
@@ -56,11 +68,7 @@
 
 					; miscellaneous
 (defun deactivate (event-processor-id)
-  (setf (is-active (get-processor event-processor-id)) NIL))
-
+  (setf (is-active (get-processor event-processor-id)) nil))
 
 (defun activate (event-processor-id)
   (setf (is-active (get-processor event-processor-id)) t))
-
-(defmacro get-processor (processor-id)
-  `(gethash ,processor-id *processor-directory*))

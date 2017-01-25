@@ -10,7 +10,7 @@
 (in-package :common-lisp-user)
 
 					; init scheduling
-(incudine:rt-start)
+
 					; stop scheduling
 (incudine:rt-stop)
 
@@ -27,23 +27,25 @@
        (edge 1 2 :prob 100 :dur 500)
        (edge 2 1 :prob 100 :dur 500))
 
+(in-package :common-lisp-user)
+
 (graph 'tres-midi
        (node 1 (midi 83 :lvl .9 :dur 150))
        (edge 1 1 :prob 100 :dur 520))
 
-(dispatch 'tres-midi)
-
-
-(defparameter *test-event* (midi 67 :lvl .2 :dur 350))
+(dispatch
+ (brownian-motion 'rw-1 'pitch)
+ 'tres-midi)
 
 ; tree-like dispatch branching ?
 
 (dispatch
  'uno-midi
+ 'dos-midi)
+
 					; start value is optional, if not specified,
 					; original event stuff is taken
  (oscillate-between 'o2 'lvl 0.1 0.5 :start 0.4) 
- 'dos-midi)
 
 (deactivate 'tres-midi)
 

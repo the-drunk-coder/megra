@@ -2,8 +2,6 @@
 (require 'cm)
 
 					; need that ?
-
-
 (load "megra-event-processors")
 					; incudine/midi init
 
@@ -43,13 +41,13 @@
 (defmethod handle-events ((e event-dispatcher) events &key)
   (mapc #'handle-event events))
 
+(in-package :cm)
 					; handler methods for individual events ... 
 (defmethod handle-event ((m midi-event) &key)
-  (cm:events (cm:new cm:midi
-	       :time 0
-	       :keynum (event-pitch m)
-	       :duration (event-duration m)
-	       :amplitude (round (* 127 (event-level m))))
+  (cm:events (cm:new cm:midi	       
+	       :keynum (pitch m)
+	       :duration (dur m)
+	       :amplitude (round (* 127 (lvl m))))
 	     :at (incudine:now)))
 
 

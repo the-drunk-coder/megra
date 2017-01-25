@@ -127,17 +127,7 @@
 	      (setf (slot-value event (modified-property b)) new-value))) events))
 
 
-(defparameter *bro* (make-instance 'brownian-motion :step 1 :mod-prop 'pitch
-				   :upper-boundary 80
-				   :lower-boundary 30
-				   :is-bounded nil
-				   :is-wrapped t))
 
-(slot-value *bae* 'pitch)
-
-(defparameter *bae-mod* (apply-self *bro* (list *bae*)))
-
-(pitch (car *bae-mod*))
 
 
 
