@@ -1,6 +1,3 @@
-;(require 'incudine)
-
-
 					; structural
 (defun node (id &rest content)
   (make-instance 'node :id id :content content))
@@ -30,16 +27,17 @@
 		   (gethash (cadr processors) *processor-directory*))
 	     (connect (cdr processors)))))
       (connect event-processors))
-    (perform-dispatch dispatcher (car event-processors) (incudine:now))))
+    (unless (is-active (gethash (car event-processors) *processor-directory*))
+      (activate (car event-processors))      
+      (perform-dispatch dispatcher (car event-processors) (incudine:now))))) 
 
 					; modifying
 (defun brownian-motion (name param &key step wrap limit ubound lbound)
   (setf (gethash name *processor-directory*) (make-instance 'brownian-motion :step step :mod-prop param
-					    :upper-boundary ubound
-					    :lower-boundary lbound
-					    :is-bounded limit
-					    :is-wrapped wrap)) name)
-  
+							    :upper-boundary ubound
+							    :lower-boundary lbound
+							    :is-bounded limit
+							    :is-wrapped wrap)) name)
 
 					; events
 (defun string-event (msg)
@@ -49,6 +47,8 @@
   (make-instance 'midi-event :pitch pitch :level lvl :duration dur))
 
 					; miscellaneous
+
+
 (defun deactivate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil))
 

@@ -2,7 +2,7 @@
 (defclass event-processor ()
   ((pull-events)
    (pull-transition)       
-   (active :accessor is-active :initform t)
+   (active :accessor is-active :initform nil)
    (successor :accessor successor)
    (has-successor)
    (current-events)      ; abstract

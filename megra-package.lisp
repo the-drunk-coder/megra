@@ -15,7 +15,6 @@
 (in-package :megra)
 
 (defparameter *processor-directory* (make-hash-table :test 'eql))
-(defparameter *dispatcher-directory* (make-hash-table :test 'eql))
 
 (load "megra-events")
 (load "megra-structures")

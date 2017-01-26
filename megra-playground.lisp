@@ -9,9 +9,7 @@
   (midi-open-default :direction :input)
   (midi-open-default :direction :output)
   (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-  (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)
-  (fudi-open-default :host "127.0.0.1" :port 3011 :direction :input)
-  (fudi-open-default :host "127.0.0.1" :port 3012 :direction :output)
+  (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
   (setf *out* (new incudine-stream))
   (setf *rts-out* *out*))
 
@@ -34,17 +32,47 @@
        (edge 2 1 :prob 100 :dur 500))
 
 (graph 'tres-midi
-       (node 1 (mid 83 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 220))
+       (node 1 (mid 84 :lvl .9 :dur 150))
+       (edge 1 1 :prob 100 :dur 120))
 
+(graph 'quatr-midi
+       (node 1 (mid 82 :lvl .9 :dur 150))
+       (edge 1 1 :prob 100 :dur 120))
+
+
+
+(dispatch 
+ 'uno-midi
+ 'tres-midi)
+
+(dispatch
+ 'tres-midi
+ 'uno-midi)
+
+(dispatch 
+ 'tres-midi)
+
+(dispatch
+ (brownian-motion 'tres-rw 'pitch :step 2 :ubound 84 :lbound 50 :wrap t)
+ 'tres-midi)
+
+(deactivate 'tres-rw)
+
+(deactivate 'uno-midi)
 
 
 (dispatch
- (brownian-motion 'rw-1 'pitch :step 1 :ubound 84 :lbound 30 :wrap t)
- 'tres-midi)
+ 'quatr-midi)
+
+(is-active (gethash 'quatr-midi *processor-directory*))
 
 ; tree-like dispatch branching ?
 
+					; -- tbd
+					; syncstart
+					; avoid duplicate dispatches
+					; midi note blocker
+					; automatic re-activation
 (dispatch
  'uno-midi
  'dos-midi)
@@ -53,7 +81,7 @@
 					; original event stuff is taken
  (oscillate-between 'o2 'lvl 0.1 0.5 :start 0.4) 
 
-(deactivate 'rw-1)
+(deactivate 'rw-2)
 
-(deactivate 'uno-midi)
+
 
