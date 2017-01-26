@@ -76,6 +76,10 @@
   ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)))
 
+(defmethod current-transition ((m modifying-event-processor) &key)
+					;pass)
+    )
+
 (defmethod initialize-instance :after ((m modifying-event-processor) &key)
   (setf (lastval m) (make-hash-table :test 'eql)))
 

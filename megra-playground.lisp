@@ -2,6 +2,7 @@
 
 (in-package :cm)
 
+; haven't found a solution to wrap this in a function yet
 (progn
   (incudine:rt-start)
   (sleep 1)
@@ -34,10 +35,12 @@
 
 (graph 'tres-midi
        (node 1 (mid 83 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 520))
+       (edge 1 1 :prob 100 :dur 220))
+
+
 
 (dispatch
- (brownian-motion 'rw-1 'pitch :step 1)
+ (brownian-motion 'rw-1 'pitch :step 1 :ubound 84 :lbound 30 :wrap t)
  'tres-midi)
 
 ; tree-like dispatch branching ?
@@ -50,7 +53,7 @@
 					; original event stuff is taken
  (oscillate-between 'o2 'lvl 0.1 0.5 :start 0.4) 
 
-(deactivate 'tres-midi)
+(deactivate 'rw-1)
 
 (deactivate 'uno-midi)
 
