@@ -1,5 +1,3 @@
-(load "megra-structures")
-
 					; generic event-generator			        
 (defclass event-processor ()
   ((pull-events)
@@ -87,13 +85,6 @@
 	      (setf (gethash (event-source event) (lastval m))
 		    (funcall (symbol-function (modified-property m)) event)))) events))
 
-
-(defparameter *bae* (midi 31 :lvl .1))
-(defparameter *bla* (make-instance 'modifying-event-processor))
-
-(setf (event-source *bae*) '(TEST.1))
-
-(setf ((symbol-function 'lvl) *bae*) 1)
 
 					; switch to preserve/not preserve state ?
 

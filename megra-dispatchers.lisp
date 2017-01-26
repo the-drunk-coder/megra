@@ -1,9 +1,5 @@
-(require 'incudine)
-(require 'cm)
-
-					; need that ?
-(load "megra-event-processors")
-					; incudine/midi init
+;(require 'incudine)
+;(require 'cm)
 
 (defclass dispatcher ()
   ((perform-dispatch)
@@ -11,7 +7,7 @@
    (handle-transition)))
 
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (let ((current-processor (gethash proc *graph-directory*)))
+  (let ((current-processor (gethash proc *processor-directory*)))
   (when (is-active current-processor) 
     (handle-events d (pull-events current-processor))
     (force-output)
@@ -31,7 +27,7 @@
   (fresh-line)
   (princ "the following events should be handled: ")
   (mapc #'(lambda (event)
-	    (princ (event-message event))
+	    (princ (msg event))
 	    (princ " from ")
 	    (princ (event-source event))
 	    (princ ", ")) events))
@@ -41,13 +37,12 @@
 (defmethod handle-events ((e event-dispatcher) events &key)
   (mapc #'handle-event events))
 
-(in-package :cm)
-					; handler methods for individual events ... 
+
+					;handler methods for individual events ... 
 (defmethod handle-event ((m midi-event) &key)
-  (cm:events (cm:new cm:midi	       
+  (events (new midi
+	       :time 0
 	       :keynum (pitch m)
 	       :duration (dur m)
 	       :amplitude (round (* 127 (lvl m))))
 	     :at (incudine:now)))
-
-

@@ -1,24 +1,5 @@
-(require 'incudine)
+;(require 'incudine)
 
-(defparameter *processor-directory* (make-hash-table :test 'eql))
-(defparameter *dispatcher-directory* (make-hash-table :test 'eql))
-
-(defmacro get-processor (processor-id)
-  `(gethash ,processor-id *processor-directory*))
-
-(defun init-megra ()
-  (incudine:rt-start)
-  (sleep 1)
-  (midi-open-default :direction :input)
-  (midi-open-default :direction :output)
-  ;(osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-  ;(osc-open-default :host "127.0.0.1" :port 3003 :direction :output)
-  ;(fudi-open-default :host "127.0.0.1" :port 3011 :direction :input)
-  ;(fudi-open-default :host "127.0.0.1" :port 3012 :direction :output)
-  (setf *out* (new incudine-stream))
-  (setf *rts-out* *out*))
-
-(in-package :common-lisp-user)
 
 					; structural
 (defun node (id &rest content)
@@ -35,8 +16,8 @@
 		    ((typep obj 'node) (insert-node new-graph obj))))
 	  graphdata)
     (if (gethash name *processor-directory*)
-	(setf (source-graph (get-processor name)) new-graph)
-	(setf (get-processor name) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
+	(setf (source-graph (gethash name *processor-directory*)) new-graph)
+	(setf (gethash name *processor-directory*) (make-instance 'graph-event-processor :graph new-graph :current-node 1))))
   name)
 
 					; dispatching
@@ -45,30 +26,31 @@
     (labels
 	((connect (processors)
 	   (when (cadr processors)
-	     (setf (successor (get-processor (car processors))) (get-processor (cadr processors)) )
+	     (setf (successor (gethash (car processors) *processor-directory* ))
+		   (gethash (cadr processors) *processor-directory*))
 	     (connect (cdr processors)))))
       (connect event-processors))
     (perform-dispatch dispatcher (car event-processors) (incudine:now))))
 
 					; modifying
 (defun brownian-motion (name param &key step wrap limit ubound lbound)
-  (setf (get-processor name) (make-instance 'brownian-motion :step step :mod-prop param
+  (setf (gethash name *processor-directory*) (make-instance 'brownian-motion :step step :mod-prop param
 					    :upper-boundary ubound
 					    :lower-boundary lbound
 					    :is-bounded limit
-					    :is-wrapped wrap)))
+					    :is-wrapped wrap)) name)
   
 
 					; events
 (defun string-event (msg)
   (make-instance 'string-event :msg msg))
 
-(defun midi (pitch &key dur lvl)
+(defun mid (pitch &key dur lvl)
   (make-instance 'midi-event :pitch pitch :level lvl :duration dur))
 
 					; miscellaneous
 (defun deactivate (event-processor-id)
-  (setf (is-active (get-processor event-processor-id)) nil))
+  (setf (is-active (gethash event-processor-id *processor-directory*)) nil))
 
 (defun activate (event-processor-id)
-  (setf (is-active (get-processor event-processor-id)) t))
+  (setf (is-active (gethash event-processor-id *processor-directory*)) t))

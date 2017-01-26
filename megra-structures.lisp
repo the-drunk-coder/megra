@@ -1,4 +1,3 @@
-(load "megra-events")
 					;the basic structure of music
 (defclass node ()
   ((global-id :accessor node-global-id)
