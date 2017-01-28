@@ -39,6 +39,14 @@
 							    :is-bounded limit
 							    :is-wrapped wrap)) name)
 
+(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type)
+  (setf (gethash name *processor-directory*) (make-instance 'oscillate-between
+							    :mod-prop param
+							    :cycle cycle
+							    :upper-boundary upper-boundary
+							    :lower-boundary lower-boundary
+							    )) name)
+
 					; events
 (defun string-event (msg)
   (make-instance 'string-event :msg msg))

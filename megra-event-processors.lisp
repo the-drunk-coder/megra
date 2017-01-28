@@ -101,13 +101,32 @@
 	      (setf (gethash (event-source event) (lastval m))
 		    (funcall (symbol-function (modified-property m)) event)))) events))
 
+;; switch to preserve/not preserve state ?
 
-					; switch to preserve/not preserve state ?
+;; oscillate a parameter between different values ...
 (defclass oscillate-between (modifying-event-processor)
   ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
    (lower-boundary :accessor lower-boundary :initarg :lower-boundary)   
+   (cycle :accessor cycle :initarg :cycle )
+   (step-count :accessor step-count :initform 0)
    (type :accessor osc-type :initarg :type)))
 
+(defun radians (numberOfDegrees) 
+  (* pi (/ numberOfDegrees 180.0)))
+
+(defmethod apply-self ((o oscillate-between) events &key)
+  (mapc #'(lambda (event)
+	    (let* ((current-value (gethash (event-source event) (lastval o)))
+		   (degree-increment (/ 360 (cycle o)))
+		   (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
+		   (abs-sin (abs (sin (radians degree))))
+		   (osc-range (- (upper-boundary o) (lower-boundary o)))
+		   (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
+	      (setf (step-count o) (+ (step-count o) 1))
+	      (setf (gethash (event-source event) (lastval o)) new-value)	      
+	      (setf (slot-value event (modified-property o)) new-value))) events))
+
+;; a random walk on whatever parameter ...
 (defclass brownian-motion (modifying-event-processor)
   ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
    (lower-boundary :accessor lower-boundary :initarg :lower-boundary)
@@ -129,7 +148,8 @@
 (defmethod apply-self ((b brownian-motion) events &key)
   (mapc #'(lambda (event)
 	    (let* ((current-value (gethash (event-source event) (lastval b)))
-		   (new-value (cap b (+ current-value (* (nth (random 2) '(-1 1)) (step-size b))))))	      	      (setf (gethash (event-source event) (lastval b)) new-value)
+		   (new-value (cap b (+ current-value (* (nth (random 2) '(-1 1)) (step-size b))))))
+	      (setf (gethash (event-source event) (lastval b)) new-value)
 	      (setf (slot-value event (modified-property b)) new-value))) events))
 
 

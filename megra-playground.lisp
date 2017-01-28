@@ -43,7 +43,8 @@
   'dos-midi)
 
 (dispatch
-  'tres-midi)
+ (oscillate-between 'o2 'lvl 0.1 0.5 :cycle 300) 
+ 'tres-midi)
 
 ;; the last graph in the chain determines the timing, so each
 ;; processor chain needs a unique ending point, but it's possible
@@ -53,8 +54,7 @@
  'tres-midi) 
 
 ;; deactivating the first processor in a chain makes it stop ...
-;; if it's a modifier, the modifier needs to be deactivated
-;; as everything is named, this shouldn't pose a problem ... 
+;; if it's a modifier, the modifier needs to be deactivated;; as everything is named, this shouldn't pose a problem ... 
 (deactivate 'uno-midi)
 (deactivate 'dos-midi)
 (deactivate 'tres-midi)
@@ -65,14 +65,13 @@
  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
  'uno-midi)
 
-(oscillate-between 'o2 'lvl 0.1 0.5) 
-
 
 ;; TBD:
 ;; oscillating event modifier
 ;; graph-theory stuff -- graph transformations etc
 ;; syncstart
 ;; midi note blocker for disklavier
+;; vugs
 
 ;; DONE:
 ;; tree-like dispatch branching -- works !
