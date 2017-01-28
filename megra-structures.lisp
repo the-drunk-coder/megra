@@ -1,4 +1,4 @@
-					;the basic structure of music
+;; the basic structure of music ...
 (defclass node ()
   ((global-id :accessor node-global-id)
    (id :accessor node-id :initarg :id)
@@ -8,22 +8,22 @@
   (setf (event-source e) (node-global-id n))
   (cons e (node-content n)))
 
-					; only probability is a structural property on this level.
-					; duration is better placed on the event level
-					; (see migra-events)
-					; and placed in the edge content
+;; only probability is a structural property on this level.
+;; duration is better placed on the event level
+;; (see migra-events)
+;; and placed in the edge content
 (defclass edge ()
   ((source :accessor edge-source :initarg :src)
    (destination :accessor edge-destination :initarg :dest)
    (probability :accessor edge-probablity :initarg :prob)
    (content :accessor edge-content :initarg :content)))
 
-					; compare edges to remove duplicates
+;; compare edges to remove duplicates
 (defmethod edge-equals ((a edge) (b edge) &key)
   (and (eql (edge-source a) (edge-source b))
        (eql (edge-destination a) (edge-destination b))))
 
-					; everything can be organized as a graph
+;; everything can be organized as a graph, really ...
 (defclass graph ()
   ((id :accessor graph-id)
    (nodes :accessor graph-nodes)
@@ -33,13 +33,17 @@
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
-; tbd: exact source addressing (graph-node-position)
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (cons (graph-id g) (node-id n)))
+  ;; set event source ids with format:
+  ;; ((GRAPH-ID . NODE-ID) . EVENT-POS) 
   (if (node-content n)
-      (mapc #'(lambda (e)
-	      (setf (event-source e) (node-global-id n)))
-	    (node-content n))); set event source ids 
+      (labels ((identify (nodes count)
+		 (if nodes
+		     (progn
+		       (setf (event-source (car nodes)) (cons (node-global-id n) count))
+		       (identify (cdr nodes) (+ 1 count))))))
+	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
 (defmethod insert-edge ((g graph) (e edge) &key)
@@ -51,13 +55,12 @@
   (hash-table-count (graph-nodes g)))
 
 
-
-					; regarding probability modification:
-					; an event is pumped through the chain and each
-					; processor knows the source of the event, as it is stored
-					; in the event.
-					; so we can modify the edge that led to that event,
-					; if applicble 
+;; regarding probability modification:
+;; an event is pumped through the chain and each
+;; processor knows the source of the event, as it is stored
+;; in the event.
+;; so we can modify the edge that led to that event,
+;; if applicble 
 
 
 

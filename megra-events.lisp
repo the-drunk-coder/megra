@@ -24,7 +24,6 @@
 
 (defclass midi-event (tuned-instrument-event) ())
 
-
 ;; combining events ... simple for now ...
 (defmethod combine-events (events-a events-b)
   (append events-a events-b))
