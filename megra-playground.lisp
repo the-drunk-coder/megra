@@ -13,7 +13,7 @@
 
 (in-package :megra)
 
-;; define test graph structures
+;; define some test graph structures
 (graph 'uno-midi
        (node 1 (mid 65 :lvl .4 :dur 50))
        (node 2 (mid 81 :lvl 1 :dur 50) (mid 50 :lvl 1 :dur 50))
@@ -30,50 +30,46 @@
        (node 1 (mid 84 :lvl .9 :dur 150))
        (edge 1 1 :prob 100 :dur 1000))
 
-(graph 'quatr-midi
-       (node 1 (mid 82 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 120))
 
-(dispatch 
- 'uno-midi
- (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
- 'tres-midi)
+;; dispatch a graph to make it sound 
+(dispatch
+  'uno-midi)
 
 (dispatch
- 'tres-midi
- 'uno-midi)
-
-(dispatch 
- 'tres-midi)
+  'dos-midi)
 
 (dispatch
   'tres-midi)
 
-(deactivate 'uno-midi)
+;; the last graph in the chain determines the timing, so each
+;; processor chain needs a unique ending point, but it's possible
+;; for multiple processors to have the same predecessor ... 
+(dispatch 
+ 'uno-midi
+ 'tres-midi) 
 
+;; deactivating the first processor in a chain makes it stop ...
+;; if it's a modifier, the modifier needs to be deactivated
+;; as everything is named, this shouldn't pose a problem ... 
+(deactivate 'uno-midi)
+(deactivate 'dos-midi)
 (deactivate 'tres-midi)
 
+;; hook an event modifier into the chain ...
 (dispatch
- 'quatr-midi)
+ 'tres-midi
+ (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+ 'uno-midi)
 
-(is-active (gethash 'quatr-midi *processor-directory*))
-
-; tree-like dispatch branching ?
-
-					; -- tbd
-					; syncstart
-					; avoid duplicate dispatches
-					; midi note blocker
-					; automatic re-activation
-(dispatch
- 'uno-midi
- 'dos-midi)
-
-					; start value is optional, if not specified,
-					; original event stuff is taken
- (oscillate-between 'o2 'lvl 0.1 0.5 :start 0.4) 
-
-(deactivate 'rw-2)
+(oscillate-between 'o2 'lvl 0.1 0.5) 
 
 
+;; TBD:
+;; oscillating event modifier
+;; syncstart
+;; midi note blocker for disklavier
 
+;; DONE:
+;; tree-like dispatch branching -- works !
+;; avoid duplicate dispatches -- works !
+;; automatic re-activation -- works !
