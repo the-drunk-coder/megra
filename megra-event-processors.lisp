@@ -1,12 +1,12 @@
-					; generic event-generator			        
+;; generic event-processor
 (defclass event-processor ()
   ((pull-events)
    (pull-transition)       
    (active :accessor is-active :initform nil)
    (successor :accessor successor)
    (has-successor)
-   (current-events)      ; abstract
-   (current-transition)  ; abstract   
+   (current-events)      ;; abstract
+   (current-transition)  ;; abstract   
    ))
 
 (defmethod has-successor ((e event-processor) &key)
@@ -24,7 +24,7 @@
 	(pull-transition (successor e)))
       (current-transition e)))
 
-					; dummy for testing, development and debugging ..
+;; dummy processor for testing, development and debugging ..
 (defclass dummy-event-processor (event-processor)
   ((name :accessor dummy-name)))
 
@@ -43,13 +43,15 @@
   (princ "dummy transition from ")
   (princ (dummy-name e)))
 
-					; graph-based event-generator ... 
+;; graph-based event-generator, the main one ...
 (defclass graph-event-processor (event-processor) 
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
    (path)))
 
 ;; strange mop-method to allow cloning events
+;; eventually the event-sources are not considered,
+;; but this shouldn't pose a problem so far ... 
 (defmethod copy-instance (object)
    (let ((copy (allocate-instance (class-of object))))
      (loop for slot in (class-slots (class-of object))
@@ -58,10 +60,12 @@
 		   (slot-value object (slot-definition-name slot)))))
      copy))
 
+;; get the current events as a copy, so that the originals won't change
+;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
   (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
-					; get the transition and set next current node
+;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
       ((choice-list (edge counter)

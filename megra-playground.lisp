@@ -20,11 +20,15 @@
        (edge 1 2 :prob 100 :dur 200)
        (edge 2 1 :prob 100 :dur 200))
 
+;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi
-       (node 1 (mid 67 :lvl .2 :dur 350))
+       (node 1 (mid 59 :lvl .8 :dur 350))
        (node 2 (mid 73 :lvl .9 :dur 350))
-       (edge 1 2 :prob 100 :dur 500)
-       (edge 2 1 :prob 100 :dur 500))
+       (node 3 (mid 78 :lvl .9 :dur 350))
+       (edge 1 2 :prob 50 :dur 500)
+       (edge 1 3 :prob 50 :dur 750)
+       (edge 2 1 :prob 100 :dur 500)
+       (edge 3 1 :prob 100 :dur 250))
 
 (graph 'tres-midi
        (node 1 (mid 84 :lvl .9 :dur 150))
@@ -66,6 +70,7 @@
 
 ;; TBD:
 ;; oscillating event modifier
+;; graph-theory stuff -- graph transformations etc
 ;; syncstart
 ;; midi note blocker for disklavier
 
