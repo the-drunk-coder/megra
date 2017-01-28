@@ -1,5 +1,4 @@
-;(require 'incudine)
-;(require 'cm)
+;; event dispatchers and related stuff ... 
 
 (defclass dispatcher ()
   ((perform-dispatch)
@@ -11,16 +10,17 @@
   (when (is-active current-processor) 
     (handle-events d (pull-events current-processor))
     (force-output)
-    (let ((next (+ time (* 50 (handle-transition d (pull-transition current-processor))))))
+    (let* ((trans-time (handle-transition d (pull-transition current-processor)))
+	   (next (+ time #[trans-time ms])))
       (incudine:at next #'perform-dispatch d proc next)))))
 
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
   (fresh-line)
-  (princ "the next events should happen in: ")
-  (princ (transition-duration tr))
+  ;;(princ "the next events should happen in: ")
+  ;;(princ (transition-duration tr))
   (transition-duration tr))	 
 
-					; dummy for testing and development
+;; dummy dispatcher for testing and development
 (defclass string-dispatcher (dispatcher) ())
 
 (defmethod handle-events ((s string-dispatcher) events &key)
@@ -32,13 +32,13 @@
 	    (princ (event-source event))
 	    (princ ", ")) events))
 
+;; the main event dispatcher
 (defclass event-dispatcher (dispatcher) ())
 
 (defmethod handle-events ((e event-dispatcher) events &key)
   (mapc #'handle-event events))
 
-
-					;handler methods for individual events ... 
+;; handler methods for individual events ... 
 (defmethod handle-event ((m midi-event) &key)
   (events (new midi
 	       :time 0

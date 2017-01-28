@@ -1,8 +1,9 @@
 (require 'cm)
-;(require 'incudine)
+(require 'closer-mop)
+;;(require 'incudine)
 
 (defpackage "MEGRA"
-  (:use "COMMON-LISP" "CM")
+  (:use "COMMON-LISP" "CM" "SB-MOP")
   (:export "graph"
 	   "brownian-motion"
 	   "dispatch"
@@ -21,4 +22,4 @@
 (load "megra-event-processors")
 (load "megra-dispatchers")
 (load "megra-constructors")
-;(load "megra-init")
+(load "megra-init")

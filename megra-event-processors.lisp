@@ -49,8 +49,17 @@
    (current-node :accessor current-node :initarg :current-node)
    (path)))
 
+;; strange mop-method to allow cloning events
+(defmethod copy-instance (object)
+   (let ((copy (allocate-instance (class-of object))))
+     (loop for slot in (class-slots (class-of object))
+	do (when (slot-boundp-using-class (class-of object) object slot)
+	     (setf (slot-value copy (slot-definition-name slot))
+		   (slot-value object (slot-definition-name slot)))))
+     copy))
+
 (defmethod current-events ((g graph-event-processor) &key)
-  (node-content (gethash (current-node g) (graph-nodes (source-graph g)))))
+  (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
 					; get the transition and set next current node
 (defmethod current-transition ((g graph-event-processor) &key)
@@ -76,9 +85,8 @@
   ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)))
 
-(defmethod current-transition ((m modifying-event-processor) &key)
-					;pass)
-    )
+;; pass
+(defmethod current-transition ((m modifying-event-processor) &key))
 
 (defmethod initialize-instance :after ((m modifying-event-processor) &key)
   (setf (lastval m) (make-hash-table :test 'eql)))
@@ -91,7 +99,6 @@
 
 
 					; switch to preserve/not preserve state ?
-
 (defclass oscillate-between (modifying-event-processor)
   ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
    (lower-boundary :accessor lower-boundary :initarg :lower-boundary)   

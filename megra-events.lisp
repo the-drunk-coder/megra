@@ -1,4 +1,4 @@
-					;the atomic units of music
+;; the atomic units of music - event and transition ...
 (defclass event ()
     ((source :accessor event-source)))
 
@@ -25,7 +25,7 @@
 (defclass midi-event (tuned-instrument-event) ())
 
 
-					;simple for now ...
+;; combining events ... simple for now ...
 (defmethod combine-events (events-a events-b)
   (append events-a events-b))
 

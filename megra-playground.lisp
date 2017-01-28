@@ -1,24 +1,19 @@
 (load "megra-package")
 
-(in-package :cm)
-
-; haven't found a solution to wrap this in a function yet
+;; init sound/midi processing
 (progn
-  (incudine:rt-start)
-  (sleep 1)
-  (midi-open-default :direction :input)
-  (midi-open-default :direction :output)
-  (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-  (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
-  (setf *out* (new incudine-stream))
-  (setf *rts-out* *out*))
-
+    (incudine:rt-start)
+    (sleep 1)
+    (midi-open-default :direction :input)
+    (midi-open-default :direction :output)
+    (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
+    (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
+    (setf *out* (new incudine-stream))
+    (setf *rts-out* *out*))
 
 (in-package :megra)
 
-
-
-					; define test graph structures
+;; define test graph structures
 (graph 'uno-midi
        (node 1 (mid 65 :lvl .4 :dur 50))
        (node 2 (mid 81 :lvl 1 :dur 50))
@@ -33,13 +28,11 @@
 
 (graph 'tres-midi
        (node 1 (mid 84 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 120))
+       (edge 1 1 :prob 100 :dur 500))
 
 (graph 'quatr-midi
        (node 1 (mid 82 :lvl .9 :dur 150))
        (edge 1 1 :prob 100 :dur 120))
-
-
 
 (dispatch 
  'uno-midi
@@ -56,10 +49,9 @@
  (brownian-motion 'tres-rw 'pitch :step 2 :ubound 84 :lbound 50 :wrap t)
  'tres-midi)
 
-(deactivate 'tres-rw)
-
 (deactivate 'uno-midi)
 
+(deactivate 'tres-midi)
 
 (dispatch
  'quatr-midi)
