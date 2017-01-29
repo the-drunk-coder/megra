@@ -33,7 +33,7 @@
 
 (graph 'tres-midi
        (node 1 (mid 84 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 200))
+       (edge 1 1 :prob 100 :dur 100))
 
 
 ;; dispatch a graph to make it sound 
@@ -45,21 +45,23 @@
 (dispatch
   'dos-midi)
 
+;; PERMANENT CHANGE
 ;; this should be passed as parameter to (graph ... )
 ;; so i might have to replace (graph ..) by a macro ??
 (setf (copy-events (gethash 'tres-midi *processor-directory*)) nil)
 
 (dispatch
- (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t :track-state nil)
+ (brownian-motion 'tres-rw 'pitch :step 2 :ubound 84 :lbound 50 :wrap t :track-state nil)
+ (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 200) 
+ 'tres-midi)
+
+;; TRANSITORY STATE (default)
+(dispatch
+ (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t)
  (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 100) 
  'tres-midi)
 
-
-
 (deactivate 'tres-rw)
-
-
-
 
 (deactivate 'dos-midi)
 
@@ -82,7 +84,6 @@
  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
  'uno-midi)
 
-
 ;; TBD:
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
 ;; arranging modifiers in graphs ...
@@ -103,3 +104,23 @@
 ;; tree-like dispatch branching -- works !
 ;; avoid duplicate dispatches -- works !
 ;; automatic re-activation -- works !
+
+
+(in-package :scratch)
+
+(dsp! bplay ((buf buffer) rate start-pos (loop-p boolean))
+  (foreach-channel
+    (cout (buffer-play buf rate start-pos loop-p #'stop))))
+
+(defvar loop-1 (buffer-load "/home/nik/SAMPLES/02_instruments/03_bright_tibetan_bell.wav"))
+(describe loop-1)
+
+(bplay loop-1 8.1 0 t :id 1)
+
+(free 1)
+
+(require :incudine-lv2)
+
+(in-package :scratch)
+
+(lv2->vug "http://plugin.org.uk/swh-plugins/amp" swh.gverb)
