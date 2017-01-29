@@ -1,6 +1,7 @@
 (load "megra-package")
 
 ;; init sound/midi processing
+(in-package :cm)
 (progn
     (incudine:rt-start)
     (sleep 1)
@@ -39,11 +40,13 @@
 (dispatch
   'uno-midi)
 
+(deactivate 'uno-midi)
+
 (dispatch
   'dos-midi)
 
 (dispatch
- (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+ (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t)
  (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 100) 
  'tres-midi)
 

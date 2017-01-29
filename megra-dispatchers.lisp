@@ -5,14 +5,13 @@
    (handle-events)
    (handle-transition)))
 
+;; simple time-recursive dispatching
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (let ((current-processor (gethash proc *processor-directory*)))
-  (when (is-active current-processor) 
-    (handle-events d (pull-events current-processor))
-    (force-output)
-    (let* ((trans-time (handle-transition d (pull-transition current-processor)))
+  (when (is-active (gethash proc *processor-directory*)) 
+    (handle-events d (pull-events (gethash proc *processor-directory*)))
+    (let* ((trans-time (handle-transition d (pull-transition (gethash proc *processor-directory*))))
 	   (next (+ time #[trans-time ms])))
-      (incudine:at next #'perform-dispatch d proc next)))))
+      (incudine:at next #'perform-dispatch d proc next))))
 
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
   (fresh-line)
