@@ -45,14 +45,21 @@
 (dispatch
   'dos-midi)
 
+;; this should be passed as parameter to (graph ... )
+;; so i might have to replace (graph ..) by a macro ??
+(setf (copy-events (gethash 'tres-midi *processor-directory*)) nil)
+
 (dispatch
- (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t)
+ (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t :track-state nil)
  (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 100) 
  'tres-midi)
 
-(is-active (gethash 'tres-rw *processor-directory*))
+
 
 (deactivate 'tres-rw)
+
+
+
 
 (deactivate 'dos-midi)
 
@@ -77,13 +84,21 @@
 
 
 ;; TBD:
-;; eventually make multiple dispatching possible ... 
+;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
+;; arranging modifiers in graphs ...
+;; define meaningful behaviour for non-mandatory modifiers ...
+;; (chance ...) shortcut ... even though the semantics of "chance" is
+;;    slightly different, as is evaluates the chance of something to happen for the current
+;;    event, whereas a graph modifies the modification for the next event ... 
 ;; graph-theory stuff -- graph transformations etc
 ;; syncstart
 ;; midi note blocker for disklavier
 ;; vugs
+;; get rid of deactivating error msg ...
 
 ;; DONE:
+;; (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t TRACK-STATE: nil) -- makes sense in comination with below ... ??
+;; (graph 'xyz :copy-events nil) --- original events are sent out, makes sense in comination with the above
 ;; oscillating event modifier -- works !
 ;; tree-like dispatch branching -- works !
 ;; avoid duplicate dispatches -- works !

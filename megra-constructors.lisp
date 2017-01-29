@@ -29,28 +29,32 @@
     (connect event-processors))
   ;; if the first event-processor is not active yet, create a dispatcher to dispatch it ... 
   (unless (is-active (gethash (car event-processors) *processor-directory*))
-    (princ "new dispatcher")
+    ;;(princ "new dispatcher")
     (let ((dispatcher (make-instance 'event-dispatcher)))
       (activate (car event-processors))      
       (perform-dispatch dispatcher (car event-processors) (incudine:now))))) 
 
 ;; modifying ... always check if the modifier is already present !
-(defun brownian-motion (name param &key step wrap limit ubound lbound)
-  (unless (gethash name *processor-directory*)
-    (setf (gethash name *processor-directory*) (make-instance 'brownian-motion :step step :mod-prop param
-							      :upper-boundary ubound
-							      :lower-boundary lbound
-							      :is-bounded limit
-							      :is-wrapped wrap)))
+(defun brownian-motion (name param &key step wrap limit ubound lbound (track-state t))
+  (let ((new-inst (make-instance 'brownian-motion :step step :mod-prop param
+				 :upper-boundary ubound
+				 :lower-boundary lbound
+				 :is-bounded limit
+				 :is-wrapped wrap
+				 :track-state track-state)))
+    (when (gethash name *processor-directory*)
+      (setf (is-active new-inst) t))
+    (setf (gethash name *processor-directory*) new-inst))
   name)
 
-(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type)
+(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type (track-state t))
   (unless (gethash name *processor-directory*)
     (setf (gethash name *processor-directory*) (make-instance 'oscillate-between
 							      :mod-prop param
 							      :cycle cycle
 							      :upper-boundary upper-boundary
 							      :lower-boundary lower-boundary
+							      :track-state track-state
 							      )))
   name)
 
@@ -63,7 +67,8 @@
 
 ;; miscellaneous
 (defun deactivate (event-processor-id)
-  (setf (is-active (gethash event-processor-id *processor-directory*)) nil))
+  (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
+  (setf (gethash event-processor-id *processor-directory*) nil))
 
 (defun activate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) t))

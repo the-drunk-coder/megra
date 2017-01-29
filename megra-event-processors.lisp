@@ -47,6 +47,7 @@
 (defclass graph-event-processor (event-processor) 
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
+   (copy-events :accessor copy-events :initarg :copy-events :initform t)
    (path)))
 
 ;; strange mop-method to allow cloning events
@@ -63,7 +64,9 @@
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
-  (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
+  (if (copy-events g)
+      (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g)))))
+      (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
 ;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)
@@ -87,7 +90,8 @@
 
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)
-   (last-values-by-source :accessor lastval)))
+   (last-values-by-source :accessor lastval)
+   (track-state :accessor track-state :initarg :track-state :initform t)))
 
 ;; pass
 (defmethod current-transition ((m modifying-event-processor) &key))
@@ -101,6 +105,11 @@
 	      (setf (gethash (event-source event) (lastval m))
 		    (funcall (symbol-function (modified-property m)) event)))) events))
 
+(defmethod get-current-value ((m modifying-event-processor) (e event) &key)
+  (if (track-state m)
+      (gethash (event-source e) (lastval m))
+      (funcall (symbol-function (modified-property m)) e)))
+
 ;; switch to preserve/not preserve state ?
 
 ;; oscillate a parameter between different values ...
@@ -111,12 +120,13 @@
    (step-count :accessor step-count :initform 0)
    (type :accessor osc-type :initarg :type)))
 
+;; helper ...
 (defun radians (numberOfDegrees) 
   (* pi (/ numberOfDegrees 180.0)))
 
 (defmethod apply-self ((o oscillate-between) events &key)
   (mapc #'(lambda (event)
-	    (let* ((current-value (gethash (event-source event) (lastval o)))
+	    (let* ((current-value (get-current-value o event))
 		   (degree-increment (/ 360 (cycle o)))
 		   (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
 		   (abs-sin (abs (sin (radians degree))))
@@ -146,9 +156,10 @@
 	       (t value)))
 	(t value)))
 
+;; make state-tracking switchable ??? 
 (defmethod apply-self ((b brownian-motion) events &key)
   (mapc #'(lambda (event)
-	    (let* ((current-value (gethash (event-source event) (lastval b)))
+	    (let* ((current-value (get-current-value b event))
 		   (new-value (cap b (+ current-value (* (nth (random 2) '(-1 1)) (step-size b))))))
 	      (setf (gethash (event-source event) (lastval b)) new-value)
 	      (setf (slot-value event (modified-property b)) new-value))) events))
