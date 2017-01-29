@@ -122,7 +122,7 @@
 		   (abs-sin (abs (sin (radians degree))))
 		   (osc-range (- (upper-boundary o) (lower-boundary o)))
 		   (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
-	      (setf (step-count o) (+ (step-count o) 1))
+	      (setf (step-count o) (1+ (step-count o)))
 	      (setf (gethash (event-source event) (lastval o)) new-value)	      
 	      (setf (slot-value event (modified-property o)) new-value))) events))
 
@@ -134,6 +134,7 @@
    (is-bounded :accessor is-bounded :initarg :is-bounded)
    (is-wrapped :accessor is-wrapped :initarg :is-wrapped)))
 
+;; cap or wrap ...
 (defmethod cap ((b brownian-motion) value &key)
   (cond ((is-bounded b)
 	 (cond ((< value (lower-boundary b)) (lower-boundary b))

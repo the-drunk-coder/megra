@@ -32,7 +32,7 @@
 
 (graph 'tres-midi
        (node 1 (mid 84 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 1000))
+       (edge 1 1 :prob 100 :dur 200))
 
 
 ;; dispatch a graph to make it sound 
@@ -43,8 +43,15 @@
   'dos-midi)
 
 (dispatch
- (oscillate-between 'o2 'lvl 0.1 0.5 :cycle 300) 
+ (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+ (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 100) 
  'tres-midi)
+
+(is-active (gethash 'tres-rw *processor-directory*))
+
+(deactivate 'tres-rw)
+
+(deactivate 'dos-midi)
 
 ;; the last graph in the chain determines the timing, so each
 ;; processor chain needs a unique ending point, but it's possible
@@ -67,13 +74,14 @@
 
 
 ;; TBD:
-;; oscillating event modifier
+;; eventually make multiple dispatching possible ... 
 ;; graph-theory stuff -- graph transformations etc
 ;; syncstart
 ;; midi note blocker for disklavier
 ;; vugs
 
 ;; DONE:
+;; oscillating event modifier -- works !
 ;; tree-like dispatch branching -- works !
 ;; avoid duplicate dispatches -- works !
 ;; automatic re-activation -- works !
