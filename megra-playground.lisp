@@ -106,21 +106,6 @@
 ;; automatic re-activation -- works !
 
 
-(in-package :scratch)
 
-(dsp! bplay ((buf buffer) rate start-pos (loop-p boolean))
-  (foreach-channel
-    (cout (buffer-play buf rate start-pos loop-p #'stop))))
 
-(defvar loop-1 (buffer-load "/home/nik/SAMPLES/02_instruments/03_bright_tibetan_bell.wav"))
-(describe loop-1)
 
-(bplay loop-1 8.1 0 t :id 1)
-
-(free 1)
-
-(require :incudine-lv2)
-
-(in-package :scratch)
-
-(lv2->vug "http://plugin.org.uk/swh-plugins/amp" swh.gverb)

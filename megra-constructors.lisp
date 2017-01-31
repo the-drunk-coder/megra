@@ -65,6 +65,12 @@
 (defun mid (pitch &key dur lvl)
   (make-instance 'midi-event :pitch pitch :level lvl :duration dur))
 
+(defun grain (folder file &key (speed 1.0) (pos 0.5) (lvl 0.5) (start 0.0)
+			    (hp-freq 10) (hp-q 1)
+			    (pf-freq 1000) (pf-q 10) (pf-gain 0.0)
+			    (lp-freq 19000) (lp-q 1) (lp-dist 0.0)
+			   ))
+
 ;; miscellaneous
 (defun deactivate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
@@ -72,3 +78,4 @@
 
 (defun activate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) t))
+

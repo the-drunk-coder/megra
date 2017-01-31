@@ -44,4 +44,25 @@
 	       :keynum (pitch m)
 	       :duration (dur m)
 	       :amplitude (round (* 127 (lvl m))))
-	     :at (incudine:now)))
+	  :at (incudine:now)))
+
+
+
+
+(defmethod handle-event ((g grain-event) &key)
+    (let ((sample-filename
+	   (concatenate 'string *sample-root* (sample-folder g) "/" (sample-file g) ".wav")))
+      (unless (gethash sample-filename *buffer-directory*)
+	(let* ((buffer (buffer-load sample-filename))
+	       (bdata (make-buffer-data :buffer buffer
+					:buffer-rate (/ (buffer-sample-rate buffer)
+							(buffer-frames buffer))
+					:buffer-frames (buffer-frames buffer))))
+	  (setf (gethash sample-filename *buffer-directory*) bdata)))
+      (let ((bdata (gethash sample-filename *buffer-directory*)))
+
+	)
+
+      )
+
+  )
