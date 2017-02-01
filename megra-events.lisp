@@ -9,39 +9,40 @@
   ((pitch :accessor pitch :initarg :pitch)))
 
 (defclass level-event (event)
-  ((lvl :accessor lvl :initarg :level)))
+  ((lvl :accessor lvl :initarg :lvl)))
 
 (defclass duration-event (event)
-  ((dur :accessor dur :initarg :duration)))
+  ((dur :accessor dur :initarg :dur)))
 
 (defclass instrument-event (event)
-  ((inst :accessor inst :initarg :instrument)))
+  ((inst :accessor inst :initarg :inst)))
 
 (defclass spatial-event (event)
-  ((pos :accessor pos :initarg :position :initform 0.5)))
+  ((pos :accessor pos :initarg :pos)))
 
 (defclass tuned-instrument-event (pitch-event instrument-event level-event duration-event) ())
 
 (defclass midi-event (tuned-instrument-event) ())
 
 (defclass grain-event (level-event duration-event spatial-event)
-  ((speed :initarg :speed :initform 1.0)
-   (start :accessor start :initarg :start :initform 0.0)
-   (hp-freq :accessor hp-freq :initarg :hp-freq :initform 10)
-   (hp-q :accessor hp-q :initarg :hp-q :initform 1)
-   (pf-freq :accessor peak-freq :initarg :peak-freq :initform 1000)
-   (pf-q :accessor peak-q :initarg :peak-q :initform 10 )
-   (pf-gain :accessor peak-gain :initarg :pf-gain :initform 0.0) 
-   (lp-freq :accessor lp-freq :initarg :lp-freq :initform 19000)
-   (lp-q :accessor lp-q :initarg :lp-q :initform 1.0)
-   (lp-dist :accessor lp-dist :initarg :lp-dist :initform 0.0)
+  ((rate :accessor rate :initarg :rate)
+   (start :accessor start :initarg :start)
+   (hp-freq :accessor hp-freq :initarg :hp-freq)
+   (hp-q :accessor hp-q :initarg :hp-q)
+   (pf-freq :accessor pf-freq :initarg :pf-freq)
+   (pf-q :accessor pf-q :initarg :pf-q)
+   (pf-gain :accessor pf-gain :initarg :pf-gain) 
+   (lp-freq :accessor lp-freq :initarg :lp-freq)
+   (lp-q :accessor lp-q :initarg :lp-q)
+   (lp-dist :accessor lp-dist :initarg :lp-dist)
    (atk :accessor atk :initarg :atk)
-   (len :accessor len :initarg :len)
    (rel :accessor rel :initarg :rel)   
-   (sample-folder :accessor sample-folder)
-   (sample-file :accessor sample-file)))
+   (sample-folder :accessor sample-folder :initarg :sample-folder)
+   (sample-file :accessor sample-file :initarg :sample-file)
+   (sample-location :accessor sample-location)))
 
-
+(defmethod initialize-instance :after ((g grain-event) &key)
+  (setf (sample-location g) (concatenate 'string *sample-root* (sample-folder g) "/" (sample-file g) ".wav")))
 
 ;; combining events ... simple for now ...
 (defmethod combine-events (events-a events-b)

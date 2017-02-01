@@ -1,6 +1,6 @@
-(load "megra-package")
-
-;; init sound/midi processing
+;; required packages
+(require 'cm)
+;; first start incudine (otherwise the read-macros are not working ...)
 (in-package :cm)
 (progn
     (incudine:rt-start)
@@ -11,6 +11,11 @@
     (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
     (setf *out* (new incudine-stream))
     (setf *rts-out* *out*))
+
+;; then load the megra dsp stuff .. wait until compilation has finished !!
+(load "megra-dsp")
+
+(load "megra-package")
 
 (in-package :megra)
 
@@ -34,6 +39,17 @@
 (graph 'tres-midi
        (node 1 (mid 84 :lvl .9 :dur 150))
        (edge 1 1 :prob 100 :dur 100))
+
+(graph 'the-grain
+       (node 1 (grain "misc" "tada" :dur 128 :lvl 1.0 :rate 0.5))
+       (edge 1 1 :prob 100 :dur 32))
+
+
+(dispatch
+ (oscillate-between 'rate-o 'rate 0.2 1.3 :cycle 40) 
+ 'the-grain)
+
+(deactivate 'rate-o)
 
 
 ;; dispatch a graph to make it sound 

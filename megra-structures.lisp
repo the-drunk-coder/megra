@@ -50,7 +50,6 @@
   (let ((edges (gethash (edge-source e) (graph-edges g))))
     (setf (gethash (edge-source e) (graph-edges g))
 	  (remove-duplicates (cons e edges) :test #'edge-equals))))
-
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
 

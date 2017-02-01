@@ -46,23 +46,29 @@
 	       :amplitude (round (* 127 (lvl m))))
 	  :at (incudine:now)))
 
-
-
-
 (defmethod handle-event ((g grain-event) &key)
-    (let ((sample-filename
-	   (concatenate 'string *sample-root* (sample-folder g) "/" (sample-file g) ".wav")))
-      (unless (gethash sample-filename *buffer-directory*)
-	(let* ((buffer (buffer-load sample-filename))
-	       (bdata (make-buffer-data :buffer buffer
-					:buffer-rate (/ (buffer-sample-rate buffer)
-							(buffer-frames buffer))
-					:buffer-frames (buffer-frames buffer))))
-	  (setf (gethash sample-filename *buffer-directory*) bdata)))
-      (let ((bdata (gethash sample-filename *buffer-directory*)))
-
-	)
-
-      )
-
-  )
+  (unless (gethash (sample-location g) *buffer-directory*)
+    (let* ((buffer (incudine:buffer-load (sample-location g)))
+	   (bdata (make-buffer-data :buffer buffer
+				    :buffer-rate (/ (incudine:buffer-sample-rate buffer)
+						    (incudine:buffer-frames buffer))
+				    :buffer-frames (incudine:buffer-frames buffer))))
+      (setf (gethash (sample-location g) *buffer-directory*) bdata)))
+  (let ((bdata (gethash (sample-location g) *buffer-directory*)))
+    (scratch::megra-grain (buffer-data-buffer bdata)
+		 (buffer-data-buffer-rate bdata)
+		 (buffer-data-buffer-frames bdata)
+		 (rate g)
+		 (start g)
+		 (lp-freq g)
+		 (lp-q g)
+		 (lp-dist g)
+		 (pf-freq g)
+		 (pf-q g)
+		 (pf-gain g)
+		 (hp-freq g)
+		 (hp-q g)
+		 (* (atk g) 0.001)
+		 (* (- (dur g) (atk g) (rel g)) 0.001)
+		 (* (rel g) 0.001)
+		 (pos g))))

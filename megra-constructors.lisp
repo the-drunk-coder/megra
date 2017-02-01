@@ -63,13 +63,29 @@
   (make-instance 'string-event :msg msg))
 
 (defun mid (pitch &key dur lvl)
-  (make-instance 'midi-event :pitch pitch :level lvl :duration dur))
+  (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur))
 
-(defun grain (folder file &key (speed 1.0) (pos 0.5) (lvl 0.5) (start 0.0)
-			    (hp-freq 10) (hp-q 1)
-			    (pf-freq 1000) (pf-q 10) (pf-gain 0.0)
-			    (lp-freq 19000) (lp-q 1) (lp-dist 0.0)
-			   ))
+(defun grain (folder file &key  (dur 256)
+			    (lvl 0.5)
+			    (pos 0.5)
+			    (start 0.0)
+			    (rate 1.0)
+			    (hp-freq 10)
+			    (hp-q 1)
+			    (pf-freq 1000)
+			    (pf-q 10)
+			    (pf-gain 0.0)
+			    (lp-freq 19000)
+			    (lp-q 1)
+			    (lp-dist 0.0)
+			    (atk 7)
+			    (rel 7)
+			    )
+  (make-instance 'grain-event :lvl lvl :dur dur :start start :pos pos :hp-freq hp-freq
+		 :rate rate :hp-freq hp-freq :hp-q hp-q
+		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
+		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist
+		 :atk atk :rel rel :sample-folder folder :sample-file file))
 
 ;; miscellaneous
 (defun deactivate (event-processor-id)

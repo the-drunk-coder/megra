@@ -1,22 +1,36 @@
-(require 'cm)
+;(require 'cm)
 (require 'closer-mop)
-;;(require 'incudine)
 
 (defpackage "MEGRA"
-  (:use "COMMON-LISP" "CM" "SB-MOP")
-  (:export "graph"
-	   "brownian-motion"
-	   "dispatch"
-	   "node"
-	   "edge"
-	   "mid"
-	   "megra-init"
-	   "megra-stop"))
+ (:use "COMMON-LISP" "CM" "SB-MOP")
+ (:export "graph"
+	  "brownian-motion"
+	  "dispatch"
+	  "node"
+	  "edge"
+	  "mid"
+	  "grain"
+	  "megra-init"
+	  "megra-stop"
+	  "handle-event"))
 
 (in-package :megra)
 
+;; main storage for event processors
 (defparameter *processor-directory* (make-hash-table :test 'eql))
 
+;; helper structure to store sample data
+(defstruct buffer-data 
+  buffer
+  buffer-rate
+  buffer-frames)
+
+;; storage for sample buffers 
+(defparameter *buffer-directory* (make-hash-table :test 'equal))
+;; sample root folder 
+(defparameter *sample-root* "/home/nik/SAMPLES/" )
+
+;; load the megra stuff except for dsp ...
 (load "megra-events")
 (load "megra-structures")
 (load "megra-event-processors")
