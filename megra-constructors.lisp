@@ -48,14 +48,14 @@
   name)
 
 (defun oscillate-between (name param upper-boundary lower-boundary &key cycle type (track-state t))
-  (unless (gethash name *processor-directory*)
-    (setf (gethash name *processor-directory*) (make-instance 'oscillate-between
-							      :mod-prop param
-							      :cycle cycle
-							      :upper-boundary upper-boundary
-							      :lower-boundary lower-boundary
-							      :track-state track-state
-							      )))
+  (let ((new-inst (make-instance 'oscillate-between :mod-prop param
+				 :cycle cycle
+				 :upper-boundary upper-boundary
+				 :lower-boundary lower-boundary
+				 :track-state track-state)))
+    (when (gethash name *processor-directory*)
+      (setf (is-active new-inst) t))
+    (setf (gethash name *processor-directory*) new-inst))
   name)
 
 ;; events

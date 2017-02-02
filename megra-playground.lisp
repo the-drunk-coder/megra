@@ -1,16 +1,7 @@
-;; required packages
-(require 'cm)
-;; first start incudine (otherwise the read-macros are not working ...)
-(in-package :cm)
-(progn
-    (incudine:rt-start)
-    (sleep 1)
-    (midi-open-default :direction :input)
-    (midi-open-default :direction :output)
-    (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-    (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
-    (setf *out* (new incudine-stream))
-    (setf *rts-out* *out*))
+;; initialize
+(load "megra-init")
+
+(megra-init)
 
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
 (load "megra-dsp")
@@ -41,16 +32,32 @@
        (edge 1 1 :prob 100 :dur 100))
 
 (graph 'the-grain
-       (node 1 (grain "misc" "tada" :dur 128 :lvl 1.0 :rate 0.5))
-       (edge 1 1 :prob 100 :dur 32))
+       (node 1 (grain "misc" "tada" :dur 256 :lvl 0.5 :rate 0.5 :atk 64 :rel 64))
+       (edge 1 1 :prob 100 :dur 64))
 
+(graph 'the-512-beat
+       (node 1 (grain "03_electronics" "01_808_long_kick" :dur 256
+		      :lvl 1.0 :rate 1.0 :start 0.001 :atk 0.1 :lp-dist 1.0 :lp-freq 600))
+       (node 2 (grain "03_electronics" "08_fat_snare" :dur 128 :atk 0.1 :lvl 0.5 :rate 0.4))
+       (edge 1 2 :prob 100 :dur 256)
+       (edge 2 1 :prob 100 :dur 256))
 
 (dispatch
- (oscillate-between 'rate-o 'rate 0.2 1.3 :cycle 40) 
+ (oscillate-between 'lp-freq-b 'lp-freq 100 8000 :cycle 100)
+ (oscillate-between 'q-b 'lp-q 0.1 1.0 :cycle 50) 
+ (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400) 
+ 'the-512-beat)
+
+(dispatch
+ (brownian-motion 'start-b 'start :step 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
+ (oscillate-between 'lp-freq-c 'lp-freq 100 8000 :cycle 1000)
+ (oscillate-between 'q-c 'lp-q 0.1 1.0 :cycle 50)
+ (oscillate-between 'pos-c 'pos 0.4 0.8 :cycle 50) 
+ (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
  'the-grain)
 
-(deactivate 'rate-o)
-
+(deactivate 'the-512-beat)
+(deactivate 'rate-b)
 
 ;; dispatch a graph to make it sound 
 (dispatch
@@ -101,6 +108,8 @@
  'uno-midi)
 
 ;; TBD:
+;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,
+;;     multiple dispatiching will happen !
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
