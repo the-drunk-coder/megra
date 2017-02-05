@@ -4,6 +4,7 @@
 (megra-init)
 
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
+(compile-file "megra-dsp")
 (load "megra-dsp")
 
 (load "megra-package")
@@ -11,14 +12,22 @@
 (in-package :megra)
 
 ;; define some test graph structures
-(graph 'uno-midi
+(graph 'uno-midi ()
        (node 1 (mid 65 :lvl .4 :dur 50))
        (node 2 (mid 81 :lvl 1 :dur 50) (mid 50 :lvl 1 :dur 50))
        (edge 1 2 :prob 100 :dur 200)
        (edge 2 1 :prob 100 :dur 200))
 
+(activate 'uno-midi)
+
+(dispatch 'uno-midi)
+
+(handle-event (mid 81 :lvl 1 :dur 50))
+
+(handle-event (grain "misc" "tada" :dur 256 :lvl 0.5 :rate 0.5 :atk 64 :rel 64))
+
 ;; individual graphs are basically first-order markov chains ...
-(graph 'dos-midi
+(graph 'dos-midi ()
        (node 1 (mid 59 :lvl .8 :dur 350))
        (node 2 (mid 73 :lvl .9 :dur 350))
        (node 3 (mid 78 :lvl .9 :dur 350))
@@ -27,25 +36,23 @@
        (edge 2 1 :prob 100 :dur 500)
        (edge 3 1 :prob 100 :dur 250))
 
-(graph 'tres-midi
-       (node 1 (mid 84 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 100))
-
-(graph 'the-grain
+(graph 'the-grain (:perma t) 
        (node 1 (grain "misc" "tada" :dur 256 :lvl 0.5 :rate 0.5 :atk 64 :rel 64))
        (edge 1 1 :prob 100 :dur 64))
 
-(graph 'the-512-beat
+(graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 256
 		      :lvl 1.0 :rate 1.0 :start 0.001 :atk 0.1 :lp-dist 1.0 :lp-freq 600))
        (node 2 (grain "03_electronics" "08_fat_snare" :dur 128 :atk 0.1 :lvl 0.5 :rate 0.4))
        (edge 1 2 :prob 100 :dur 256)
        (edge 2 1 :prob 100 :dur 256))
 
+
 (dispatch
  (oscillate-between 'lp-freq-b 'lp-freq 100 8000 :cycle 100)
+ (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)
+ (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)
  (oscillate-between 'q-b 'lp-q 0.1 1.0 :cycle 50) 
- (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400) 
  'the-512-beat)
 
 (dispatch
@@ -56,8 +63,12 @@
  (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
  'the-grain)
 
-(deactivate 'the-512-beat)
-(deactivate 'rate-b)
+(dispatch 'the-grain)
+
+(deactivate 'the-grain)
+
+(deactivate 'lp-freq-b)
+(deactivate 'start-b)
 
 ;; dispatch a graph to make it sound 
 (dispatch
@@ -71,11 +82,14 @@
 ;; PERMANENT CHANGE
 ;; this should be passed as parameter to (graph ... )
 ;; so i might have to replace (graph ..) by a macro ??
-(setf (copy-events (gethash 'tres-midi *processor-directory*)) nil)
+;(setf (copy-events (gethash 'tres-midi *processor-directory*)) nil)
+
+(graph 'tres-midi (:perma t)
+       (node 1 (mid 84 :lvl .9 :dur 150))
+       (edge 1 1 :prob 100 :dur 100))
+
 
 (dispatch
- (brownian-motion 'tres-rw 'pitch :step 2 :ubound 84 :lbound 50 :wrap t :track-state nil)
- (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 200) 
  'tres-midi)
 
 ;; TRANSITORY STATE (default)
