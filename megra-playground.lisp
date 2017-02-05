@@ -86,17 +86,15 @@
 (clear)
 
 (graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 200))
+       (node 1 (mid 84 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 100))
 
 (deactivate 'lvl-o)
 
 (dispatch ()
  'tres-midi)
 
-(dispatch (:unique nil)
-  (oscillate-between 'lvl-o 'lvl 0.0 1.0 :cycle 140) 
-  (brownian-motion 'tres-br 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)
+(dispatch ()
   'tres-midi)
 
 (setf (is-active (gethash 'lvl-o *processor-directory*)) nil)
@@ -126,8 +124,6 @@
 
 ;; TBD:
 ;; fix midi note duration, bzw. make it effective
-;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,
-;;     multiple dispatiching will happen !
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
@@ -141,6 +137,8 @@
 ;; get rid of deactivating error msg ...
 
 ;; DONE:
+;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,
+;;     multiple dispatiching will happen !
 ;; fix de-/reactivating graphs -- stupid mistake ...
 ;; fix midi handling -- works, seems to be connected to the way of initializing incudine ...
 ;; (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t TRACK-STATE: nil) -- makes sense in comination with below ... ??

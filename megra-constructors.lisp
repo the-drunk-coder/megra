@@ -33,8 +33,10 @@
 	  (gethash (car processor-ids) *processor-directory*))    
     (connect (cdr processor-ids))))
 
-(defun detach (processor)
-  (unless (and (not (has-predecessor processor)) (has-successor processor))
+(< 1 (length '(2 2)))
+
+(defun detach (processor &key single)
+  (unless (or single (and (not (has-predecessor processor)) (has-successor processor)))
     (setf (is-active processor) nil))  
   (when (has-predecessor processor)
     (detach (predecessor processor))))
@@ -46,7 +48,8 @@
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when ,unique
 			(detach (gethash (car (last event-processors))
-					 *processor-directory*)))
+					 *processor-directory*)
+				:single (not (< 1 (length event-processors))) ))
 		      (connect event-processors)
 		      ;; if the first event-processor is not active yet,
 		      ;; create a dispatcher to dispatch it ... 

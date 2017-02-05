@@ -7,7 +7,6 @@
 
 ;; simple time-recursive dispatching
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-
   (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
     (handle-events d (pull-events (gethash proc *processor-directory*)))
     (let* ((trans-time (handle-transition d (pull-transition (gethash proc *processor-directory*))))
@@ -43,7 +42,7 @@
   (events (cm::new cm::midi
 	       :time 0
 	       :keynum (pitch m)
-	       :duration (dur m)
+	       :duration (coerce (* (dur m) 0.001) 'single-float)
 	       :amplitude (round (* 127 (lvl m))))
 	  :at (incudine:now)))
 
