@@ -97,8 +97,6 @@
  'tres-midi)
 
 
-
-
 ;; TRANSITORY STATE (default)
 (dispatch
  (brownian-motion 'tres-br 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)

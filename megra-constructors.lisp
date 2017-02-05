@@ -96,7 +96,7 @@
 (defun deactivate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
   ;; this is as un-functional as it gets, but anyway ...
-  (if (typep (gethash 'tres-br *processor-directory*) 'modifying-event-processor)
+  (if (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
       (setf (gethash event-processor-id *processor-directory*) nil)))
 
 
