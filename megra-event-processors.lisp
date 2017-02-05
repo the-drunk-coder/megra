@@ -4,13 +4,18 @@
    (pull-transition)       
    (active :accessor is-active :initform nil)
    (successor :accessor successor)
+   (predecessor :accessor predecessor)
    (has-successor)
+   (has-predecessor)
    (current-events)      ;; abstract
    (current-transition)  ;; abstract   
    ))
 
 (defmethod has-successor ((e event-processor) &key)
   (slot-boundp e 'successor))
+
+(defmethod has-predecessor ((e event-processor) &key)
+  (slot-boundp e 'predecessor))
 
 (defmethod pull-events ((e event-processor) &key)
   (if (has-successor e)

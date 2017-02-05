@@ -53,14 +53,14 @@
        (edge 2 1 :prob 100 :dur 256))
 
 
-(dispatch
+(dispatch ()
  (oscillate-between 'lp-freq-b 'lp-freq 100 8000 :cycle 100)
  (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)
  (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)
  (oscillate-between 'q-b 'lp-q 0.1 1.0 :cycle 50) 
  'the-512-beat)
 
-(dispatch
+(dispatch ()
  (brownian-motion 'start-b 'start :step 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
  (oscillate-between 'lp-freq-c 'lp-freq 100 8000 :cycle 1000)
  (oscillate-between 'q-c 'lp-q 0.1 1.0 :cycle 50)
@@ -68,37 +68,38 @@
  (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
  'the-grain)
 
-(dispatch 'the-grain)
+(dispatch () 'the-grain)
 
 (deactivate 'the-grain)
 (deactivate 'lp-freq-b)
 (deactivate 'start-b)
 
 ;; dispatch a graph to make it sound 
-(dispatch
+(dispatch ()
   'uno-midi)
 
-(deactivate 'uno-midi)
+(deactivate 'tres-midi)
 
-(dispatch
+(dispatch ()
   'dos-midi)
 
 (clear)
 
 (graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 150))
-       (edge 1 1 :prob 100 :dur 100))
+       (edge 1 1 :prob 100 :dur 200))
 
-(deactivate 'tres-midi)
+(deactivate 'lvl-o)
 
-(dispatch (:unique t)
+(dispatch ()
  'tres-midi)
 
-;; TRANSITORY STATE (default)
-(dispatch ()
+(dispatch (:unique nil)
   (oscillate-between 'lvl-o 'lvl 0.0 1.0 :cycle 140) 
-  (brownian-motion 'tres-br 'pitch :step 7 :ubound 84 :lbound 50 :wrap t)
+  (brownian-motion 'tres-br 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)
   'tres-midi)
+
+(setf (is-active (gethash 'lvl-o *processor-directory*)) nil)
 
 (deactivate 'lvl-o)
 
