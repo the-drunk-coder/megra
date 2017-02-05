@@ -24,12 +24,18 @@
 		 ,name)))
 
 ;; dispatching ... one dispatcher per active event processor ...
-(defun dispatch (&rest event-processors)
-  (labels
+;; if 'unique' is t, an event processor can only be hooked into
+;; one chain.
+(defmacro dispatch ((&key (unique t)) &body proc-body )
+  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))
+      (labels
       ((connect (processors)
 	 (when (cadr processors)
 	   (setf (successor (gethash (car processors) *processor-directory* ))
 		 (gethash (cadr processors) *processor-directory*))
+	   ;; in unique-chain mode, deactivate processors
+	   (when ,unique
+	     (setf (is-active (gethash (cadr processors) *processor-directory*)) nil))
 	   (connect (cdr processors)))))
     (connect event-processors))
   ;; if the first event-processor is not active yet, create a dispatcher to dispatch it ... 
@@ -37,7 +43,7 @@
     ;;(princ "new dispatcher")
     (let ((dispatcher (make-instance 'event-dispatcher)))
       (activate (car event-processors))      
-      (perform-dispatch dispatcher (car event-processors) (incudine:now))))) 
+      (perform-dispatch dispatcher (car event-processors) (incudine:now))))))))
 
 ;; modifying ... always check if the modifier is already present !
 (defun brownian-motion (name param &key step wrap limit ubound lbound (track-state t))
@@ -91,6 +97,8 @@
 		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist
 		 :atk atk :rel rel :sample-folder folder :sample-file file))
 
+
+
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
@@ -101,3 +109,5 @@
 (defun activate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) t))
 
+(defun clear ()
+  (setf *processor-directory* (make-hash-table :test 'eql)))

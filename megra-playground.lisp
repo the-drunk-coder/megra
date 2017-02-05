@@ -27,9 +27,9 @@
        (edge 1 2 :prob 100 :dur 200)
        (edge 2 1 :prob 100 :dur 200))
 
-(deactivate 'dos-midi)
+(deactivate 'uno-midi)
 
-(dispatch 'dos-midi) 
+(dispatch () 'uno-midi) 
 
 ;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi ()
@@ -83,26 +83,24 @@
 (dispatch
   'dos-midi)
 
-;; PERMANENT CHANGE
-;; this should be passed as parameter to (graph ... )
-;; so i might have to replace (graph ..) by a macro ??
-;(setf (copy-events (gethash 'tres-midi *processor-directory*)) nil)
+(clear)
 
-(graph 'tres-midi (:perma t)
+(graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 150))
        (edge 1 1 :prob 100 :dur 100))
 
+(deactivate 'tres-midi)
 
-(dispatch
+(dispatch (:unique t)
  'tres-midi)
-
 
 ;; TRANSITORY STATE (default)
-(dispatch
- (brownian-motion 'tres-br 'pitch :step 7 :ubound 84 :lbound 50 :wrap t)
- 'tres-midi)
+(dispatch ()
+  (oscillate-between 'lvl-o 'lvl 0.0 1.0 :cycle 140) 
+  (brownian-motion 'tres-br 'pitch :step 7 :ubound 84 :lbound 50 :wrap t)
+  'tres-midi)
 
-(deactivate 'tres-br)
+(deactivate 'lvl-o)
 
 (deactivate 'tres-midi)
 
