@@ -76,16 +76,15 @@
 			    (start 0.0)
 			    (rate 1.0)
 			    (hp-freq 10)
-			    (hp-q 1)
+			    (hp-q 0.4)
 			    (pf-freq 1000)
 			    (pf-q 10)
 			    (pf-gain 0.0)
 			    (lp-freq 19000)
-			    (lp-q 1)
+			    (lp-q 0.4)
 			    (lp-dist 0.0)
 			    (atk 7)
-			    (rel 7)
-			    )
+			    (rel 7))
   (make-instance 'grain-event :lvl lvl :dur dur :start start :pos pos :hp-freq hp-freq
 		 :rate rate :hp-freq hp-freq :hp-q hp-q
 		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
@@ -98,7 +97,6 @@
   ;; this is as un-functional as it gets, but anyway ...
   (if (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
       (setf (gethash event-processor-id *processor-directory*) nil)))
-
 
 (defun activate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) t))
