@@ -14,7 +14,7 @@
       (incudine:at next #'perform-dispatch d proc next))))
 
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
-  (fresh-line)
+  ;;(fresh-line)
   ;;(princ "the next events should happen in: ")
   ;;(princ (transition-duration tr))
   (transition-duration tr))	 
@@ -39,7 +39,7 @@
 
 ;; handler methods for individual events ... 
 (defmethod handle-event ((m midi-event) &key)
-  (events (new midi
+  (events (cm::new cm::midi
 	       :time 0
 	       :keynum (pitch m)
 	       :duration (dur m)
@@ -58,6 +58,7 @@
     (scratch::megra-grain (buffer-data-buffer bdata)
 		 (buffer-data-buffer-rate bdata)
 		 (buffer-data-buffer-frames bdata)
+		 (lvl g)
 		 (rate g)
 		 (start g)
 		 (lp-freq g)

@@ -5,6 +5,9 @@
 (defun edge (src dest &key prob dur)
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
 
+;; this macro is basically just a wrapper for the (original) function,
+;; so that i can mix keyword arguments and an arbitrary number of
+;; ensuing graph elements ... 
 (defmacro graph (name (&key (perma nil)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
@@ -89,10 +92,13 @@
 		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist
 		 :atk atk :rel rel :sample-folder folder :sample-file file))
 
-;; miscellaneous
+;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
-  (setf (gethash event-processor-id *processor-directory*) nil))
+  ;; this is as un-functional as it gets, but anyway ...
+  (if (typep (gethash 'tres-br *processor-directory*) 'modifying-event-processor)
+      (setf (gethash event-processor-id *processor-directory*) nil)))
+
 
 (defun activate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) t))

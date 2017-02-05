@@ -1,12 +1,21 @@
-;; initialize
-(load "megra-init")
-
-(megra-init)
+(require 'cm)
+(in-package :cm)
+;; initialize -- seems like it has to be like this ...
+(progn
+    (incudine:rt-start)
+    (sleep 1)
+    (midi-open-default :direction :input)
+    (midi-open-default :direction :output)
+    (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
+    (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
+    (setf *out* (cm::new cm::incudine-stream))
+    (setf *rts-out* *out*))
 
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
 (compile-file "megra-dsp")
 (load "megra-dsp")
 
+;; now everything should be ready to load the megra package ... 
 (load "megra-package")
 
 (in-package :megra)
@@ -18,13 +27,9 @@
        (edge 1 2 :prob 100 :dur 200)
        (edge 2 1 :prob 100 :dur 200))
 
-(activate 'uno-midi)
+(deactivate 'dos-midi)
 
-(dispatch 'uno-midi)
-
-(handle-event (mid 81 :lvl 1 :dur 50))
-
-(handle-event (grain "misc" "tada" :dur 256 :lvl 0.5 :rate 0.5 :atk 64 :rel 64))
+(dispatch 'dos-midi) 
 
 ;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi ()
@@ -66,7 +71,6 @@
 (dispatch 'the-grain)
 
 (deactivate 'the-grain)
-
 (deactivate 'lp-freq-b)
 (deactivate 'start-b)
 
@@ -92,15 +96,17 @@
 (dispatch
  'tres-midi)
 
+
+
+
 ;; TRANSITORY STATE (default)
 (dispatch
- (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t)
- (oscillate-between 'o2 'lvl 0.0 1.0 :cycle 100) 
+ (brownian-motion 'tres-br 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)
  'tres-midi)
 
-(deactivate 'tres-rw)
+(deactivate 'tres-br)
 
-(deactivate 'dos-midi)
+(deactivate 'tres-midi)
 
 ;; the last graph in the chain determines the timing, so each
 ;; processor chain needs a unique ending point, but it's possible
@@ -137,6 +143,8 @@
 ;; get rid of deactivating error msg ...
 
 ;; DONE:
+;; fix de-/reactivating graphs -- stupid mistake ...
+;; fix midi handling -- works, seems to be connected to the way of initializing incudine ...
 ;; (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t TRACK-STATE: nil) -- makes sense in comination with below ... ??
 ;; (graph 'xyz :copy-events nil) --- original events are sent out, makes sense in comination with the above
 ;; oscillating event modifier -- works !

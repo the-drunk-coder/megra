@@ -3,6 +3,7 @@
 (dsp! megra-grain ((buf buffer)
 		   unit-rate
 		   frames
+		   gain
 		   rate
 		   start-pos
 		   lp-freq
@@ -23,7 +24,7 @@
 	    (lpf18
 	     (peak-eq 
 	      (hpf 	
-	       (* (envelope (make-local-envelope '(0 1 1 0) `(,a ,length ,r) ) 1 1 #'free)
+	       (* (envelope (make-local-envelope `(0 ,gain ,gain 0) `(,a ,length ,r) ) 1 1 #'free)
 		  (buffer-read buf (* (phasor (* rate unit-rate) start-pos) frames)
 			       :wrap-p nil :interpolation :cubic))
 	       hp-freq hp-q)
