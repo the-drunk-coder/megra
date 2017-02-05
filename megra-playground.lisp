@@ -84,6 +84,7 @@
   'dos-midi)
 
 (clear)
+(load "megra-package")
 
 (graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
@@ -95,13 +96,20 @@
  'tres-midi)
 
 (dispatch ()
+  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
   'tres-midi)
 
-(setf (is-active (gethash 'lvl-o *processor-directory*)) nil)
 
-(deactivate 'lvl-o)
+;; use a graph to control another graph
+(graph 'tres-ctrl ()
+  (node 1 (ctrl #'(lambda () (setf (step-size (gethash 'tres-rw *processor-directory*)) (+ 1 (random 10))))))
+  (edge 1 1 :prob 100 :dur 5000))
+
+(dispatch ()
+  'tres-ctrl)
 
 (deactivate 'tres-midi)
+(deactivate 'tres-rw)
 
 ;; the last graph in the chain determines the timing, so each
 ;; processor chain needs a unique ending point, but it's possible

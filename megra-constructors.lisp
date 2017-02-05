@@ -23,7 +23,6 @@
 					       :current-node 1))))
 		 ,name)))
 
-
 ;; build the event processor chain, in the fashion of a douby-linked list ...
 (defun connect (processor-ids)
   (when (cadr processor-ids)
@@ -33,13 +32,14 @@
 	  (gethash (car processor-ids) *processor-directory*))    
     (connect (cdr processor-ids))))
 
-(< 1 (length '(2 2)))
-
-(defun detach (processor &key single)
-  (unless (or single (and (not (has-predecessor processor)) (has-successor processor)))
-    (setf (is-active processor) nil))  
-  (when (has-predecessor processor)
-    (detach (predecessor processor))))
+(defun detach (processor)
+  ;;(unless (or single (and (not (has-predecessor processor)) (has-successor processor)))
+  ;;  (setf (is-active processor) nil))  
+  (when (predecessor processor)
+    (detach (predecessor processor))
+    (setf (predecessor processor) nil))
+  (when (successor processor)
+    (setf (successor processor) nil)))
 
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
@@ -48,8 +48,9 @@
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when ,unique
 			(detach (gethash (car (last event-processors))
-					 *processor-directory*)
-				:single (not (< 1 (length event-processors))) ))
+					 *processor-directory*))
+			(setf (is-active (gethash (car (last event-processors))
+						  *processor-directory*)) nil))		      
 		      (connect event-processors)
 		      ;; if the first event-processor is not active yet,
 		      ;; create a dispatcher to dispatch it ... 
@@ -111,6 +112,8 @@
 		 :atk atk :rel rel :sample-folder folder :sample-file file))
 
 
+(defun ctrl (ctrl-fun)
+  (make-instance 'control-event :control-function ctrl-fun))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id)

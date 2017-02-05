@@ -46,6 +46,9 @@
 	       :amplitude (round (* 127 (lvl m))))
 	  :at (incudine:now)))
 
+(defmethod handle-event ((c control-event) &key)
+  (funcall (control-function c)))
+
 (defmethod handle-event ((g grain-event) &key)
   (unless (gethash (sample-location g) *buffer-directory*)
     (let* ((buffer (incudine:buffer-load (sample-location g)))

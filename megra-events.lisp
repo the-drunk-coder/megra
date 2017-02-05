@@ -44,6 +44,9 @@
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (sample-location g) (concatenate 'string *sample-root* (sample-folder g) "/" (sample-file g) ".wav")))
 
+(defclass control-event (event)
+  ((control-function :accessor control-function :initarg :control-function)))
+
 ;; combining events ... simple for now ...
 (defmethod combine-events (events-a events-b)
   (append events-a events-b))
