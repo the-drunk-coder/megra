@@ -7,7 +7,8 @@
 
 ;; simple time-recursive dispatching
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (when (is-active (gethash proc *processor-directory*)) 
+
+  (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
     (handle-events d (pull-events (gethash proc *processor-directory*)))
     (let* ((trans-time (handle-transition d (pull-transition (gethash proc *processor-directory*))))
 	   (next (+ time #[trans-time ms])))

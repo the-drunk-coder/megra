@@ -99,7 +99,7 @@
 
 ;; TRANSITORY STATE (default)
 (dispatch
- (brownian-motion 'tres-br 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)
+ (brownian-motion 'tres-br 'pitch :step 7 :ubound 84 :lbound 50 :wrap t)
  'tres-midi)
 
 (deactivate 'tres-br)
@@ -126,6 +126,7 @@
  'uno-midi)
 
 ;; TBD:
+;; fix midi note duration, bzw. make it effective
 ;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,
 ;;     multiple dispatiching will happen !
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
