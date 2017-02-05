@@ -141,6 +141,14 @@
 	      (setf (gethash (event-source event) (lastval o)) new-value)	      
 	      (setf (slot-value event (modified-property o)) new-value))) events))
 
+(defclass spigot (modifying-event-processor)
+  ((flow :accessor flow :initarg :flow :initform t)))
+
+(defmethod apply-self ((s spigot) events &key)
+  (if (flow s)
+      events
+      '()))
+
 ;; a random walk on whatever parameter ...
 (defclass brownian-motion (modifying-event-processor)
   ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)

@@ -83,6 +83,14 @@
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
+
+(defun spigot (name &key flow)
+  (let ((new-inst (make-instance 'spigot :flow flow)))
+    (when (gethash name *processor-directory*)
+      (setf (is-active new-inst) t))
+    (setf (gethash name *processor-directory*) new-inst))
+  name)
+
 ;; events
 (defun string-event (msg)
   (make-instance 'string-event :msg msg))

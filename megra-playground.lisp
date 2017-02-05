@@ -93,9 +93,13 @@
 (deactivate 'lvl-o)
 
 (dispatch ()
- 'tres-midi)
+  'tres-midi)
+
+(spigot 'tap :flow t)
+(deactivate 'tap)
 
 (dispatch ()
+  (spigot 'tap-a :flow t)
   (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
   'tres-midi)
 
@@ -119,7 +123,8 @@
  'tres-midi) 
 
 ;; deactivating the first processor in a chain makes it stop ...
-;; if it's a modifier, the modifier needs to be deactivated;; as everything is named, this shouldn't pose a problem ... 
+;; if it's a modifier, the modifier needs to be deactivated
+;; as everything is named, this shouldn't pose a problem ... 
 (deactivate 'uno-midi)
 (deactivate 'dos-midi)
 (deactivate 'tres-midi)
