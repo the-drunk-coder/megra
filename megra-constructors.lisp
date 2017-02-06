@@ -61,8 +61,8 @@
 			  (perform-dispatch dispatcher (car event-processors) (incudine:now))))))))
 
 ;; modifying ... always check if the modifier is already present !
-(defun brownian-motion (name param &key step wrap limit ubound lbound (keep-state t) (track-state t))
-  (let ((new-inst (make-instance 'brownian-motion :step step :mod-prop param :name name
+(defun brownian-motion (name param &key step-size wrap limit ubound lbound (keep-state t) (track-state t))
+  (let ((new-inst (make-instance 'brownian-motion :step-size step-size :mod-prop param :name name
 				 :upper-boundary ubound
 				 :lower-boundary lbound
 				 :is-bounded limit
@@ -143,3 +143,10 @@
 
 (defun clear ()
   (setf *processor-directory* (make-hash-table :test 'eql)))
+
+;; convenience functions to set params in some object ...
+(defun pset (object param value)
+  (setf (slot-value (gethash object *processor-directory*) param) value))
+
+
+  

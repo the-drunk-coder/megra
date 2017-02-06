@@ -156,21 +156,21 @@
 
 ;; a random walk on whatever parameter ...
 (defclass brownian-motion (modifying-event-processor)
-  ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
-   (lower-boundary :accessor lower-boundary :initarg :lower-boundary)
-   (step-size :accessor step-size :initarg :step)
+  ((upper-boundary :accessor ubound :initarg :upper-boundary)
+   (lower-boundary :accessor lbound :initarg :lower-boundary)
+   (step-size :accessor step-size :initarg :step-size)
    (is-bounded :accessor is-bounded :initarg :is-bounded)
    (is-wrapped :accessor is-wrapped :initarg :is-wrapped)))
 
 ;; cap or wrap ...
 (defmethod cap ((b brownian-motion) value &key)
   (cond ((is-bounded b)
-	 (cond ((< value (lower-boundary b)) (lower-boundary b))
-	       ((> value (upper-boundary b)) (upper-boundary b))
+	 (cond ((< value (lbound b)) (lbound b))
+	       ((> value (ubound b)) (ubound b))
 	       (t value)))
 	((is-wrapped b)
-	 (cond ((< value (lower-boundary b)) (upper-boundary b))
-	       ((> value (upper-boundary b)) (lower-boundary b))
+	 (cond ((< value (lbound b)) (ubound b))
+	       ((> value (ubound b)) (lbound b))
 	       (t value)))
 	(t value)))
 
