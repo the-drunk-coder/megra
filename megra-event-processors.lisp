@@ -29,6 +29,9 @@
 	(pull-transition (successor e)))
       (current-transition e)))
 
+;; pass -- default 
+(defmethod current-transition ((m event-processor) &key))
+
 ;; dummy processor for testing, development and debugging ..
 (defclass dummy-event-processor (event-processor)
   ((name :accessor dummy-name)))
@@ -98,9 +101,6 @@
    (last-values-by-source :accessor lastval)
    (track-state :accessor track-state :initarg :track-state :initform t)))
 
-;; pass
-(defmethod current-transition ((m modifying-event-processor) &key))
-
 (defmethod initialize-instance :after ((m modifying-event-processor) &key)
   (setf (lastval m) (make-hash-table :test 'eql)))
 
@@ -141,13 +141,16 @@
 	      (setf (gethash (event-source event) (lastval o)) new-value)	      
 	      (setf (slot-value event (modified-property o)) new-value))) events))
 
-(defclass spigot (modifying-event-processor)
+;; special event processor for convenience purposes, to define
+;; a persistent endpoint for a chain, i.e. when constantly modifying
+;; the chain in the development process.
+(defclass spigot (event-processor)
   ((flow :accessor flow :initarg :flow :initform t)))
 
 (defmethod apply-self ((s spigot) events &key)
-  (if (flow s)
-      events
-      '()))
+    (if (flow s)
+	events
+	'()))
 
 ;; a random walk on whatever parameter ...
 (defclass brownian-motion (modifying-event-processor)

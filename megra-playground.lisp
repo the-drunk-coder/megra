@@ -84,7 +84,7 @@
   'dos-midi)
 
 (clear)
-(load "megra-package")
+
 
 (graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
@@ -98,10 +98,6 @@
 (spigot 'tap :flow t)
 (deactivate 'tap)
 
-(dispatch ()
-  (spigot 'tap-a :flow t)
-  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
-  'tres-midi)
 
 
 ;; use a graph to control another graph
@@ -135,9 +131,30 @@
  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
  'uno-midi)
 
+
+
+;; SPIGOT -- providing a common endpoint for a chain will be helpful when playing around ...
+
+(load "megra-package")
+
+
+
+(graph 'tres-midi ()
+       (node 1 (mid 84 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 100))
+
+(dispatch ()
+  (spigot 'tap-a :flow t)
+  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+  'tres-midi)
+
+(deactivate 'tap-a)
+
+
+
+
 ;; TBD:
-;; fix midi note duration, bzw. make it effective
-;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
+;; define consistent unique/non-unique dispatching ...
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
 ;; (chance ...) shortcut ... even though the semantics of "chance" is
@@ -150,6 +167,8 @@
 ;; get rid of deactivating error msg ...
 
 ;; DONE:
+;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
+;; fix midi note duration, bzw. make it effective
 ;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,
 ;;     multiple dispatiching will happen !
 ;; fix de-/reactivating graphs -- stupid mistake ...
