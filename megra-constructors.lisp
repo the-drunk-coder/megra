@@ -18,7 +18,7 @@
 		      (if (gethash ,name *processor-directory*)
 			  (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 			  (setf (gethash ,name *processor-directory*)
-				(make-instance 'graph-event-processor
+				(make-instance 'graph-event-processor :name ,name
 					       :graph new-graph :copy-events (not ,perma)
 					       :current-node 1))))
 		 ,name)))
@@ -32,14 +32,17 @@
 	  (gethash (car processor-ids) *processor-directory*))    
     (connect (cdr processor-ids))))
 
-(defun detach (processor)
-  ;;(unless (or single (and (not (has-predecessor processor)) (has-successor processor)))
-  ;;  (setf (is-active processor) nil))  
+;; ensure uniqueness by detaching event processors (will be re-attached if necessary)
+;; and deactivate all those currently not needed ...
+(defun detach (processor current-processor-ids)
   (when (predecessor processor)
-    (detach (predecessor processor))
+    (detach (predecessor processor) current-processor-ids)
     (setf (predecessor processor) nil))
   (when (successor processor)
-    (setf (successor processor) nil)))
+    (setf (successor processor) nil))
+  (when (not (member (name processor) current-processor-ids))
+    (princ (name processor))
+    (deactivate (name processor))))
 
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
@@ -48,9 +51,7 @@
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when ,unique
 			(detach (gethash (car (last event-processors))
-					 *processor-directory*))
-			(setf (is-active (gethash (car (last event-processors))
-						  *processor-directory*)) nil))		      
+					 *processor-directory*) event-processors)) 
 		      (connect event-processors)
 		      ;; if the first event-processor is not active yet,
 		      ;; create a dispatcher to dispatch it ... 
@@ -60,32 +61,38 @@
 			  (perform-dispatch dispatcher (car event-processors) (incudine:now))))))))
 
 ;; modifying ... always check if the modifier is already present !
-(defun brownian-motion (name param &key step wrap limit ubound lbound (track-state t))
-  (let ((new-inst (make-instance 'brownian-motion :step step :mod-prop param
+(defun brownian-motion (name param &key step wrap limit ubound lbound (keep-state t) (track-state t))
+  (let ((new-inst (make-instance 'brownian-motion :step step :mod-prop param :name name
 				 :upper-boundary ubound
 				 :lower-boundary lbound
 				 :is-bounded limit
 				 :is-wrapped wrap
-				 :track-state track-state)))
+				 :track-state track-state)))    
     (when (gethash name *processor-directory*)
-      (setf (is-active new-inst) t))
+      (setf (is-active new-inst) t)
+      (when keep-state
+	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
-(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type (track-state t))
-  (let ((new-inst (make-instance 'oscillate-between :mod-prop param
+(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type (keep-state t) (track-state t))
+  (let ((new-inst (make-instance 'oscillate-between :mod-prop param :name name
 				 :cycle cycle
 				 :upper-boundary upper-boundary
 				 :lower-boundary lower-boundary
 				 :track-state track-state)))
+    ;; if a current instance is replaced ...
     (when (gethash name *processor-directory*)
-      (setf (is-active new-inst) t))
+      (setf (is-active new-inst) t)
+      (when keep-state
+	;;(princ "keep-state")
+	(setf (step-count new-inst) (step-count (gethash name *processor-directory*)))
+	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
-
 (defun spigot (name &key flow)
-  (let ((new-inst (make-instance 'spigot :flow flow)))
+  (let ((new-inst (make-instance 'spigot :flow flow :name name)))
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t))
     (setf (gethash name *processor-directory*) new-inst))
@@ -127,7 +134,8 @@
 (defun deactivate (event-processor-id)
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
   ;; this is as un-functional as it gets, but anyway ...
-  (if (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
+  (if (or (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
+	  (typep (gethash event-processor-id *processor-directory*) 'spigot))
       (setf (gethash event-processor-id *processor-directory*) nil)))
 
 (defun activate (event-processor-id)

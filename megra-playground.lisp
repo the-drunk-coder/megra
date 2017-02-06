@@ -41,6 +41,9 @@
        (edge 2 1 :prob 100 :dur 500)
        (edge 3 1 :prob 100 :dur 250))
 
+;; use this to clear the session and silence everything
+(clear)
+
 (graph 'the-grain (:perma t) 
        (node 1 (grain "misc" "tada" :dur 256 :lvl 0.5 :rate 0.5 :atk 64 :rel 64))
        (edge 1 1 :prob 100 :dur 64))
@@ -131,30 +134,64 @@
  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
  'uno-midi)
 
-
-
 ;; SPIGOT -- providing a common endpoint for a chain will be helpful when playing around ...
+(graph 'tres-midi ()
+       (node 1 (mid 84 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 100))
 
+(dispatch ()
+  (spigot 'tap-a :flow t) ;; spigot helps in the development process ... 
+  (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
+  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+  'tres-midi)
+
+(deactivate 'tap-a)                                                                         
+
+
+;; UNIQUE vs NON-UNIQUE
 (load "megra-package")
-
-
+;; 1.) unique -- DEFAULT
+(clear)
 
 (graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 100))
 
 (dispatch ()
-  (spigot 'tap-a :flow t)
+  (spigot 'tap-a :flow t) ;; spigot helps in the development process ... 
+  'tres-midi)
+
+(dispatch ()
+  (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
+  (brownian-motion 'tres-rw 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)
+  (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
+  'tres-midi)
+
+(dispatch ()
+  (spigot 'tap-c :flow t) ;; spigot helps in the development process ... 
+  'tres-midi)
+
+;; 2.) non-unique
+
+(clear)
+
+(graph 'tres-midi ()
+       (node 1 (mid 84 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 200))
+
+(dispatch (:unique nil)
+  (spigot 'tap-d :flow t) ;; spigot helps in the development process ... 
   (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
   'tres-midi)
 
-(deactivate 'tap-a)
-
-
+(dispatch (:unique nil)
+  (spigot 'tap-g :flow t) ;; spigot helps in the development process ... 
+  ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
+  'tres-midi)
 
 
 ;; TBD:
-;; define consistent unique/non-unique dispatching ...
+;; track phase offset per event source for oscillate-between
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
 ;; (chance ...) shortcut ... even though the semantics of "chance" is
@@ -167,6 +204,7 @@
 ;; get rid of deactivating error msg ...
 
 ;; DONE:
+;; define consistent unique/non-unique dispatching ... more or less, it's difficult
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
 ;; fix midi note duration, bzw. make it effective
 ;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,

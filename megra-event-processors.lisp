@@ -9,6 +9,7 @@
    (has-predecessor)
    (current-events)      ;; abstract
    (current-transition)  ;; abstract   
+   (name :accessor name :initarg :name)
    ))
 
 (defmethod has-successor ((e event-processor) &key)
@@ -132,11 +133,12 @@
 (defmethod apply-self ((o oscillate-between) events &key)
   (mapc #'(lambda (event)
 	    (let* ((current-value (get-current-value o event))
+		   (osc-range (- (upper-boundary o) (lower-boundary o)))		   
 		   (degree-increment (/ 360 (cycle o)))
 		   (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
-		   (abs-sin (abs (sin (radians degree))))
-		   (osc-range (- (upper-boundary o) (lower-boundary o)))
+		   (abs-sin (abs (sin (radians degree))))		   
 		   (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
+	      ;; this is basically the phase-offset
 	      (setf (step-count o) (1+ (step-count o)))
 	      (setf (gethash (event-source event) (lastval o)) new-value)	      
 	      (setf (slot-value event (modified-property o)) new-value))) events))
