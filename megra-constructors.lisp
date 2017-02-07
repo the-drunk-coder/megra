@@ -140,11 +140,12 @@
   (make-instance 'control-event :control-function ctrl-fun))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
-(defun deactivate (event-processor-id)
+(defun deactivate (event-processor-id &key (del t))
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
   ;; this is as un-functional as it gets, but anyway ...
-  (if (or (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
-	  (typep (gethash event-processor-id *processor-directory*) 'spigot))
+  (if (and del
+	   (or (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
+	       (typep (gethash event-processor-id *processor-directory*) 'spigot)))
       (setf (gethash event-processor-id *processor-directory*) nil)))
 
 (defun activate (event-processor-id)

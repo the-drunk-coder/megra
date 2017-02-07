@@ -147,7 +147,7 @@
 
 (dispatch ()
   (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
-  (brownian-motion 'tres-rw 'pitch :step 3 :ubound 84 :lbound 50 :wrap t)
+  (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)
   (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
   'tres-midi)
 
@@ -185,8 +185,8 @@
        (edge 1 1 :prob 100 :dur 200))
 
 (chain ()     
-   (spigot 'tap-b :flow t) ;; spigot helps in the development process ...
-   ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
+   (spigot 'tap-b :flow t)
+   (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
    (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
    'tres-midi)
 
@@ -196,7 +196,39 @@
 
 (deactivate 'tap-b)
 
+;; CONDUCTOR GRAPHS -  create graph-based scores by dispatching chains with a conductor graph
+(clear)
+
+(chain ()     
+   (spigot 'tap-x :flow t)   
+   (graph 'x-midi ()
+       (node 1 (mid 84 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 200)))
+
+(chain ()     
+   (spigot 'tap-y :flow t)   
+   (graph 'y-midi ()
+       (node 1 (mid 42 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 400)))
+
+;; in this case, don't delete the spigot, as the graph doesn't recreate the chain ...
+(graph 'xy-ctrl ()
+  (node 1 (ctrl #'(lambda () (dispatch (:chain t) 'tap-x))))
+  (node 2 (ctrl #'(lambda () (dispatch (:chain t) 'tap-y))))
+  (node 3 (ctrl #'(lambda () (deactivate 'tap-x :del nil))))
+  (node 4 (ctrl #'(lambda () (deactivate 'tap-y :del nil))))
+  (edge 1 2 :prob 100 :dur 4000)
+  (edge 2 3 :prob 100 :dur 4000)
+  (edge 3 4 :prob 100 :dur 4000)
+  (edge 4 1 :prob 100 :dur 4000))
+
+(dispatch () 'xy-ctrl)
+
+(deactivate 'xy-ctrl)
+(clear)
+
 ;; TBD:
+;; deactivating spigots 
 ;; track phase offset per event source for oscillate-between
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
