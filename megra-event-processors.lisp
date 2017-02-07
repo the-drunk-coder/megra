@@ -106,6 +106,7 @@
   (setf (lastval m) (make-hash-table :test 'eql)))
 
 (defmethod apply-self :before ((m modifying-event-processor) events &key)
+  ;; state tracking 
   (mapc #'(lambda (event)
 	    (unless (gethash (event-source event) (lastval m))  
 	      (setf (gethash (event-source event) (lastval m))

@@ -114,7 +114,7 @@
 (defun mid (pitch &key dur lvl)
   (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur))
 
-(defun grain (folder file &key  (dur 256)
+(defun grain (folder file &key (dur 256)
 			    (lvl 0.5)
 			    (pos 0.5)
 			    (start 0.0)
@@ -134,7 +134,6 @@
 		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
 		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist
 		 :atk atk :rel rel :sample-folder folder :sample-file file))
-
 
 (defun ctrl (ctrl-fun)
   (make-instance 'control-event :control-function ctrl-fun))

@@ -234,7 +234,16 @@
 (clear)
 
 ;; TBD:
-;; parameter faders 
+;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
+;; programmatically hook processor in between two others (hook 'proc :post 'bla)
+;; merge streams ? (merge 'tap-a 'tap-b) -- POSSIBLE only if streams have same origin ...
+;; parameter faders/modders - anonymous
+;;    (mid 84 :lvl '(fade 0.2 0.4 :step 10)) -> step inc after each (handle-event)
+;;    (oscillate-between ... :ubound '(fade 0.4 :step 400)
+;;    needed to be temporarily replaced by current value:
+;;        before event evaluation
+;;        before event modification (i.e. before the modifier acts)
+;;     CONFLICT: what if event passes through modifier ? 
 ;; track phase offset per event source for oscillate-between
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
@@ -242,12 +251,12 @@
 ;;    slightly different, as is evaluates the chance of something to happen for the current
 ;;    event, whereas a graph modifies the modification for the next event ... 
 ;; graph-theory stuff -- graph transformations etc
-;; syncstart
+;; syncstart (for live use mainly ...)
 ;; midi note blocker for disklavier
-;; vugs
-;; get rid of deactivating error msg ...
+;; more vugs
 
 ;; DONE:
+;; get rid of deactivating error msg ...
 ;; chain procs without dispatching -- done
 ;; define consistent unique/non-unique dispatching ... more or less, it's difficult
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
@@ -262,9 +271,6 @@
 ;; tree-like dispatch branching -- works !
 ;; avoid duplicate dispatches -- works !
 ;; automatic re-activation -- works !
-
-
-
 
 
 ;; keep for the sake of funcall
