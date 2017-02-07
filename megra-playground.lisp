@@ -74,8 +74,13 @@
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 256
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000))
        (node 2 (grain "03_electronics" "08_fat_snare" :dur 128 :atk 0.1 :lvl 0.5 :rate 0.4))
-       (edge 1 2 :prob 100 :dur 256)
-       (edge 2 1 :prob 100 :dur 256))
+       (node 3 (grain "03_electronics" "01_808_long_kick" :dur 256
+		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000))       
+       (edge 1 2 :prob 100 :dur 512)
+       (edge 2 1 :prob 60 :dur 512)
+       (edge 2 3 :prob 40 :dur 256)
+       (edge 3 3 :prob 40 :dur 256)
+       (edge 3 2 :prob 60 :dur 512))
 
 (dispatch () 'the-grain)
 (dispatch () 'the-512-beat)
@@ -225,10 +230,11 @@
 (dispatch () 'xy-ctrl)
 
 (deactivate 'xy-ctrl)
+
 (clear)
 
 ;; TBD:
-;; deactivating spigots 
+;; parameter faders 
 ;; track phase offset per event source for oscillate-between
 ;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
@@ -270,7 +276,7 @@
  'the-512-beat)
 
 (dispatch ()
- (brownian-motion 'start-b 'start :step 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
+ (brownian-motion 'start-b 'start :step-size 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
  (oscillate-between 'lp-freq-c 'lp-freq 100 8000 :cycle 1000)
  (oscillate-between 'q-c 'lp-q 0.1 1.0 :cycle 50)
  (oscillate-between 'pos-c 'pos 0.4 0.8 :cycle 50) 
