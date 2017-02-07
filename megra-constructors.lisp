@@ -47,18 +47,27 @@
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
 ;; one chain.
-(defmacro dispatch ((&key (unique t)) &body proc-body )
+(defmacro dispatch ((&key (unique t) (chain nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
-		      (when ,unique
+		      (when (and ,unique (not ,chain))
 			(detach (gethash (car (last event-processors))
 					 *processor-directory*) event-processors)) 
-		      (connect event-processors)
+		      (when (not ,chain)
+			(connect event-processors))		      
 		      ;; if the first event-processor is not active yet,
 		      ;; create a dispatcher to dispatch it ... 
 		      (unless (is-active (gethash (car event-processors) *processor-directory*))
 			(let ((dispatcher (make-instance 'event-dispatcher)))
 			  (activate (car event-processors))
 			  (perform-dispatch dispatcher (car event-processors) (incudine:now))))))))
+
+;; chain events without dispatching ...
+(defmacro chain ((&key (unique t)) &body proc-body)
+  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))
+		      (when ,unique 
+			(detach (gethash (car (last event-processors))
+					 *processor-directory*) event-processors))
+		      (connect event-processors)))))
 
 ;; modifying ... always check if the modifier is already present !
 (defun brownian-motion (name param &key step-size wrap limit ubound lbound (keep-state t) (track-state t))

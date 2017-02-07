@@ -57,7 +57,7 @@
 ;; streams will be merged (for now) ...
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
-;; in this case, the last graph in the case determines the timing
+;; in any case, the last graph in the chain determines the timing
 (dispatch ()
   'uno-midi
   'dos-midi)
@@ -99,6 +99,12 @@
   (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
   'tres-midi)
 
+;; hook an event modifier into the chain ...
+(dispatch
+ 'tres-midi
+ (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+ 'uno-midi)
+
 ;; CONDUCTOR GRAPHS -- use a graph to control another graph
 (clear)
 
@@ -123,13 +129,6 @@
 
 (deactivate 'tres-ctrl)
 (deactivate 'tap-b)
-
-;; hook an event modifier into the chain ...
-(dispatch
- 'tres-midi
- (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
- 'uno-midi)
-
 
 ;; EXPLAIN - state tracking and perma 
 
@@ -173,10 +172,29 @@
   'tres-midi)
 
 (dispatch (:unique nil)
-  (spigot 'tap-g :flow t) ;; spigot helps in the development process ... 
-  ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
-  'tres-midi)
+    (spigot 'tap-g :flow t) ;; spigot helps in the development process ... 
+    ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
+    'tres-midi)
 
+;; CHAIN - define a processor chain without dispatching it, i.e if you want to dispatch
+;; it by using a (ctrl ...) event ...
+(clear)
+
+(graph 'tres-midi ()
+       (node 1 (mid 84 :lvl .9 :dur 50))
+       (edge 1 1 :prob 100 :dur 200))
+
+(chain ()     
+   (spigot 'tap-b :flow t) ;; spigot helps in the development process ...
+   ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
+   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
+   'tres-midi)
+
+;; just remember to set the :chain flag, otherwise your chain will get disconnected ...
+(dispatch (:chain t)
+	  'tap-b)
+
+(deactivate 'tap-b)
 
 ;; TBD:
 ;; track phase offset per event source for oscillate-between
@@ -192,6 +210,7 @@
 ;; get rid of deactivating error msg ...
 
 ;; DONE:
+;; chain procs without dispatching -- done
 ;; define consistent unique/non-unique dispatching ... more or less, it's difficult
 ;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
 ;; fix midi note duration, bzw. make it effective
