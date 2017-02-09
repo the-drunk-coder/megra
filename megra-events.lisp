@@ -2,23 +2,26 @@
 (defclass event ()
     ((source :accessor event-source)))
 
+;; will be the accumulator ... 
+(defclass incomplete-event (event) ())
+
 (defclass string-event (event)
-    ((msg :accessor msg :initarg :msg)))
+    ((msg :accessor event-message :initarg :msg)))
 
 (defclass pitch-event (event)
-  ((pitch :accessor pitch :initarg :pitch)))
+  ((pitch :accessor event-pitch :initarg :pitch)))
 
 (defclass level-event (event)
-  ((lvl :accessor lvl :initarg :lvl)))
+  ((lvl :accessor event-level :initarg :lvl)))
 
 (defclass duration-event (event)
-  ((dur :accessor dur :initarg :dur)))
+  ((dur :accessor event-duration :initarg :dur)))
 
 (defclass instrument-event (event)
-  ((inst :accessor inst :initarg :inst)))
+  ((inst :accessor event-instrument :initarg :inst)))
 
 (defclass spatial-event (event)
-  ((pos :accessor pos :initarg :pos)))
+  ((pos :accessor event-position :initarg :pos)))
 
 (defclass tuned-instrument-event (pitch-event instrument-event level-event duration-event) ())
 
@@ -47,9 +50,74 @@
 (defclass control-event (event)
   ((control-function :accessor control-function :initarg :control-function)))
 
-;; combining events ... simple for now ...
-(defmethod combine-events (events-a events-b)
-  (append events-a events-b))
+;; slots are equal if their name is equal ... period.
+(defun slot-eq (a b)
+  (eq (slot-definition-name a) (slot-definition-name b)))
+
+(defmethod event-has-slot ((e event) slot &key)
+  (member slot (class-slots (class-of e)) :test 'slot-eq))
+
+;; not quite sure why this works, but it does ... 
+;; http://stackoverflow.com/questions/17002816/lisp-clos-adding-a-slot-to-the-process-class
+(defun direct-slot-defn->initarg (slot-defn)
+  (list :name (slot-definition-name slot-defn)
+        :readers (slot-definition-readers slot-defn)
+        :writers (slot-definition-writers slot-defn)
+        :initform (slot-definition-initform slot-defn)
+        :initargs (slot-definition-initargs slot-defn)
+        :initfunction (slot-definition-initfunction slot-defn)))
+
+(defun add-slot-to-class (class name &key (initform nil) accessors readers writers
+				       initargs (initfunction (constantly nil)))
+  (check-type class symbol)
+  (let ((new-slots (list (list :name name
+                               :readers (union accessors readers)
+                               :writers (union writers
+                                               (mapcar #'(lambda (x)
+                                                           (list 'setf x))
+                                                       accessors)
+                                               :test #'equal)
+                               :initform initform
+                               :initargs initargs
+                               :initfunction initfunction))))
+    (dolist (slot-defn (class-direct-slots (find-class class)))
+      (push (direct-slot-defn->initarg slot-defn)
+            new-slots))
+    (ensure-class class :direct-slots new-slots)))
+
+;; check if event b has all slots that event a has
+(defmethod events-compatible ((a event) (b event) &key)
+  (subsetp (class-slots (class-of a)) (class-slots (class-of b)) :test 'slot-eq))
+
+(defmethod overwrite-slots ((a event) (b event) &key)
+  (loop for slot in (class-slots (class-of a))
+     do (when (slot-boundp-using-class (class-of b) b slot)
+	  (setf (slot-value b (slot-definition-name slot))
+		(slot-value a (slot-definition-name slot)))))
+  b)
+
+(defmethod copy-slots-to-class ((a event) (b event) &key)
+  (loop for slot in (class-direct-slots (class-of a))
+     do (unless (event-has-slot b slot)
+	  (add-slot-to-class (class-name (class-of b)) (slot-definition-name slot)
+			     :readers (slot-definition-readers slot)
+			     :writers (slot-definition-writers slot)))))
+
+;; a overwrites b, b (or incomplete) is returned ...
+(defmethod combine-single-events ((a event) (b event) &key)
+  (cond ((events-compatible a b) (overwrite-slots a b))
+	;; merge events into a new incomplete event
+	(t (let ((new-event (make-instance 'incomplete-event)) )
+	      (copy-slots-to-class a new-event)
+	      (copy-slots-to-class b new-event)
+	      (overwrite-slots b new-event)
+	      (overwrite-slots a new-event)
+	      ))))
+
+;; combining events ... a has precedence
+(defmethod combine-events (events-a events-b &key (mode 'append))
+  (cond ((eq mode 'append) (append events-a events-b))
+	((eq mode 'zip) (mapcar #'combine-single-events events-a events-b))))
 
 (defclass transition ()
     ((duration :accessor transition-duration :initarg :dur)))

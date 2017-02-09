@@ -57,6 +57,7 @@
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
+   (combine-mode :accessor combine-mode :initarg :combine-mode)
    (path)))
 
 ;; strange mop-method to allow cloning events
@@ -94,8 +95,9 @@
     (setf (current-node g) (edge-destination chosen-edge))
     (car (edge-content chosen-edge)))))
 
+;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
-  (combine-events (current-events g) events))
+  (combine-events (current-events g) events :mode (combine-mode g)))
 
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)
@@ -110,12 +112,12 @@
   (mapc #'(lambda (event)
 	    (unless (gethash (event-source event) (lastval m))  
 	      (setf (gethash (event-source event) (lastval m))
-		    (funcall (symbol-function (modified-property m)) event)))) events))
+		    (slot-value event (modified-property m))))) events))
 
 (defmethod get-current-value ((m modifying-event-processor) (e event) &key)
   (if (track-state m)
       (gethash (event-source e) (lastval m))
-      (funcall (symbol-function (modified-property m)) e)))
+      (slot-value e (modified-property m))))
 
 ;; switch to preserve/not preserve state ?
 

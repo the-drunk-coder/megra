@@ -231,9 +231,54 @@
 
 (deactivate 'xy-ctrl)
 
+;; incrementally build events ...
+;; might be understood as a generalization of the
+;; serialist paradigm
+(clear)
+
+(pull-events (gethash 'tap-inc *processor-directory*))
+
+(dispatch ()
+	  (spigot 'tap-inc :flow t)
+	  (graph 'pitcher (:combine-mode 'zip)
+		 (node 1 (pitch 32))
+		 (node 2 (pitch 52))
+		 (edge 1 1 :prob 60)
+		 (edge 1 2 :prob 40)
+		 (edge 2 2 :prob 55)
+		 (edge 2 1 :prob 45))
+	  (graph 'leveller (:combine-mode 'zip)
+		 (node 1 (lvl 0.3))
+		 (node 2 (lvl 1.0))
+		 (node 3 (lvl 0.0))
+		 (edge 1 1 :prob 40)
+		 (edge 1 2 :prob 30)
+		 (edge 1 3 :prob 30)
+		 (edge 2 2 :prob 55)
+		 (edge 2 1 :prob 45)
+		 (edge 3 1 :prob 100))
+	  (graph 'durator (:combine-mode 'zip)
+		 (node 1 (dur 512))
+		 (node 2 (dur 768))
+		 (edge 1 1 :prob 40)
+		 (edge 1 2 :prob 60)
+		 (edge 2 2 :prob 45)
+		 (edge 2 1 :prob 55))
+	  (graph 'origin () ;; for now, origin event needs to have handler ...
+		 (node 1 (mid 84 :lvl .9 :dur 50))
+		 (edge 1 1 :prob 100 :dur 200)))
+	  
+
+(load "megra-package")
+
 (clear)
 
 ;; TBD:
+;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
+;;     if event has only dur -> default sample ? Precedence ? Fallback ?
+;; event combination
+;; note names
+;; make modifiers work on transition duration 
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; programmatically hook processor in between two others (hook 'proc :post 'bla)
 ;; merge streams ? (merge 'tap-a 'tap-b) -- POSSIBLE only if streams have same origin ...
@@ -288,3 +333,9 @@
  (oscillate-between 'pos-c 'pos 0.4 0.8 :cycle 50) 
  (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
  'the-grain)
+
+
+
+
+
+

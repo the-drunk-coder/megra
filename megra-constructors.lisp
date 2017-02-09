@@ -2,13 +2,13 @@
 (defun node (id &rest content)
   (make-instance 'node :id id :content content))
 
-(defun edge (src dest &key prob dur)
+(defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
 
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
-(defmacro graph (name (&key (perma nil)) &body graphdata)
+(defmacro graph (name (&key (perma nil) (combine-mode :append)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
 		      (mapc #'(lambda (obj)
@@ -20,7 +20,7 @@
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
 					       :graph new-graph :copy-events (not ,perma)
-					       :current-node 1))))
+					       :current-node 1 :combine-mode ,combine-mode))))
 		 ,name)))
 
 ;; build the event processor chain, in the fashion of a douby-linked list ...
@@ -137,6 +137,18 @@
 
 (defun ctrl (ctrl-fun)
   (make-instance 'control-event :control-function ctrl-fun))
+
+(defun dur (dur)
+  (make-instance 'duration-event :dur dur))
+
+(defun lvl (lvl)
+  (make-instance 'level-event :lvl lvl))
+
+(defun pitch (pitch)
+  (make-instance 'pitch-event :pitch pitch))
+
+(defun pos (pos)
+  (make-instance 'spatial-event :pos pos))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id &key (del t))
