@@ -37,6 +37,12 @@
 (defmethod handle-events ((e event-dispatcher) events &key)
   (mapc #'handle-event events))
 
+;; see what we can still do with this ... 
+(defmethod handle-event ((e incomplete-event) &key))
+
+;; if nothing else helps ...
+(defmethod handle-event ((e event) &key))
+
 ;; handler methods for individual events ... 
 (defmethod handle-event ((m midi-event) &key)
   (events (cm::new cm::midi

@@ -236,8 +236,6 @@
 ;; serialist paradigm
 (clear)
 
-(pull-events (gethash 'tap-inc *processor-directory*))
-
 (dispatch ()
 	  (spigot 'tap-inc :flow t)
 	  (graph 'pitcher (:combine-mode 'zip)
@@ -274,11 +272,11 @@
 (clear)
 
 ;; TBD:
+;; make modifiers work on transition duration 
+;; arranging modifiers in graphs ...
 ;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
 ;;     if event has only dur -> default sample ? Precedence ? Fallback ?
-;; event combination
 ;; note names
-;; make modifiers work on transition duration 
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; programmatically hook processor in between two others (hook 'proc :post 'bla)
 ;; merge streams ? (merge 'tap-a 'tap-b) -- POSSIBLE only if streams have same origin ...
@@ -290,7 +288,6 @@
 ;;        before event modification (i.e. before the modifier acts)
 ;;     CONFLICT: what if event passes through modifier ? 
 ;; track phase offset per event source for oscillate-between
-;; arranging modifiers in graphs ...
 ;; define meaningful behaviour for non-mandatory modifiers ...
 ;; (chance ...) shortcut ... even though the semantics of "chance" is
 ;;    slightly different, as is evaluates the chance of something to happen for the current
@@ -301,6 +298,7 @@
 ;; more vugs
 
 ;; DONE:
+;; event combination - 't was a piece of work ... 
 ;; get rid of deactivating error msg ...
 ;; chain procs without dispatching -- done
 ;; define consistent unique/non-unique dispatching ... more or less, it's difficult
