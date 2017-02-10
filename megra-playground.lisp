@@ -58,13 +58,6 @@
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
 ;; in any case, the last graph in the chain determines the timing
-
-(chain ()
-  'uno-midi
-  'dos-midi)
-
-(pull-events (gethash 'uno-midi *processor-directory*))
-
 (dispatch ()
   'uno-midi
   'dos-midi)
@@ -258,36 +251,38 @@
 ;; serialist paradigm
 (clear)
 
+;; this is a nice one ...
 (dispatch ()
-	  (spigot 'tap-inc :flow t)
-	  (graph 'pitcher (:combine-mode 'zip)
-		 (node 1 (pitch 32))
-		 (node 2 (pitch 52))
-		 (edge 1 1 :prob 60)
-		 (edge 1 2 :prob 40)
-		 (edge 2 2 :prob 55)
-		 (edge 2 1 :prob 45))
-	  (graph 'leveller (:combine-mode 'zip)
-		 (node 1 (lvl 0.3))
-		 (node 2 (lvl 1.0))
-		 (node 3 (lvl 0.0))
-		 (edge 1 1 :prob 40)
-		 (edge 1 2 :prob 30)
-		 (edge 1 3 :prob 30)
-		 (edge 2 2 :prob 55)
-		 (edge 2 1 :prob 45)
-		 (edge 3 1 :prob 100))
-	  (graph 'durator (:combine-mode 'zip)
-		 (node 1 (dur 512))
-		 (node 2 (dur 768))
-		 (edge 1 1 :prob 40)
-		 (edge 1 2 :prob 60)
-		 (edge 2 2 :prob 45)
-		 (edge 2 1 :prob 55))
-	  (graph 'origin () ;; for now, origin event needs to have handler ...
-		 (node 1 (mid 84 :lvl .9 :dur 50))
-		 (edge 1 1 :prob 100 :dur 200)))
-	  
+  (spigot 'tap-inc :flow t)
+  (oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t)
+  (graph 'pitcher (:combine-mode 'zip)
+    (node 1 (pitch 32))
+    (node 2 (pitch 52))
+    (edge 1 1 :prob 60)
+    (edge 1 2 :prob 40)
+    (edge 2 2 :prob 55)
+    (edge 2 1 :prob 45))
+  (graph 'leveller (:combine-mode 'zip)
+    (node 1 (lvl 0.6))
+    (node 2 (lvl 1.0))
+    (node 3 (lvl 0.3))
+    (edge 1 1 :prob 40)
+    (edge 1 2 :prob 30)
+    (edge 1 3 :prob 30)
+    (edge 2 2 :prob 55)
+    (edge 2 1 :prob 45)
+    (edge 3 1 :prob 100))
+  (graph 'durator (:combine-mode 'zip)
+    (node 1 (dur 512))
+    (node 2 (dur 768))
+    (edge 1 1 :prob 40)
+    (edge 1 2 :prob 60)
+    (edge 2 2 :prob 45)
+    (edge 2 1 :prob 55))
+  (graph 'origin () ;; for now, origin event needs to have handler ...
+    (node 1 (mid 84 :lvl .9 :dur 50))
+    (edge 1 1 :prob 100 :dur 200)))
+
 
 (load "megra-package")
 
