@@ -89,9 +89,24 @@
 (deactivate 'the-512-beat)
 
 ;; MODIFIERS -- hook modifiers into the chain to manipulate the sound.
+(clear)
+
+
 (graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 100))
+
+
+(pull-events (gethash 'tap-b *processor-directory*))
+
+(pull-transition (gethash 'tap-b *processor-directory*))
+
+(dispatch ()
+  (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
+  (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
+  (oscillate-between 'tres-osc 'dur 50 1000 :cycle 100 :affect-transition t)
+  'tres-midi)
+
 
 ;; i'd recommend using a spigot when experiment with the chains, to provide
 ;; a persistent outlet ... otherwise you might get strange effects ...
@@ -105,9 +120,9 @@
   'tres-midi)
 
 ;; hook an event modifier into the chain ...
-(dispatch
+(dispatch ()
  'tres-midi
- (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+ (brownian-motion 'tres-rw 'pitch :step-size 5 :ubound 84 :lbound 50 :wrap t)
  'uno-midi)
 
 ;; CONDUCTOR GRAPHS -- use a graph to control another graph
@@ -274,6 +289,12 @@
 ;; TBD:
 ;; make modifiers work on transition duration 
 ;; arranging modifiers in graphs ...
+;; ambisonics panner
+;; for modifying-event-processors: check if modified property is present at all ...
+;; 'funnel event combnation mode
+;; 'all event combination mode 
+;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
+;; filters, like (oscillate-between ... :filter #'has-foo-tag)
 ;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
 ;;     if event has only dur -> default sample ? Precedence ? Fallback ?
 ;; note names

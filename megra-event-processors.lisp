@@ -93,7 +93,9 @@
 	 (chosen-edge-id (nth (random (length current-choices)) current-choices))
 	 (chosen-edge (nth chosen-edge-id current-edges)))
     (setf (current-node g) (edge-destination chosen-edge))
-    (car (edge-content chosen-edge)))))
+    (if (copy-events g)
+	(mapcar #'copy-instance (edge-content chosen-edge))
+	(edge-content chosen-edge)))))
 
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
@@ -102,10 +104,20 @@
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)
+   (affect-transition :accessor affect-transition :initarg :affect-transition)
    (track-state :accessor track-state :initarg :track-state :initform t)))
 
 (defmethod initialize-instance :after ((m modifying-event-processor) &key)
   (setf (lastval m) (make-hash-table :test 'eql)))
+
+(defmethod pull-transition ((e modifying-event-processor) &key)
+  (if (has-successor e)
+      (progn
+	(current-transition e)        
+	(if (affect-transition e)
+	    (apply-self e (pull-transition (successor e)))
+	    (pull-transition (successor e))))
+      (current-transition e)))
 
 (defmethod apply-self :before ((m modifying-event-processor) events &key)
   ;; state tracking 
@@ -134,7 +146,7 @@
   (* pi (/ numberOfDegrees 180.0)))
 
 (defmethod apply-self ((o oscillate-between) events &key)
-  (mapc #'(lambda (event)
+    (mapc #'(lambda (event)
 	    (let* ((current-value (get-current-value o event))
 		   (osc-range (- (upper-boundary o) (lower-boundary o)))		   
 		   (degree-increment (/ 360 (cycle o)))

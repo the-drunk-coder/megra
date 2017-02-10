@@ -70,13 +70,15 @@
 		      (connect event-processors)))))
 
 ;; modifying ... always check if the modifier is already present !
-(defun brownian-motion (name param &key step-size wrap limit ubound lbound (keep-state t) (track-state t))
+(defun brownian-motion (name param &key step-size wrap limit ubound lbound
+				     (affect-transition nil)(keep-state t) (track-state t))
   (let ((new-inst (make-instance 'brownian-motion :step-size step-size :mod-prop param :name name
 				 :upper-boundary ubound
 				 :lower-boundary lbound
 				 :is-bounded limit
 				 :is-wrapped wrap
-				 :track-state track-state)))    
+				 :track-state track-state
+				 :affect-transition affect-transition)))    
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t)
       (when keep-state
@@ -84,12 +86,15 @@
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
-(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type (keep-state t) (track-state t))
+(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type
+								     (affect-transition nil)
+								     (keep-state t) (track-state t))
   (let ((new-inst (make-instance 'oscillate-between :mod-prop param :name name
 				 :cycle cycle
 				 :upper-boundary upper-boundary
 				 :lower-boundary lower-boundary
-				 :track-state track-state)))
+				 :track-state track-state
+				 :affect-transition affect-transition)))
     ;; if a current instance is replaced ...
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t)

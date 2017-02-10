@@ -48,6 +48,11 @@
 
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edges (gethash (edge-source e) (graph-edges g))))
+    ;; set transition source ids with format:
+    ;; ((GRAPH-ID . E) . (SOURCE . DEST)) 
+    (if (edge-content e)
+	(setf (event-source (car (edge-content e))) 
+	      (cons (cons (graph-id g) 'E) (cons (edge-source e) (edge-destination e)))))
     (setf (gethash (edge-source e) (graph-edges g))
 	  (remove-duplicates (cons e edges) :test #'edge-equals))))
 

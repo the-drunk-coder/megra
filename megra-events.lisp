@@ -119,8 +119,11 @@
   (cond ((eq mode 'append) (append events-a events-b))
 	((eq mode 'zip) (mapcar #'combine-single-events events-a events-b))))
 
-(defclass transition ()
-    ((duration :accessor transition-duration :initarg :dur)))
+;; it might seem weird to treat the transition as an event, but it makes lots
+;; of things easier, and musicall it's sound to treat the space between events
+;; as a special type of event ... i think ...
+(defclass transition (event)
+    ((dur :accessor transition-duration :initarg :dur)))
 
 
 
