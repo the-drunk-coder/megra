@@ -58,6 +58,13 @@
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
 ;; in any case, the last graph in the chain determines the timing
+
+(chain ()
+  'uno-midi
+  'dos-midi)
+
+(pull-events (gethash 'uno-midi *processor-directory*))
+
 (dispatch ()
   'uno-midi
   'dos-midi)
