@@ -57,6 +57,9 @@
 (defmethod event-has-slot ((e event) slot &key)
   (member slot (class-slots (class-of e)) :test 'slot-eq))
 
+(defmethod event-has-slot-by-name ((e event) slot-name  &key)
+  (member slot-name (mapcar #'slot-definition-name (class-slots (class-of e)))))
+
 ;; not quite sure why this works, but it does ... 
 ;; http://stackoverflow.com/questions/17002816/lisp-clos-adding-a-slot-to-the-process-class
 (defun direct-slot-defn->initarg (slot-defn)

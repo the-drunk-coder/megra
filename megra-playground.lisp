@@ -96,11 +96,6 @@
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 100))
 
-
-(pull-events (gethash 'tap-b *processor-directory*))
-
-(pull-transition (gethash 'tap-b *processor-directory*))
-
 (dispatch ()
   (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
@@ -188,7 +183,7 @@
 
 (dispatch (:unique nil)
   (spigot 'tap-d :flow t) ;; spigot helps in the development process ... 
-  (brownian-motion 'tres-rw 'pitch :step 5 :ubound 84 :lbound 50 :wrap t)
+  (brownian-motion 'tres-rw 'pitch :step-size 1 :lbound 50 :ubound 60 :wrap t)
   'tres-midi)
 
 (dispatch (:unique nil)
@@ -286,17 +281,17 @@
 
 (load "megra-package")
 
+
+
 (clear)
 
 ;; TBD:
-;; make modifiers work on transition duration 
-;; arranging modifiers in graphs ...
-;; ambisonics panner
-;; for modifying-event-processors: check if modified property is present at all ...
-;; 'funnel event combnation mode
-;; 'all event combination mode 
 ;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
 ;; filters, like (oscillate-between ... :filter #'has-foo-tag)
+;; arranging modifiers in graphs ...
+;; ambisonics panner
+;; 'funnel event combnation mode
+;; 'all event combination mode 
 ;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
 ;;     if event has only dur -> default sample ? Precedence ? Fallback ?
 ;; note names
@@ -321,6 +316,8 @@
 ;; more vugs
 
 ;; DONE:
+;; for modifying-event-processors: check if modified property is present at all ...
+;; make modifiers work on transition duration 
 ;; event combination - 't was a piece of work ... 
 ;; get rid of deactivating error msg ...
 ;; chain procs without dispatching -- done

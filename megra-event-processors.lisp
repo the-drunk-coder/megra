@@ -122,9 +122,12 @@
 (defmethod apply-self :before ((m modifying-event-processor) events &key)
   ;; state tracking 
   (mapc #'(lambda (event)
-	    (unless (gethash (event-source event) (lastval m))  
-	      (setf (gethash (event-source event) (lastval m))
-		    (slot-value event (modified-property m))))) events))
+	    (if (event-has-slot-by-name event (modified-property m))
+		(unless (gethash (event-source event) (lastval m))  
+		  (setf (gethash (event-source event) (lastval m))
+			(slot-value event (modified-property m))))
+		event))
+	events))
 
 (defmethod get-current-value ((m modifying-event-processor) (e event) &key)
   (if (track-state m)
@@ -146,17 +149,20 @@
   (* pi (/ numberOfDegrees 180.0)))
 
 (defmethod apply-self ((o oscillate-between) events &key)
-    (mapc #'(lambda (event)
-	    (let* ((current-value (get-current-value o event))
-		   (osc-range (- (upper-boundary o) (lower-boundary o)))		   
-		   (degree-increment (/ 360 (cycle o)))
-		   (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
-		   (abs-sin (abs (sin (radians degree))))		   
-		   (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
-	      ;; this is basically the phase-offset
-	      (setf (step-count o) (1+ (step-count o)))
-	      (setf (gethash (event-source event) (lastval o)) new-value)	      
-	      (setf (slot-value event (modified-property o)) new-value))) events))
+  (mapc #'(lambda (event)
+	    (if (event-has-slot-by-name event (modified-property o))
+		(let* ((current-value (get-current-value o event))
+		       (osc-range (- (upper-boundary o) (lower-boundary o)))		   
+		       (degree-increment (/ 360 (cycle o)))
+		       (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
+		       (abs-sin (abs (sin (radians degree))))		   
+		       (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
+		  ;; this is basically the phase-offset
+		  (setf (step-count o) (1+ (step-count o)))
+		  (setf (gethash (event-source event) (lastval o)) new-value)	      
+		  (setf (slot-value event (modified-property o)) new-value))
+		event))
+		events))
 
 ;; special event processor for convenience purposes, to define
 ;; a persistent endpoint for a chain, i.e. when constantly modifying
@@ -192,10 +198,15 @@
 ;; make state-tracking switchable ??? 
 (defmethod apply-self ((b brownian-motion) events &key)
   (mapc #'(lambda (event)
-	    (let* ((current-value (get-current-value b event))
-		   (new-value (cap b (+ current-value (* (nth (random 2) '(-1 1)) (step-size b))))))
-	      (setf (gethash (event-source event) (lastval b)) new-value)
-	      (setf (slot-value event (modified-property b)) new-value))) events))
+	    (if (event-has-slot-by-name event (modified-property b))
+		(let* ((current-value (get-current-value b event))
+		       (new-value (cap b (+ current-value
+					    (* (nth (random 2) '(-1 1)) (step-size b))))))
+		  (setf (gethash (event-source event) (lastval b)) new-value)
+		  (setf (slot-value event (modified-property b)) new-value))
+		event)) events))
+
+
 
 
 
