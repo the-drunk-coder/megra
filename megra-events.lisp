@@ -1,6 +1,7 @@
 ;; the atomic units of music - event and transition ...
 (defclass event ()
-    ((source :accessor event-source)))
+  ((source :accessor event-source)
+   (tags :accessor event-tags :initarg :tags)))
 
 ;; will be the accumulator ... 
 (defclass incomplete-event (event) ())
@@ -20,8 +21,14 @@
 (defclass instrument-event (event)
   ((inst :accessor event-instrument :initarg :inst)))
 
+;; ready for ambisonics
+;; pos is the simple stereo position,
 (defclass spatial-event (event)
-  ((pos :accessor event-position :initarg :pos)))
+  ((pos :accessor event-position :initarg :pos)
+   (azi :accessor event-azimuth :initarg :azi)
+   (ele :accessor event-elevation :initarg :ele)
+   (dist :accessor event-distance :initarg :dist)
+   (ambi-p :accessor event-ambi-p :initarg ambi-p :initform nil)))
 
 (defclass tuned-instrument-event (pitch-event instrument-event level-event duration-event) ())
 

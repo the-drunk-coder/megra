@@ -71,14 +71,15 @@
 
 ;; modifying ... always check if the modifier is already present !
 (defun brownian-motion (name param &key step-size wrap limit ubound lbound
-				     (affect-transition nil)(keep-state t) (track-state t))
+				     (affect-transition nil)(keep-state t) (track-state t) (filter #'all-p))
   (let ((new-inst (make-instance 'brownian-motion :step-size step-size :mod-prop param :name name
 				 :upper-boundary ubound
 				 :lower-boundary lbound
 				 :is-bounded limit
 				 :is-wrapped wrap
 				 :track-state track-state
-				 :affect-transition affect-transition)))    
+				 :affect-transition affect-transition
+				 :event-filter filter)))    
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t)
       (when keep-state
@@ -88,13 +89,15 @@
 
 (defun oscillate-between (name param upper-boundary lower-boundary &key cycle type
 								     (affect-transition nil)
-								     (keep-state t) (track-state t))
+								     (keep-state t) (track-state t)
+								     (filter #'all-p))
   (let ((new-inst (make-instance 'oscillate-between :mod-prop param :name name
 				 :cycle cycle
 				 :upper-boundary upper-boundary
 				 :lower-boundary lower-boundary
 				 :track-state track-state
-				 :affect-transition affect-transition)))
+				 :affect-transition affect-transition
+				 :event-filter filter)))
     ;; if a current instance is replaced ...
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t)
@@ -114,12 +117,14 @@
 
 ;; events
 (defun string-event (msg)
-  (make-instance 'string-event :msg msg))
+  (make-instance 'string-event :msg msg :tags nil))
 
-(defun mid (pitch &key dur lvl)
-  (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur))
+(defun mid (pitch &key dur lvl (tags nil))
+  (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur :tags tags))
 
-(defun grain (folder file &key (dur 256)
+(defun grain (folder file &key
+			    (tags nil)
+			    (dur 256)
 			    (lvl 0.5)
 			    (pos 0.5)
 			    (start 0.0)
@@ -138,22 +143,22 @@
 		 :rate rate :hp-freq hp-freq :hp-q hp-q
 		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
 		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist
-		 :atk atk :rel rel :sample-folder folder :sample-file file))
+		 :atk atk :rel rel :sample-folder folder :sample-file file :tags tags))
 
-(defun ctrl (ctrl-fun)
-  (make-instance 'control-event :control-function ctrl-fun))
+(defun ctrl (ctrl-fun &key (tags nil))
+  (make-instance 'control-event :control-function ctrl-fun :tags tags))
 
-(defun dur (dur)
-  (make-instance 'duration-event :dur dur))
+(defun dur (dur &key (tags nil))
+  (make-instance 'duration-event :dur dur :tags tags))
 
-(defun lvl (lvl)
-  (make-instance 'level-event :lvl lvl))
+(defun lvl (lvl &key (tags nil))
+  (make-instance 'level-event :lvl lvl :tags tags))
 
-(defun pitch (pitch)
-  (make-instance 'pitch-event :pitch pitch))
+(defun pitch (pitch &key (tags nil))
+  (make-instance 'pitch-event :pitch pitch :tags tags))
 
-(defun pos (pos)
-  (make-instance 'spatial-event :pos pos))
+(defun pos (pos &key (azi 0) (ele 0) (dist 0) (tags nil))
+  (make-instance 'spatial-event :pos pos :azi azi :ele ele :dist dist :tags tags))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id &key (del t))

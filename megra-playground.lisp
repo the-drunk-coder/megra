@@ -91,7 +91,6 @@
 ;; MODIFIERS -- hook modifiers into the chain to manipulate the sound.
 (clear)
 
-
 (graph 'tres-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 100))
@@ -99,7 +98,7 @@
 (dispatch ()
   (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
-  (oscillate-between 'tres-osc 'dur 50 1000 :cycle 100 :affect-transition t)
+  (oscillate-between 'tres-osc 'lvl 0.1 0.9 :cycle 100)
   'tres-midi)
 
 
@@ -211,6 +210,24 @@
 
 (deactivate 'tap-b)
 
+
+;; TAGS AND FILTERS 
+(graph 'tres-midi ()
+       (node 1 (mid 84 :lvl .9 :dur 50 :tags '(red)))
+       (edge 1 1 :prob 100 :dur 200))
+
+(defun has-red-tag-p (event)
+  (member 'red (event-tags event)))
+
+(defun has-blue-tag-p (event)
+  (member 'blue (event-tags event)))
+
+(dispatch ()
+  (spigot 'tap-fil :flow t)
+  (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84
+		   :lbound 50 :wrap t :filter #'has-red-tag-p)  
+  'tres-midi)
+
 ;; CONDUCTOR GRAPHS -  create graph-based scores by dispatching chains with a conductor graph
 (clear)
 
@@ -219,6 +236,7 @@
    (graph 'x-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 200)))
+
 
 (chain ()     
    (spigot 'tap-y :flow t)   
@@ -246,10 +264,12 @@
 ;; serialist paradigm
 (clear)
 
+
+
 ;; this is a nice one ...
 (dispatch ()
   (spigot 'tap-inc :flow t)
-  (oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t)
+  (oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t :filter #'transition-p)
   (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 32))
     (node 2 (pitch 52))
@@ -276,7 +296,7 @@
     (edge 2 1 :prob 55))
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (mid 84 :lvl .9 :dur 50))
-    (edge 1 1 :prob 100 :dur 200)))
+    (edge 1 1 :prob 100 :dur 1000)))
 
 
 (load "megra-package")
@@ -286,16 +306,14 @@
 (clear)
 
 ;; TBD:
-;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
-;; filters, like (oscillate-between ... :filter #'has-foo-tag)
+;; note names
+;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; arranging modifiers in graphs ...
 ;; ambisonics panner
 ;; 'funnel event combnation mode
 ;; 'all event combination mode 
 ;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
 ;;     if event has only dur -> default sample ? Precedence ? Fallback ?
-;; note names
-;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; programmatically hook processor in between two others (hook 'proc :post 'bla)
 ;; merge streams ? (merge 'tap-a 'tap-b) -- POSSIBLE only if streams have same origin ...
 ;; parameter faders/modders - anonymous
@@ -316,6 +334,9 @@
 ;; more vugs
 
 ;; DONE:
+;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
+;; filters, like (oscillate-between ... :filter #'has-foo-tag)
+;;  -- hook those into the same place where you check if event has slot !
 ;; for modifying-event-processors: check if modified property is present at all ...
 ;; make modifiers work on transition duration 
 ;; event combination - 't was a piece of work ... 
