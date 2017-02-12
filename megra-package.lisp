@@ -16,9 +16,6 @@
 
 (in-package :megra)
 
-;; main storage for event processors
-(defparameter *processor-directory* (make-hash-table :test 'eql))
-
 ;; helper structure to store sample data
 (defstruct buffer-data 
   buffer
@@ -29,6 +26,9 @@
 (defparameter *buffer-directory* (make-hash-table :test 'equal))
 ;; sample root folder 
 (defparameter *sample-root* "/home/nik/SAMPLES/" )
+
+;; main storage for event processors
+(defparameter *processor-directory* (make-hash-table :test 'eql))
 
 ;; load the megra stuff except for dsp ...
 (load "megra-events")

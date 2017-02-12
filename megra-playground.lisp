@@ -12,12 +12,14 @@
     (setf *out* (cm::new cm::incudine-stream))
     (setf *rts-out* *out*))
 
+
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
 (compile-file "megra-dsp")
 (load "megra-dsp")
 
 ;; now everything should be ready to load the megra package ... 
 (load "megra-package")
+
 
 (in-package :megra)
 
@@ -66,27 +68,36 @@
 (deactivate 'uno-midi)
 
 ;; use the grain event to play a (or parts of) a soundfile
-(graph 'the-grain (:perma t) 
-       (node 1 (grain "misc" "tada" :dur 256 :lvl 0.5 :rate 0.5 :atk 64 :rel 64))
-       (edge 1 1 :prob 100 :dur 64))
+(graph 'the-grain () 
+       (node 1 (grain "misc" "tada" :dur 1024 :lvl 0.5 :rate 1.0 :atk 64 :rel 64 :rev 0.1))
+       (edge 1 1 :prob 100 :dur 2048))
 
 (graph 'the-512-beat ()
-       (node 1 (grain "03_electronics" "01_808_long_kick" :dur 256
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000))
-       (node 2 (grain "03_electronics" "08_fat_snare" :dur 128 :atk 0.1 :lvl 0.5 :rate 0.4))
-       (node 3 (grain "03_electronics" "01_808_long_kick" :dur 256
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000))       
+       (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
+		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000 :rev 0.2))
+       (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1
+		      :lvl 0.9 :rate 2.4 :rev 0.04 :tags '(snare)))
+       (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
+		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000 :rev 0.2))       
        (edge 1 2 :prob 100 :dur 512)
        (edge 2 1 :prob 60 :dur 512)
        (edge 2 3 :prob 40 :dur 256)
        (edge 3 3 :prob 40 :dur 256)
        (edge 3 2 :prob 60 :dur 512))
 
+(defun is-snare-p (event)
+  (member 'snare (event-tags event)))
+
 (dispatch () 'the-grain)
-(dispatch () 'the-512-beat)
+
+(dispatch ()
+  (spigot 'tap-512 :flow t)
+  (oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
+  'the-512-beat)
 
 (deactivate 'the-grain)
-(deactivate 'the-512-beat)
+
+(deactivate 'tap-512)
 
 ;; MODIFIERS -- hook modifiers into the chain to manipulate the sound.
 (clear)

@@ -138,11 +138,12 @@
 			    (lp-q 0.4)
 			    (lp-dist 0.0)
 			    (atk 7)
-			    (rel 7))
+			    (rel 7)
+			    (rev 0.0))
   (make-instance 'grain-event :lvl lvl :dur dur :start start :pos pos :hp-freq hp-freq
 		 :rate rate :hp-freq hp-freq :hp-q hp-q
 		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
-		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist
+		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist :rev rev
 		 :atk atk :rel rel :sample-folder folder :sample-file file :tags tags))
 
 (defun ctrl (ctrl-fun &key (tags nil))
