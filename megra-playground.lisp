@@ -1,3 +1,5 @@
+(ql:quickload "incudine")
+
 (require 'cm)
 (in-package :cm)
 
@@ -14,12 +16,15 @@
 
 
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
+(compile-file "megra-dsp-atoms")
+
+(load "megra-dsp-atoms")
+
 (compile-file "megra-dsp")
 (load "megra-dsp")
 
 ;; now everything should be ready to load the megra package ... 
 (load "megra-package")
-
 
 (in-package :megra)
 
@@ -87,6 +92,8 @@
 
 (defun is-snare-p (event)
   (member 'snare (event-tags event)))
+
+(handle-event (grain "misc" "tada" :dur 1024 :lvl 0.5 :rate 1.0 :atk 64 :rel 64 :rev 0.0))
 
 (dispatch () 'the-grain)
 
@@ -276,7 +283,6 @@
 (clear)
 
 
-
 ;; this is a nice one ...
 (dispatch ()
   (spigot 'tap-inc :flow t)
@@ -318,6 +324,7 @@
 
 ;; TBD:
 ;; note names
+;; node color, inherited by events as tag ...
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; arranging modifiers in graphs ...
 ;; ambisonics panner
@@ -377,12 +384,13 @@
  'the-512-beat)
 
 (dispatch ()
- (brownian-motion 'start-b 'start :step-size 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
- (oscillate-between 'lp-freq-c 'lp-freq 100 8000 :cycle 1000)
- (oscillate-between 'q-c 'lp-q 0.1 1.0 :cycle 50)
- (oscillate-between 'pos-c 'pos 0.4 0.8 :cycle 50) 
- (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
- 'the-grain)
+  (spigot 'tada-tap :flow t)
+  (brownian-motion 'start-b 'start :step-size 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
+  (oscillate-between 'lp-freq-c 'lp-freq 100 8000 :cycle 1000)
+  (oscillate-between 'q-c 'lp-q 0.1 1.0 :cycle 50)
+  (oscillate-between 'pos-c 'pos 0.4 0.8 :cycle 50) 
+  (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
+  'the-grain)
 
 
 

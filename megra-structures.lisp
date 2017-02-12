@@ -2,10 +2,11 @@
 (defclass node ()
   ((global-id :accessor node-global-id)
    (id :accessor node-id :initarg :id)
-   (content :accessor node-content :initarg :content)))
+   (content :accessor node-content :initarg :content)
+   (color :accessor node-color :initarg :color :initform 'white)))
 
 (defmethod add-event ((n node) (e event) &key)
-  (setf (event-source e) (node-global-id n))
+  (setf (event-source e) (node-global-id n))  
   (cons e (node-content n)))
 
 ;; only probability is a structural property on this level.
@@ -42,6 +43,7 @@
 		 (if nodes
 		     (progn
 		       (setf (event-source (car nodes)) (cons (node-global-id n) count))
+		       (setf (event-tags (car nodes)) (cons (node-color n) (event-tags (car nodes))))
 		       (identify (cdr nodes) (+ 1 count))))))
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))

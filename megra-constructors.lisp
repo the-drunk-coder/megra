@@ -1,6 +1,6 @@
 ;; structural
 (defun node (id &rest content)
-  (make-instance 'node :id id :content content))
+  (make-instance 'node :id id :content content :color 'white))
 
 (defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
