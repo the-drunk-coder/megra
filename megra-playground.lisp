@@ -1,5 +1,3 @@
-(ql:quickload "incudine")
-
 (require 'cm)
 (in-package :cm)
 
@@ -74,8 +72,10 @@
 
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
-       (node 1 (grain "misc" "tada" :dur 1024 :lvl 0.5 :rate 1.0 :atk 64 :rel 64 :rev 0.1))
+       (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.1))
        (edge 1 1 :prob 100 :dur 2048))
+
+(scratch::get-bytes-consed-in 5)
 
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512

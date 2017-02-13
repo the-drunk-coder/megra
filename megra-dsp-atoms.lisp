@@ -71,8 +71,8 @@
 (define-vug convorev (in (revbuf pvbuffer) rev gain a length r)
   (* (delay-s (envelope (make-local-envelope `(0 ,gain ,gain 0)
 					     `(,a ,(+ length 2.5) ,r)) 1 1 #'free)
-	      65536 (ash (pvbuffer-fft-size revbuf) -1))	   
-     (+ (* (- 1 rev) (delay-s in 65536 (ash (pvbuffer-fft-size revbuf) -1)))
+	      (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1))	   
+     (+ (* (- 1 rev) (delay-s in (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)))
 	(* rev (part-convolve in revbuf)))))
 
 ;;compile
