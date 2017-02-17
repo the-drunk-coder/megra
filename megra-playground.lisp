@@ -8,10 +8,12 @@
     (midi-open-default :direction :input)
     (midi-open-default :direction :output)
     (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-    (osc-open-default :host "127.0.0.1" :port 3003 :direction :output)    
+    ;; send osc msgs to scsynth ...
+    (osc-open-default :host "127.0.0.1" :port 57110 :direction :output)    
     (setf *out* (cm::new cm::incudine-stream))
     (setf *rts-out* *out*))
 
+(incudine:rt-stop)
 
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
 (compile-file "megra-dsp-atoms")
@@ -92,8 +94,6 @@
 
 (defun is-snare-p (event)
   (member 'snare (event-tags event)))
-
-(handle-event (grain "misc" "tada" :dur 1024 :lvl 0.5 :rate 1.0 :atk 64 :rel 64 :rev 0.0))
 
 (dispatch () 'the-grain)
 
@@ -323,6 +323,7 @@
 (clear)
 
 ;; TBD:
+;; live-security - in case new dispatch goes wrong, keep playing ...
 ;; note names
 ;; node color, inherited by events as tag ...
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)

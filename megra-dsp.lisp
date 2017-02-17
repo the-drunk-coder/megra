@@ -3,12 +3,12 @@
 (defvar *rev-crypta*
   (buffer->pvbuffer (buffer-load
 		     (concatenate 'string "/home/nik/SAMPLES/" "IR/ir1_-_iringresso_new.wav"))
-		    4096))
+		    2048))
 
 (defvar *rev-chapel*
   (buffer->pvbuffer (buffer-load
 		     (concatenate 'string "/home/nik/SAMPLES/" "IR/ir1.wav"))
-		    4096))
+		    2048))
 
 (dsp! megra-grain ((buf buffer)
 		   unit-rate

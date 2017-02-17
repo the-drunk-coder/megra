@@ -26,9 +26,16 @@
 (defparameter *buffer-directory* (make-hash-table :test 'equal))
 ;; sample root folder 
 (defparameter *sample-root* "/home/nik/SAMPLES/" )
+;; consecutive buffer numbers for scsynth
+(defparameter *sc-sample-bufnums* 0)
 
 ;; main storage for event processors
 (defparameter *processor-directory* (make-hash-table :test 'eql))
+
+;; the default backend for DSP
+;; 'inc -> incudine
+;; 'sc -> SuperCollider
+(defparameter *default-dsp-backend* 'inc)
 
 ;; load the megra stuff except for dsp ...
 (load "megra-events")
@@ -37,3 +44,4 @@
 (load "megra-dispatchers")
 (load "megra-constructors")
 (load "megra-event-filters")
+(load "megra-sc-backend")

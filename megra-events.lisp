@@ -1,7 +1,8 @@
 ;; the atomic units of music - event and transition ...
 (defclass event ()
   ((source :accessor event-source)
-   (tags :accessor event-tags :initarg :tags)))
+   (tags :accessor event-tags :initarg :tags)
+   (backends :accessor event-backends :initarg :backends :initform `(,*default-dsp-backend*))))
 
 ;; will be the accumulator ... 
 (defclass incomplete-event (event) ())

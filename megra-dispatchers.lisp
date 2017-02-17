@@ -8,11 +8,12 @@
 ;; simple time-recursive dispatching
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
   (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
-    (handle-events d (pull-events (gethash proc *processor-directory*)))
-    (let* ((trans-time (handle-transition d (car
-					     (pull-transition (gethash proc *processor-directory*)))))
-	   (next (+ time #[trans-time ms])))
-      (incudine:at next #'perform-dispatch d proc next))))
+    (scratch::rt-eval () (handle-events d (pull-events (gethash proc *processor-directory*)))
+      (let* ((trans-time (handle-transition d (car
+					       (pull-transition
+						(gethash proc *processor-directory*)))))
+	     (next (+ time #[trans-time ms])))
+	(incudine:at next #'perform-dispatch d proc next)))))
 
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
   ;;(fresh-line)
@@ -57,6 +58,36 @@
   (funcall (control-function c)))
 
 (defmethod handle-event ((g grain-event) &key)
+  (if (member 'inc (event-backends g)) (handle-grain-event-incu g))
+  (if (member 'sc (event-backends g)) (handle-grain-event-sc g)))
+
+(defmethod handle-grain-event-sc ((g grain-event) &key)
+  (unless (gethash (sample-location g) *buffer-directory*)
+    (register-sample (sample-location g)))
+  (let ((bufnum (gethash (sample-location g) *buffer-directory*)))
+    (output (new cm::osc 
+	    :path "/s_new"
+	    :time (now)
+	    :types "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+	    :message `("grain_2ch" -1 0 1
+		       "bufnum" ,bufnum
+		       "lvl" ,(event-level g)
+		       "rate" ,(rate g)
+		       "start" ,(start g)
+		       "lp_freq" ,(lp-freq g)
+		       "lp_q" ,(lp-q g)
+		       "lp_dist" ,(lp-dist g)
+		       "pf_freq" ,(pf-freq g)
+		       "pf_q" ,(pf-q g)
+		       "pf_gain" ,(pf-gain g)
+		       "hp_freq" ,(hp-freq g)
+		       "hp_q" ,(hp-q g)
+		       "a" ,(* (atk g) 0.001)
+		       "length" ,(* (- (event-duration g) (atk g) (rel g)) 0.001)
+		       "r" ,(* (rel g) 0.001)
+		       "pos" ,(event-position g))))))
+
+(defmethod handle-grain-event-incu ((g grain-event) &key)
   (unless (gethash (sample-location g) *buffer-directory*)
     (let* ((buffer (incudine:buffer-load (sample-location g)))
 	   (bdata (make-buffer-data :buffer buffer
