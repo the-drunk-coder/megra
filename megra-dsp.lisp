@@ -95,5 +95,92 @@
 	spatial-pos)))))
 
 
+(dsp! megra-grain-ambi ((buf buffer)
+		   unit-rate
+		   frames
+		   gain		   
+		   rate
+		   start-pos
+		   lp-freq
+		   lp-q
+		   lp-dist
+		   peak-freq
+		   peak-q
+		   peak-gain
+		   hp-freq
+		   hp-q
+		   a
+		   length
+		   r
+		   azi
+		   ele
+		   (revbuf pvbuffer))
+  (with-samples ((grain (grain-gen-free
+			 buf
+			 unit-rate
+			 frames
+			 gain		   
+			 rate
+			 start-pos
+			 lp-freq
+			 lp-q
+			 lp-dist
+			 peak-freq
+			 peak-q
+			 peak-gain
+			 hp-freq
+			 hp-q
+			 a
+			 length
+			 r)))
+    (foreach-channel
+      (cout (pan-ambi-3rd-sn3d (delay-s grain (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)) azi ele)))))
+
+(dsp! megra-grain-ambi-rev ((buf buffer)
+		       unit-rate
+		       frames
+		       gain		   
+		       rate
+		       start-pos
+		       lp-freq
+		       lp-q
+		       lp-dist
+		       peak-freq
+		       peak-q
+		       peak-gain
+		       hp-freq
+		       hp-q
+		       a
+		       length
+		       r
+		       azi
+		       ele	    
+		       rev
+		       (revbuf pvbuffer))
+  (with-samples ((grain (grain-gen-id
+			 buf 
+			 unit-rate
+			 frames
+			 gain		   
+			 rate
+			 start-pos
+			 lp-freq
+			 lp-q
+			 lp-dist
+			 peak-freq
+			 peak-q
+			 peak-gain
+			 hp-freq
+			 hp-q
+			 a
+			 length
+			 r)))
+    (foreach-channel
+      (cout
+       (pan-ambi-3rd-sn3d
+	(convorev grain revbuf rev gain a length r)
+	azi ele)))))
+
+
 
 

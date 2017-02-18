@@ -78,4 +78,50 @@
 ;;compile
 (compile-vug 'convorev 'sample)
 
+;;(defparameter *sn3d-norm-factors*
+;;  `(1 ;;0
+;;    1 ;;1
+;;    1 ;;2
+;;    1 ;;3
+;;    ,(sqrt 3) ;;4
+;;    ,(sqrt 3) ;;5
+;;    0.5 ;;6
+;;    ,(sqrt 3) ;;7
+;;    ,(/ (sqrt 3) 2) ;;8
+;;    ,(sqrt (/ 5 8)) ;;9
+;;    ,(sqrt 15) ;;10
+;;    ,(sqrt (/ 3 8)) ;;11
+;;    0.5 ;;12
+;;    ,(sqrt (/ 3 8)) ;;13
+;;    ,(/ (sqrt 15) 2) ;;14
+;;    ,(sqrt (/ 5 8)) ;;15
+;;    ))
 
+
+(define-vug pan-ambi-3rd-sn3d (in azi ele)
+  "3rd order ambisonics encoder (no distance coding), ACN, SN3D"
+  (with-samples ((ux (* (cos azi) (cos ele)))
+                 (uy (* (sin azi) (cos ele)))
+                 (uz (sin ele))
+		 (ux2 (* ux ux))
+		 (uy2 (* uy uy))
+		 (uz2 (* uz uz)))
+    (cond ((= current-channel 0) (* 1 1 in))
+          ((= current-channel 1) (* 1 uy in))
+	  ((= current-channel 2) (* 1 uz in))
+	  ((= current-channel 3) (* 1 ux in))
+	  ((= current-channel 4) (* 1.7320508 ux uy in))
+	  ((= current-channel 5) (* 1.7320508 uy uz in))
+	  ((= current-channel 6) (* 0.5 (- (* 2 uz2) ux2 uy2) in))
+	  ((= current-channel 7) (* 1.7320508 ux uz in))
+	  ((= current-channel 8) (* 0.8660254 (- ux2 uy2) in))
+	  ((= current-channel 9) (* 0.7905694 uy (- (* 3 ux2) uy2) in))
+	  ((= current-channel 10) (* 3.8729835  uz ux uy in))
+	  ((= current-channel 11) (* 0.61237246 uy (- (* 4 uz2) ux2 uy2) in))
+	  ((= current-channel 12) (* 0.5 uz (- (* 2 uz2) (* 3 ux2) (* 3 uy2)) in))
+	  ((= current-channel 13) (* 0.61237246  ux (- (* 4 uz2) ux2 uy2) in))
+	  ((= current-channel 14) (* 1.9364917 uz (- ux2 uy2) in))
+	  ((= current-channel 15) (* 0.7905694 ux (- ux2 (* 3 uy2)) in))
+	  (t +sample-zero+))))
+
+(compile-vug 'pan-ambi-3rd-sn3d 'sample)

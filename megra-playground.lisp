@@ -64,7 +64,7 @@
 ;; streams will be merged (for now) ...
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
-;; in any case, the last graph in the chain determines the timing
+;; in any case, the last graph in the chain determines the ti2ming
 (dispatch ()
   'uno-midi
   'dos-midi)
@@ -76,6 +76,20 @@
 (graph 'the-grain () 
        (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.1))
        (edge 1 1 :prob 100 :dur 2048))
+
+(graph 'ambi-test ()
+  (node 1 (grain "03_electronics" "08_fat_snare" :dur 64 :atk 0.1
+		 :lvl 0.9 :rate 2.4 :rev 0.05 :azi 0 :ele 0 :ambi t))
+  (edge 1 1 :prob 100 :dur 128))
+
+(dispatch ()
+  (spigot 'tap-ambi :flow t) ;; spigot helps in the development process ... 
+  (oscillate-between 'azi-rot 'azi 0 3.14 :cycle 20)  
+  (oscillate-between 'ele-rot 'ele 0 3.14 :cycle 20)
+  'ambi-test)
+
+
+
 
 (scratch::get-bytes-consed-in 5)
 

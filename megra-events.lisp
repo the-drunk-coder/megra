@@ -29,7 +29,7 @@
    (azi :accessor event-azimuth :initarg :azi)
    (ele :accessor event-elevation :initarg :ele)
    (dist :accessor event-distance :initarg :dist)
-   (ambi-p :accessor event-ambi-p :initarg ambi-p :initform nil)))
+   (ambi-p :accessor event-ambi-p :initarg :ambi-p :initform nil)))
 
 (defclass tuned-instrument-event (pitch-event instrument-event level-event duration-event) ())
 
