@@ -47,8 +47,9 @@
 			 a
 			 length
 			 r)))
-    (foreach-channel
-      (cout (pan2 (delay-s grain (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)) spatial-pos)))))
+    (foreach-frame
+      (foreach-channel
+	(cout (pan2 (delay-s grain (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)) spatial-pos))))))
 
 (dsp! megra-grain-rev ((buf buffer)
 		       unit-rate
@@ -88,12 +89,12 @@
 			 a
 			 length
 			 r)))
-    (foreach-channel
-      (cout
-       (pan2
-	(convorev grain revbuf rev gain a length r)
-	spatial-pos)))))
-
+    (foreach-frame
+      (foreach-channel
+	(cout
+	 (pan2
+	  (convorev grain revbuf rev gain a length r)
+	  spatial-pos))))))
 
 (dsp! megra-grain-ambi ((buf buffer)
 		   unit-rate
@@ -133,8 +134,9 @@
 			 a
 			 length
 			 r)))
-    (foreach-channel
-      (cout (pan-ambi-3rd-sn3d (delay-s grain (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)) azi ele)))))
+    (foreach-frame
+      (foreach-channel
+	(cout (pan-ambi-3rd-sn3d (delay-s grain (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)) azi ele))))))
 
 (dsp! megra-grain-ambi-rev ((buf buffer)
 		       unit-rate
@@ -175,11 +177,12 @@
 			 a
 			 length
 			 r)))
-    (foreach-channel
-      (cout
-       (pan-ambi-3rd-sn3d
-	(convorev grain revbuf rev gain a length r)
-	azi ele)))))
+    (foreach-frame
+      (foreach-channel
+	(cout
+	 (pan-ambi-3rd-sn3d
+	  (convorev grain revbuf rev gain a length r)
+	  azi ele))))))
 
 
 

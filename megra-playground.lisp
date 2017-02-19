@@ -292,8 +292,6 @@
 ;; incrementally build events ...
 ;; might be understood as a generalization of the
 ;; serialist paradigm
-(clear)
-
 
 ;; this is a nice one ...
 (dispatch ()
@@ -328,11 +326,6 @@
     (edge 1 1 :prob 100 :dur 1000)))
 
 
-(load "megra-package")
-
-
-
-(clear)
 
 ;; TBD:
 ;; live-security - in case new dispatch goes wrong, keep playing ...
