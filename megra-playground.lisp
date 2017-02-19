@@ -3,7 +3,8 @@
 
 ;; initialize -- seems like it has to be like this ...
 (progn
-    (incudine:rt-start)
+  (incudine:set-rt-block-size 128)
+  (incudine:rt-start)
     (sleep 1)
     (midi-open-default :direction :input)
     (midi-open-default :direction :output)
@@ -30,8 +31,8 @@
 
 (in-package :megra)
 
-;;(defparameter *default-dsp-backend* 'inc)
-(defparameter *default-dsp-backend* 'sc)
+(defparameter *default-dsp-backend* 'inc)
+;;(defparameter *default-dsp-backend* 'sc)
 
 ;; define some test graph structures
 (graph 'uno-midi ()
@@ -83,9 +84,17 @@
        (edge 1 1 :prob 100 :dur 2048))
 
 (graph 'ambi-test ()
-  (node 1 (grain "misc" "tada" :dur 256 :atk 0.1
-		 :lvl 0.9 :rate 1.0 :rev 0.01 :azi 0 :ele 0 :ambi nil))
-  (edge 1 1 :prob 100 :dur 512))
+  (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
+		 :lvl 0.9 :rate 1.0 :rev 0.0 :azi 0 :ele 0 :ambi t))
+  (edge 1 1 :prob 100 :dur 128))
+
+(dispatch ()
+  (spigot 'ambi-tap-512 :flow t)
+  (oscillate-between 'osc-azi 'azi 0.0 3.14 :cycle 50)
+  (oscillate-between 'osc-ele 'ele 0.0 3.14 :cycle 20)
+  'ambi-test)
+
+(deactivate 'ambi-tap-512)
 
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512

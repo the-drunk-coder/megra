@@ -26,34 +26,6 @@
 	  ((= current-channel 15) (* 0.79056941504 ux (- ux2 (* 3 uy2)) in))
 	  (t +sample-zero+))))
 
-(define-vug grain-gen-free ((buf buffer)
-		       unit-rate
-		       frames
-		       gain		   
-		       rate
-		       start-pos
-		       lp-freq
-		       lp-q
-		       lp-dist
-		       peak-freq
-		       peak-q
-		       peak-gain
-		       hp-freq
-		       hp-q
-		       a
-		       length
-		       r)
-  (with-samples ((snippet (buffer-read buf (* (phasor (* rate unit-rate) start-pos) frames)
-				       :wrap-p nil :interpolation :cubic) ))
-    (lpf18
-     (peak-eq 
-      (hpf 	
-       (* (envelope (make-local-envelope `(0 ,gain ,gain 0) `(,a ,length ,r)) 1 1 #'free)
-	  snippet )
-       hp-freq hp-q)
-      peak-freq peak-q peak-gain)
-     lp-freq lp-q lp-dist)))
-
 (define-vug grain-gen-id ((buf buffer)
 		       unit-rate
 		       frames
@@ -88,3 +60,4 @@
 	      (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1))	   
      (+ (* (- 1 rev) (delay-s in (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)))
 	(* rev (part-convolve in revbuf)))))
+
