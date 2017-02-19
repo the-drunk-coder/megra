@@ -1,12 +1,5 @@
 (in-package :scratch)
 
-(compile-vug 'envelope 'sample)
-(compile-vug 'lpf18 'sample)
-(compile-vug 'hpf 'sample)
-(compile-vug 'peak-eq 'sample)
-(compile-vug 'phasor 'sample)
-(compile-vug 'delay-s 'sample)
-
 (define-vug grain-gen-free ((buf buffer)
 		       unit-rate
 		       frames
@@ -63,40 +56,12 @@
       peak-freq peak-q peak-gain)
      lp-freq lp-q lp-dist)))
 
-
-;; compile
-(compile-vug 'grain-gen-free 'sample)
-(compile-vug 'grain-gen-id 'sample)
-
 (define-vug convorev (in (revbuf pvbuffer) rev gain a length r)
   (* (delay-s (envelope (make-local-envelope `(0 ,gain ,gain 0)
 					     `(,a ,(+ length 2.5) ,r)) 1 1 #'free)
 	      (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1))	   
      (+ (* (- 1 rev) (delay-s in (pvbuffer-fft-size revbuf) (ash (pvbuffer-fft-size revbuf) -1)))
 	(* rev (part-convolve in revbuf)))))
-
-;;compile
-(compile-vug 'convorev 'sample)
-
-;;(defparameter *sn3d-norm-factors*
-;;  `(1 ;;0
-;;    1 ;;1
-;;    1 ;;2
-;;    1 ;;3
-;;    ,(sqrt 3) ;;4
-;;    ,(sqrt 3) ;;5
-;;    0.5 ;;6
-;;    ,(sqrt 3) ;;7
-;;    ,(/ (sqrt 3) 2) ;;8
-;;    ,(sqrt (/ 5 8)) ;;9
-;;    ,(sqrt 15) ;;10
-;;    ,(sqrt (/ 3 8)) ;;11
-;;    0.5 ;;12
-;;    ,(sqrt (/ 3 8)) ;;13
-;;    ,(/ (sqrt 15) 2) ;;14
-;;    ,(sqrt (/ 5 8)) ;;15
-;;    ))
-
 
 (define-vug pan-ambi-3rd-sn3d (in azi ele)
   "3rd order ambisonics encoder (no distance coding), ACN, SN3D"
@@ -123,5 +88,3 @@
 	  ((= current-channel 14) (* 1.9364917 uz (- ux2 uy2) in))
 	  ((= current-channel 15) (* 0.7905694 ux (- ux2 (* 3 uy2)) in))
 	  (t +sample-zero+))))
-
-(compile-vug 'pan-ambi-3rd-sn3d 'sample)

@@ -8,12 +8,12 @@
 ;; simple time-recursive dispatching
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
   (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
-    (scratch::rt-eval () (handle-events d (pull-events (gethash proc *processor-directory*)))
-      (let* ((trans-time (handle-transition d (car
-					       (pull-transition
-						(gethash proc *processor-directory*)))))
-	     (next (+ time #[trans-time ms])))
-	(incudine:at next #'perform-dispatch d proc next)))))
+    (handle-events d (pull-events (gethash proc *processor-directory*)))
+    (let* ((trans-time (handle-transition d (car
+					     (pull-transition
+					      (gethash proc *processor-directory*)))))
+	   (next (+ time #[trans-time ms])))
+      (incudine:at next #'perform-dispatch d proc next))))
 
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
   ;;(fresh-line)
@@ -65,27 +65,26 @@
   (unless (gethash (sample-location g) *buffer-directory*)
     (register-sample (sample-location g)))
   (let ((bufnum (gethash (sample-location g) *buffer-directory*)))
-    (output (new cm::osc 
-	    :path "/s_new"
-	    :time (now)
-	    :types "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
-	    :message `("grain_2ch" -1 0 1
-		       "bufnum" ,bufnum
-		       "lvl" ,(event-level g)
-		       "rate" ,(rate g)
-		       "start" ,(start g)
-		       "lp_freq" ,(lp-freq g)
-		       "lp_q" ,(lp-q g)
-		       "lp_dist" ,(lp-dist g)
-		       "pf_freq" ,(pf-freq g)
-		       "pf_q" ,(pf-q g)
-		       "pf_gain" ,(pf-gain g)
-		       "hp_freq" ,(hp-freq g)
-		       "hp_q" ,(hp-q g)
-		       "a" ,(* (atk g) 0.001)
-		       "length" ,(* (- (event-duration g) (atk g) (rel g)) 0.001)
-		       "r" ,(* (rel g) 0.001)
-		       "pos" ,(event-position g))))))
+    (cm::send-osc  
+     "/s_new"	    
+     "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+     "grain_2ch" -1 0 1
+     "bufnum" bufnum
+     "lvl" (coerce (event-level g) 'float)
+     "rate" (coerce (rate g) 'float)
+     "start" (coerce (start g) 'float)
+     "lp_freq" (coerce (lp-freq g) 'float)
+     "lp_q" (coerce (lp-q g) 'float)
+     "lp_dist" (coerce (lp-dist g) 'float)
+     "pf_freq" (coerce (pf-freq g) 'float)
+     "pf_q" (coerce (pf-q g) 'float)
+     "pf_gain" (coerce (pf-gain g) 'float)
+     "hp_freq" (coerce (hp-freq g) 'float)
+     "hp_q" (coerce (hp-q g)  'float)
+     "a" (coerce (* (atk g) 0.001) 'float)
+     "length" (coerce (* (- (event-duration g) (atk g) (rel g)) 0.001) 'float)
+     "r" (coerce (* (rel g) 0.001) 'float)
+     "pos" (coerce (- (event-position g) 0.5) 'float))))
 
 (defmethod handle-grain-event-incu ((g grain-event) &key)
   (unless (gethash (sample-location g) *buffer-directory*)
@@ -95,8 +94,7 @@
 						    (incudine:buffer-frames buffer))
 				    :buffer-frames (incudine:buffer-frames buffer))))
       (setf (gethash (sample-location g) *buffer-directory*) bdata)))
-  (let ((bdata (gethash (sample-location g) *buffer-directory*)))
-    
+  (let ((bdata (gethash (sample-location g) *buffer-directory*)))    
     (cond ((and (not (event-ambi-p g)) (> (rev g) 0.0))
 	   (scratch::megra-grain-rev (buffer-data-buffer bdata)
 		 (buffer-data-buffer-rate bdata)

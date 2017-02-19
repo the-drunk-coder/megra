@@ -20,13 +20,18 @@
 
 (load "megra-dsp-atoms")
 
+;; wait !
 (compile-file "megra-dsp")
+
 (load "megra-dsp")
 
 ;; now everything should be ready to load the megra package ... 
 (load "megra-package")
 
 (in-package :megra)
+
+;;(defparameter *default-dsp-backend* 'inc)
+(defparameter *default-dsp-backend* 'sc)
 
 ;; define some test graph structures
 (graph 'uno-midi ()
@@ -78,33 +83,26 @@
        (edge 1 1 :prob 100 :dur 2048))
 
 (graph 'ambi-test ()
-  (node 1 (grain "03_electronics" "08_fat_snare" :dur 64 :atk 0.1
-		 :lvl 0.9 :rate 2.4 :rev 0.05 :azi 0 :ele 0 :ambi t))
-  (edge 1 1 :prob 100 :dur 128))
-
-(dispatch ()
-  (spigot 'tap-ambi :flow t) ;; spigot helps in the development process ... 
-  (oscillate-between 'azi-rot 'azi 0 3.14 :cycle 20)  
-  (oscillate-between 'ele-rot 'ele 0 3.14 :cycle 20)
-  'ambi-test)
-
-
-
-
-(scratch::get-bytes-consed-in 5)
+  (node 1 (grain "misc" "tada" :dur 256 :atk 0.1
+		 :lvl 0.9 :rate 1.0 :rev 0.01 :azi 0 :ele 0 :ambi nil))
+  (edge 1 1 :prob 100 :dur 512))
 
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000 :rev 0.2))
+		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0))
        (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1
-		      :lvl 0.9 :rate 2.4 :rev 0.04 :tags '(snare)))
+		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare)))
        (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 0.001 :lp-dist 1.0 :lp-freq 5000 :rev 0.2))       
+		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0))     
        (edge 1 2 :prob 100 :dur 512)
        (edge 2 1 :prob 60 :dur 512)
        (edge 2 3 :prob 40 :dur 256)
        (edge 3 3 :prob 40 :dur 256)
        (edge 3 2 :prob 60 :dur 512))
+
+(free-all-samples)
 
 (defun is-snare-p (event)
   (member 'snare (event-tags event)))
