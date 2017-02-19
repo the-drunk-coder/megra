@@ -165,6 +165,9 @@
 (defun pos (pos &key (azi 0) (ele 0) (dist 0) (tags nil))
   (make-instance 'spatial-event :pos pos :azi azi :ele ele :dist dist :tags tags))
 
+(defun ambi-pos (azi ele &key (dist 0) (tags nil))
+  (make-instance 'spatial-event :pos 0.0 :azi azi :ele ele :dist dist :tags tags :ambi-p t))
+
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id &key (del t))
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)

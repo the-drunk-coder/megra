@@ -337,12 +337,12 @@
 
 
 ;; TBD:
-;; live-security - in case new dispatch goes wrong, keep playing ...
+;; filter for graph combi !! 
+;; ambisonics panner - sc
 ;; note names
 ;; node color, inherited by events as tag ...
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; arranging modifiers in graphs ...
-;; ambisonics panner
 ;; 'funnel event combnation mode
 ;; 'all event combination mode 
 ;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
@@ -367,6 +367,7 @@
 ;; more vugs
 
 ;; DONE:
+;; ambisonics panner - incudine 
 ;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
 ;; filters, like (oscillate-between ... :filter #'has-foo-tag)
 ;;  -- hook those into the same place where you check if event has slot !
