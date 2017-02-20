@@ -119,7 +119,7 @@
 (defmethod combine-single-events ((a event) (b event) &key)
   (cond ((events-compatible a b) (overwrite-slots a b))
 	;; merge events into a new incomplete event
-	(t (let ((new-event (make-instance 'incomplete-event)) )
+	(t (let ((new-event (make-instance 'incomplete-event)))
 	      (copy-slots-to-class a new-event)
 	      (copy-slots-to-class b new-event)
 	      (overwrite-slots b new-event)
@@ -127,9 +127,11 @@
 	      ))))
 
 ;; combining events ... a has precedence
-(defmethod combine-events (events-a events-b &key (mode 'append))
+(defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
-	((eq mode 'zip) (mapcar #'combine-single-events events-a events-b))))
+	((eq mode 'zip) (let ((filtered-and-combined (mapcar #'combine-single-events events-a (remove-if-not filter events-b)))
+			      (rest (remove-if filter events-b)))
+			  (append filtered-and-combined rest)))))
 
 ;; it might seem weird to treat the transition as an event, but it makes lots
 ;; of things easier, and musicall it's sound to treat the space between events

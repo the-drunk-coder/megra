@@ -332,10 +332,33 @@
     (edge 2 1 :prob 55))
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (mid 84 :lvl .9 :dur 50))
+    (node 1 (mid 84 :lvl .9 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
 
 
+(defun has-two-p (event)
+  (member 'two (event-tags event)))
+
+;; this is a nice one ...
+(dispatch ()
+  (spigot 'tap-inc :flow t)  
+  (graph 'pitcher (:combine-mode 'zip :combine-filter #'has-two-p)
+    (node 1 (pitch 32))
+    (node 2 (pitch 52))
+    (edge 1 1 :prob 60)
+    (edge 1 2 :prob 40)
+    (edge 2 2 :prob 55)
+    (edge 2 1 :prob 45))
+   (graph 'origin () ;; for now, origin event needs to have handler ...
+    (node 1 (mid 84 :lvl .9 :dur 50))
+    (node 2 (mid 84 :lvl .9 :dur 50))
+    (edge 1 2 :prob 100 :dur 1000)
+    (edge 2 1 :prob 100 :dur 1000)))
+
+
+
+(clear)
 ;; TBD:
 ;; filter for graph combi !! 
 ;; ambisonics panner - sc

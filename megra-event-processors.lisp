@@ -58,6 +58,7 @@
    (current-node :accessor current-node :initarg :current-node)
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
    (combine-mode :accessor combine-mode :initarg :combine-mode)
+   (combine-filter :accessor combine-filter :initarg :combine-filter)
    (path)))
 
 ;; strange mop-method to allow cloning events
@@ -99,7 +100,7 @@
 
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
-  (combine-events (current-events g) events :mode (combine-mode g)))
+  (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
 
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)

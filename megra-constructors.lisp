@@ -8,7 +8,7 @@
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
-(defmacro graph (name (&key (perma nil) (combine-mode ''append)) &body graphdata)
+(defmacro graph (name (&key (perma nil) (combine-mode ''append) (combine-filter #'all-p)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
 		      (mapc #'(lambda (obj)
@@ -20,7 +20,8 @@
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
 					       :graph new-graph :copy-events (not ,perma)
-					       :current-node 1 :combine-mode ,combine-mode))))
+					       :current-node 1 :combine-mode ,combine-mode
+					       :combine-filter ,combine-filter))))
 		 ,name)))
 
 ;; build the event processor chain, in the fashion of a douby-linked list ...
