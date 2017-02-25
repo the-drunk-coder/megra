@@ -5,14 +5,14 @@
 (progn
   (incudine:set-rt-block-size 128)
   (incudine:rt-start)
-    (sleep 1)
-    (midi-open-default :direction :input)
-    (midi-open-default :direction :output)
-    (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
-    ;; send osc msgs to scsynth ...
-    (osc-open-default :host "127.0.0.1" :port 57110 :direction :output)    
-    (setf *out* (cm::new cm::incudine-stream))
-    (setf *rts-out* *out*))
+  (sleep 1)
+  (midi-open-default :direction :input)
+  (midi-open-default :direction :output)
+  (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
+  ;; send osc msgs to scsynth ...
+  (osc-open-default :host "127.0.0.1" :port 57110 :direction :output)    
+  (setf *out* (cm::new cm::incudine-stream))
+  (setf *rts-out* *out*))
 
 (incudine:rt-stop)
 
@@ -80,7 +80,7 @@
 
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
-       (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.1))
+       (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2))
        (edge 1 1 :prob 100 :dur 2048))
 
 (graph 'ambi-test ()

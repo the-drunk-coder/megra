@@ -7,6 +7,8 @@
 ;; will be the accumulator ... 
 (defclass incomplete-event (event) ())
 
+;; those "abstract" events provide the building blocks
+;; for the events that will later on produce a sound 
 (defclass string-event (event)
     ((msg :accessor event-message :initarg :msg)))
 
@@ -22,8 +24,38 @@
 (defclass instrument-event (event)
   ((inst :accessor event-instrument :initarg :inst)))
 
+(defclass rate-event (event)
+  ((rate :accessor event-rate :initarg :rate)))
+
+(defclass attack-event (event)
+  ((atk :accessor event-attack :initarg :atk)))
+
+(defclass release-event (event)
+  ((rel :accessor event-release :initarg :rel)))
+
+(defclass start-event (event)
+  ((start :accessor event-start :initarg :start)))
+
+(defclass filter-hp-event (event)
+  ((hp-freq :accessor event-hp-freq :initarg :hp-freq)
+   (hp-q :accessor event-hp-q :initarg :hp-q)))
+
+(defclass filter-peak-event (event)
+  ((pf-freq :accessor event-pf-freq :initarg :pf-freq)
+   (pf-q :accessor event-pf-q :initarg :pf-q)
+   (pf-gain :accessor event-pf-gain :initarg :pf-gain)))
+
+(defclass filter-lp-event (event)
+  ((lp-freq :accessor event-lp-freq :initarg :lp-freq)
+   (lp-q :accessor event-lp-q :initarg :lp-q)
+   (lp-dist :accessor event-lp-dist :initarg :lp-dist)))
+
+(defclass reverb-event (event)
+  ((rev :accessor event-reverb :initarg :rev)))
+
 ;; ready for ambisonics
 ;; pos is the simple stereo position,
+;; azimuth, elevation and distance the ambisonics parameters
 (defclass spatial-event (event)
   ((pos :accessor event-position :initarg :pos)
    (azi :accessor event-azimuth :initarg :azi)
@@ -35,27 +67,17 @@
 
 (defclass midi-event (tuned-instrument-event) ())
 
-(defclass grain-event (level-event duration-event spatial-event)
-  ((rate :accessor rate :initarg :rate)
-   (start :accessor start :initarg :start)
-   (hp-freq :accessor hp-freq :initarg :hp-freq)
-   (hp-q :accessor hp-q :initarg :hp-q)
-   (pf-freq :accessor pf-freq :initarg :pf-freq)
-   (pf-q :accessor pf-q :initarg :pf-q)
-   (pf-gain :accessor pf-gain :initarg :pf-gain) 
-   (lp-freq :accessor lp-freq :initarg :lp-freq)
-   (lp-q :accessor lp-q :initarg :lp-q)
-   (lp-dist :accessor lp-dist :initarg :lp-dist)
-   (atk :accessor atk :initarg :atk)
-   (rel :accessor rel :initarg :rel)
-   (rev :accessor rev :initarg :rev)
-   (sample-folder :accessor sample-folder :initarg :sample-folder)
+(defclass grain-event (level-event duration-event spatial-event start-event rate-event
+				   attack-event release-event filter-hp-event filter-lp-event
+				   filter-peak-event reverb-event)
+  ((sample-folder :accessor sample-folder :initarg :sample-folder)
    (sample-file :accessor sample-file :initarg :sample-file)
    (sample-location :accessor sample-location)))
 
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (sample-location g) (concatenate 'string *sample-root* (sample-folder g) "/" (sample-file g) ".wav")))
 
+;; special event that contains a control function to modify things or start/stop things ...
 (defclass control-event (event)
   ((control-function :accessor control-function :initarg :control-function)))
 
