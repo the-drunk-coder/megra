@@ -75,7 +75,8 @@
    (sample-location :accessor sample-location)))
 
 (defmethod initialize-instance :after ((g grain-event) &key)
-  (setf (sample-location g) (concatenate 'string *sample-root* (sample-folder g) "/" (sample-file g) ".wav")))
+  (setf (sample-location g) (concatenate 'string *sample-root*
+					 (sample-folder g) "/" (sample-file g) ".wav")))
 
 ;; special event that contains a control function to modify things or start/stop things ...
 (defclass control-event (event)
@@ -123,11 +124,12 @@
 (defmethod events-compatible ((a event) (b event) &key)
   (subsetp (class-slots (class-of a)) (class-slots (class-of b)) :test 'slot-eq))
 
-(defmethod overwrite-slots ((a event) (b event) &key)
+(defmethod overwrite-slots ((a event) (b event) &key (keep-source nil))
   (loop for slot in (class-slots (class-of a))
      do (when (slot-boundp-using-class (class-of b) b slot)
-	  (setf (slot-value b (slot-definition-name slot))
-		(slot-value a (slot-definition-name slot)))))
+	  (unless (and keep-source (eql (slot-definition-name slot) 'source))
+	    (setf (slot-value b (slot-definition-name slot))
+		  (slot-value a (slot-definition-name slot))))))
   b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
@@ -138,8 +140,8 @@
 			     :writers (slot-definition-writers slot)))))
 
 ;; a overwrites b, b (or incomplete) is returned ...
-(defmethod combine-single-events ((a event) (b event) &key)
-  (cond ((events-compatible a b) (overwrite-slots a b))
+(defmethod combine-single-events ((a event) (b event) &key (keep-source nil))
+  (cond ((events-compatible a b) (overwrite-slots a b :keep-source keep-source))
 	;; merge events into a new incomplete event
 	(t (let ((new-event (make-instance 'incomplete-event)))
 	      (copy-slots-to-class a new-event)
@@ -151,7 +153,9 @@
 ;; combining events ... a has precedence
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
-	((eq mode 'zip) (let ((filtered-and-combined (mapcar #'combine-single-events events-a (remove-if-not filter events-b)))
+	((eq mode 'zip) (let ((filtered-and-combined
+			       (mapcar #'combine-single-events events-a
+				       (remove-if-not filter events-b)))
 			      (rest (remove-if filter events-b)))
 			  (append filtered-and-combined rest)))))
 

@@ -136,10 +136,12 @@
       (gethash (event-source e) (lastval m))
       (slot-value e (modified-property m))))
 
-(defmethod filter-events ((m modifying-event-processor) events &key)
+(defmethod filter-events ((m modifying-event-processor) events &key (check-mod-prop t))
   (labels ((current-filter-p (event)
-	     (and (event-has-slot-by-name event (modified-property m))
-		  (funcall (event-filter m) event))))
+	     (if check-mod-prop
+		 (and (event-has-slot-by-name event (modified-property m))
+				 (funcall (event-filter m) event))
+		 (funcall (event-filter m) event))))
     (remove-if-not #'current-filter-p events)))
 ;; switch to preserve/not preserve state ?
 
@@ -180,6 +182,24 @@
     (if (flow s)
 	events
 	'()))
+
+(defclass chance-combine (modifying-event-processor)
+  ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
+   (combi-chance :accessor combi-chance :initarg :combi-chance)))
+
+;; make state-tracking switchable ??? 
+(defmethod apply-self ((c chance-combine) events &key)
+  ;;(princ "c_combi_")
+  (mapc #'(lambda (event)	    
+	    (let ((chance-val (random 100)))
+	      ;;(princ chance-val)
+	      (if (< chance-val (combi-chance c))
+		  (progn
+		    ;;(princ "combi")
+		    (combine-single-events (event-to-combine c) event :keep-source t))
+		  event)))
+	(filter-events c events :check-mod-prop nil))
+  events)
 
 ;; a random walk on whatever parameter ...
 (defclass brownian-motion (modifying-event-processor)

@@ -1,3 +1,5 @@
+(in-package :megra)
+
 ;; define some test graph structures
 (graph 'uno-midi ()
        (node 1 (mid 65 :lvl .8 :dur 200))
@@ -42,10 +44,17 @@
 ;; deactivate the object in the chain closest to the dispatcher to make it stop ...  
 (deactivate 'uno-midi)
 
+
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
-       (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2))
-       (edge 1 1 :prob 100 :dur 2048))
+       (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2 :ambi t))
+       (edge 1 1 :prob 100 :dur 512))
+
+(dispatch ()
+  (chance-combine 'grain-lvl-cc 50 (lvl 0.0))
+  'the-grain)
+
+(deactivate 'grain-lvl-cc)
 
 (graph 'ambi-test ()
   (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
@@ -63,12 +72,12 @@
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0))
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi t))
        (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1
-		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare)))
+		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) :ambi t))
        (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0))     
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi t))     
        (edge 1 2 :prob 100 :dur 512)
        (edge 2 1 :prob 60 :dur 512)
        (edge 2 3 :prob 40 :dur 256)
@@ -84,6 +93,7 @@
 
 (dispatch ()
   (spigot 'tap-512 :flow t)
+  (chance-combine 'grain-lvl-cc 90 (lvl 0.0) :filter #'is-snare-p)
   (oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
   'the-512-beat)
 

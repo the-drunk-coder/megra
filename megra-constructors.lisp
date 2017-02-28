@@ -72,7 +72,8 @@
 
 ;; modifying ... always check if the modifier is already present !
 (defun brownian-motion (name param &key step-size wrap limit ubound lbound
-				     (affect-transition nil)(keep-state t) (track-state t) (filter #'all-p))
+				     (affect-transition nil) (keep-state t)
+				     (track-state t) (filter #'all-p))
   (let ((new-inst (make-instance 'brownian-motion :step-size step-size :mod-prop param :name name
 				 :upper-boundary ubound
 				 :lower-boundary lbound
@@ -111,6 +112,20 @@
 
 (defun spigot (name &key flow)
   (let ((new-inst (make-instance 'spigot :flow flow :name name)))
+    (when (gethash name *processor-directory*)
+      (setf (is-active new-inst) t))
+    (setf (gethash name *processor-directory*) new-inst))
+  name)
+
+(defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p))
+  (let ((new-inst (make-instance 'chance-combine
+				 :name name
+				 :combi-chance chance
+				 :event-to-combine event
+				 :track-state nil
+				 :mod-prop nil
+				 :affect-transition affect-transition
+				 :event-filter filter)))
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t))
     (setf (gethash name *processor-directory*) new-inst))
@@ -174,7 +189,6 @@
 
 (defun start (start &key (tags nil))
   (make-instance 'start-event :start start :tags tags))
-
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id &key (del t))
