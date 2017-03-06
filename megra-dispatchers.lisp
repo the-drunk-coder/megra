@@ -15,6 +15,9 @@
 	   (next (+ time #[trans-time ms])))
       (incudine:at next #'perform-dispatch d proc next))))
 
+
+;;(incudine:aat (+ time #[trans-time ms]) #'perform-dispatch d proc it)
+
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
   ;;(fresh-line)
   ;;(princ "the next events should happen in: ")

@@ -2,7 +2,12 @@
 (defclass event ()
   ((source :accessor event-source)
    (tags :accessor event-tags :initarg :tags)
-   (backends :accessor event-backends :initarg :backends :initform `(,*default-dsp-backend*))))
+   (backends :accessor event-backends :initarg :backends :initform `(,*default-dsp-backend*))
+   (value-combine-function :accessor value-combine-function
+			   :initarg :combi-fun :initform #'replace-value)))
+
+;; the default value combination function
+(defun replace-value (a b) a)
 
 ;; will be the accumulator ... 
 (defclass incomplete-event (event) ())
@@ -124,13 +129,17 @@
 (defmethod events-compatible ((a event) (b event) &key)
   (subsetp (class-slots (class-of a)) (class-slots (class-of b)) :test 'slot-eq))
 
-(defmethod overwrite-slots ((a event) (b event) &key (keep-source nil))
+;; the slots of the basic event class should of course not be overwritten ...
+;; manual makeshift solution
+(defparameter *protected-slots* '(source value-combine-function tags backends))
+
+(defmethod overwrite-slots ((a event) (b event) &key)
   (loop for slot in (class-slots (class-of a))
      do (when (slot-boundp-using-class (class-of b) b slot)
-	  (unless (and keep-source (eql (slot-definition-name slot) 'source))
+	  (unless (member (slot-definition-name slot) *protected-slots*)
 	    (setf (slot-value b (slot-definition-name slot))
-		  (slot-value a (slot-definition-name slot))))))
-  b)
+		  (funcall (value-combine-function a) (slot-value b (slot-definition-name slot))
+			   (slot-value a (slot-definition-name slot))))))) b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
   (loop for slot in (class-direct-slots (class-of a))
@@ -140,8 +149,8 @@
 			     :writers (slot-definition-writers slot)))))
 
 ;; a overwrites b, b (or incomplete) is returned ...
-(defmethod combine-single-events ((a event) (b event) &key (keep-source nil))
-  (cond ((events-compatible a b) (overwrite-slots a b :keep-source keep-source))
+(defmethod combine-single-events ((a event) (b event) &key)
+  (cond ((events-compatible a b) (overwrite-slots a b))
 	;; merge events into a new incomplete event
 	(t (let ((new-event (make-instance 'incomplete-event)))
 	      (copy-slots-to-class a new-event)
@@ -160,7 +169,7 @@
 			  (append filtered-and-combined rest)))))
 
 ;; it might seem weird to treat the transition as an event, but it makes lots
-;; of things easier, and musicall it's sound to treat the space between events
+;; of things easier, and musically it's sound to treat the space between events
 ;; as a special type of event ... i think ...
 (defclass transition (event)
     ((dur :accessor transition-duration :initarg :dur)))

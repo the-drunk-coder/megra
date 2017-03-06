@@ -8,7 +8,8 @@
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
-(defmacro graph (name (&key (perma nil) (combine-mode ''append) (combine-filter #'all-p)) &body graphdata)
+(defmacro graph (name (&key (perma nil) (combine-mode ''append)
+			    (combine-filter #'all-p)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
 		      (mapc #'(lambda (obj)
@@ -135,8 +136,8 @@
 (defun string-event (msg)
   (make-instance 'string-event :msg msg :tags nil))
 
-(defun mid (pitch &key dur lvl (tags nil))
-  (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur :tags tags))
+(defun mid (pitch &key dur lvl (tags nil) (combi-fun #'replace-value))
+  (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur :tags tags :combi-fun combi-fun))
 
 (defun grain (folder file &key
 			    (tags nil)
@@ -158,37 +159,40 @@
 			    (rev 0.0)
 			    (azi 0.0)
 			    (ele 0.0)
-			    (ambi nil))
+			    (ambi nil)
+			    (combi-fun #'replace-value))
   (make-instance 'grain-event :lvl lvl :dur dur :start start :pos pos :hp-freq hp-freq
 		 :rate rate :hp-freq hp-freq :hp-q hp-q
 		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
 		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist :rev rev
 		 :atk atk :rel rel :sample-folder folder :sample-file file :tags tags :azi azi
-		 :ele ele :ambi-p ambi))
+		 :ele ele :ambi-p ambi :combi-fun combi-fun))
 
 (defun ctrl (ctrl-fun &key (tags nil))
   (make-instance 'control-event :control-function ctrl-fun :tags tags))
 
-(defun dur (dur &key (tags nil))
-  (make-instance 'duration-event :dur dur :tags tags))
+(defun dur (dur &key (tags nil) (combi-fun #'replace-value))
+  (make-instance 'duration-event :dur dur :tags tags :combi-fun combi-fun))
 
-(defun lvl (lvl &key (tags nil))
-  (make-instance 'level-event :lvl lvl :tags tags))
+(defun lvl (lvl &key (tags nil) (combi-fun #'replace-value))
+  (make-instance 'level-event :lvl lvl :tags tags :combi-fun combi-fun))
 
-(defun pitch (pitch &key (tags nil))
-  (make-instance 'pitch-event :pitch pitch :tags tags))
+(defun pitch (pitch &key (tags nil) (combi-fun #'replace-value))
+  (make-instance 'pitch-event :pitch pitch :tags tags :combi-fun combi-fun))
 
-(defun pos (pos &key (azi 0) (ele 0) (dist 0) (tags nil))
-  (make-instance 'spatial-event :pos pos :azi azi :ele ele :dist dist :tags tags))
+(defun pos (pos &key (azi 0) (ele 0) (dist 0) (tags nil) (combi-fun #'replace-value))
+  (make-instance 'spatial-event :pos pos :azi azi :ele ele
+		 :dist dist :tags tags :combi-fun combi-fun))
 
-(defun ambi-pos (azi ele &key (dist 0) (tags nil))
-  (make-instance 'spatial-event :pos 0.0 :azi azi :ele ele :dist dist :tags tags :ambi-p t))
+(defun ambi-pos (azi ele &key (dist 0) (tags nil) (combi-fun #'replace-value))
+  (make-instance 'spatial-event :pos 0.0 :azi azi :ele ele
+		 :dist dist :tags tags :ambi-p t :combi-fun combi-fun))
 
-(defun rate (rate &key (tags nil))
-  (make-instance 'rate-event :rate rate :tags tags))
+(defun rate (rate &key (tags nil) (combi-fun #'replace-value))
+  (make-instance 'rate-event :rate rate :tags tags :combi-fun combi-fun))
 
-(defun start (start &key (tags nil))
-  (make-instance 'start-event :start start :tags tags))
+(defun start (start &key (tags nil) (combi-fun #'replace-value))
+  (make-instance 'start-event :start start :tags tags :combi-fun combi-fun))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
 (defun deactivate (event-processor-id &key (del t))

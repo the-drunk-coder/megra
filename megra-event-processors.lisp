@@ -196,7 +196,7 @@
 	      (if (< chance-val (combi-chance c))
 		  (progn
 		    ;;(princ "combi")
-		    (combine-single-events (event-to-combine c) event :keep-source t))
+		    (combine-single-events (event-to-combine c) event))
 		  event)))
 	(filter-events c events :check-mod-prop nil))
   events)

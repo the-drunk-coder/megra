@@ -309,7 +309,7 @@
     (node 1 (mid 84 :lvl .9 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
-
+(deactivate 'tap-inc)
 
 (defun has-two-p (event)
   (member 'two (event-tags event)))
@@ -330,11 +330,24 @@
     (edge 1 2 :prob 100 :dur 1000)
     (edge 2 1 :prob 100 :dur 1000)))
 
-
+;; another variant, with different value combi functions ...
+(dispatch ()
+  (spigot 'tap-inc :flow t)  
+  (graph 'pitcher (:combine-mode 'zip)
+    (node 1 (pitch 10 :combi-fun #'-))
+    (node 2 (pitch 30 :combi-fun #'-))
+    (edge 1 1 :prob 60)
+    (edge 1 2 :prob 40)
+    (edge 2 2 :prob 55)
+    (edge 2 1 :prob 45))
+   (graph 'origin () ;; for now, origin event needs to have handler ...
+    (node 1 (mid 84 :lvl 1.0 :dur 50))
+    (edge 1 1 :prob 100 :dur 1000)))
 
 (clear)
 ;; TBD:
-;; filter for graph combi !! 
+;; check why chance-combine doesn't work in any position
+;;    (currently seems to work only in end position) 
 ;; ambisonics panner - sc
 ;; note names
 ;; node color, inherited by events as tag ...
@@ -364,6 +377,7 @@
 ;; more vugs
 
 ;; DONE:
+;; filter for graph combi !! -- tag based
 ;; ambisonics panner - incudine 
 ;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
 ;; filters, like (oscillate-between ... :filter #'has-foo-tag)
