@@ -346,6 +346,7 @@
 
 (clear)
 ;; TBD:
+;; automatically deactivate if final state is reached 
 ;; check why chance-combine doesn't work in any position
 ;;    (currently seems to work only in end position) 
 ;; ambisonics panner - sc

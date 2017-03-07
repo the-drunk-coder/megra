@@ -1,6 +1,10 @@
 ;; structural
+
 (defun node (id &rest content)
   (make-instance 'node :id id :content content :color 'white))
+
+(defmacro node-col (id (&key (col ''white)) &body content)
+  `(make-instance 'node :id ,id :content (list ,@content) :color ,col))
 
 (defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
