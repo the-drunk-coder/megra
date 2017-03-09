@@ -7,7 +7,7 @@
 			   :initarg :combi-fun :initform #'replace-value)))
 
 ;; the default value combination function
-(defun replace-value (a b) a)
+(defun replace-value (b a) a)
 
 ;; will be the accumulator ... 
 (defclass incomplete-event (event) ())
