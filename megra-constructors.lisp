@@ -170,7 +170,7 @@
 		 :pf-freq pf-freq :pf-q pf-q :pf-gain pf-gain
 		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist :rev rev
 		 :atk atk :rel rel :sample-folder folder :sample-file file :tags tags :azi azi
-		 :ele ele :ambi-p ambi :combi-fun combi-fun))
+		 :ele ele :dist 1.0 :ambi-p ambi :combi-fun combi-fun))
 
 (defun ctrl (ctrl-fun &key (tags nil))
   (make-instance 'control-event :control-function ctrl-fun :tags tags))
