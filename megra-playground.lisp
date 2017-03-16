@@ -346,6 +346,10 @@
 
 (clear)
 ;; TBD:
+;; the uniqueness rule for graphs is not really helpful, imagine if you want
+;;    to use a duratoin or level graph with more than one source ... thus,
+;;    there need to be either a change in the representation, or some cloning function,
+;;    like, (clone 'pitcher) ...
 ;; combine transitions
 ;; make files loadable ... (check, seems ok ...)
 ;; automatically deactivate if final state is reached 

@@ -29,6 +29,16 @@
 					       :combine-filter ,combine-filter))))
 		 ,name)))
 
+;; replace the content (or parts of the content) of a graph ...
+(defun graph-replace (name new-content)
+  (let ((current-graph (source-graph (gethash name *processor-directory*))))
+    (princ new-content)
+    (mapc #'(lambda (obj)
+	    (cond ((typep obj 'edge) (insert-edge current-graph obj))
+		  ((typep obj 'node) (insert-node current-graph obj))))
+	  new-content)
+    (setf (source-graph (gethash name *processor-directory*)) current-graph)))
+
 ;; build the event processor chain, in the fashion of a douby-linked list ...
 (defun connect (processor-ids)
   (when (cadr processor-ids)
