@@ -35,8 +35,5 @@
 
 (in-package :megra)
 
-(register-knob 1 #'(lambda (val) (princ "blub")))
-
-
 (defparameter *default-dsp-backend* 'inc)
 ;;(defparameter *default-dsp-backend* 'sc)

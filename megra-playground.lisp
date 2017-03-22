@@ -347,7 +347,8 @@
 
 ;; controller input, designed for AKAI LPD8 
 (register-knob 1 #'(lambda (val) (princ val)))
-(register-pad 1 #'(lambda (val) (princ val)))
+
+(register-pad 2 #'(lambda (val) (princ val)))
 
 (clear)
 ;; TBD:
