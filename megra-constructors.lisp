@@ -227,5 +227,23 @@
 (defun pset (object param value)
   (setf (slot-value (gethash object *processor-directory*) param) value))
 
+;; controller stuff for akai lpd8
+(defun register-knob (knob fun)
+  (let ((resp (incudine::make-responder cm::*midiin*
+	       (lambda (st d1 d2)
+		 (when (eql d1 knob)
+		   (funcall fun d2))))))
+  (when (gethash knob *midi-responders*)
+    (incudine::remove-responder (gethash knob *midi-responders*)))
+  (setf (gethash knob *midi-responders*) resp)))
 
-  
+
+(defun register-pad (pad fun)
+  (let* ((pad-id (+ pad 35))
+	 (resp (incudine::make-responder cm::*midiin*
+	       (lambda (st d1 d2)
+		 (when (eql d1 pad-id)
+		   (funcall fun d2))))))
+  (when (gethash pad-id *midi-responders*)
+    (incudine::remove-responder (gethash pad-id *midi-responders*)))
+  (setf (gethash pad-id *midi-responders*) resp)))

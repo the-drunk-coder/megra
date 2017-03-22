@@ -344,6 +344,11 @@
     (node 1 (mid 84 :lvl 1.0 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
+
+;; controller input, designed for AKAI LPD8 
+(register-knob 1 #'(lambda (val) (princ val)))
+(register-pad 1 #'(lambda (val) (princ val)))
+
 (clear)
 ;; TBD:
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
@@ -351,6 +356,10 @@
 ;;    there need to be either a change in the representation, or some cloning function,
 ;;    like, (clone 'pitcher) ...
 ;; combine transitions
+;; tracing
+;; symbols as values, resolve at render time ??
+;; visualizer
+;; yasnippets 
 ;; make files loadable ... (check, seems ok ...)
 ;; automatically deactivate if final state is reached 
 ;; check why chance-combine doesn't work in any position

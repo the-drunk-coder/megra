@@ -6,13 +6,17 @@
   (incudine:set-rt-block-size 128)
   (incudine:rt-start)
   (sleep 1)
-  (midi-open-default :direction :input)
+  ;;(midi-open-default :direction :input)
   (midi-open-default :direction :output)
   (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
   ;; send osc msgs to scsynth ...
   (osc-open-default :host "127.0.0.1" :port 57110 :direction :output)    
   (setf *out* (cm::new cm::incudine-stream))
-  (setf *rts-out* *out*))
+  (setf *rts-out* *out*)
+  (setf (incudine::logger-level) :info)
+  (defvar *midiin* (midi-open-default :direction :input))
+  (incudine::recv-start *midiin*)
+  )
 
 (incudine:rt-stop)
 
@@ -30,6 +34,9 @@
 (load "megra-package")
 
 (in-package :megra)
+
+(register-knob 1 #'(lambda (val) (princ "blub")))
+
 
 (defparameter *default-dsp-backend* 'inc)
 ;;(defparameter *default-dsp-backend* 'sc)

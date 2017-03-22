@@ -37,6 +37,11 @@
 ;; 'sc -> SuperCollider
 (defparameter *default-dsp-backend* 'inc)
 
+(defparameter *pi* 3.14159265359)
+;;(defparameter *half-pi* 3.14159265359)
+
+(defparameter *midi-responders* (make-hash-table :test 'eql))
+
 ;; load the megra stuff except for dsp ...
 (load "megra-events")
 (load "megra-structures")
