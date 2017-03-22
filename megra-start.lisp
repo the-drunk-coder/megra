@@ -13,7 +13,7 @@
   (osc-open-default :host "127.0.0.1" :port 57110 :direction :output)    
   (setf *out* (cm::new cm::incudine-stream))
   (setf *rts-out* *out*)
-  (setf (incudine::logger-level) :info)
+  ;;(setf (incudine::logger-level) :info)
   (defvar *midiin* (midi-open-default :direction :input))
   (incudine::recv-start *midiin*)
   )

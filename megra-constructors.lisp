@@ -85,6 +85,12 @@
 					 *processor-directory*) event-processors))
 		      (connect event-processors)))))
 
+
+(defun toggle (proc)
+  (if (is-active (gethash proc *processor-directory*))
+      (deactivate proc :del nil)
+      (dispatch (:chain t) proc)))
+
 ;; modifying ... always check if the modifier is already present !
 (defun brownian-motion (name param &key step-size wrap limit ubound lbound
 				     (affect-transition nil) (keep-state t)
