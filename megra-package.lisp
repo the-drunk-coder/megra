@@ -41,6 +41,7 @@
 ;;(defparameter *half-pi* 3.14159265359)
 
 (defparameter *midi-responders* (make-hash-table :test 'eql))
+(defparameter *pad-toggle-states* (make-hash-table :test 'eql))
 
 ;; load the megra stuff except for dsp ...
 (load "megra-events")
