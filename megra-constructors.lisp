@@ -243,7 +243,6 @@
       (incudine::remove-responder (gethash knob *midi-responders*)))
     (setf (gethash knob *midi-responders*) resp)))
 
-
 (defun register-pad (pad fun &key (off nil) (toggle t))
   (let* ((pad-id (+ pad 35))
 	 (resp (incudine::make-responder
@@ -255,15 +254,17 @@
 		      (funcall fun d2)
 		      ;; toggle light
 		      (when toggle 
-			(cond ((gethash pad-id *pad-toggle-states*)
-			       (setf (gethash pad-id *pad-toggle-states*) nil))
-			      ((not (gethash pad-id *pad-toggle-states*))			       
-				 (setf (gethash pad-id *pad-toggle-states*) t)
-				 (jackmidi:write cm::*midiout*
-						 (coerce `(144 ,pad-id 96)
-							 'jackmidi:data))))))
-		      ;; note off
-		    (when (and (eql st 128) off) (funcall off d2)))))))
+			(if (gethash pad-id *pad-toggle-states*)
+			    (setf (gethash pad-id *pad-toggle-states*) nil)
+			
+			    (progn
+			      ;;(princ "toggle") 
+			      (setf (gethash pad-id *pad-toggle-states*) t)
+			      (jackmidi:write cm::*midiout*
+					      (coerce `(144 ,pad-id 96)
+						      'jackmidi:data))) ) )))
+		  ;; note off
+		  (when (and (eql st 128) off) (funcall off d2))))) )
     (when (gethash pad-id *midi-responders*)
       (incudine::remove-responder (gethash pad-id *midi-responders*)))
     (setf (gethash pad-id *midi-responders*) resp)))
