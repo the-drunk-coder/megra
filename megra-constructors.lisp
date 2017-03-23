@@ -253,20 +253,30 @@
 		    (when (eql st 144)
 		      (funcall fun d2)
 		      ;; toggle light
+		      )
+		  ;; note off
+		    (when (eql st 128)
+		      (when off
+			(funcall off d2))
 		      (when toggle 
 			(if (gethash pad-id *pad-toggle-states*)
 			    (setf (gethash pad-id *pad-toggle-states*) nil)
-			
+			    
 			    (progn
 			      ;;(princ "toggle") 
 			      (setf (gethash pad-id *pad-toggle-states*) t)
 			      (jackmidi:write cm::*midiout*
 					      (coerce `(144 ,pad-id 96)
-						      'jackmidi:data))) ) )))
-		  ;; note off
-		  (when (and (eql st 128) off) (funcall off d2))))) )
+						      'jackmidi:data))) ) )
+
+
+
+		      )))) ))
     (when (gethash pad-id *midi-responders*)
       (incudine::remove-responder (gethash pad-id *midi-responders*)))
-    (setf (gethash pad-id *midi-responders*) resp)))
+	 (setf (gethash pad-id *midi-responders*) resp)))
+
+
+  
   
   
