@@ -7,16 +7,15 @@
   (incudine:rt-start)
   (sleep 1)
   ;;(midi-open-default :direction :input)
-  (midi-open-default :direction :output)
+  (defvar *midiin* (midi-open-default :direction :input))
+  (defvar *midiout* (midi-open-default :direction :output))
   (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
   ;; send osc msgs to scsynth ...
   (osc-open-default :host "127.0.0.1" :port 57110 :direction :output)    
   (setf *out* (cm::new cm::incudine-stream))
   (setf *rts-out* *out*)
   ;;(setf (incudine::logger-level) :info)
-  (defvar *midiin* (midi-open-default :direction :input))
-  (incudine::recv-start *midiin*)
-  )
+  (incudine::recv-start *midiin*))
 
 (incudine:rt-stop)
 
@@ -37,3 +36,4 @@
 
 (defparameter *default-dsp-backend* 'inc)
 ;;(defparameter *default-dsp-backend* 'sc)
+

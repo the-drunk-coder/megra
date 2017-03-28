@@ -63,7 +63,7 @@
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
 ;; one chain.
-(defmacro dispatch ((&key (unique t) (chain nil)) &body proc-body)
+(defmacro dispatch ((&key (unique t) (chain nil) (step nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))
 			(detach (gethash (car (last event-processors))
@@ -75,7 +75,15 @@
 		      (unless (is-active (gethash (car event-processors) *processor-directory*))
 			(let ((dispatcher (make-instance 'event-dispatcher)))
 			  (activate (car event-processors))
-			  (perform-dispatch dispatcher (car event-processors) (incudine:now))))))))
+			  ;; the step dispatching (with a new dispatcher and chain rebuilding for
+			  ;; each dispatch)
+			  ;; is pretty inefficient and currently only intended for debugging purposes.
+			  ;; If it should become a regular feature, i might need to rethink the
+			  ;; dispatcher concept ... 
+			  (if ,step			 
+			      (step-dispatch dispatcher (car event-processors))
+			      (perform-dispatch dispatcher (car event-processors) (incudine:now))
+			      )))))))
 
 ;; chain events without dispatching ...
 (defmacro chain ((&key (unique t)) &body proc-body)
@@ -85,11 +93,28 @@
 					 *processor-directory*) event-processors))
 		      (connect event-processors)))))
 
-
 (defun toggle (proc)
   (if (is-active (gethash proc *processor-directory*))
       (deactivate proc :del nil)
       (dispatch (:chain t) proc)))
+
+(defun encourage (graph)
+  (modify-traced-path (gethash graph *processor-directory*) *encourage-percentage*))
+
+(defun discourage (graph)
+  (modify-traced-path (gethash graph *processor-directory*) (* -1 *discourage-percentage*)))
+
+(defun encourage-all ()
+  (labels ((encourage-if-graph (item)
+	     (if (typep item 'graph-event-processor)
+		 (encourage item))))
+    (maphash #'encourage-if-graph *processor-directory*)))
+
+(defun discourage-all ()
+  (labels ((discourage-if-graph (item)
+	     (if (typep item 'graph-event-processor)
+		 (discourage item))))
+    (maphash #'discourage-if-graph *processor-directory*)))
 
 ;; modifying ... always check if the modifier is already present !
 (defun brownian-motion (name param &key step-size wrap limit ubound lbound
@@ -251,32 +276,24 @@
 		  (when (eql d1 pad-id)
 		    ;; note on
 		    (when (eql st 144)
-		      (funcall fun d2)
-		      ;; toggle light
-		      )
-		  ;; note off
+		      (funcall fun d2))
+		    ;; note off
 		    (when (eql st 128)
 		      (when off
 			(funcall off d2))
-		      (when toggle 
+		      ;; toggle light
+		      (when toggle
 			(if (gethash pad-id *pad-toggle-states*)
 			    (setf (gethash pad-id *pad-toggle-states*) nil)
-			    
-			    (progn
-			      ;;(princ "toggle") 
+			    (progn			       
 			      (setf (gethash pad-id *pad-toggle-states*) t)
 			      (jackmidi:write cm::*midiout*
-					      (coerce `(144 ,pad-id 96)
-						      'jackmidi:data))) ) )
-
-
-
-		      )))) ))
+					      (coerce `(144 ,pad-id 96) 'jackmidi:data)))))))))))
     (when (gethash pad-id *midi-responders*)
       (incudine::remove-responder (gethash pad-id *midi-responders*)))
 	 (setf (gethash pad-id *midi-responders*) resp)))
 
 
-  
-  
+(defun midi->percent (midi-val)
+  (car (multiple-value-list (round (* 50 (/ midi-val 127))))))  
   

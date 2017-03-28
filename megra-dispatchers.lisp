@@ -1,7 +1,8 @@
 ;; event dispatchers and related stuff ... 
 
 (defclass dispatcher ()
-  ((perform-dispatch)
+  ((step-dispatch)
+   (perform-dispatch)
    (handle-events)
    (handle-transition)))
 
@@ -15,13 +16,13 @@
 	   (next (+ time #[trans-time ms])))
       (incudine:at next #'perform-dispatch d proc next))))
 
-
-;;(incudine:aat (+ time #[trans-time ms]) #'perform-dispatch d proc it)
+;; manual step-by step dispatching ...
+(defmethod step-dispatch ((d dispatcher) proc &key)
+  (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
+    (handle-events d (pull-events (gethash proc *processor-directory*)))
+    (handle-transition d (car (pull-transition (gethash proc *processor-directory*))))))
 
 (defmethod handle-transition ((s dispatcher) (tr transition) &key)
-  ;;(fresh-line)
-  ;;(princ "the next events should happen in: ")
-  ;;(princ (transition-duration tr))
   (transition-duration tr))	 
 
 ;; dummy dispatcher for testing and development

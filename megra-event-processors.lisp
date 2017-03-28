@@ -4,27 +4,18 @@
    (pull-transition)       
    (active :accessor is-active :initform nil)
    (successor :accessor successor :initform nil)
-   (predecessor :accessor predecessor :initform nil)
-   (has-successor)
-   (has-predecessor)
+   (predecessor :accessor predecessor :initform nil)   
    (current-events)      ;; abstract
    (current-transition)  ;; abstract   
-   (name :accessor name :initarg :name)
-   ))
-
-(defmethod has-successor ((e event-processor) &key)
-  (successor e))
-
-(defmethod has-predecessor ((e event-processor) &key)
-  (predecessor e))
+   (name :accessor name :initarg :name)))
 
 (defmethod pull-events ((e event-processor) &key)
-  (if (has-successor e)
+  (if (successor e)
       (apply-self e (pull-events (successor e)))
       (current-events e)))
 
 (defmethod pull-transition ((e event-processor) &key)
-  (if (has-successor e)
+  (if (successor e)
       (progn
 	(current-transition e)
 	(pull-transition (successor e)))
@@ -53,13 +44,16 @@
   (princ (dummy-name e)))
 
 ;; graph-based event-generator, the main one ...
-(defclass graph-event-processor (event-processor) 
+(defclass graph-event-processor (event-processor)
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
    (combine-mode :accessor combine-mode :initarg :combine-mode)
    (combine-filter :accessor combine-filter :initarg :combine-filter)
-   (path)))
+   (path) ;; path is a predefined path 
+   (traced-path :accessor traced-path :initform nil) ;; trace the last events
+   ;; length of the trace ...
+   (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
 
 ;; strange mop-method to allow cloning events
 ;; eventually the event-sources are not considered,
@@ -75,9 +69,26 @@
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
+  ;; append to trace
+  (when (> (trace-length g) 0)
+    (setf (traced-path g) (nconc (traced-path g) (list (current-node g))))
+    (when (> (list-length (traced-path g)) (trace-length g))
+      (setf (traced-path g) (delete (car (traced-path g)) (traced-path g) :count 1))))
   (if (copy-events g)
       (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g)))))
       (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
+
+(defmethod modify-traced-path ((g graph-event-processor) prob-mod &key)
+  (loop for (src dest) on (traced-path g) while dest
+     do (let* ((current-edges (gethash src (graph-edges (source-graph g))))
+	       (rest-mod (* -1 (/ prob-mod (- (list-length current-edges) 1)))))
+
+	  (dolist (edge current-edges)
+	    (if (eql (edge-destination edge) dest)
+		;; if it's the edge we've chosen to en- or discourage, apply mod
+		(setf (edge-probablity edge) (+ (edge-probablity edge) prob-mod))
+		;; if not, balance out probabilties ..
+		(setf (edge-probablity edge) (- (edge-probablity edge) rest-mod)))))))
 
 ;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)
@@ -92,7 +103,7 @@
   (let* ((current-edges (gethash (current-node g) (graph-edges (source-graph g))))
 	 (current-choices (collect-choices current-edges 0))
 	 (chosen-edge-id (nth (random (length current-choices)) current-choices))
-	 (chosen-edge (nth chosen-edge-id current-edges)))
+	 (chosen-edge (nth chosen-edge-id current-edges))) 
     (setf (current-node g) (edge-destination chosen-edge))
     (if (copy-events g)
 	(mapcar #'copy-instance (edge-content chosen-edge))
@@ -113,7 +124,7 @@
   (setf (lastval m) (make-hash-table :test 'eql)))
 
 (defmethod pull-transition ((e modifying-event-processor) &key)
-  (if (has-successor e)
+  (if (successor e)
       (progn
 	(current-transition e)        
 	(if (affect-transition e)

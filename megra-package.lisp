@@ -29,6 +29,13 @@
 ;; consecutive buffer numbers for scsynth
 (defparameter *sc-sample-bufnums* 0)
 
+(defparameter *global-trace-length* 5)
+
+(defvar *encourage-percentage* 5)
+;; what might be the justification for this split ?
+;; "Un-Learning" things is harder for humans, but for machines ?
+(defvar *discourage-percentage* 5)
+
 ;; main storage for event processors
 (defparameter *processor-directory* (make-hash-table :test 'eql))
 
@@ -38,7 +45,6 @@
 (defparameter *default-dsp-backend* 'inc)
 
 (defparameter *pi* 3.14159265359)
-;;(defparameter *half-pi* 3.14159265359)
 
 (defparameter *midi-responders* (make-hash-table :test 'eql))
 (defparameter *pad-toggle-states* (make-hash-table :test 'eql))

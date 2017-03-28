@@ -61,6 +61,16 @@
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
 
+(defmethod get-edge ((g graph) source destination)
+  (labels ((find-destination (edges destination)
+	     ;; might be more efficient to use edge list ordered by
+	     ;; destination and use binary search ... 
+	     (if (eql (edge-destination (car edges)) destination)
+		 (car edges)
+		 (find-destination (cdr edges) destination))))
+    (let ((current-edges (gethash source (graph-edges g))))
+      (find-destination current-edges destination))))
+
 ;; regarding probability modification:
 ;; an event is pumped through the chain and each
 ;; processor knows the source of the event, as it is stored
