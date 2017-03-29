@@ -293,7 +293,6 @@
       (incudine::remove-responder (gethash pad-id *midi-responders*)))
 	 (setf (gethash pad-id *midi-responders*) resp)))
 
-
-(defun midi->percent (midi-val)
-  (car (multiple-value-list (round (* 50 (/ midi-val 127))))))  
+(defun midi->range (midi-val range)
+  (car (multiple-value-list (round (* range (/ midi-val 127))))))  
   

@@ -81,14 +81,20 @@
 (defmethod modify-traced-path ((g graph-event-processor) prob-mod &key)
   (loop for (src dest) on (traced-path g) while dest
      do (let* ((current-edges (gethash src (graph-edges (source-graph g))))
-	       (rest-mod (* -1 (/ prob-mod (- (list-length current-edges) 1)))))
-
+	       (rest-mod-raw (* -1 (/ prob-mod (- (list-length current-edges) 1))))
+	       (rest-mod-round (multiple-value-list (round rest-mod-raw)))
+	       ;; ignore remainder for now ...
+	       (rest-mod-int (car rest-mod-round)))
 	  (dolist (edge current-edges)
 	    (if (eql (edge-destination edge) dest)
 		;; if it's the edge we've chosen to en- or discourage, apply mod
-		(setf (edge-probablity edge) (+ (edge-probablity edge) prob-mod))
+		(if (<=  (edge-probablity edge) (- 100 prob-mod))
+		    (setf (edge-probablity edge) (+ (edge-probablity edge) prob-mod))
+		    (setf (edge-probablity edge) 100))
 		;; if not, balance out probabilties ..
-		(setf (edge-probablity edge) (- (edge-probablity edge) rest-mod)))))))
+		(if (>=  (edge-probablity edge) rest-mod-int)
+		    (setf (edge-probablity edge) (- (edge-probablity edge) rest-mod-int))
+		    (setf (edge-probablity edge) 0)))))))
 
 ;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)

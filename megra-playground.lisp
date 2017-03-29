@@ -353,42 +353,42 @@
 (register-pad 2 #'(lambda (val) (princ val)))
 
 (graph 'all-to-all ()
-       (node 1 (mid 40 :lvl .8 :dur 1500))
-       (node 2 (mid 41 :lvl .9 :dur 1500))
-       (node 3 (mid 42 :lvl .9 :dur 350))
-       (node 4 (mid 43 :lvl .9 :dur 350))
-       (node 5 (mid 44 :lvl .9 :dur 350))       
-       (edge 1 1 :prob 20 :dur 500) (edge 1 2 :prob 20 :dur 500) (edge 1 3 :prob 20 :dur 500)
-       (edge 1 4 :prob 20 :dur 500) (edge 1 5 :prob 20 :dur 500) 
+       (node 1 (mid 60 :lvl .8 :dur 250))
+       (node 2 (mid 62 :lvl .9 :dur 250))
+       (node 3 (mid 64 :lvl .9 :dur 250))
+       (node 4 (mid 67 :lvl .9 :dur 150))
+       (node 5 (mid 70 :lvl .9 :dur 150))       
+       (edge 1 1 :prob 20 :dur 250) (edge 1 2 :prob 20 :dur 125) (edge 1 3 :prob 20 :dur 125)
+       (edge 1 4 :prob 20 :dur 250) (edge 1 5 :prob 20 :dur 750) 
        
-       (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 500) (edge 2 3 :prob 20 :dur 500)
-       (edge 2 4 :prob 20 :dur 500) (edge 2 5 :prob 20 :dur 500) 
+       (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
+       (edge 2 4 :prob 20 :dur 250) (edge 2 5 :prob 20 :dur 500) 
 
-       (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 500)
-       (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 500) 
+       (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 250)
+       (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 250) 
 
        (edge 4 1 :prob 20 :dur 500) (edge 4 2 :prob 20 :dur 500) (edge 4 3 :prob 20 :dur 500)
-       (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 500) 
+       (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 250) 
        
-       (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 500) (edge 5 3 :prob 20 :dur 500)
-       (edge 5 4 :prob 20 :dur 500) (edge 5 5 :prob 20 :dur 500))
+       (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
+       (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
 
 (dispatch ()
   'all-to-all)
 
 (deactivate 'all-to-all :del nil)
 
-(edge-probablity (get-edge (source-graph (gethash 'all-to-all *processor-directory*)) 1 2))
+(edge-probablity (get-edge (source-graph (gethash 'all-to-all *processor-directory*)) 3 2))
 
 (traced-path (gethash 'all-to-all *processor-directory*))
 
 (register-pad 8 #'(lambda (val) (encourage 'all-to-all)) :toggle nil)
 
-(register-knob 1 #'(lambda (val) (setf *encourage-percentage* (midi->percent val))))
+(register-knob 1 #'(lambda (val) (setf *encourage-percentage* (midi->range val 40))))
 
 (register-pad 4 #'(lambda (val) (discourage 'all-to-all)) :toggle nil)
 
-(register-knob 5 #'(lambda (val) (setf *discourage-percentage* (midi->percent val))))
+(register-knob 5 #'(lambda (val) (setf *discourage-percentage* (midi->range val 40))))
 
 (princ *discourage-percentage*)
 
