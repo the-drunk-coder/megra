@@ -29,7 +29,8 @@
 ;; consecutive buffer numbers for scsynth
 (defparameter *sc-sample-bufnums* 0)
 
-(defparameter *global-trace-length* 5)
+;; make int a little bit longer, because the first one or two elements will be dropped
+(defparameter *global-trace-length* 7)
 
 (defvar *encourage-percentage* 5)
 ;; what might be the justification for this split ?

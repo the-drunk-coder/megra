@@ -78,10 +78,16 @@
       (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g)))))
       (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
+;; the heart of the disencourage algorithm ... 
 (defmethod modify-traced-path ((g graph-event-processor) prob-mod &key)
-  (loop for (src dest) on (traced-path g) while dest
+  ;; the double reverse is performed to drop the last element, as this will be
+  ;; not really percieved by the user, i guess ... 
+  (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
      do (let* ((current-edges (gethash src (graph-edges (source-graph g))))
-	       (rest-mod-raw (* -1 (/ prob-mod (- (list-length current-edges) 1))))
+	       ;; use the max function to avoid division by zero error ...
+	       ;; if there's only one edge, the remainder doesn't have any
+	       ;; effect whatsoever ... 
+	       (rest-mod-raw (* -1 (/ prob-mod (max 1 (- (list-length current-edges) 1)))))
 	       (rest-mod-round (multiple-value-list (round rest-mod-raw)))
 	       ;; ignore remainder for now ...
 	       (rest-mod-int (car rest-mod-round)))

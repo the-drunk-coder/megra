@@ -104,16 +104,19 @@
 (defun discourage (graph)
   (modify-traced-path (gethash graph *processor-directory*) (* -1 *discourage-percentage*)))
 
+;; ancourage all processors ... in the long run, only the active ones
+;; should be encouraged (and discouraged), but the semantics of 'is active'
+;; are currently pretty stupid and need to be re-thought ... 
 (defun encourage-all ()
-  (labels ((encourage-if-graph (item)
+  (labels ((encourage-if-graph (key item)
 	     (if (typep item 'graph-event-processor)
-		 (encourage item))))
+		 (modify-traced-path item *encourage-percentage*))))
     (maphash #'encourage-if-graph *processor-directory*)))
 
 (defun discourage-all ()
-  (labels ((discourage-if-graph (item)
+  (labels ((discourage-if-graph (key item)
 	     (if (typep item 'graph-event-processor)
-		 (discourage item))))
+		 (modify-traced-path item (* -1 *discourage-percentage*)))))
     (maphash #'discourage-if-graph *processor-directory*)))
 
 ;; modifying ... always check if the modifier is already present !
@@ -240,7 +243,7 @@
   (make-instance 'start-event :start start :tags tags :combi-fun combi-fun))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
-(defun deactivate (event-processor-id &key (del t))
+(defun deactivate (event-processor-id &key (del nil))
   (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
   ;; this is as un-functional as it gets, but anyway ...
   (if (and del
@@ -292,6 +295,11 @@
     (when (gethash pad-id *midi-responders*)
       (incudine::remove-responder (gethash pad-id *midi-responders*)))
 	 (setf (gethash pad-id *midi-responders*) resp)))
+
+(defun clear-midi-responders ()
+  (labels ((rem-resp (key responder)
+	     (incudine::remove-responder responder)))
+    (maphash #'rem-resp *midi-responders*)))
 
 (defun midi->range (midi-val range)
   (car (multiple-value-list (round (* range (/ midi-val 127))))))  

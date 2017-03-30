@@ -394,7 +394,8 @@
 
 (clear)
 ;; TBD:
-;; tracing/ trace/ encourage /discourage
+;; text output
+;; disencourage - longer trace, but drop first ??
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
 ;;    to use a duratoin or level graph with more than one source ... thus,
 ;;    there need to be either a change in the representation, or some cloning function,
@@ -438,6 +439,7 @@
 ;; more vugs
 
 ;; DONE:
+;; tracing/ trace/ encourage /discourage
 ;; filter for graph combi !! -- tag based
 ;; ambisonics panner - incudine 
 ;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
