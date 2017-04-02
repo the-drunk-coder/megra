@@ -61,6 +61,7 @@
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
 
+;;(in-package :megra)
 (defmethod get-edge ((g graph) source destination)
   (labels ((find-destination (edges destination)
 	     ;; might be more efficient to use edge list ordered by
@@ -68,8 +69,9 @@
 	     (if (eql (edge-destination (car edges)) destination)
 		 (car edges)
 		 (find-destination (cdr edges) destination))))
-    (let ((current-edges (gethash source (graph-edges g))))
-      (find-destination current-edges destination))))
+    (let* ((current-edges (gethash source (graph-edges g)  )  )
+	  (found-edge (find-destination current-edges destination)))
+      found-edge)))
 
 ;; regarding probability modification:
 ;; an event is pumped through the chain and each

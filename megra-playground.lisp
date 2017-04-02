@@ -46,7 +46,6 @@
 ;; deactivate the object in the chain closest to the dispatcher to make it stop ...  
 (deactivate 'uno-midi)
 
-
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
        (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2 :ambi t))
@@ -115,7 +114,6 @@
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
   (oscillate-between 'tres-osc 'lvl 0.1 0.9 :cycle 100)
   'tres-midi)
-
 
 ;; i'd recommend using a spigot when experiment with the chains, to provide
 ;; a persistent outlet ... otherwise you might get strange effects ...

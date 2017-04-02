@@ -184,7 +184,7 @@
 (defun string-event (msg)
   (make-instance 'string-event :msg msg :tags nil))
 
-(defun mid (pitch &key dur lvl (tags nil) (combi-fun #'replace-value))
+(defun mid (pitch &key (dur 512) (lvl 0.4) (tags nil) (combi-fun #'replace-value))
   (make-instance 'midi-event :pitch pitch :lvl lvl :dur dur :tags tags :combi-fun combi-fun))
 
 (defun grain (folder file &key
@@ -303,4 +303,10 @@
 
 (defun midi->range (midi-val range)
   (car (multiple-value-list (round (* range (/ midi-val 127))))))  
-  
+
+(defun pring (graph &optional stream)
+  (format stream "~a" (print-graph (gethash graph *processor-directory*))))
+
+(defun graph->file (graph file)
+  (with-open-file (out-stream file :direction :output :if-exists :supersede)
+   (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
