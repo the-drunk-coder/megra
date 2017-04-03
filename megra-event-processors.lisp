@@ -78,30 +78,6 @@
       (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g)))))
       (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
-;; the heart of the disencourage algorithm ... 
-(defmethod modify-traced-path ((g graph-event-processor) prob-mod &key)
-  ;; the double reverse is performed to drop the last element, as this will be
-  ;; not really percieved by the user, i guess ... 
-  (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
-     do (let* ((current-edges (gethash src (graph-edges (source-graph g))))
-	       ;; use the max function to avoid division by zero error ...
-	       ;; if there's only one edge, the remainder doesn't have any
-	       ;; effect whatsoever ... 
-	       (rest-mod-raw (* -1 (/ prob-mod (max 1 (- (list-length current-edges) 1)))))
-	       (rest-mod-round (multiple-value-list (round rest-mod-raw)))
-	       ;; ignore remainder for now ...
-	       (rest-mod-int (car rest-mod-round)))
-	  (dolist (edge current-edges)
-	    (if (eql (edge-destination edge) dest)
-		;; if it's the edge we've chosen to en- or discourage, apply mod
-		(if (<=  (edge-probablity edge) (- 100 prob-mod))
-		    (setf (edge-probablity edge) (+ (edge-probablity edge) prob-mod))
-		    (setf (edge-probablity edge) 100))
-		;; if not, balance out probabilties ..
-		(if (>=  (edge-probablity edge) rest-mod-int)
-		    (setf (edge-probablity edge) (- (edge-probablity edge) rest-mod-int))
-		    (setf (edge-probablity edge) 0)))))))
-
 ;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
@@ -120,6 +96,72 @@
     (if (copy-events g)
 	(mapcar #'copy-instance (edge-content chosen-edge))
 	(edge-content chosen-edge)))))
+
+(in-package :megra)
+
+;; the heart of the disencourage algorithm ... 
+(defmethod encourage-path ((g graph-event-processor) prob-mod &key)
+  ;; the double reverse is performed to drop the last element, as this will be
+  ;; not really percieved by the user, i guess ... 
+  (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
+     do (let* ((encouraged-edge (get-edge (source-graph g) src dest))
+	       (discouraged-edges (remove encouraged-edge
+					  (gethash src (graph-edges (source-graph g)))))
+	       (discourage-points prob-mod))
+	  (format t "encourage ~a ~a" src dest)
+	  ;; the edge to encourage
+	  (setf (edge-probablity encouraged-edge)
+		(if (<=  (edge-probablity encouraged-edge) (- 100 prob-mod))
+		    (setf (edge-probablity encouraged-edge)
+			  (+ (edge-probablity encouraged-edge) prob-mod))
+		    (setf (edge-probablity encouraged-edge) 100)))
+	  ;; distribute discourageing points
+	  (loop while (and (> discourage-points 0) (> (list-length discouraged-edges) 0))
+	     do (let ((current-edge (car discouraged-edges)))		  
+		  (format t "discourage: ~a ~a ~%" (edge-source current-edge)
+			  (edge-destination current-edge) )
+		  (when (>= (edge-probablity current-edge) 1)
+		    (decf (edge-probablity current-edge))
+		    (setf discourage-points (- discourage-points 1)))
+		  (if (<= (edge-probablity current-edge) 0)
+		      ;; remove edge that has zero prob
+		      (setf discouraged-edges (remove current-edge discouraged-edges))
+		      ;; otherwise, rotate
+		      (setf discouraged-edges (append
+					       (remove current-edge discouraged-edges)
+					       (list current-edge)))))))))
+
+(defmethod discourage-path ((g graph-event-processor) prob-mod &key)
+  ;; the double reverse is performed to drop the last element, as this will be
+  ;; not really percieved by the user, i guess ... 
+  (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
+     do (let* ((discouraged-edge (get-edge (source-graph g) src dest))
+	       (encouraged-edges (remove discouraged-edge
+					  (gethash src (graph-edges (source-graph g)))))
+	       (encourage-points prob-mod))
+	  (format t "discourage ~a ~a" src dest)
+	  ;; the edge to encourage
+	  (setf (edge-probablity discouraged-edge)
+		(if (>=  (edge-probablity discouraged-edge) prob-mod)
+		    (setf (edge-probablity discouraged-edge)
+			  (- (edge-probablity discouraged-edge) prob-mod))
+		    (setf (edge-probablity discouraged-edge) 0)))
+	  ;; distribute discourageing points
+	  (loop while (and (> encourage-points 0) (> (list-length encouraged-edges) 0))
+	     do (let ((current-edge (car encouraged-edges)))		  
+		  (format t "encourage: ~a ~a ~%" (edge-source current-edge)
+			  (edge-destination current-edge) )
+		  (when (<= (edge-probablity current-edge) 99)
+		    (incf (edge-probablity current-edge))
+		    (setf encourage-points (- encourage-points 1)))
+		  (if (>= (edge-probablity current-edge) 100)
+		      ;; remove edge that has zero prob
+		      (setf encouraged-edges (remove current-edge encouraged-edges))
+		      ;; otherwise, rotate
+		      (setf encouraged-edges (append
+					       (remove current-edge encouraged-edges)
+					       (list current-edge)))))))))
+
 
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
@@ -183,15 +225,15 @@
 (defmethod apply-self ((o oscillate-between) events &key)
   (mapc #'(lambda (event)
 	    (let* ((current-value (get-current-value o event))
-		       (osc-range (- (upper-boundary o) (lower-boundary o)))		   
-		       (degree-increment (/ 360 (cycle o)))
-		       (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
-		       (abs-sin (abs (sin (radians degree))))		   
-		       (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
-		  ;; this is basically the phase-offset
-		  (setf (step-count o) (1+ (step-count o)))
-		  (setf (gethash (event-source event) (lastval o)) new-value)	      
-		  (setf (slot-value event (modified-property o)) new-value)))
+		   (osc-range (- (upper-boundary o) (lower-boundary o)))		   
+		   (degree-increment (/ 360 (cycle o)))
+		   (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
+		   (abs-sin (abs (sin (radians degree))))		   
+		   (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
+	      ;; this is basically the phase-offset
+	      (setf (step-count o) (1+ (step-count o)))
+	      (setf (gethash (event-source event) (lastval o)) new-value)	      
+	      (setf (slot-value event (modified-property o)) new-value)))
 	(filter-events o events))
   events)
 

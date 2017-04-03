@@ -350,6 +350,7 @@
 
 (register-pad 2 #'(lambda (val) (princ val)))
 
+;; the disencourage algorithm 
 (graph 'all-to-all ()
        (node 1 (mid 60 :lvl .8 :dur 250))
        (node 2 (mid 62 :lvl .9 :dur 250))
@@ -376,19 +377,20 @@
 
 (deactivate 'all-to-all :del nil)
 
-(edge-probablity (get-edge (source-graph (gethash 'all-to-all *processor-directory*)) 3 2))
+;; the path is traced ...
+(princ (traced-path (gethash 'all-to-all *processor-directory*)))
 
-(traced-path (gethash 'all-to-all *processor-directory*))
+(graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
 
-(register-pad 8 #'(lambda (val) (encourage 'all-to-all)) :toggle nil)
+;; encourage or discourage the traced path ...
+(progn (encourage 'all-to-all)
+       (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp"))
 
-(register-knob 1 #'(lambda (val) (setf *encourage-percentage* (midi->range val 40))))
+(progn 
+  (discourage 'all-to-all)
+  (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp"))
 
-(register-pad 4 #'(lambda (val) (discourage 'all-to-all)) :toggle nil)
-
-(register-knob 5 #'(lambda (val) (setf *discourage-percentage* (midi->range val 40))))
-
-(princ *discourage-percentage*)
+;; check result
 
 (clear)
 ;; TBD:

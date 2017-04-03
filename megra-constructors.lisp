@@ -99,10 +99,10 @@
       (dispatch (:chain t) proc)))
 
 (defun encourage (graph)
-  (modify-traced-path (gethash graph *processor-directory*) *encourage-percentage*))
+  (encourage-path (gethash graph *processor-directory*) *encourage-percentage*))
 
 (defun discourage (graph)
-  (modify-traced-path (gethash graph *processor-directory*) (* -1 *discourage-percentage*)))
+  (discourage-path (gethash graph *processor-directory*) *discourage-percentage*))
 
 ;; ancourage all processors ... in the long run, only the active ones
 ;; should be encouraged (and discouraged), but the semantics of 'is active'
@@ -307,6 +307,6 @@
 (defun pring (graph &optional stream)
   (format stream "~a" (print-graph (gethash graph *processor-directory*))))
 
-(defun graph->file (graph file)
+(defun graph->code (graph file)
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
