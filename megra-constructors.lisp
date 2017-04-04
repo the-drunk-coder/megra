@@ -310,3 +310,8 @@
 (defun graph->code (graph file)
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
+
+(defun graph->svg (graph file)
+  (with-open-file (out-stream file :direction :output :if-exists :supersede)
+    (format out-stream "~a" (graph->dot (source-graph (gethash graph *processor-directory*)))))
+  (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file)))

@@ -381,14 +381,18 @@
 (princ (traced-path (gethash 'all-to-all *processor-directory*)))
 
 (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
+(graph->svg 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-vis.dot")
 
 ;; encourage or discourage the traced path ...
 (progn (encourage 'all-to-all)
-       (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp"))
+       (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
+       (graph->svg 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-vis.dot"))
 
 (progn 
   (discourage 'all-to-all)
-  (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp"))
+  (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
+  (graph->svg 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-vis.dot"))
+
 
 ;; check result
 
