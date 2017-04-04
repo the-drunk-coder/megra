@@ -26,8 +26,7 @@
 	  (edge-source e)
 	  (edge-destination e)
 	  (transition-duration (car (edge-content e)))
-	  (coerce  (/ (edge-probablity e) 10) 'float)
-	  ))
+	  (coerce (/ (edge-probablity e) 10) 'float)))
 
 ;;(edge->dot (edge 1 2 :prob 9 :dur 20))
 
