@@ -59,3 +59,4 @@
 (load "megra-event-filters")
 (load "megra-sc-backend")
 (load "megra-print")
+(load "megra-visualize")

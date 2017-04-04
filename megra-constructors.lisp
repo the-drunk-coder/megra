@@ -1,4 +1,4 @@
-;; structural
+;; this file contains all the language functions, serving as the interface to the user ...
 
 (defun node (id &rest content)
   (make-instance 'node :id id :content content :color 'white))
@@ -311,7 +311,9 @@
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
 
+;;(in-package :megra)
 (defun graph->svg (graph file)
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
     (format out-stream "~a" (graph->dot (source-graph (gethash graph *processor-directory*)))))
+  ;; call dot ...
   (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file)))

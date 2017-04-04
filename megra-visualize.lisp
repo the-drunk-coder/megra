@@ -1,8 +1,7 @@
-;; land of lisp substrate ... 
-
-(in-package :megra)
+;;(in-package :megra)
 (defparameter *max-label-length* 30)
 
+;; land of lisp substrate ... 
 (defun dot-name (exp)
   (substitute-if #\_ (complement #'alphanumericp) (prin1-to-string exp)))
 
@@ -30,11 +29,7 @@
 	  (coerce  (/ (edge-probablity e) 10) 'float)
 	  ))
 
-(format t "~a")
-
-(car (multiple-value-list (/ 1 10)))
-
-(edge->dot (edge 1 2 :prob 9 :dur 20))
+;;(edge->dot (edge 1 2 :prob 9 :dur 20))
 
 (defmethod graph->dot ((g graph) &key)
   (format nil "digraph{~%~{~a~}~{~a~}}"
@@ -43,12 +38,11 @@
 	  (loop for key being the hash-keys of (graph-edges g)
 	       append (mapcar #'edge->dot (gethash key (graph-edges g))))))
 
-(graph 'test ()
-  (node 1 (mid 'a2 :tags '(blue)))
-  (node 2 (mid 'a3))
-  (edge 1 2 :dur 512 :prob 50)
-  (edge 1 1 :dur 512 :prob 50)
-  (edge 2 1 :dur 512 :prob 100))
+;;(graph 'test ()
+;;  (node 1 (mid 'a2 :tags '(blue)))
+;;  (node 2 (mid 'a3))
+;;  (edge 1 2 :dur 512 :prob 50)
+;;  (edge 1 1 :dur 512 :prob 50)
+;;  (edge 2 1 :dur 512 :prob 100))
 
-
-(graph->dot (source-graph (gethash 'test *processor-directory*)))
+;;(graph->dot (source-graph (gethash 'test *processor-directory*)))
