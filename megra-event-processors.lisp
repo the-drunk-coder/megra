@@ -99,14 +99,25 @@
 
 (in-package :megra)
 
+;; knuth shuffle
+(defun shuffle-list (l)
+  (loop for i from (- (list-length l) 1) downto 1
+     do (let* ((current-elem-idx (random i))
+	       (random-elem (nth current-elem-idx l)))	  
+	  (setf (nth current-elem-idx l) (nth i l))
+	  (setf (nth i l) random-elem)))
+  ;; return shuffled list ... somewhat imperative, again .. 
+  l)
+
 ;; the heart of the disencourage algorithm ... 
 (defmethod encourage-path ((g graph-event-processor) prob-mod &key)
   ;; the double reverse is performed to drop the last element, as this will be
   ;; not really percieved by the user, i guess ... 
   (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
      do (let* ((encouraged-edge (get-edge (source-graph g) src dest))
-	       (discouraged-edges (remove encouraged-edge
-					  (gethash src (graph-edges (source-graph g)))))
+	       (discouraged-edges (shuffle-list
+				   (remove encouraged-edge
+					   (gethash src (graph-edges (source-graph g))))))
 	       (discourage-points prob-mod))
 	  (format t "encourage ~a ~a" src dest)
 	  ;; the edge to encourage
@@ -136,8 +147,9 @@
   ;; not really percieved by the user, i guess ... 
   (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
      do (let* ((discouraged-edge (get-edge (source-graph g) src dest))
-	       (encouraged-edges (remove discouraged-edge
-					  (gethash src (graph-edges (source-graph g)))))
+	       (encouraged-edges (shuffle-list
+				  (remove discouraged-edge
+					  (gethash src (graph-edges (source-graph g))))))
 	       (encourage-points prob-mod))
 	  (format t "discourage ~a ~a" src dest)
 	  ;; the edge to encourage
