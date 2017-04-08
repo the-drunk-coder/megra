@@ -50,6 +50,10 @@
 (defparameter *midi-responders* (make-hash-table :test 'eql))
 (defparameter *pad-toggle-states* (make-hash-table :test 'eql))
 
+(defparameter *global-azimuth-offset* 0.0)
+(defparameter *global-elevation-offset* 0.0)
+
+
 ;; load the megra stuff except for dsp ...
 (load "megra-events")
 (load "megra-structures")

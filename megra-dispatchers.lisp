@@ -65,6 +65,8 @@
   (if (member 'inc (event-backends g)) (handle-grain-event-incu g))
   (if (member 'sc (event-backends g)) (handle-grain-event-sc g)))
 
+
+
 (defmethod handle-grain-event-sc ((g grain-event) &key)
   (unless (gethash (sample-location g) *buffer-directory*)
     (register-sample (sample-location g)))
@@ -138,7 +140,7 @@
 		 (* (event-attack g) 0.001)
 		 (* (- (event-duration g) (event-attack g) (event-release g)) 0.001)
 		 (* (event-release g) 0.001)
-		 (event-azimuth g)
-		 (event-elevation g)
+		 (+ (event-azimuth g) *global-azimuth-offset*)
+		 (+ (event-elevation g) *global-elevation-offset*)
 		 (event-reverb g)
 		 scratch::*rev-chapel*)))))
