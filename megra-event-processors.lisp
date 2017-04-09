@@ -7,6 +7,7 @@
    (predecessor :accessor predecessor :initform nil)   
    (current-events)      ;; abstract
    (current-transition)  ;; abstract   
+   (synced-processors :accessor synced-processors :initform nil)
    (name :accessor name :initarg :name)))
 
 (defmethod pull-events ((e event-processor) &key)

@@ -25,14 +25,26 @@
        (node 1 (mid 59 :lvl .8 :dur 1500))
        (node 2 (mid 73 :lvl .9 :dur 1500))
        (node 3 (mid 78 :lvl .9 :dur 350))
-       (edge 1 2 :prob 50 :dur 500)
-       (edge 1 3 :prob 50 :dur 750)
-       (edge 2 1 :prob 100 :dur 500)
-       (edge 3 1 :prob 100 :dur 250))
+       (edge 1 2 :prob 50 :dur 1500)
+       (edge 1 3 :prob 50 :dur 1750)
+       (edge 2 1 :prob 100 :dur 1500)
+       (edge 3 1 :prob 100 :dur 1250))
 
+(graph 'uno-midi-synced ()
+       (node 1 (mid 65 :lvl .8 :dur 200))
+       (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
+       (edge 1 2 :prob 100 :dur 400)
+       (edge 2 1 :prob 100 :dur 400))
+
+(clear)
 (dispatch () 'dos-midi)
 
+;; sync dispatching, will be performed when the graph specified
+;; as sync-to is dispatched
+(dispatch (:sync-to 'dos-midi) 'uno-midi-synced)
+
 (deactivate 'dos-midi)
+(deactivate 'uno-midi-synced)
 
 ;; you can also dispatch multiple graphs at the same time, the event
 ;; streams will be merged (for now) ...

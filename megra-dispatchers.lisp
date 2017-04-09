@@ -7,8 +7,19 @@
    (handle-transition)))
 
 ;; simple time-recursive dispatching
+;; not using local variable binding to reduce consing (??)
+(in-package :megra)
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
+  (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)))
+    (when (synced-processors (gethash proc *processor-directory*))
+      ;;(format t "~a" (synced-processors (gethash proc *processor-directory*)))
+      (loop for synced-proc in (synced-processors (gethash proc *processor-directory*))
+	 ;; dont check if it's active, as ondly deactivated procs are added to sync list
+	 do (let ((sync-d (make-instance 'event-dispatcher)))
+	      (format t "~a" synced-proc)
+	      (activate synced-proc)
+	      (perform-dispatch sync-d synced-proc (incudine:now))))
+      (setf (synced-processors (gethash proc *processor-directory*)) nil))
     (handle-events d (pull-events (gethash proc *processor-directory*)))
     (let* ((trans-time (handle-transition d (car
 					     (pull-transition
