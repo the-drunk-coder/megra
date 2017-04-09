@@ -50,7 +50,7 @@
 ;; streams will be merged (for now) ...
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
-;; in any case, the last graph in the chain determines the ti2ming
+;; in any case, the last graph in the chain determines the timing
 (dispatch ()
   'uno-midi
   'dos-midi)
@@ -291,7 +291,7 @@
 ;; this is a nice one ...
 (dispatch ()
   (spigot 'tap-inc :flow t)
-  (oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t :filter #'transition-p)
+  (oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t)
   (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 32))
     (node 2 (pitch 52))
@@ -356,7 +356,6 @@
     (node 1 (mid 84 :lvl 1.0 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
-
 ;; controller input, designed for AKAI LPD8 
 (register-knob 1 #'(lambda (val) (princ val)))
 
@@ -405,13 +404,15 @@
   (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
   (graph->svg 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-vis.dot"))
 
+(graph 'check-midi-note-off ()
+  (node 1 (mid 60 :lvl .8 :dur 1000))
+  (edge 1 1 :prob 20 :dur 20))
 
-;; check result
+(dispatch () 'check-midi-note-off)
 
 (clear)
 ;; TBD:
-;; text output
-;; disencourage - longer trace, but drop first ??
+;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
 ;;    to use a duratoin or level graph with more than one source ... thus,
 ;;    there need to be either a change in the representation, or some cloning function,
@@ -420,15 +421,13 @@
 ;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
 ;;     especially interesting if step dispatching becomes more than a debugging feature ... 
 ;; symbols as values, resolve at render time ??
-;; visualizer
+;; live-visualizer
 ;; yasnippets 
-;; make files loadable ... (check, seems ok ...)
 ;; automatically deactivate if final state is reached 
 ;; check why chance-combine doesn't work in any position
 ;;    (currently seems to work only in end position) 
 ;; ambisonics panner - sc
-;; note names
-;; node color, inherited by events as tag ...
+;; note names 
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
 ;; arranging modifiers in graphs ...
 ;; 'funnel event combnation mode
@@ -455,6 +454,10 @@
 ;; more vugs
 
 ;; DONE:
+;; make files loadable ... (check, seems ok ...)
+;; graphviz svg visualizer
+;; text output
+;; disencourage - longer trace, but drop first ??
 ;; tracing/ trace/ encourage /discourage
 ;; filter for graph combi !! -- tag based
 ;; ambisonics panner - incudine 
@@ -481,9 +484,9 @@
 ;; tree-like dispatch branching -- works !
 ;; avoid duplicate dispatches -- works !
 ;; automatic re-activation -- works !
+;; node color, inherited by events as tag ...
 
-
-;; keep for the sake of funcall
+;; keep this for the sake of funcall
 (dispatch ()
  (oscillate-between 'lp-freq-b 'lp-freq 100 8000 :cycle 100)
  (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)

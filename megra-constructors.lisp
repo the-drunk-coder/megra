@@ -74,11 +74,11 @@
 		      (if (and ,sync-to (gethash ,sync-to *processor-directory*))
 			  ;; if this processor is synced to another, don#t start now ..
 			  ;; dispatching will be started by the processor this one is synced to 
-			  (progn
-			    (format t "~a" 'syncing)
+			  (progn			    
 			    (deactivate (car event-processors) :del nil)
-			    (append (synced-processors (gethash ,sync-to *processor-directory*))
-				    (car event-processors)))
+			    (setf (synced-processors (gethash ,sync-to *processor-directory*))
+				  (append (synced-processors (gethash ,sync-to *processor-directory*))
+					  (list (car event-processors)))))
 			  ;; if the first event-processor is not active yet,
 			  ;; create a dispatcher to dispatch it ... 
 			  (unless (is-active (gethash (car event-processors)
