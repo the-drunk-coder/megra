@@ -53,7 +53,7 @@
 (defparameter *global-azimuth-offset* 0.0)
 (defparameter *global-elevation-offset* 0.0)
 
-
+(defparameter *global-midi-delay* 0.12)
 
 ;; load the megra stuff except for dsp ...
 (load "megra-events")

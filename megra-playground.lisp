@@ -60,11 +60,11 @@
 
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
-       (node 1 (grain "misc" "tada" :dur 512 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2 :ambi t))
+       (node 1 (grain "misc" "tada" :dur 512 :pos 0.0 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2 :ambi t))
        (edge 1 1 :prob 100 :dur 512))
 
 (dispatch ()
-  (chance-combine 'grain-lvl-cc 50 (lvl 0.0))
+  (chance-combine 'grain-lvl-cc 0 (lvl 0.0))
   'the-grain)
 
 (deactivate 'grain-lvl-cc)
@@ -85,17 +85,19 @@
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi t))
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil))
        (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1
-		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) :ambi t))
+		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) :ambi nil))
        (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi t))     
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5))     
        (edge 1 2 :prob 100 :dur 512)
        (edge 2 1 :prob 60 :dur 512)
        (edge 2 3 :prob 40 :dur 256)
        (edge 3 3 :prob 40 :dur 256)
        (edge 3 2 :prob 60 :dur 512))
+
+(clear)
 
 (free-all-samples)
 
@@ -106,7 +108,7 @@
 
 (dispatch ()
   (spigot 'tap-512 :flow t)
-  (chance-combine 'grain-lvl-cc 90 (lvl 0.0) :filter #'is-snare-p)
+  (chance-combine 'grain-lvl-cc 0 (lvl 0.0):filter #'is-snare-p)
   (oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
   'the-512-beat)
 
@@ -412,6 +414,7 @@
 
 (clear)
 ;; TBD:
+;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
 ;;    to use a duratoin or level graph with more than one source ... thus,
@@ -454,6 +457,7 @@
 ;; more vugs
 
 ;; DONE:
+;; midi latency - that was easy ...
 ;; make files loadable ... (check, seems ok ...)
 ;; graphviz svg visualizer
 ;; text output

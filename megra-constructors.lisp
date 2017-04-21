@@ -119,16 +119,17 @@
 ;; ancourage all processors ... in the long run, only the active ones
 ;; should be encouraged (and discouraged), but the semantics of 'is active'
 ;; are currently pretty stupid and need to be re-thought ... 
+;;(in-package :megra)
 (defun encourage-all ()
   (labels ((encourage-if-graph (key item)
 	     (if (typep item 'graph-event-processor)
-		 (modify-traced-path item *encourage-percentage*))))
+		 (encourage-path item *encourage-percentage*))))
     (maphash #'encourage-if-graph *processor-directory*)))
 
 (defun discourage-all ()
   (labels ((discourage-if-graph (key item)
 	     (if (typep item 'graph-event-processor)
-		 (modify-traced-path item (* -1 *discourage-percentage*)))))
+		 (discourage-path item *discourage-percentage*))))
     (maphash #'discourage-if-graph *processor-directory*)))
 
 ;; modifying ... always check if the modifier is already present !

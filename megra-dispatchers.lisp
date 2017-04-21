@@ -61,9 +61,10 @@
 (defmethod handle-event ((e event) &key))
 
 ;; handler methods for individual events ... 
+;;(in-package :megra)
 (defmethod handle-event ((m midi-event) &key)
   (events (cm::new cm::midi
-	       :time 0
+	       :time *global-midi-delay*
 	       :keynum (event-pitch m)
 	       :duration (coerce (* (event-duration m) 0.001) 'single-float)
 	       :amplitude (round (* 127 (event-level m))))
