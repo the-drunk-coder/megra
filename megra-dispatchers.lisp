@@ -77,8 +77,6 @@
   (if (member 'inc (event-backends g)) (handle-grain-event-incu g))
   (if (member 'sc (event-backends g)) (handle-grain-event-sc g)))
 
-
-
 (defmethod handle-grain-event-sc ((g grain-event) &key)
   (unless (gethash (sample-location g) *buffer-directory*)
     (register-sample (sample-location g)))
@@ -156,3 +154,24 @@
 		 (+ (event-elevation g) *global-elevation-offset*)
 		 (event-reverb g)
 		 scratch::*rev-chapel*)))))
+
+(defmethod handle-event ((g gendy-event) &key)
+  (scratch::gendy-stereo-rev
+   (event-amp-distr g)
+   (event-dur-distr g)
+   (event-amp-distr-param g)
+   (event-dur-distr-param g)
+   (event-freq-min g)
+   (event-freq-max g)
+   (event-amp-scale g)
+   (event-dur-scale g)
+   (event-level g)
+   (event-lp-freq g)
+   (event-lp-q g)
+   (event-lp-dist g)
+   (* (event-attack g) 0.001)
+   (* (- (event-duration g) (event-attack g) (event-release g)) 0.001)
+   (* (event-release g) 0.001)
+   (event-position g)
+   (event-reverb g)
+   scratch::*rev-chapel*))

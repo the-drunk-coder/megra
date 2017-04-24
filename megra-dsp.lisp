@@ -101,6 +101,47 @@
 	  (convorev grain revbuf rev gain a length r)
 	  azi ele))))))
 
+(dsp! gendy-stereo-rev (amp-distr
+			dur-distr
+			amp-distr-param
+			dur-distr-param
+			freq-min
+			freq-max
+			amp-scale
+			dur-scale
+			gain						
+			lp-freq
+			lp-q
+			lp-dist
+			a
+			length
+			r
+			pos
+			rev
+			(revbuf pvbuffer))
+  (with-samples ((gend (gendy-filtered
+			amp-distr
+			dur-distr
+			amp-distr-param
+			dur-distr-param
+			freq-min
+			freq-max
+			amp-scale
+			dur-scale
+			gain		        
+			lp-freq
+			lp-q
+			lp-dist
+			a
+			length
+			r)))
+    (foreach-frame
+      (foreach-channel
+	(cout
+	 (pan2
+	  (convorev gend revbuf rev gain a length r)
+	  pos))))))
+
 
 
 

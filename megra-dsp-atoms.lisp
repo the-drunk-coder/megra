@@ -90,6 +90,27 @@
       peak-freq peak-q peak-gain)
      lp-freq lp-q lp-dist)))
 
+(define-vug gendy-filtered (amp-distr
+			    dur-distr
+			    amp-distr-param
+			    dur-distr-param
+			    freq-min
+			    freq-max
+			    amp-scale
+			    dur-scale
+			    gain			    			    
+			    lp-freq
+			    lp-q
+			    lp-dist
+			    a
+			    length
+			    r)
+  (lpf18
+   (* (envelope (make-local-envelope `(0 ,gain ,gain 0) `(,a ,length ,r)) 1 1 #'identity)
+      (gendy amp-distr dur-distr amp-distr-param dur-distr-param
+	     freq-min freq-max amp-scale dur-scale))
+   lp-freq lp-q lp-dist))
+
 (define-vug convorev (in (revbuf pvbuffer) rev gain a length r)
   (* (delay-s (envelope (make-local-envelope `(0 ,gain ,gain 0)
 					     `(,a ,(+ length 2.5) ,r)) 1 1 #'free)

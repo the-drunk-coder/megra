@@ -229,6 +229,39 @@
 		 :atk atk :rel rel :sample-folder folder :sample-file file :tags tags :azi azi
 		 :ele ele :dist 1.0 :ambi-p ambi :combi-fun combi-fun))
 
+(in-package :megra)
+(defun gendy (&key
+		(adstr 1)
+		(ddstr 1)
+		(adstr-par 1)
+		(ddstr-par 1)
+		(freq-min 400)
+		(freq-max 410)
+		(tags nil)
+		(dur 256)
+		(a-scl 0.01)
+		(d-scl 0.01)
+		(lp-freq 19000)
+		(lp-q 0.4)
+		(lp-dist 0.0)
+		(atk 7)
+		(rel 7)
+		(rev 0.0)
+		(lvl 0.5)
+		(pos 0.5)
+		(azi 0.0)
+		(ele 0.0)
+		(ambi nil)
+		(combi-fun #'replace-value))
+  (make-instance 'gendy-event :lvl lvl :dur dur 
+		 :adstr adstr :ddstr ddstr :adstr-par adstr-par
+		 :ddstr-par ddstr-par :freq-max freq-max :freq-min freq-min
+		 :a-scl a-scl :d-scl d-scl
+		 :lp-freq lp-freq :lp-q lp-q :lp-dist lp-dist :rev rev
+		 :atk atk :rel rel :tags tags :azi azi :pos pos
+		 :ele ele :dist 1.0 :ambi-p ambi :combi-fun combi-fun)
+  )
+
 (defun ctrl (ctrl-fun &key (tags nil))
   (make-instance 'control-event :control-function ctrl-fun :tags tags))
 

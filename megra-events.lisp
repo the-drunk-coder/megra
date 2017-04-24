@@ -79,6 +79,18 @@
    (sample-file :accessor sample-file :initarg :sample-file)
    (sample-location :accessor sample-location)))
 
+(in-package :megra)
+(defclass gendy-event (level-event duration-event filter-lp-event attack-event
+				   release-event reverb-event spatial-event)
+  ((adstr :accessor event-amp-distr :initarg :adstr)
+   (ddstr :accessor event-dur-distr :initarg :ddstr)
+   (adstr-par :accessor event-amp-distr-param :initarg :adstr-par)
+   (ddstr-par :accessor event-dur-distr-param :initarg :ddstr-par)
+   (freq-min :accessor event-freq-min :initarg :freq-min)
+   (freq-max :accessor event-freq-max :initarg :freq-max)
+   (a-scl :accessor event-amp-scale :initarg :a-scl)
+   (d-scl :accessor event-dur-scale :initarg :d-scl)))
+
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (sample-location g) (concatenate 'string *sample-root*
 					 (sample-folder g) "/" (sample-file g) ".wav")))
