@@ -320,10 +320,13 @@
     (edge 2 1 :prob 55))
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (mid 84 :lvl .9 :dur 50))
-    (node 1 (mid 84 :lvl .9 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
 (encourage-with-tail 'tap-inc)
+(graph->code 'pitcher "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/pitcher-out.lisp")
+(graph->code 'durator "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/leveller-out.lisp")
+(graph->code 'leveller "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/durator-out.lisp")
+(graph->code 'origin "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/origin-out.lisp")
 
 (deactivate 'tap-inc)
 
