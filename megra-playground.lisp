@@ -323,6 +323,8 @@
     (node 1 (mid 84 :lvl .9 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
+(encourage-with-tail 'tap-inc)
+
 (deactivate 'tap-inc)
 
 (defun has-two-p (event)
@@ -371,8 +373,7 @@
        (node 4 (mid 67 :lvl .9 :dur 150))
        (node 5 (mid 70 :lvl .9 :dur 150))       
        (edge 1 1 :prob 20 :dur 250) (edge 1 2 :prob 20 :dur 125) (edge 1 3 :prob 20 :dur 125)
-       (edge 1 4 :prob 20 :dur 250) (edge 1 5 :prob 20 :dur 750) 
-       
+       (edge 1 4 :prob 20 :dur 250) (edge 1 5 :prob 20 :dur 750)        
        (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
        (edge 2 4 :prob 20 :dur 250) (edge 2 5 :prob 20 :dur 500) 
 
@@ -414,6 +415,7 @@
 
 (clear)
 ;; TBD:
+;; only encourage/discourage processors that are active or in a chain ... 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want

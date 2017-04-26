@@ -18,7 +18,7 @@
 (defmethod pull-transition ((e event-processor) &key)
   (if (successor e)
       (progn
-	(current-transition e)
+	(current-transition e) ;; trigger node selection ...
 	(pull-transition (successor e)))
       (current-transition e)))
 
