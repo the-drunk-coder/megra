@@ -1,3 +1,58 @@
+;; stateful parameter modifier ... (yes, really ...)
+;; every one of those needs an "evaluate" function ...
+(defclass param-mod-object ()
+  ((step :accessor pmod-step :initform 0)
+   (time :accessor pmod-time :initform 0)
+   (current-value :accessor pmod-current-value :initarg :current-value)))
+
+;; before each evaluation, set time ...
+(defmethod evaluate :before ((p param-mod-object) &key)
+  (setf (pmod-time p) (incudine:now)))
+
+;; after each evaluation, increment step counter
+(defmethod evaluate :after ((p param-mod-object) &key)
+  (incf (pmod-step p)))
+
+;; this one is stateless, not dependent on current value ...
+(defclass param-oscillate-between (param-mod-object))
+
+(defmethod evaluate ((o param-oscillate-between))
+  (let* ((osc-range (- upper lower))		   
+	    (degree-increment (/ 360 cycle o))
+	    (degree (mod (* degree-increment (mod step cycle)) 360))
+	 (abs-sin (abs (sin (radians degree)))))    
+    (+ lower (* abs-sin osc-range))))
+
+(defclass generic-brownian-motion ()
+  (upper-boundary :accessor ubound :initarg :upper-boundary)
+  (lower-boundary :accessor lbound :initarg :lower-boundary)
+  (step-size :accessor step-size :initarg :step-size)
+  (is-bounded :accessor is-bounded :initarg :is-bounded)
+  (is-wrapped :accessor is-wrapped :initarg :is-wrapped))
+
+;; cap or wrap ...
+(defmethod cap ((b generic-brownian-motion) value &key)
+  (cond ((is-bounded b)
+	 (cond ((< value (lbound b)) (lbound b))
+	       ((> value (ubound b)) (ubound b))
+	       (t value)))
+	((is-wrapped b)
+	 (cond ((< value (lbound b)) (ubound b))
+	       ((> value (ubound b)) (lbound b))
+	       (t value)))
+	(t value)))
+
+;; this one is stateful ...
+(defclass param-brownian-motion (generic-brownian-motion param-mod-object))
+
+(defmethod evaluate ((b param-brownian-motion))
+  (let* ((new-value (cap b (+ (pmod-current-value b) 
+			      (* (nth (random 2) '(-1 1)) (step-size b))))))
+    ;; stateful - don't forget to set value ! 
+    (setf (pmod-current-value b) new-value)
+    ;; return new value
+    new-value))
+
 ;; the atomic units of music - event and transition ...
 (defclass event ()
   ((source :accessor event-source)
@@ -18,10 +73,76 @@
     ((msg :accessor event-message :initarg :msg)))
 
 (defclass pitch-event (event)
-  ((pitch :accessor event-pitch :initarg :pitch)))
+  ((pitch :initarg :pitch)))
 
-(defclass level-event (event)
-  ((lvl :accessor event-level :initarg :lvl)))
+
+(defun add-slot-to-class (class name &key (initform nil) accessors readers writers
+				       initargs (initfunction (constantly nil)))
+  (check-type class symbol)
+  (let ((new-slots (list (list :name name
+                               :readers (union accessors readers)
+                               :writers (union writers
+                                               (mapcar #'(lambda (x)
+                                                           (list 'setf x))
+                                                       accessors)
+                                               :test #'equal)
+                               :initform initform
+                               :initargs initargs
+                               :initfunction initfunction))))
+    (dolist (slot-defn (class-direct-slots (find-class class)))
+      (push (direct-slot-defn->initarg slot-defn)
+            new-slots))
+    (ensure-class class :direct-slots new-slots)))
+
+;; macro to faciliate defining events
+;; defines the event class, the language constructor, and the
+;; value accessor function ...
+(defmacro define-event (event-long-name
+			event-short-name
+			parent-events
+			parameters)
+  (let* ((class-name (intern (format nil "~a-event" event-long-name) 'megra))
+	 (constructor-name (intern (format nil "~a" event-short-name) 'megra))
+	 )
+
+    
+
+  `(progn
+     (defclass ,class-name ,parent-events)
+     (loop for param in parameters
+	do ((let* (())
+	      (add-slot-to-class )
+
+	      )
+	    (defgeneric name-access (foo)
+	      (:method ((foo foo))
+		(format t "~&Getting name.~%")
+		(slot-value foo 'name)))
+
+	    (defgeneric (setf name-access) (name foo)
+	      (:method (name (foo foo))
+		(format   t "~&Setting a new name.~%")
+		(setf (slot-value foo 'name) name))
+	    
+	    ))
+
+     (defun lvl (lvl &key (tags nil) (combi-fun #'replace-value))
+       (make-instance 'level-event :lvl lvl :tags tags :combi-fun combi-fun))
+
+
+     ))
+  )
+
+
+(defmethod event-get-pitch ((e event))
+  
+  (if (typep (slot-value e 'pitch) 'function)
+      (funcall (slot-value e 'pitch) )
+      (slot-value e 'pitch)
+      )
+  )
+
+(define-event 'duration 'dur '((duration dur) )  )
 
 (defclass duration-event (event)
   ((dur :accessor event-duration :initarg :dur)))
@@ -79,7 +200,7 @@
    (sample-file :accessor sample-file :initarg :sample-file)
    (sample-location :accessor sample-location)))
 
-(in-package :megra)
+;;(in-package :megra)
 (defclass gendy-event (level-event duration-event filter-lp-event attack-event
 				   release-event reverb-event spatial-event)
   ((adstr :accessor event-amp-distr :initarg :adstr)
@@ -119,23 +240,6 @@
         :initargs (slot-definition-initargs slot-defn)
         :initfunction (slot-definition-initfunction slot-defn)))
 
-(defun add-slot-to-class (class name &key (initform nil) accessors readers writers
-				       initargs (initfunction (constantly nil)))
-  (check-type class symbol)
-  (let ((new-slots (list (list :name name
-                               :readers (union accessors readers)
-                               :writers (union writers
-                                               (mapcar #'(lambda (x)
-                                                           (list 'setf x))
-                                                       accessors)
-                                               :test #'equal)
-                               :initform initform
-                               :initargs initargs
-                               :initfunction initfunction))))
-    (dolist (slot-defn (class-direct-slots (find-class class)))
-      (push (direct-slot-defn->initarg slot-defn)
-            new-slots))
-    (ensure-class class :direct-slots new-slots)))
 
 ;; check if event b has all slots that event a has
 (defmethod events-compatible ((a event) (b event) &key)

@@ -51,10 +51,15 @@
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
    (combine-mode :accessor combine-mode :initarg :combine-mode)
    (combine-filter :accessor combine-filter :initarg :combine-filter)
-   (path) ;; path is a predefined path 
+   (path) ;; path is a predefined path
+   (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
    (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
+
+;; initialize counter hash table ...
+(defmethod initialize-instance :after ((g graph-event-processor) &key)
+  (setf (node-steps g) (make-hash-table :test 'eql)))
 
 ;; strange mop-method to allow cloning events
 ;; eventually the event-sources are not considered,
@@ -180,6 +185,8 @@
 (defmethod apply-self ((g graph-event-processor) events &key)
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
 
+;; with the advent of param-mod-objects, some of these might be deemed deprecated,
+;; but left for legacy reasons ... 
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)
@@ -224,7 +231,7 @@
 ;; switch to preserve/not preserve state ?
 
 ;; oscillate a parameter between different values ...
-(defclass oscillate-between (modifying-event-processor)
+(defclass stream-oscillate-between (modifying-event-processor)
   ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
    (lower-boundary :accessor lower-boundary :initarg :lower-boundary)   
    (cycle :accessor cycle :initarg :cycle )
@@ -235,7 +242,7 @@
 (defun radians (numberOfDegrees) 
   (* pi (/ numberOfDegrees 180.0)))
 
-(defmethod apply-self ((o oscillate-between) events &key)
+(defmethod apply-self ((o stream-oscillate-between) events &key)
   (mapc #'(lambda (event)
 	    (let* ((current-value (get-current-value o event))
 		   (osc-range (- (upper-boundary o) (lower-boundary o)))		   
@@ -280,27 +287,10 @@
   events)
 
 ;; a random walk on whatever parameter ...
-(defclass brownian-motion (modifying-event-processor)
-  ((upper-boundary :accessor ubound :initarg :upper-boundary)
-   (lower-boundary :accessor lbound :initarg :lower-boundary)
-   (step-size :accessor step-size :initarg :step-size)
-   (is-bounded :accessor is-bounded :initarg :is-bounded)
-   (is-wrapped :accessor is-wrapped :initarg :is-wrapped)))
-
-;; cap or wrap ...
-(defmethod cap ((b brownian-motion) value &key)
-  (cond ((is-bounded b)
-	 (cond ((< value (lbound b)) (lbound b))
-	       ((> value (ubound b)) (ubound b))
-	       (t value)))
-	((is-wrapped b)
-	 (cond ((< value (lbound b)) (ubound b))
-	       ((> value (ubound b)) (lbound b))
-	       (t value)))
-	(t value)))
-
+(defclass stream-brownian-motion (modifying-event-processor generic-brownian-motion))
+  
 ;; make state-tracking switchable ??? 
-(defmethod apply-self ((b brownian-motion) events &key)
+(defmethod apply-self ((b stream-brownian-motion) events &key)
   (mapc #'(lambda (event)	    
 	    (let* ((current-value (get-current-value b event))
 		   (new-value (cap b (+ current-value

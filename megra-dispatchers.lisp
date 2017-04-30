@@ -65,7 +65,7 @@
 (defmethod handle-event ((m midi-event) &key)
   (events (cm::new cm::midi
 	       :time *global-midi-delay*
-	       :keynum (event-pitch m)
+	       :keynum (event-get-pitch m)
 	       :duration (coerce (* (event-duration m) 0.001) 'single-float)
 	       :amplitude (round (* 127 (event-level m))))
 	  :at (incudine:now)))

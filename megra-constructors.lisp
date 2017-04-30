@@ -151,10 +151,11 @@
     (maphash #'discourage-if-active-graph *processor-directory*)))
 
 ;; modifying ... always check if the modifier is already present !
-(defun brownian-motion (name param &key step-size wrap limit ubound lbound
+(defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
 				     (affect-transition nil) (keep-state t)
 				     (track-state t) (filter #'all-p))
-  (let ((new-inst (make-instance 'brownian-motion :step-size step-size :mod-prop param :name name
+  (let ((new-inst (make-instance 'stream-brownian-motion :step-size step-size :mod-prop param
+				 :name name
 				 :upper-boundary ubound
 				 :lower-boundary lbound
 				 :is-bounded limit
@@ -169,11 +170,11 @@
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
-(defun oscillate-between (name param upper-boundary lower-boundary &key cycle type
+(defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
 								     (affect-transition nil)
 								     (keep-state t) (track-state t)
 								     (filter #'all-p))
-  (let ((new-inst (make-instance 'oscillate-between :mod-prop param :name name
+  (let ((new-inst (make-instance 'stream-oscillate-between :mod-prop param :name name
 				 :cycle cycle
 				 :upper-boundary upper-boundary
 				 :lower-boundary lower-boundary

@@ -1,17 +1,16 @@
 (in-package :megra)
-
 ;; define some test graph structures
 (graph 'uno-midi ()
-       (node 1 (mid 65 :lvl .8 :dur 200))
-       (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
-       (edge 1 2 :prob 100 :dur 400)
-       (edge 2 1 :prob 100 :dur 400))
+  (node 1 (mid #'(lambda () (+ 7 62)) :lvl .8 :dur 200))
+  (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
+  (edge 1 2 :prob 100 :dur 400)
+  (edge 2 1 :prob 100 :dur 400))
 
 ;; dispatch the graph to make it sound 
 ;; the empty parentheses are the space for additional options
 ;; (which we don't use so far ... )
 (dispatch () 'uno-midi) 
-
+(clear)
 ;; deactivate to make it stop
 (deactivate 'uno-midi)
 
@@ -71,8 +70,13 @@
 
 (graph 'ambi-test ()
   (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
-		 :lvl 0.9 :rate 1.0 :rev 0.0 :azi 0 :ele 0 :ambi t))
-  (edge 1 1 :prob 100 :dur 128))
+		 :lvl 0.9 :rate 1.0 :rev 0.0
+		 :azi #'(oscillate-between 0.0 3.14 :cycle 50)
+		 :ele #'(oscillate-between 0.0 3.14 :cycle 60)
+		 :ambi t))
+  (edge 1 1 :prob 100
+	:dur #'()
+	))
 
 (dispatch ()
   (spigot 'ambi-tap-512 :flow t)
@@ -418,7 +422,8 @@
 
 (clear)
 ;; TBD:
-;; only encourage/discourage processors that are active or in a chain ... 
+;; functions as parameters ... 
+;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
@@ -462,7 +467,8 @@
 ;; more vugs
 
 ;; DONE:
-;; midi latency - that was easy ...
+;; only encourage/discourage processors that are active or in a chain ...
+;; midi latency - that was easy ... thanks cm !
 ;; make files loadable ... (check, seems ok ...)
 ;; graphviz svg visualizer
 ;; text output
