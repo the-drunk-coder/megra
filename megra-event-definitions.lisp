@@ -54,7 +54,7 @@
   :long-name spatial-event
   :short-name pos
   :parent-events (event)
-  :parameters ((pos event-position 0.0)
+  :parameters ((pos event-position 0.5)
 	       (azi event-azimuth 0.0)
 	       (ele event-elevation 0.0)
 	       (dist event-distance 0.0)) 
@@ -121,7 +121,7 @@
   :long-name filter-peak-event
   :short-name filter-peak
   :parent-events (event)
-  :parameters ((pf-freq event-fp-freq 1000)
+  :parameters ((pf-freq event-pf-freq 1000)
 	       (pf-q event-pf-q 10)
 	       (pf-gain event-pf-gain 0.0)) 
   :direct-parameters (pf-freq))
@@ -142,7 +142,8 @@
 		  reverb-event)
   :parameters ((sample-folder event-sample-folder)
 	       (sample-file event-sample-file)
-	       (sample-location event-sample-location)) 
+	       (sample-location event-sample-location)
+	       (ambi event-ambi-p nil)) 
   :direct-parameters (sample-folder sample-file))
 
 ;; additional method after grain event initialization ...

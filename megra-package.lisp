@@ -57,6 +57,7 @@
 
 ;; load the megra stuff except for dsp ...
 (load "megra-object-handling")
+(load "megra-param-modificators")
 (load "megra-event-base")
 (load "megra-event-definitions")
 (load "megra-structures")

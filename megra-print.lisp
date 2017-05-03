@@ -1,6 +1,6 @@
 ;; methods to turn internal object representation back to megra code
 
-(in-package :megra)
+;; (in-package :megra)
 ;; i could split transition print here, but i think it's ok like that for now ...
 (defmethod print-edge ((e edge) &key)
   (format nil "(edge ~d ~d :prob ~d :dur ~d)"
@@ -85,7 +85,7 @@
 
 ;;(print-event (start 0.3 :tags '(blue)))
 
-(defmethod print-event ((s string-event) &key)
+(defmethod print-event ((s message-event) &key)
   (format nil "(string-event ~d~a)"
 	  (event-message s)
 	  (print-tags (event-tags s))))
@@ -101,8 +101,8 @@
                         :rev ~a
                         :azi ~a :ele ~a :pos ~a
                         :ambi ~a~a~a)"
-	  (sample-folder g)
-	  (sample-file g)
+	  (event-sample-folder g)
+	  (event-sample-file g)
 	  (event-duration g)
 	  (event-level g)
 	  (event-start g)

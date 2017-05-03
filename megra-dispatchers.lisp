@@ -8,7 +8,7 @@
 
 ;; simple time-recursive dispatching
 ;; not using local variable binding to reduce consing (??)
-(in-package :megra)
+;; (in-package :megra)
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
   (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)))
     (when (synced-processors (gethash proc *processor-directory*))
@@ -61,11 +61,11 @@
 (defmethod handle-event ((e event) &key))
 
 ;; handler methods for individual events ... 
-;;(in-package :megra)
+(in-package :megra)
 (defmethod handle-event ((m midi-event) &key)
   (events (cm::new cm::midi
 	       :time *global-midi-delay*
-	       :keynum (event-get-pitch m)
+	       :keynum (event-pitch m)
 	       :duration (coerce (* (event-duration m) 0.001) 'single-float)
 	       :amplitude (round (* 127 (event-level m))))
 	  :at (incudine:now)))
@@ -78,9 +78,9 @@
   (if (member 'sc (event-backends g)) (handle-grain-event-sc g)))
 
 (defmethod handle-grain-event-sc ((g grain-event) &key)
-  (unless (gethash (sample-location g) *buffer-directory*)
-    (register-sample (sample-location g)))
-  (let ((bufnum (gethash (sample-location g) *buffer-directory*)))
+  (unless (gethash (event-sample-location g) *buffer-directory*)
+    (register-sample (event-sample-location g)))
+  (let ((bufnum (gethash (event-sample-location g) *buffer-directory*)))
     (cm::send-osc  
      "/s_new"	    
      "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
@@ -103,14 +103,14 @@
      "pos" (coerce (- (event-position g) 0.5) 'float))))
 
 (defmethod handle-grain-event-incu ((g grain-event) &key)
-  (unless (gethash (sample-location g) *buffer-directory*)
-    (let* ((buffer (incudine:buffer-load (sample-location g)))
+  (unless (gethash (event-sample-location g) *buffer-directory*)
+    (let* ((buffer (incudine:buffer-load (event-sample-location g)))
 	   (bdata (make-buffer-data :buffer buffer
 				    :buffer-rate (/ (incudine:buffer-sample-rate buffer)
 						    (incudine:buffer-frames buffer))
 				    :buffer-frames (incudine:buffer-frames buffer))))
-      (setf (gethash (sample-location g) *buffer-directory*) bdata)))
-  (let ((bdata (gethash (sample-location g) *buffer-directory*)))    
+      (setf (gethash (event-sample-location g) *buffer-directory*) bdata)))
+  (let ((bdata (gethash (event-sample-location g) *buffer-directory*)))    
     (cond ((not (event-ambi-p g))
 	   (scratch::megra-grain-rev (buffer-data-buffer bdata)
 		 (buffer-data-buffer-rate bdata)
