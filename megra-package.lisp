@@ -56,7 +56,9 @@
 (defparameter *global-midi-delay* 0.12)
 
 ;; load the megra stuff except for dsp ...
-(load "megra-events")
+(load "megra-object-handling")
+(load "megra-event-base")
+(load "megra-event-definitions")
 (load "megra-structures")
 (load "megra-event-processors")
 (load "megra-dispatchers")

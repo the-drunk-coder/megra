@@ -1,15 +1,6 @@
 (require 'cm)
 (in-package :cm)
 
-
-
-(defmacro fade)
-
-
-
-
-
-
 ;; initialize -- seems like it has to be like this ...
 (progn
   (incudine:set-rt-block-size 128)
