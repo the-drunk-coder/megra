@@ -110,45 +110,6 @@
       (deactivate proc :del nil)
       (dispatch (:chain t) proc)))
 
-;; encourage or discourage single graph event processor
-(defun encourage (graph)
-  (encourage-path (gethash graph *processor-directory*) *encourage-percentage*))
-
-(defun discourage (graph)
-  (discourage-path (gethash graph *processor-directory*) *discourage-percentage*))
-
-;; encourage graph event processor and its successors
-(defun encourage-with-tail (graph)
-  (encourage-chain (gethash graph *processor-directory*)))
-
-(defun discourage-with-tail (graph)
-  (discourage-chain (gethash graph *processor-directory*)))
-
-;; same as above, the internals 
-(defun encourage-chain (proc)
-  (if (typep proc 'graph-event-processor)
-      (encourage-path proc *encourage-percentage*))
-  (if (successor proc)
-      (encourage-chain (successor proc))))
-
-(defun discourage-chain (proc)
-  (if (typep proc 'graph-event-processor)
-      (discourage-path proc *discourage-percentage*))
-  (if (successor proc)
-      (discourage-chain (successor proc))))
-
-;;(in-package :megra)
-(defun encourage-all ()
-  (labels ((encourage-if-acitve-graph (key item)
-	     (if (and (typep item 'graph-event-processor) (is-active item))
-		 (encourage-chain item))))
-    (maphash #'encourage-if-active-graph *processor-directory*)))
-
-(defun discourage-all ()
-  (labels ((discourage-if-active-graph (key item)
-	     (if (and (typep item 'graph-event-processor) (is-active item))
-		 (discourage-chain item))))
-    (maphash #'discourage-if-active-graph *processor-directory*)))
 
 ;; modifying ... always check if the modifier is already present !
 (defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
