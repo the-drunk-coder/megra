@@ -3,7 +3,7 @@
 (graph 'uno-midi ()
   (node 1 (mid #'(lambda () (+ 20 (random 60)) ) :lvl .8 :dur 200))
   (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
-  (edge 1 2 :prob 100 :dur 400)
+  (edge 1 2 :prob 100 :dur #'(lambda () (+ 100 (random 200))))
   (edge 2 1 :prob 100 :dur 400))
 
 ;; dispatch the graph to make it sound 
