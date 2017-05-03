@@ -49,9 +49,12 @@
   `(defgeneric ,accessor-name (,class-name)
     (:method ((,class-name ,class-name))
       (let ((val (slot-value ,class-name ',param-name)))
-	(if (typep val 'param-mod-object)
-	    (evaluate val)
-	    val)))))
+
+	(cond ((typep val 'param-mod-object) (evaluate val))
+	      ((typep val 'function) (funcall val))
+	      (t val))
+
+	))))
 
 (defun get-param-definition (slot)
   (list
@@ -156,8 +159,6 @@
        ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)
        ;; tbd -- directly include handler ... 
        )))
-
-
 
 				        
 

@@ -1,7 +1,7 @@
 (in-package :megra)
 ;; define some test graph structures
 (graph 'uno-midi ()
-  (node 1 (mid #'(lambda () (+ 7 62)) :lvl .8 :dur 200))
+  (node 1 (mid #'(lambda () (+ 20 (random 60)) ) :lvl .8 :dur 200))
   (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
   (edge 1 2 :prob 100 :dur 400)
   (edge 2 1 :prob 100 :dur 400))
@@ -10,6 +10,7 @@
 ;; the empty parentheses are the space for additional options
 ;; (which we don't use so far ... )
 (dispatch () 'uno-midi) 
+
 (clear)
 ;; deactivate to make it stop
 (deactivate 'uno-midi)
@@ -56,17 +57,19 @@
 
 ;; deactivate the object in the chain closest to the dispatcher to make it stop ...  
 (deactivate 'uno-midi)
-
+(clear)
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
-       (node 1 (grain "misc" "tada" :dur 512 :pos 0.0 :lvl 0.5 :rate 1.0 :atk 64 :rel 65 :rev 0.2 :ambi t))
+  (node 1 (grain "misc" "tada" :dur 512 :pos 0.0 :lvl 0.5 :rate 0.4 :atk 64 :rel 65 :rev 0.2
+		 :ambi nil))
        (edge 1 1 :prob 100 :dur 512))
 
-(dispatch ()
-  (chance-combine 'grain-lvl-cc 0 (lvl 0.0))
+(dispatch (:sync-to 'the-512-beat)
+  ;;(chance-combine 'grain-lvl-cc 0 (lvl 0.0))
   'the-grain)
 
-(deactivate 'grain-lvl-cc)
+
+(deactivate 'the-grain)
 
 (graph 'ambi-test ()
   (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
@@ -89,8 +92,8 @@
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil))
-       (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5))
+       (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1 :pos 0.5
 		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) :ambi nil))
        (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
@@ -113,7 +116,7 @@
 (dispatch ()
   (spigot 'tap-512 :flow t)
   (chance-combine 'grain-lvl-cc 0 (lvl 0.0):filter #'is-snare-p)
-  (oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
+  (stream-oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
   'the-512-beat)
 
 (deactivate 'the-grain)
