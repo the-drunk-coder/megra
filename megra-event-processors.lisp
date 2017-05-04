@@ -57,6 +57,27 @@
    ;; length of the trace ...
    (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
 
+;; turn back to textual representation ...
+(defmethod print-graph ((g graph-event-processor) &key)
+  (format nil "(graph '~a (:perma ~a :combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
+	  (graph-id (source-graph g))
+	  (copy-events g)
+	  (combine-mode g)
+	  (print-function-name (combine-filter g))	 
+	  ;; might save hashtable access here ... 
+	  (loop for key being the hash-keys of (graph-nodes (source-graph g))
+	     collect (format nil "~C~a~%"
+			     #\tab
+			     (print-node (gethash key (graph-nodes (source-graph g))))))	  
+	  (loop for key being the hash-keys of
+	       (graph-edges (source-graph g))
+	     append
+	       (mapcar #'(lambda (edge) (format nil "~C~a~%"
+			    #\tab
+			    (print-edge edge)))
+		       (gethash key (graph-edges (source-graph g)))))))
+
+
 ;; initialize counter hash table ...
 (defmethod initialize-instance :after ((g graph-event-processor) &key)
   (setf (node-steps g) (make-hash-table :test 'eql)))

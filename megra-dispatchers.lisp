@@ -13,7 +13,7 @@
     (when (synced-processors (gethash proc *processor-directory*))
       ;;(format t "~a" (synced-processors (gethash proc *processor-directory*)))
       (loop for synced-proc in (synced-processors (gethash proc *processor-directory*))
-	 ;; dont check if it's active, as ondly deactivated procs are added to sync list
+	 ;; don't check if it's active, as only deactivated procs are added to sync list
 	 do (let ((sync-d (make-instance 'event-dispatcher)))
 	      (format t "~a" synced-proc)
 	      (activate synced-proc)

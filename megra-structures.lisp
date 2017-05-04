@@ -9,6 +9,18 @@
   (setf (event-source e) (node-global-id n))  
   (cons e (node-content n)))
 
+;; turn back into textual representation ...
+(defmethod print-node ((n node) &key)
+  (if (eql (node-color n) 'white)
+      (format nil "(node ~a ~a)"
+	      (node-id n)
+	      (format nil "~{~a ~}" (mapcar #'print-event (node-content n))))
+      (format nil "(node-col ~a (:col '~a) ~a)"
+	      (node-id n)
+	      (node-color n)
+	      (format nil "~{~a ~}" (mapcar #'print-event (node-content n))))))
+
+
 ;; only probability is a structural property on this level.
 ;; duration is better placed on the event level
 ;; (see migra-events)
@@ -18,6 +30,15 @@
    (destination :accessor edge-destination :initarg :dest)
    (probability :accessor edge-probablity :initarg :prob)
    (content :accessor edge-content :initarg :content)))
+
+;; i could split transition print here, but i think it's ok like that for now ...
+;; turn back to textual representation ...
+(defmethod print-edge ((e edge) &key)
+  (format nil "(edge ~d ~d :prob ~d :dur ~d)"
+	  (edge-source e)
+	  (edge-destination e)
+	  (edge-probablity e)
+	  (transition-duration (car (edge-content e)))))
 
 ;; compare edges to remove duplicates
 (defmethod edge-equals ((a edge) (b edge) &key)

@@ -38,10 +38,7 @@
 			     :readers (slot-definition-readers slot)
 			     :writers (slot-definition-writers slot)))))
 
-;; will be an accumulator ... 
-(defclass incomplete-event (event) ())
-
-;; copied ...
+;; copied ... interleave two lists ...(a1 b1) (a2 b2) -> (a1 a2 b1 b2)
 (defun interleave (l1 l2)
   (cond ((and (eql l1 nil) (eql l2 nil)) nil)             ;; rule #1 
         ((eql l1 nil) (cons nil (interleave l2 l1)))      ;; rule #2, current value is nil
@@ -87,6 +84,20 @@
 			      (rest (remove-if filter events-b)))
 			  (append filtered-and-combined rest)))))
 
+;; helper methods to turn events back into their textual representation ...
+(defun print-tags (tags)
+  (if tags
+      (format nil " :tags '(~{~a ~})" tags)
+      ""))
+
+(defun print-combi-fun (fun)
+  ;; sbcl-specific ??
+  (format nil " :combi-fun #'~a" (print-function-name fun)))
+
+(defun print-function-name (fun)
+  (format nil "~a"
+	  (nth 2 (multiple-value-list
+		  (function-lambda-expression fun)))))
 
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
@@ -110,8 +121,8 @@
 	 (parameter-names (mapcar #'car parameters))
 	 (accessor-names (mapcar #'cadr parameters))
 	 (keyword-parameter-defaults (mapcar #'caddr keyword-parameters))
-	 (keyword-parameter-names (mapcar #'car  keyword-parameters))	 
-	 (parent-parameter-names (mapcar #'car  parent-parameters))
+	 (keyword-parameter-names (mapcar #'car keyword-parameters))	 
+	 (parent-parameter-names (mapcar #'car parent-parameters))
 	 (parent-keyword-parameter-defaults (mapcar #'caddr parent-keyword-parameters))
 	 (parent-keyword-parameter-names (mapcar #'car  parent-keyword-parameters))
 	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))
@@ -123,7 +134,7 @@
     `(progn
        ;; define the base class
        (defclass ,class-name ,parent-events ())
-       ;; add the parameter slots with accessor  
+       ;; add the parameter slots with accessor ...
        (loop for param in ',parameters	    
 	  for i from 0 to (length ',parameters)
 	  do (let* ((slot-name (car param))
@@ -154,14 +165,8 @@
        ;; re-define the getters so that the value is calculated if
        ;; it's a modifier object or function instead of a plain value ...
        ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)
-       (defmethod handle-event ((evt ,class-name) &key)
-	 ,handler
-	 )
-       
-       ;; tbd -- directly include handler ... 
-       ;; tbd -- printer function ...
+       ;; produce event handler method ...
+       (defmethod handle-event ((evt ,class-name) &key) ,handler)
+       ;; assemble printer method ...              
+       ;; tbd -- printer method ...
        )))
-
-				        
-
-
