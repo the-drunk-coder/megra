@@ -3,7 +3,7 @@
 (graph 'uno-midi ()
   (node 1 (mid #'(lambda () (+ 20 (random 60)) ) :lvl .8 :dur 200))
   (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
-  (edge 1 2 :prob 100 :dur #'(lambda () (+ 100 (random 200))))
+  (edge 1 2 :prob 100 :dur #'(lambda () (+ 10 (random 900))))
   (edge 2 1 :prob 100 :dur 400))
 
 ;; dispatch the graph to make it sound 
@@ -17,8 +17,6 @@
 
 ;; use clear to stop and clear all currently playing objects 
 (clear)
-
-(typep (gethash 'dos-midi *processor-directory*) 'graph-event-processor)
 
 ;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi ()
@@ -340,10 +338,12 @@
 (defun has-two-p (event)
   (member 'two (event-tags event)))
 
+(clear)
+
 ;; this is a nice one ...
 (dispatch ()
   (spigot 'tap-inc :flow t)  
-  (graph 'pitcher (:combine-mode 'zip :combine-filter #'has-two-p)
+  (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 32))
     (node 2 (pitch 52))
     (edge 1 1 :prob 60)

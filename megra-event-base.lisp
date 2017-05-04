@@ -9,6 +9,9 @@
 ;; the default value combination function
 (defun replace-value (b a) a)
 
+;; see what we can still do with this ... 
+(defmethod handle-event ((e event) &key))
+
 ;; DIRECTLY EVENT-RELEATED OBJECT HANDLING METHODS ...
 (defmethod event-has-slot ((e event) slot &key)
   (member slot (class-slots (class-of e)) :test 'slot-eq))
@@ -49,12 +52,9 @@
   `(defgeneric ,accessor-name (,class-name)
     (:method ((,class-name ,class-name))
       (let ((val (slot-value ,class-name ',param-name)))
-
 	(cond ((typep val 'param-mod-object) (evaluate val))
 	      ((typep val 'function) (funcall val))
-	      (t val))
-
-	))))
+	      (t val))))))
 
 (defun get-param-definition (slot)
   (list
@@ -91,6 +91,7 @@
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
+(in-package :megra)
 (defmacro define-event (&key
 			  short-name
 			  long-name
@@ -109,14 +110,10 @@
 	 (parameter-names (mapcar #'car parameters))
 	 (accessor-names (mapcar #'cadr parameters))
 	 (keyword-parameter-defaults (mapcar #'caddr keyword-parameters))
-	 (keyword-parameter-names (mapcar #'car  keyword-parameters))
-	 
+	 (keyword-parameter-names (mapcar #'car  keyword-parameters))	 
 	 (parent-parameter-names (mapcar #'car  parent-parameters))
-
 	 (parent-keyword-parameter-defaults (mapcar #'caddr parent-keyword-parameters))
 	 (parent-keyword-parameter-names (mapcar #'car  parent-keyword-parameters))
-	 
-
 	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))
 	 (parent-keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
 				  parent-parameter-names))
@@ -155,9 +152,14 @@
 			))
        ;; oh my ... now this is creepy ...
        ;; re-define the getters so that the value is calculated if
-       ;; it's a modifier object instead of a plain value ...
+       ;; it's a modifier object or function instead of a plain value ...
        ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)
+       (defmethod handle-event ((evt ,class-name) &key)
+	 ,handler
+	 )
+       
        ;; tbd -- directly include handler ... 
+       ;; tbd -- printer function ...
        )))
 
 				        

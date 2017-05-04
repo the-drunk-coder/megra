@@ -1,4 +1,12 @@
 ;; EVENT DEFINITIONS ...
+;; the root event is defined in megra-event-base ...
+
+;; accumulator class ...
+(define-event
+  :long-name incomplete-event
+  :short-name incomplete
+  :parent-events (event))
+
 ;; those "abstract" events provide the building blocks
 ;; for the events that will later on produce a sound 
 (define-event
@@ -40,12 +48,19 @@
   :long-name tuned-instrument-event
   :short-name tuned-instrument-event
   :parent-events (pitch-event level-event instrument-event duration-event))
+(in-package :megra)
 
 (define-event
   :long-name midi-event
   :short-name mid
   :parent-events (tuned-instrument-event)  
-  :direct-parameters (pitch))
+  :direct-parameters (pitch)
+  :handler (events (cm::new cm::midi
+		   :time *global-midi-delay*
+		   :keynum (event-pitch evt)
+		   :duration (coerce (* (event-duration evt) 0.001) 'single-float)
+		   :amplitude (round (* 127 (event-level evt))))
+	  :at (incudine:now)))
 
 ;; ready for ambisonics
 ;; pos is the simple stereo position,
@@ -126,6 +141,10 @@
 	       (pf-gain event-pf-gain 0.0)) 
   :direct-parameters (pf-freq))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GRAIN EVENT (slightly longer);;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define-event
   :long-name grain-event
   :short-name grain
@@ -144,13 +163,99 @@
 	       (sample-file event-sample-file)
 	       (sample-location event-sample-location)
 	       (ambi event-ambi-p nil)) 
-  :direct-parameters (sample-folder sample-file))
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-incu evt) ;; currently only using include, anyway ...
+  ;;(if (member 'inc (event-backends g)) )
+  ;;(if (member 'sc (event-backends g)) (handle-grain-event-sc g))
+  )
+
 
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (event-sample-location g)
 	(concatenate 'string *sample-root*
 		     (event-sample-folder g) "/" (event-sample-file g) ".wav")))
+
+;; handler method for grain event, supercollider
+(defmethod handle-grain-event-sc ((g grain-event) &key)
+  (unless (gethash (event-sample-location g) *buffer-directory*)
+    (register-sample (event-sample-location g)))
+  (let ((bufnum (gethash (event-sample-location g) *buffer-directory*)))
+    (cm::send-osc  
+     "/s_new"	    
+     "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+     "grain_2ch" -1 0 1
+     "bufnum" bufnum
+     "lvl" (coerce (event-level g) 'float)
+     "rate" (coerce (event-rate g) 'float)
+     "start" (coerce (event-start g) 'float)
+     "lp_freq" (coerce (event-lp-freq g) 'float)
+     "lp_q" (coerce (event-lp-q g) 'float)
+     "lp_dist" (coerce (event-lp-dist g) 'float)
+     "pf_freq" (coerce (event-pf-freq g) 'float)
+     "pf_q" (coerce (event-pf-q g) 'float)
+     "pf_gain" (coerce (event-pf-gain g) 'float)
+     "hp_freq" (coerce (event-hp-freq g) 'float)
+     "hp_q" (coerce (event-hp-q g)  'float)
+     "a" (coerce (* (event-attack g) 0.001) 'float)
+     "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+     "r" (coerce (* (event-release g) 0.001) 'float)
+     "pos" (coerce (- (event-position g) 0.5) 'float))))
+
+;; handler method for grain event, incudine
+(defmethod handle-grain-event-incu ((g grain-event) &key)
+  (unless (gethash (event-sample-location g) *buffer-directory*)
+    (let* ((buffer (incudine:buffer-load (event-sample-location g)))
+	   (bdata (make-buffer-data :buffer buffer
+				    :buffer-rate (/ (incudine:buffer-sample-rate buffer)
+						    (incudine:buffer-frames buffer))
+				    :buffer-frames (incudine:buffer-frames buffer))))
+      (setf (gethash (event-sample-location g) *buffer-directory*) bdata)))
+  (let ((bdata (gethash (event-sample-location g) *buffer-directory*)))    
+    (cond ((not (event-ambi-p g))
+	   (scratch::megra-grain-rev (buffer-data-buffer bdata)
+		 (buffer-data-buffer-rate bdata)
+		 (buffer-data-buffer-frames bdata)
+		 (event-level g)
+		 (event-rate g)
+		 (event-start g)
+		 (event-lp-freq g)
+		 (event-lp-q g)
+		 (event-lp-dist g)
+		 (event-pf-freq g)
+		 (event-pf-q g)
+		 (event-pf-gain g)
+		 (event-hp-freq g)
+		 (event-hp-q g)
+		 (* (event-attack g) 0.001)
+		 (* (- (event-duration g) (event-attack g) (event-release g)) 0.001)
+		 (* (event-release g) 0.001)
+		 (event-position g)
+		 (event-reverb g)
+		 scratch::*rev-chapel*))
+	((event-ambi-p g)  
+	 (scratch::megra-grain-ambi-rev (buffer-data-buffer bdata)
+		 (buffer-data-buffer-rate bdata)
+		 (buffer-data-buffer-frames bdata)
+		 (event-level g)
+		 (event-rate g)
+		 (event-start g)
+		 (event-lp-freq g)
+		 (event-lp-q g)
+		 (event-lp-dist g)
+		 (event-pf-freq g)
+		 (event-pf-q g)
+		 (event-pf-gain g)
+		 (event-hp-freq g)
+		 (event-hp-q g)
+		 (* (event-attack g) 0.001)
+		 (* (- (event-duration g) (event-attack g) (event-release g)) 0.001)
+		 (* (event-release g) 0.001)
+		 (+ (event-azimuth g) *global-azimuth-offset*)
+		 (+ (event-elevation g) *global-elevation-offset*)
+		 (event-reverb g)
+		 scratch::*rev-chapel*)))))
+;; end grain-event ...
 
 (define-event
   :long-name frequency-range-event
@@ -160,6 +265,7 @@
 	       (freq-max event-freq-max 420)) 
   :direct-parameters (freq-min freq-max))
 
+;; gendy-based event ... extremly cpu-intensive ... 
 (define-event
   :long-name gendy-event
   :short-name gendy
@@ -177,14 +283,58 @@
 	       (ddstr-par  event-dur-distr-param 1)	       
 	       (a-scl  event-amp-scale 0.01)
 	       (d-scl  event-dur-scale 0.01)) 
-  :direct-parameters (freq-min freq-max))
+  :direct-parameters (freq-min freq-max)
+  :handler
+  (cond ((not (event-ambi-p evt))
+	 (scratch::gendy-stereo-rev
+	  (event-amp-distr evt)
+	  (event-dur-distr evt)
+	  (event-amp-distr-param evt)
+	  (event-dur-distr-param evt)
+	  (event-freq-min evt)
+	  (event-freq-max evt)
+	  (event-amp-scale evt)
+	  (event-dur-scale evt)
+	  (event-level evt)
+	  (event-lp-freq evt)
+	  (event-lp-q evt)
+	  (event-lp-dist evt)
+	  (* (event-attack evt) 0.001)
+	  (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
+	  (* (event-release evt) 0.001)
+	  (event-position evt)
+	  (event-reverb evt)
+	  scratch::*rev-chapel*))
+	((event-ambi-p evt)
+	 (scratch::gendy-stereo-rev
+	  (event-amp-distr evt)
+	  (event-dur-distr evt)
+	  (event-amp-distr-param evt)
+	  (event-dur-distr-param evt)
+	  (event-freq-min evt)
+	  (event-freq-max evt)
+	  (event-amp-scale evt)
+	  (event-dur-scale evt)
+	  (event-level evt)
+	  (event-lp-freq evt)
+	  (event-lp-q evt)
+	  (event-lp-dist evt)
+	  (* (event-attack evt) 0.001)
+	  (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
+	  (* (event-release evt) 0.001)
+	  (event-azimuth evt)
+	  (event-elevation evt)
+	  (event-reverb evt)
+	  scratch::*rev-chapel*))))
 
 (define-event
   :long-name control-event
   :short-name ctrl
   :parent-events (event)
   :parameters ((control-function event-control-function)) 
-  :direct-parameters (control-function))
+  :direct-parameters (control-function)
+  ;; just call the specified control function ... 
+  :handler (funcall (control-function evt)))
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 

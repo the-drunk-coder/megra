@@ -29,6 +29,8 @@
 ;; consecutive buffer numbers for scsynth
 (defparameter *sc-sample-bufnums* 0)
 
+(defparameter *eval-on-copy* nil)
+
 ;; make int a little bit longer, because the first one or two elements will be dropped
 (defparameter *global-trace-length* 7)
 

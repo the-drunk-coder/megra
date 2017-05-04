@@ -1,5 +1,5 @@
 ;; this file contains all the language functions, serving as the interface to the user ...
-
+;; (unless those that are directly provided by, say, event definition ...)
 (defun node (id &rest content)
   (make-instance 'node :id id :content content :color 'white))
 

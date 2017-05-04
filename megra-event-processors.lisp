@@ -68,8 +68,17 @@
    (let ((copy (allocate-instance (class-of object))))
      (loop for slot in (class-slots (class-of object))
 	do (when (slot-boundp-using-class (class-of object) object slot)
-	     (setf (slot-value copy (slot-definition-name slot))
-		   (slot-value object (slot-definition-name slot)))))
+	     (setf (slot-value copy (slot-definition-name slot))	   
+		   ;; if told so, evaluate slots while copying ...
+		   ;; should make some things easier ...
+		   (if (and *eval-on-copy*
+			    (not (member (slot-definition-name slot) *protected-slots*)))
+		       (let ((val (slot-value object (slot-definition-name slot))))
+			 (cond ((typep val 'param-mod-object) (evaluate val))
+			       ((typep val 'function) (funcall val))
+			       (t val)))
+		       
+		       (slot-value object (slot-definition-name slot))))))
      copy))
 
 ;; get the current events as a copy, so that the originals won't change
@@ -103,82 +112,6 @@
 	(mapcar #'copy-instance (edge-content chosen-edge))
 	(edge-content chosen-edge)))))
 
-(in-package :megra)
-
-;; knuth shuffle
-(defun shuffle-list (l)
-  (loop for i from (- (list-length l) 1) downto 1
-     do (let* ((current-elem-idx (random i))
-	       (random-elem (nth current-elem-idx l)))	  
-	  (setf (nth current-elem-idx l) (nth i l))
-	  (setf (nth i l) random-elem)))
-  ;; return shuffled list ... somewhat imperative, again .. 
-  l)
-
-;; the heart of the disencourage algorithm ... 
-(defmethod encourage-path ((g graph-event-processor) prob-mod &key)
-  ;; the double reverse is performed to drop the last element, as this will be
-  ;; not really percieved by the user, i guess ... 
-  (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
-     do (let* ((encouraged-edge (get-edge (source-graph g) src dest))
-	       (discouraged-edges (shuffle-list
-				   (remove encouraged-edge
-					   (gethash src (graph-edges (source-graph g))))))
-	       (discourage-points prob-mod))
-	  (format t "encourage ~a ~a" src dest)
-	  ;; the edge to encourage
-	  (setf (edge-probablity encouraged-edge)
-		(if (<=  (edge-probablity encouraged-edge) (- 100 prob-mod))
-		    (setf (edge-probablity encouraged-edge)
-			  (+ (edge-probablity encouraged-edge) prob-mod))
-		    (setf (edge-probablity encouraged-edge) 100)))
-	  ;; distribute discourageing points
-	  (loop while (and (> discourage-points 0) (> (list-length discouraged-edges) 0))
-	     do (let ((current-edge (car discouraged-edges)))		  
-		  (format t "discourage: ~a ~a ~%" (edge-source current-edge)
-			  (edge-destination current-edge) )
-		  (when (>= (edge-probablity current-edge) 1)
-		    (decf (edge-probablity current-edge))
-		    (setf discourage-points (- discourage-points 1)))
-		  (if (<= (edge-probablity current-edge) 0)
-		      ;; remove edge that has zero prob
-		      (setf discouraged-edges (remove current-edge discouraged-edges))
-		      ;; otherwise, rotate
-		      (setf discouraged-edges (append
-					       (remove current-edge discouraged-edges)
-					       (list current-edge)))))))))
-
-(defmethod discourage-path ((g graph-event-processor) prob-mod &key)
-  ;; the double reverse is performed to drop the last element, as this will be
-  ;; not really percieved by the user, i guess ... 
-  (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
-     do (let* ((discouraged-edge (get-edge (source-graph g) src dest))
-	       (encouraged-edges (shuffle-list
-				  (remove discouraged-edge
-					  (gethash src (graph-edges (source-graph g))))))
-	       (encourage-points prob-mod))
-	  (format t "discourage ~a ~a" src dest)
-	  ;; the edge to encourage
-	  (setf (edge-probablity discouraged-edge)
-		(if (>=  (edge-probablity discouraged-edge) prob-mod)
-		    (setf (edge-probablity discouraged-edge)
-			  (- (edge-probablity discouraged-edge) prob-mod))
-		    (setf (edge-probablity discouraged-edge) 0)))
-	  ;; distribute discourageing points
-	  (loop while (and (> encourage-points 0) (> (list-length encouraged-edges) 0))
-	     do (let ((current-edge (car encouraged-edges)))		  
-		  (format t "encourage: ~a ~a ~%" (edge-source current-edge)
-			  (edge-destination current-edge) )
-		  (when (<= (edge-probablity current-edge) 99)
-		    (incf (edge-probablity current-edge))
-		    (setf encourage-points (- encourage-points 1)))
-		  (if (>= (edge-probablity current-edge) 100)
-		      ;; remove edge that has zero prob
-		      (setf encouraged-edges (remove current-edge encouraged-edges))
-		      ;; otherwise, rotate
-		      (setf encouraged-edges (append
-					       (remove current-edge encouraged-edges)
-					       (list current-edge)))))))))
 
 
 ;; events are the successor events 
