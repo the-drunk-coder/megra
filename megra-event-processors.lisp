@@ -133,8 +133,6 @@
 	(mapcar #'copy-instance (edge-content chosen-edge))
 	(edge-content chosen-edge)))))
 
-
-
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
@@ -170,6 +168,10 @@
 		event))
 	events))
 
+(defmethod apply-self :after ((m modifying-event-processor) events &key)
+  (setf (pmod-step m) (1+ (pmod-step m))))
+	   
+
 (defmethod get-current-value ((m modifying-event-processor) (e event) &key)
   (if (track-state m)
       (gethash (event-source e) (lastval m))
@@ -184,13 +186,9 @@
     (remove-if-not #'current-filter-p events)))
 ;; switch to preserve/not preserve state ?
 
-;; oscillate a parameter between different values ...
-(defclass stream-oscillate-between (modifying-event-processor)
-  ((upper-boundary :accessor upper-boundary :initarg :upper-boundary)
-   (lower-boundary :accessor lower-boundary :initarg :lower-boundary)   
-   (cycle :accessor cycle :initarg :cycle )
-   (step-count :accessor step-count :initform 0)
-   (type :accessor osc-type :initarg :type)))
+
+;; oscillate a parameter between different values in a stream
+(defclass stream-oscillate-between (generic-oscillate-between modifying-event-processor) ())
 
 ;; helper ...
 (defun radians (numberOfDegrees) 
@@ -198,14 +196,12 @@
 
 (defmethod apply-self ((o stream-oscillate-between) events &key)
   (mapc #'(lambda (event)
-	    (let* ((current-value (get-current-value o event))
-		   (osc-range (- (upper-boundary o) (lower-boundary o)))		   
-		   (degree-increment (/ 360 (cycle o)))
-		   (degree (mod (* degree-increment (mod (step-count o) (cycle o))) 360))
+	    (let* ((osc-range (- (pmod-upper o) (pmod-lower o)))		   
+		   (degree-increment (/ 360 (pmod-cycle o)))
+		   (degree (mod (* degree-increment (mod (pmod-step o) (pmod-cycle o))) 360))
 		   (abs-sin (abs (sin (radians degree))))		   
-		   (new-value (+ (lower-boundary o) (* abs-sin osc-range))))
-	      ;; this is basically the phase-offset
-	      (setf (step-count o) (1+ (step-count o)))
+		   (new-value (+ (pmod-lower o) (* abs-sin osc-range))))
+	      ;; this is basically the phase-offset	      
 	      (setf (gethash (event-source event) (lastval o)) new-value)	      
 	      (setf (slot-value event (modified-property o)) new-value)))
 	(filter-events o events))
@@ -248,7 +244,7 @@
   (mapc #'(lambda (event)	    
 	    (let* ((current-value (get-current-value b event))
 		   (new-value (cap b (+ current-value
-					(* (nth (random 2) '(-1 1)) (step-size b))))))
+					(* (nth (random 2) '(-1 1)) (pmod-step-size b))))))
 	      (setf (gethash (event-source event) (lastval b)) new-value)
 	      (setf (slot-value event (modified-property b)) new-value)))
 	(filter-events b events))
