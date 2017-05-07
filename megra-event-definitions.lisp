@@ -1,6 +1,6 @@
 ;; EVENT DEFINITIONS ...
 ;; the root event is defined in megra-event-base ...
-
+(in-package :megra)
 ;; accumulator class ...
 (define-event
   :long-name incomplete-event
@@ -16,28 +16,12 @@
   :parameters ((pitch event-pitch 43)) 
   :direct-parameters (pitch))
 
-(defmethod print-event ((p pitch-event) &key)
-  (format nil "(pitch ~a~a~a~a)"
-	  (if (typep (event-pitch p) 'integer)
-	      ""
-	      "'")	  
-	  (event-pitch p)
-	  (print-tags (event-tags p))
-	  (print-combi-fun (value-combine-function p))))
-
-
 (define-event
   :long-name message-event
   :short-name message
   :parent-events (event)
   :parameters ((msg event-message)) 
   :direct-parameters (msg))
-
-(defmethod print-event ((s message-event) &key)
-  (format nil "(string-event ~d~a)"
-	  (event-message s)
-	  (print-tags (event-tags s))))
-
 
 (define-event
   :long-name duration-event
@@ -46,26 +30,12 @@
   :parameters ((dur event-duration 512)) 
   :direct-parameters (dur))
 
-(defmethod print-event ((d duration-event) &key)
-  (format nil "(dur ~d~a~a)"
-	  (event-duration d)
-	  (print-tags (event-tags d))
-	  (print-combi-fun (value-combine-function d))))
-
-
 (define-event
   :long-name level-event
   :short-name lvl
   :parent-events (event)
   :parameters ((lvl event-level 0.3)) 
   :direct-parameters (lvl))
-
-(defmethod print-event ((l level-event) &key)
-  (format nil "(lvl ~d~a~a)"
-	  (event-level l)
-	  (print-tags (event-tags l))
-	  (print-combi-fun (value-combine-function l))))
-
 
 (define-event
   :long-name instrument-event
@@ -94,18 +64,6 @@
 		   :duration (coerce (* (event-duration evt) 0.001) 'single-float)
 		   :amplitude (round (* 127 (event-level evt))))
 		   :at (incudine:now)))
-
-(defmethod print-event ((m midi-event) &key)
-  (format nil "(mid ~a~D :lvl ~a :dur ~a~a~a)"
-	  (if (typep (event-pitch m) 'integer)
-	      ""
-	      "'")
-	  (event-pitch m)
-	  (event-level m)
-	  (event-duration m)
-	  (print-tags (event-tags m))
-	  (print-combi-fun (value-combine-function m))))
-
 ;; end midi event ...
 
 ;; megra is ready for ambisonics !
@@ -127,6 +85,7 @@
   (make-instance 'spatial-event :pos 0.0 :azi azi :ele ele
 		 :dist dist :tags tags :ambi-p t :combi-fun combi-fun))
 
+;; custom print function to take into accout the two constructors
 (defmethod print-event ((s spatial-event) &key)
   (if (event-ambi-p s)
       (format nil "(ambi-pos ~a ~a :dist ~a~a~a)"	  	  
@@ -140,20 +99,12 @@
 	      (print-tags (event-tags s))
 	      (print-combi-fun (value-combine-function s)))))
 
-
 (define-event
   :long-name rate-event
   :short-name rate
   :parent-events (event)
   :parameters ((rate event-rate 1.0)) 
   :direct-parameters (rate))
-
-(defmethod print-event ((r rate-event) &key)
-  (format nil "(rate ~d~a~a)"
-	  (event-rate r)
-	  (print-tags (event-tags r))
-	  (print-combi-fun (value-combine-function r))))
-
 
 (define-event
   :long-name attack-event
@@ -175,13 +126,6 @@
   :parent-events (event)
   :parameters ((start event-start 0.0)) 
   :direct-parameters (start))
-
-(defmethod print-event ((s start-event) &key)
-  (format nil "(start ~d~a~a)"
-	  (event-start s)
-	  (print-tags (event-tags s))
-	  (print-combi-fun (value-combine-function s))))
-
 
 (define-event
   :long-name reverb-event
@@ -242,7 +186,6 @@
   ;;(if (member 'inc (event-backends g)) )
   ;;(if (member 'sc (event-backends g)) (handle-grain-event-sc g))
   )
-
 
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
@@ -329,40 +272,6 @@
 		 (+ (event-elevation g) *global-elevation-offset*)
 		 (event-reverb g)
 		 scratch::*rev-chapel*)))))
-
-(defmethod print-event ((g grain-event) &key)
-  (format nil "(grain-event \"~a\" \"~a\" :dur ~a :lvl ~a :start ~a :rate ~a  
-                        :hp-freq ~a :hp-q ~a
-                        :pf-freq ~a :pf-q ~a :pf-gain ~a
-                        :lp-freq ~a :lp-q ~a :lp-dist ~a
-                        :atk ~a :rel ~a
-                        :rev ~a
-                        :azi ~a :ele ~a :pos ~a
-                        :ambi ~a~a~a)"
-	  (event-sample-folder g)
-	  (event-sample-file g)
-	  (event-duration g)
-	  (event-level g)
-	  (event-start g)
-	  (event-rate g)
-	  (event-hp-freq g)
-	  (event-hp-q g)
-	  (event-pf-freq g)
-	  (event-pf-q g)
-	  (event-pf-gain g)
-	  (event-lp-freq g)
-	  (event-lp-q g)
-	  (event-lp-dist g)
-	  (event-attack g)
-	  (event-release g)
-	  (event-reverb g)
-	  (event-azimuth g)
-	  (event-elevation g)
-	  (event-position g)
-	  (event-ambi-p g)
-	  (print-tags (event-tags g))
-	  (print-combi-fun (value-combine-function g))))
-
 ;; end grain-event ...
 
 (define-event

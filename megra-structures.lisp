@@ -20,7 +20,6 @@
 	      (node-color n)
 	      (format nil "~{~a ~}" (mapcar #'print-event (node-content n))))))
 
-
 ;; only probability is a structural property on this level.
 ;; duration is better placed on the event level
 ;; (see migra-events)

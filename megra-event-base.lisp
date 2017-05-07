@@ -87,22 +87,42 @@
 ;; helper methods to turn events back into their textual representation ...
 (defun print-tags (tags)
   (if tags
-      (format nil " :tags '(~{~a ~})" tags)
+      (let ((tags-string (string-trim '(#\Space) (format nil "~{~a ~}" tags))))
+	(format nil ":tags '(~a) " tags-string))
       ""))
 
+;; helper method to print combi function name 
 (defun print-combi-fun (fun)
   ;; sbcl-specific ??
-  (format nil " :combi-fun #'~a" (print-function-name fun)))
+  (format nil ":combi-fun #'~a" (print-function-name fun)))
 
+;; generic helper method to print function name ...
 (defun print-function-name (fun)
   (format nil "~a"
 	  (nth 2 (multiple-value-list
 		  (function-lambda-expression fun)))))
 
+;; some parameters are assembled from other parameters and should not be printed
+(defparameter *dont-print-this-keyword-parameters* '(sample-location))
+
+;; format specific parameters 
+(defun print-param (param-name param-value is-keyword-param)
+  (let ((value-string (cond ((eql param-name 'pitch) 
+			     (if (typep param-value 'integer)
+				 (format nil "~D" param-value)
+				 (format nil "'~a" param-value)))
+			    ((typep param-value 'string)
+			     (format nil "\"~a\"" param-value))
+			    (t (format nil "~a" param-value)))))
+    (if is-keyword-param
+	(if (member param-name *dont-print-this-keyword-parameters*)
+	    ""
+	    (format nil ":~a ~a " param-name param-value))	
+	(format nil "~a " value-string))))
+
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
-(in-package :megra)
 (defmacro define-event (&key
 			  short-name
 			  long-name
@@ -116,15 +136,21 @@
 	 (parent-parameters (mapcan #'(lambda (cl)
 					(get-param-definitions (find-class cl)))
 				    parent-events))
+	 (direct-parameter-defs (nconc (remove-if-not #'
+					(lambda (x)
+					  (member (car x) direct-parameters)) parameters)
+				       (remove-if-not #'
+					(lambda (x)
+					  (member (car x) direct-parameters)) parent-parameters)))	 
 	 (parent-keyword-parameters (remove-if #'(lambda (x) (member (car x) direct-parameters)) 
 					       parent-parameters))
 	 (parameter-names (mapcar #'car parameters))
-	 (accessor-names (mapcar #'cadr parameters))
+	 (accessor-names (mapcar #'cadr parameters))	 
 	 (keyword-parameter-defaults (mapcar #'caddr keyword-parameters))
 	 (keyword-parameter-names (mapcar #'car keyword-parameters))	 
 	 (parent-parameter-names (mapcar #'car parent-parameters))
 	 (parent-keyword-parameter-defaults (mapcar #'caddr parent-keyword-parameters))
-	 (parent-keyword-parameter-names (mapcar #'car  parent-keyword-parameters))
+	 (parent-keyword-parameter-names (mapcar #'car parent-keyword-parameters))
 	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))
 	 (parent-keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
 				  parent-parameter-names))
@@ -168,5 +194,23 @@
        ;; produce event handler method ...
        (defmethod handle-event ((evt ,class-name) &key) ,handler)
        ;; assemble printer method ...              
-       ;; tbd -- printer method ...
+       (defmethod print-event ((evt ,class-name) &key)
+	 (string-downcase (format nil "(~a ~{~a~}~{~a~}~{~a~}~a~a)"
+		 ',short-name
+		 (mapcar #'(lambda (par-name direct-accs-name)
+			     (print-param par-name (funcall direct-accs-name evt) nil))
+			 ',(mapcar #'car direct-parameter-defs)
+			 ',(mapcar #'cadr direct-parameter-defs))
+		 (mapcar #'(lambda (par-name accs-name)
+			     (print-param par-name (funcall accs-name evt) t))
+			     ',keyword-parameter-names
+			     ',(mapcar #'cadr keyword-parameters))
+		 (mapcar #'(lambda (par-name accs-name)
+			     (print-param par-name (funcall accs-name evt) t))
+			 ',parent-keyword-parameter-names
+			 ',(mapcar #'cadr parent-keyword-parameters))
+		 (print-tags (event-tags evt))
+		 (print-combi-fun (value-combine-function evt)))))
+       ;; end event definition macro ...
        )))
+

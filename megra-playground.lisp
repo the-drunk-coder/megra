@@ -102,6 +102,13 @@
        (edge 3 3 :prob 40 :dur 256)
        (edge 3 2 :prob 60 :dur 512))
 
+;; events can be printed ...
+(print-event (grain "03_electronics" "01_808_long_kick" :dur 512
+		      :lvl 1.0 :rate 1.1 :start 0.01 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5 :tags '(fru)))
+
+(print-event (pitch 23) )
+
 (clear)
 
 (free-all-samples)
