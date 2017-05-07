@@ -354,7 +354,7 @@
   :parameters ((control-function event-control-function)) 
   :direct-parameters (control-function)
   ;; just call the specified control function ... 
-  :handler (funcall (control-function evt)))
+  :handler (funcall (event-control-function evt)))
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 
