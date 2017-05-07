@@ -69,6 +69,7 @@
 ;; megra is ready for ambisonics !
 ;; pos is the simple stereo position,
 ;; azimuth, elevation and distance the ambisonics parameters
+(in-package :megra)
 (define-event
   :long-name spatial-event
   :short-name pos
@@ -76,16 +77,18 @@
   :parameters ((pos event-position 0.5)
 	       (azi event-azimuth 0.0)
 	       (ele event-elevation 0.0)
-	       (dist event-distance 0.0)) 
+	       (dist event-distance 0.0)
+	       (ambi-p event-ambi-p nil)) 
   :direct-parameters (pos))
 
-;; additional constructor for convenience reasons ...
-;; tbd - alias macro
-(defun ambi-pos (azi ele &key (dist 0) (tags nil) (combi-fun #'replace-value))
-  (make-instance 'spatial-event :pos 0.0 :azi azi :ele ele
-		 :dist dist :tags tags :ambi-p t :combi-fun combi-fun))
+;; alias to write ambisonics positions directly
+(define-event-alias
+  :long-name spatial-event
+  :alias ambi-pos
+  :direct-parameters (azi ele)
+  :alias-defaults ((ambi-p t)))
 
-;; custom print function to take into accout the two constructors
+;; custom print function to take into account the aliases
 (defmethod print-event ((s spatial-event) &key)
   (if (event-ambi-p s)
       (format nil "(ambi-pos ~a ~a :dist ~a~a~a)"	  	  

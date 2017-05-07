@@ -214,3 +214,43 @@
        ;; end event definition macro ...
        )))
 
+;; another macro if you want to make an event available under a different
+;; constructor, with different direct parameters and different defaults
+;; the print-function will be the original one ...
+(in-package :megra)
+(defmacro define-event-alias (&key
+				alias
+				long-name				
+				(direct-parameters nil)
+				(alias-defaults nil))
+  (let* ((event-class (find-class long-name))
+	 ;;(parent-events (mapcar #'class-name (sb-mop::class-direct-superclasses event-class)))
+	 (parameters (get-param-definitions event-class))
+	 (keyword-parameters  (remove-if #'(lambda (x) (member (car x) direct-parameters)) parameters))
+	 ;;(direct-parameter-defs (remove-if-not #' (lambda (x) (member (car x) direct-parameters))
+	;;					  parameters))    
+	 (parameter-names (mapcar #'car parameters))
+	 ;;(accessor-names (mapcar #'cadr parameters))
+	 (alias-default-names (mapcar #'car alias-defaults))
+	 (keyword-parameter-defaults (mapcar #'(lambda (param-def)
+						 (if (member (car param-def) alias-default-names)
+						     (cadr (assoc (car param-def) alias-defaults))
+						     (caddr param-def)
+						     )) keyword-parameters))
+	 (keyword-parameter-names (mapcar #'car keyword-parameters))     	 
+	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))	 
+	 (keyword-pairs (interleave keywords parameter-names))	 
+	)
+    `(progn
+       ;; define the constructor function
+       (defun ,alias (,@direct-parameters
+			   &key
+			     ,@(mapcar #'list keyword-parameter-names
+				       keyword-parameter-defaults)			     
+			     (tags nil)
+			     (combi-fun #'replace-value))
+	 (make-instance ',long-name
+			,(intern "TAGS" "KEYWORD") tags
+			,(intern "COMBI-FUN" "KEYWORD") combi-fun
+			,@keyword-pairs)))))
+
