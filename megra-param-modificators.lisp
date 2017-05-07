@@ -1,6 +1,6 @@
 ;; stateful parameter modifier ... (yes, really ...)
 ;; every one of those needs an "evaluate" function ...
-(in-package :megra)
+;; (in-package :megra)
 (defclass param-mod-object ()
   ((step :accessor pmod-step :initform 0)
    (time :accessor pmod-time :initform 0)
@@ -30,12 +30,17 @@
 	 (abs-sin (abs (sin (radians degree)))))    
     (+ (pmod-lower o) (* abs-sin osc-range))))
 
+;; constructor
+(defun oscil (lower upper &key (cycle 128))
+  (make-instance 'param-oscillate-between :lower lower :upper upper :cycle cycle))
+
 (defclass generic-brownian-motion ()
   ((upper-boundary :accessor pmod-upper :initarg :upper)
    (lower-boundary :accessor pmod-lower :initarg :lower)
    (step-size :accessor pmod-step-size :initarg :step-size)
    (is-bounded :accessor pmod-is-bounded :initarg :is-bounded)
-   (is-wrapped :accessor pmod-is-wrapped :initarg :is-wrapped)))
+   (is-wrapped :accessor pmod-is-wrapped :initarg :is-wrapped)
+   (current-value :accessor pmod-current-value :initarg :start-value)))
 
 ;; cap or wrap ...
 (defmethod cap ((b generic-brownian-motion) value &key)
@@ -60,7 +65,9 @@
     ;; return new value
     new-value))
 
-
+(defun brownian (&key upper lower (start 0) (step-size 1) (wrap t) (limit nil))
+  (make-instance 'param-brownian-motion :upper upper :lower lower :step-size step-size
+		 :is-bounded limit :is-wrapped wrap :start-value start))
 				        
 
 

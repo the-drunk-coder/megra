@@ -110,7 +110,6 @@
       (deactivate proc :del nil)
       (dispatch (:chain t) proc)))
 
-
 ;; modifying ... always check if the modifier is already present !
 (defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
 				     (affect-transition nil) (keep-state t)

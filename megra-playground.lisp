@@ -373,7 +373,7 @@
     (edge 1 2 :prob 40)
     (edge 2 2 :prob 55)
     (edge 2 1 :prob 45))
-   (graph 'origin () ;; for now, origin event needs to have handler ...
+  (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (mid 84 :lvl 1.0 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
@@ -431,8 +431,20 @@
 (dispatch () 'check-midi-note-off)
 
 (clear)
+
+;; it's possible to define modifications directly on the parameters 
+(dispatch ()
+  (graph 'origin () 
+    (node 1 (mid (brownian :start 60 :lower 40 :upper 70)
+		 :lvl (oscil 0.0 1.0 :cycle 100)
+		 :dur (oscil 100 1000 :cycle 100)))
+    (edge 1 1 :prob 100 :dur (oscil 110 1100 :cycle 100))))
+
+(clear)
+
+
+
 ;; TBD:
-;; functions as parameters ... 
 ;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
@@ -477,6 +489,7 @@
 ;; more vugs
 
 ;; DONE:
+;; functions as parameters ... 
 ;; only encourage/discourage processors that are active or in a chain ...
 ;; midi latency - that was easy ... thanks cm !
 ;; make files loadable ... (check, seems ok ...)
