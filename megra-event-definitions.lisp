@@ -53,18 +53,53 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic MIDI event ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
+(in-package :megra)
+
 (define-event
   :long-name midi-event
   :short-name mid
   :parent-events (tuned-instrument-event)  
+  :parameters ((channel event-channel 0))
   :direct-parameters (pitch)
   :handler (events (cm::new cm::midi
-		   :time *global-midi-delay*
-		   :keynum (event-pitch evt)
-		   :duration (coerce (* (event-duration evt) 0.001) 'single-float)
-		   :amplitude (round (* 127 (event-level evt))))
+		     :time *global-midi-delay*
+		     :channel (event-channel evt)
+		     :keynum (event-pitch evt)
+		     :duration (coerce (* (event-duration evt) 0.001) 'single-float)
+		     :amplitude (round (* 127 (event-level evt))))
 		   :at (incudine:now)))
 ;; end midi event ...
+
+(define-event-alias
+  :long-name midi-event
+  :alias gb0
+  :direct-parameters (pitch)
+  :alias-defaults ((channel 0)))
+
+(define-event-alias
+  :long-name midi-event
+  :alias gb1
+  :direct-parameters (pitch)
+  :alias-defaults ((channel 1)))
+
+(define-event-alias
+  :long-name midi-event
+  :alias gb2
+  :direct-parameters (pitch)
+  :alias-defaults ((channel 2)))
+
+(define-event-alias
+  :long-name midi-event
+  :alias gb3
+  :direct-parameters (pitch)
+  :alias-defaults ((channel 3)))
+
+(define-event-alias
+  :long-name midi-event
+  :alias volca
+  :direct-parameters (pitch)
+  :alias-defaults ((channel 5)))
+
 
 ;; megra is ready for ambisonics !
 ;; pos is the simple stereo position,
@@ -77,7 +112,7 @@
   :parameters ((pos event-position 0.5)
 	       (azi event-azimuth 0.0)
 	       (ele event-elevation 0.0)
-	       (dist event-distance 0.0)
+	       (dst event-distance 0.0)
 	       (ambi-p event-ambi-p nil)) 
   :direct-parameters (pos))
 
@@ -182,8 +217,7 @@
 		  reverb-event)
   :parameters ((sample-folder event-sample-folder)
 	       (sample-file event-sample-file)
-	       (sample-location event-sample-location)
-	       (ambi event-ambi-p nil)) 
+	       (sample-location event-sample-location)) 
   :direct-parameters (sample-folder sample-file)
   :handler (handle-grain-event-incu evt) ;; currently only using include, anyway ...
   ;;(if (member 'inc (event-backends g)) )
@@ -295,14 +329,15 @@
 		  frequency-range-event
 		  attack-event
 		  release-event
+		  spatial-event
 		  reverb-event
-		  spatial-event)
+		  )
   :parameters ((adstr event-amp-distr 1)
 	       (ddstr event-dur-distr 1)
 	       (adstr-par  event-amp-distr-param 1)
 	       (ddstr-par  event-dur-distr-param 1)	       
-	       (a-scl  event-amp-scale 0.01)
-	       (d-scl  event-dur-scale 0.01)) 
+	       (a-scl event-amp-scale 0.01)
+	       (d-scl event-dur-scale 0.01)) 
   :direct-parameters (freq-min freq-max)
   :handler
   (cond ((not (event-ambi-p evt))
