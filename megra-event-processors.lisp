@@ -217,10 +217,11 @@
     (if (flow s)
 	events
 	'()))
-
+(in-package :megra)
 (defclass chance-combine (modifying-event-processor)
   ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
-   (combi-chance :accessor combi-chance :initarg :combi-chance)))
+   (combi-chance :accessor combi-chance :initarg :combi-chance)
+   (step :accessor pmod-step :initform 0)))
 
 ;; make state-tracking switchable ??? 
 (defmethod apply-self ((c chance-combine) events &key)
