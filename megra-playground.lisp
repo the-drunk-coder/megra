@@ -404,9 +404,46 @@
        (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
 
 (dispatch ()
-  'all-to-all)
+  'all-to-all-gb)
 
-(deactivate 'all-to-all :del nil)
+
+;; chiptune ftw ---
+(dispatch ()
+  (graph 'gb2-cc-sh ()
+    (node 1 (gb2-shape 27))
+    (edge 1 1 :dur 1000 :prob 100))
+  (graph 'gb2-cc-sh ()
+    (node 1 (gb2-shape 27))
+    (edge 1 1 :dur 1000 :prob 100))  
+  (graph 'gb2-cc-sweep ()
+    (node 1 (gb2-sweep 10))
+    (edge 1 1 :dur 1000 :prob 100))
+
+  (graph 'all-to-all-gb ()
+       (node 1 (gb2 'c4 :lvl .8 :dur 240))
+       (node 2 (gb2 'cs4 :lvl .9 :dur 240))
+       (node 3 (gb2 'd4 :lvl .9 :dur 240))
+       (node 4 (gb2 'ds4 :lvl .9 :dur 140))
+       (node 5 (gb2 'e4 :lvl .9 :dur 140))       
+       (edge 1 1 :prob 20 :dur 550) (edge 1 2 :prob 20 :dur 300) (edge 1 3 :prob 20 :dur 300)
+       (edge 1 4 :prob 20 :dur 550) (edge 1 5 :prob 20 :dur 750)        
+       (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
+       (edge 2 4 :prob 20 :dur 280) (edge 2 5 :prob 20 :dur 500) 
+
+       (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 250)
+       (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 250) 
+
+       (edge 4 1 :prob 20 :dur 500) (edge 4 2 :prob 20 :dur 500) (edge 4 3 :prob 20 :dur 500)
+       (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 250) 
+       
+       (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
+       (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
+
+  )
+
+(clear)
+
+(deactivate 'gb2-cc)
 
 ;; the path is traced ...
 (princ (traced-path (gethash 'all-to-all *processor-directory*)))

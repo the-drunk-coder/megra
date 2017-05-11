@@ -50,9 +50,9 @@
   :parent-events (pitch-event level-event instrument-event duration-event))
 (in-package :megra)
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; Generic MIDI event ;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+;; MIDI events ;;
+;;;;;;;;;;;;;;;;;
 (in-package :megra)
 
 (define-event
@@ -68,7 +68,6 @@
 		     :duration (coerce (* (event-duration evt) 0.001) 'single-float)
 		     :amplitude (round (* 127 (event-level evt))))
 		   :at (incudine:now)))
-;; end midi event ...
 
 (define-event-alias
   :long-name midi-event
@@ -100,6 +99,23 @@
   :direct-parameters (pitch)
   :alias-defaults ((channel 5)))
 
+(define-event
+  :long-name midi-control-change-event
+  :short-name mid-cc
+  :parent-events (event)  
+  :parameters ((channel event-cc-channel 0)
+	       (controller event-cc-controller 0)
+	       (value event-cc-value 0))
+  :direct-parameters (controller value)
+  :handler (events (cm::new cm::midi-control-change
+		     :time *global-midi-delay*
+		     :channel (event-cc-channel evt)
+		     :controller (event-cc-controller evt)
+		     :value (event-cc-value evt))	     
+		   :at (incudine:now)))
+
+
+;; end midi events ...
 
 ;; megra is ready for ambisonics !
 ;; pos is the simple stereo position,
