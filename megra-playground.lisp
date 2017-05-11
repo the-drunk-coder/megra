@@ -410,13 +410,13 @@
 ;; chiptune ftw ---
 (dispatch ()
   (graph 'gb2-cc-sh ()
-    (node 1 (gb2-shape 27))
+    (node 1 (gb2-shape 30))
     (edge 1 1 :dur 1000 :prob 100))
-  (graph 'gb2-cc-sh ()
-    (node 1 (gb2-shape 27))
+  (graph 'gb2-cc-os ()
+    (node 1 (gb2-offset 30))
     (edge 1 1 :dur 1000 :prob 100))  
   (graph 'gb2-cc-sweep ()
-    (node 1 (gb2-sweep 10))
+    (node 1 (gb2-sweep 100))
     (edge 1 1 :dur 1000 :prob 100))
 
   (graph 'all-to-all-gb ()
@@ -477,8 +477,13 @@
 		 :dur (oscil 100 1000 :cycle 100)))
     (edge 1 1 :prob 100 :dur (oscil 110 1100 :cycle 100))))
 
-(clear)
+(clear) 
 
+(graph 'gengen ()
+       (node 1 (gendy 100 900))
+       (edge 1 1 :prob 100 :dur 300))
+
+(dispatch () 'gengen)
 
 
 ;; TBD:
