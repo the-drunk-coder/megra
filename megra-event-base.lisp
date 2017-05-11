@@ -225,7 +225,10 @@
 				(alias-defaults nil))
   (let* ((event-class (find-class long-name))
 	 ;;(parent-events (mapcar #'class-name (sb-mop::class-direct-superclasses event-class)))
-	 (parameters (get-param-definitions event-class))
+	 (parameters (remove-duplicates (nconc (get-param-definitions event-class)
+					       (mapcar #'get-param-definition
+						       (sb-mop::class-direct-slots event-class)))
+					:test #'equal))
 	 (keyword-parameters  (remove-if #'(lambda (x) (member (car x) direct-parameters)) parameters))
 	 ;;(direct-parameter-defs (remove-if-not #' (lambda (x) (member (car x) direct-parameters))
 	;;					  parameters))    
@@ -254,3 +257,4 @@
 			,(intern "COMBI-FUN" "KEYWORD") combi-fun
 			,@keyword-pairs)))))
 
+(equal '('a 23 'd) '('a 23 'd))
