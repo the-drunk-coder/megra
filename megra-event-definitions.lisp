@@ -111,10 +111,30 @@
 		     :time *global-midi-delay*
 		     :channel (event-cc-channel evt)
 		     :controller (event-cc-controller evt)
-		     :value (event-cc-value evt))	     
+		     :value (car (multiple-value-list (round (event-cc-value evt)))))	     
 		   :at (incudine:now)))
 
+(in-package :megra)
+(define-event-alias
+  :long-name midi-control-change-event
+  :alias gb2-shape
+  :direct-parameters (value)
+  :alias-defaults ((channel 2)
+		   (controller 1)))
 
+(define-event-alias
+  :long-name midi-control-change-event
+  :alias gb2-offset
+  :direct-parameters (value)
+  :alias-defaults ((channel 2)
+		   (controller 2)))
+
+(define-event-alias
+  :long-name midi-control-change-event
+  :alias gb2-sweep
+  :direct-parameters (value)
+  :alias-defaults ((channel 2)
+		   (controller 3)))
 ;; end midi events ...
 
 ;; megra is ready for ambisonics !
@@ -185,7 +205,7 @@
   :long-name reverb-event
   :short-name rev
   :parent-events (event)
-  :parameters ((rev event-reverb)) 
+  :parameters ((rev event-reverb 0.0)) 
   :direct-parameters (rev))
 
 (define-event
@@ -332,7 +352,7 @@
   :short-name freq-range
   :parent-events (event)
   :parameters ((freq-min event-freq-min 410)
-	       (freq-max event-freq-max 420)) 
+	       (freq-max event-freq-max 420))
   :direct-parameters (freq-min freq-max))
 
 ;; gendy-based event ... extremly cpu-intensive ... 
@@ -350,8 +370,8 @@
 		  )
   :parameters ((adstr event-amp-distr 1)
 	       (ddstr event-dur-distr 1)
-	       (adstr-par  event-amp-distr-param 1)
-	       (ddstr-par  event-dur-distr-param 1)	       
+	       (adstr-par event-amp-distr-param 1)
+	       (ddstr-par event-dur-distr-param 1)	       
 	       (a-scl event-amp-scale 0.01)
 	       (d-scl event-dur-scale 0.01)) 
   :direct-parameters (freq-min freq-max)
