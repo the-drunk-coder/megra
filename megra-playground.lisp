@@ -487,6 +487,8 @@
 
 
 ;; TBD:
+;; check -- stream modifiers on pmod events ... should be resolved while
+;; copying, but it's not always the casem as it seems ... 
 ;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg

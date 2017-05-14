@@ -100,9 +100,9 @@
   (if (successor proc)
       (discourage-chain (successor proc))))
 
-;;(in-package :megra)
+(in-package :megra)
 (defun encourage-all ()
-  (labels ((encourage-if-acitve-graph (key item)
+  (labels ((encourage-if-active-graph (key item)
 	     (if (and (typep item 'graph-event-processor) (is-active item))
 		 (encourage-chain item))))
     (maphash #'encourage-if-active-graph *processor-directory*)))
