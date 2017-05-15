@@ -116,8 +116,8 @@
 				     (track-state t) (filter #'all-p))
   (let ((new-inst (make-instance 'stream-brownian-motion :step-size step-size :mod-prop param
 				 :name name
-				 :upper-boundary ubound
-				 :lower-boundary lbound
+				 :upper ubound
+				 :lower lbound
 				 :is-bounded limit
 				 :is-wrapped wrap
 				 :track-state track-state
@@ -129,15 +129,15 @@
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
   name)
-
+;;(in-package :megra)
 (defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
 								     (affect-transition nil)
 								     (keep-state t) (track-state t)
 								     (filter #'all-p))
   (let ((new-inst (make-instance 'stream-oscillate-between :mod-prop param :name name
 				 :cycle cycle
-				 :upper-boundary upper-boundary
-				 :lower-boundary lower-boundary
+				 :upper upper-boundary
+				 :lower lower-boundary
 				 :track-state track-state
 				 :affect-transition affect-transition
 				 :event-filter filter)))
@@ -234,6 +234,7 @@
 (defun midi->range (midi-val range)
   (car (multiple-value-list (round (* range (/ midi-val 127))))))  
 
+;; should i find a better name for this function ??
 (defun pring (graph &optional stream)
   (format stream "~a" (print-graph (gethash graph *processor-directory*))))
 

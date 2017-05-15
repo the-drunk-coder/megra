@@ -34,6 +34,8 @@
 
 (in-package :megra)
 
+(ql:update-all-dists)
+
 (defparameter *default-dsp-backend* 'inc)
 ;;(defparameter *default-dsp-backend* 'sc)
 

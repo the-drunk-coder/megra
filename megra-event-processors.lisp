@@ -138,13 +138,15 @@
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
 
 ;; with the advent of param-mod-objects, some of these might be deemed deprecated,
-;; but left for legacy reasons ... 
+;; but left for legacy reasons ...
+;;(in-package :megra)
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)
    (affect-transition :accessor affect-transition :initarg :affect-transition)
    (track-state :accessor track-state :initarg :track-state :initform t)
-   (event-filter :accessor event-filter :initarg :event-filter)))
+   (event-filter :accessor event-filter :initarg :event-filter)
+   (step :accessor pmod-step :initform 0)))
 
 (defmethod initialize-instance :after ((m modifying-event-processor) &key)
   (setf (lastval m) (make-hash-table :test 'eql)))
