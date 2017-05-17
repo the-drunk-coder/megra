@@ -129,6 +129,7 @@
 			  (parent-events nil)
 			  (parameters nil)
 			  (direct-parameters nil)
+			  (create-accessors t)
 			  (handler nil))
   (let* ((class-name (intern (format nil "~A" long-name)))
 	 (keyword-parameters  (remove-if #'(lambda (x) (member (car x) direct-parameters)) parameters))
@@ -190,7 +191,8 @@
        ;; oh my ... now this is creepy ...
        ;; re-define the getters so that the value is calculated if
        ;; it's a modifier object or function instead of a plain value ...
-       ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)
+       (if ,create-accessors
+	   (progn ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)))
        ;; produce event handler method ...
        (defmethod handle-event ((evt ,class-name) &key) ,handler)
        ;; assemble printer method ...              

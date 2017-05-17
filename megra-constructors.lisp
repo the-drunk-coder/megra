@@ -146,7 +146,7 @@
       (setf (is-active new-inst) t)
       (when keep-state
 	;;(princ "keep-state")
-	(setf (step-count new-inst) (step-count (gethash name *processor-directory*)))
+	(setf (pmod-step new-inst) (pmod-step (gethash name *processor-directory*)))
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
   name)

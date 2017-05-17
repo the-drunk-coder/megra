@@ -417,13 +417,16 @@
 	  (event-elevation evt)
 	  (event-reverb evt)
 	  scratch::*rev-chapel*))))
-
+(in-package :megra)
 (define-event
   :long-name control-event
   :short-name ctrl
   :parent-events (event)
   :parameters ((control-function event-control-function)) 
   :direct-parameters (control-function)
+  ;; don't create accessors here, as we want the control
+  ;; function to be called in the handler function ... 
+  :create-accessors nil
   ;; just call the specified control function ... 
   :handler (funcall (event-control-function evt)))
 
