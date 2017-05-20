@@ -90,12 +90,12 @@
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5))
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
        (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1 :pos 0.5
-		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) :ambi nil))
+		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) ))
        (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5))     
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))     
        (edge 1 2 :prob 100 :dur 512)
        (edge 2 1 :prob 60 :dur 512)
        (edge 2 3 :prob 40 :dur 256)
@@ -280,7 +280,7 @@
 (chain ()     
    (spigot 'tap-y :flow t)   
    (graph 'y-midi ()
-       (node 1 (mid 42 :lvl .9 :dur 50))
+       (node 1 (mid 85 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 400)))
 
 ;; in this case, don't delete the spigot, as the graph doesn't recreate the chain ...
@@ -485,6 +485,19 @@
 
 (dispatch () 'gengen)
 
+(notes->midi-graph 'blab :notes '((a3 500) (c3 500) (ds3 500) (f3 500) (a3 500) (c3 500)) :randomize 100)
+
+
+
+(graph->code 'blab "/home/nik/brup.lisp")
+
+(dispatch () 'blab)
+
+  (discourage 'blab)
+
+(progn
+
+  (graph->svg 'blab "/home/nik/brup.dot"))
 
 ;; TBD:
 ;; check -- stream modifiers on pmod events ... should be resolved while

@@ -32,12 +32,47 @@
 ;; replace the content (or parts of the content) of a graph ...
 (defun graph-replace (name new-content)
   (let ((current-graph (source-graph (gethash name *processor-directory*))))
-    (princ new-content)
+    ;;(princ new-content)
     (mapc #'(lambda (obj)
 	    (cond ((typep obj 'edge) (insert-edge current-graph obj))
 		  ((typep obj 'node) (insert-node current-graph obj))))
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
+
+(in-package :megra)
+
+(defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
+  (let ((new-graph (make-instance 'graph))
+	(count 1))		      
+    (setf (graph-id new-graph) name)
+    (mapc #'(lambda (note)
+	      
+	      (insert-node new-graph (node count (mid (car note) :lvl level :dur (- (cadr note) 10))))
+	      (if (> count 1)
+		  (insert-edge new-graph (edge (- count 1) count :prob 100 :dur (cadr note))))
+	      (incf count)
+	      
+	      ) notes)
+    ;; reverse last step
+    (decf count)
+    (if (eq type 'loop)
+	(insert-edge new-graph (edge count 1 :prob 100 :dur default-dur)))
+    ;; tbd: make dependent on randomize factor    
+    (loop for src from 1 to count
+       do (loop for dest from 1 to count
+	     do (let ((randval (random 100)))
+		 (if (and (< randval randomize) (not (get-edge new-graph src dest)))
+		     (insert-edge new-graph
+				  (edge src dest :prob 0 :dur default-dur))))))
+    (if (gethash name *processor-directory*)
+	(setf (source-graph (gethash name *processor-directory*)) new-graph)
+	(setf (gethash name *processor-directory*)
+	      (make-instance 'graph-event-processor :name name
+			     :graph new-graph :copy-events t
+			     :current-node 1 :combine-mode 'append
+			     :combine-filter #'all-p)))))
+
+
 
 ;; build the event processor chain, in the fashion of a douby-linked list ...
 (defun connect (processor-ids)
