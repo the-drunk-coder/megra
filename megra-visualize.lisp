@@ -20,9 +20,9 @@
 	  (dot-name (node-id n))))
 
 ;;(node->dot (node 1 (mid 34)))
-
+(in-package :megra)
 (defmethod edge->dot ((e edge) &key)
-  (format nil "~a->~a[label=\"~a\", penwidth=~a]~%"
+  (format nil "~a->~a[label=\"~a\", penwidth=~a, rank=same]~%"
 	  (edge-source e)
 	  (edge-destination e)
 	  (transition-duration (car (edge-content e)))

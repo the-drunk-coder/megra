@@ -37,6 +37,7 @@
 (defvar *encourage-percentage* 5)
 ;; what might be the justification for this split ?
 ;; "Un-Learning" things is harder for humans, but for machines ?
+;;(in-package :megra)
 (defvar *discourage-percentage* 5)
 
 ;; main storage for event processors

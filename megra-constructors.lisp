@@ -278,8 +278,14 @@
    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
 
 ;;(in-package :megra)
-(defun graph->svg (graph file)
+(defun graph->svg (graph file &key (renderer 'circo))
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
     (format out-stream "~a" (graph->dot (source-graph (gethash graph *processor-directory*)))))
-  ;; call dot ...
-  (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file)))
+  (cond ((eq renderer 'dot)
+	 (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
+	((eq renderer 'neato)
+	 (sb-ext:run-program "/usr/bin/neato" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
+	((eq renderer 'circo)
+	 (sb-ext:run-program "/usr/bin/circo" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
+	((eq renderer 'twopi)
+	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))))

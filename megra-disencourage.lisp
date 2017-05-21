@@ -18,7 +18,7 @@
 				   (remove encouraged-edge
 					   (gethash src (graph-edges (source-graph g))))))
 	       (discourage-points prob-mod))
-	  (format t "encourage ~a ~a" src dest)
+	  ;;(format t "encourage ~a ~a" src dest)
 	  ;; the edge to encourage
 	  (setf (edge-probablity encouraged-edge)
 		(if (<=  (edge-probablity encouraged-edge) (- 100 prob-mod))
@@ -28,8 +28,8 @@
 	  ;; distribute discourageing points
 	  (loop while (and (> discourage-points 0) (> (list-length discouraged-edges) 0))
 	     do (let ((current-edge (car discouraged-edges)))		  
-		  (format t "discourage: ~a ~a ~%" (edge-source current-edge)
-			  (edge-destination current-edge) )
+		  ;;(format t "discourage: ~a ~a ~%" (edge-source current-edge)
+		  ;; (edge-destination current-edge) )
 		  (when (>= (edge-probablity current-edge) 1)
 		    (decf (edge-probablity current-edge))
 		    (setf discourage-points (- discourage-points 1)))
@@ -50,7 +50,7 @@
 				  (remove discouraged-edge
 					  (gethash src (graph-edges (source-graph g))))))
 	       (encourage-points prob-mod))
-	  (format t "discourage ~a ~a" src dest)
+	  ;;(format t "discourage ~a ~a" src dest)
 	  ;; the edge to encourage
 	  (setf (edge-probablity discouraged-edge)
 		(if (>=  (edge-probablity discouraged-edge) prob-mod)
@@ -60,8 +60,8 @@
 	  ;; distribute discourageing points
 	  (loop while (and (> encourage-points 0) (> (list-length encouraged-edges) 0))
 	     do (let ((current-edge (car encouraged-edges)))		  
-		  (format t "encourage: ~a ~a ~%" (edge-source current-edge)
-			  (edge-destination current-edge) )
+		  ;;(format t "encourage: ~a ~a ~%" (edge-source current-edge)
+		  ;;	  (edge-destination current-edge) )
 		  (when (<= (edge-probablity current-edge) 99)
 		    (incf (edge-probablity current-edge))
 		    (setf encourage-points (- encourage-points 1)))

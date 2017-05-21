@@ -404,7 +404,8 @@
        (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
 
 (dispatch ()
-  'all-to-all-gb)
+  'all-to-all)
+
 
 
 ;; chiptune ftw ---
@@ -485,19 +486,34 @@
 
 (dispatch () 'gengen)
 
-(notes->midi-graph 'blab :notes '((a3 500) (c3 500) (ds3 500) (f3 500) (a3 500) (c3 500)) :randomize 100)
-
-
+;; generate 
+(notes->midi-graph 'blab :notes '((ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)) :randomize 100)
 
 (graph->code 'blab "/home/nik/brup.lisp")
 
 (dispatch () 'blab)
 
-  (discourage 'blab)
+(discourage 'blab)
 
 (progn
-
-  (graph->svg 'blab "/home/nik/brup.dot"))
+  
+  (graph->svg 'blab "/home/nik/brup.dot" :renderer 'circo))
 
 ;; TBD:
 ;; check -- stream modifiers on pmod events ... should be resolved while
