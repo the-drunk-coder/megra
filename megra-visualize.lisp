@@ -22,10 +22,11 @@
 ;;(node->dot (node 1 (mid 34)))
 (in-package :megra)
 (defmethod edge->dot ((e edge) &key)
-  (format nil "~a->~a[label=\"~a\", penwidth=~a, rank=same]~%"
+  (format nil "~a->~a[weight=~a, penwidth=~a, rank=same]~%"
 	  (edge-source e)
 	  (edge-destination e)
-	  (transition-duration (car (edge-content e)))
+	  ;;(transition-duration (car (edge-content e)))
+	  (coerce (/ (edge-probablity e) 100) 'float)
 	  (coerce (/ (edge-probablity e) 10) 'float)))
 
 ;;(edge->dot (edge 1 2 :prob 9 :dur 20))

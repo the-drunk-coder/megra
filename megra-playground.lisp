@@ -494,6 +494,15 @@
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds4 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
+				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
@@ -511,9 +520,8 @@
 
 (discourage 'blab)
 
-(progn
-  
-  (graph->svg 'blab "/home/nik/brup.dot" :renderer 'circo))
+(progn 
+  (graph->svg 'blab "/home/nik/brup.dot" :renderer 'twopi))
 
 ;; TBD:
 ;; check -- stream modifiers on pmod events ... should be resolved while

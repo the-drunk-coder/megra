@@ -98,7 +98,7 @@
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
 ;; one chain.
-(in-package :megra)
+;; (in-package :megra)
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil) (step nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))
@@ -164,6 +164,7 @@
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
   name)
+
 ;;(in-package :megra)
 (defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
 								     (affect-transition nil)
@@ -284,8 +285,13 @@
   (cond ((eq renderer 'dot)
 	 (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
 	((eq renderer 'neato)
-	 (sb-ext:run-program "/usr/bin/neato" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
+	 (sb-ext:run-program "/usr/bin/neato" (list "-T" "svg" "-O"
+						    file
+						    "-Goverlap=scalexy -Gnodesep=0.6 -Gstart=0.5" )))
 	((eq renderer 'circo)
-	 (sb-ext:run-program "/usr/bin/circo" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
+	 (sb-ext:run-program "/usr/bin/circo" (list "-T" "svg" "-O" file)))
+	((eq renderer 'sfdp)
+	 (sb-ext:run-program "/usr/bin/sfdp" (list "-T" "svg" "-O" file
+						   "-Goverlap=scalexy -Gnodesep=0.6 -Gstart=0.5")))
 	((eq renderer 'twopi)
-	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))))
+	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
