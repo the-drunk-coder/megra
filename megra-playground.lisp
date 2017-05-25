@@ -518,10 +518,16 @@
 
 (dispatch () 'blab)
 
-(discourage 'blab)
+
+(setf *discourage-percentage* 40)
 
 (progn 
+  (discourage 'blab)
   (graph->svg 'blab "/home/nik/brup.dot" :renderer 'twopi))
+
+(single-values->graph 'pitcher pitch '(a3 a4 d2))
+
+(print-graph (gethash 'pitcher *processor-directory*))
 
 ;; TBD:
 ;; check -- stream modifiers on pmod events ... should be resolved while
