@@ -7,24 +7,27 @@
 
 ;; simple time-recursive dispatching
 ;; not using local variable binding to reduce consing (??)
-;; (in-package :megra)
+(in-package :megra)
+
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)))
-    (when (synced-processors (gethash proc *processor-directory*))
-      ;;(format t "~a" (synced-processors (gethash proc *processor-directory*)))
-      (loop for synced-proc in (synced-processors (gethash proc *processor-directory*))
+  (let ((event-processor (gethash proc *processor-directory*)))
+    (when (and event-processor (is-active event-processor))
+      ;; here, the events are produced and handled ...
+      (loop for synced-proc in (synced-processors event-processor)
 	 ;; don't check if it's active, as only deactivated procs are added to sync list
 	 do (let ((sync-d (make-instance 'event-dispatcher)))
 	      (format t "~a" synced-proc)
 	      (activate synced-proc)
 	      (perform-dispatch sync-d synced-proc (incudine:now))))
-      (setf (synced-processors (gethash proc *processor-directory*)) nil))
-    (handle-events d (pull-events (gethash proc *processor-directory*)))
-    (let* ((trans-time (handle-transition d (car
-					     (pull-transition
-					      (gethash proc *processor-directory*)))))
-	   (next (+ time #[trans-time ms])))
-      (incudine:at next #'perform-dispatch d proc next))))
+      (setf (synced-processors event-processor) nil)
+      (handle-events d (pull-events event-processor))
+      ;; here, the transition time between events is determinend,
+      ;; and the next evaluation is scheduled ...
+      (let* ((trans-time (handle-transition d (car
+					       (pull-transition
+						event-processor))))
+	     (next (+ time #[trans-time ms])))
+	(incudine:at next #'perform-dispatch d proc next)))))
 
 ;; manual step-by step dispatching ...
 (defmethod step-dispatch ((d dispatcher) proc &key)
