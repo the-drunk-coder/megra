@@ -14,38 +14,37 @@
 	    s))
       ""))
 
-(defmethod node->dot ((n node) &key)
-  (format nil "~a[label=\"~a\"]~%"
-	  (dot-name (node-id n))
-	  (dot-name (node-id n))))
+(defmethod node->dot ((n node) &key (output nil))
+  (format output "~a[label=\"~a\"]~%"
+	  ;;(dot-name (node-id n))
+	  ;;(dot-name (node-id n))
+	  (node-id n)
+	  (node-id n)))
 
 ;;(node->dot (node 1 (mid 34)))
-(in-package :megra)
-(defmethod edge->dot ((e edge) &key)
-  (format nil "~a->~a[weight=~a, penwidth=~a, rank=same, arrowsize=~a]~%"
+;;(in-package :megra)
+(defmethod edge->dot ((e edge) &key (output nil))
+  (format output "~a->~a[weight=~a, penwidth=~a, rank=same, arrowsize=~a]~%"
 	  (edge-source e)
 	  (edge-destination e)
 	  ;;(transition-duration (car (edge-content e)))
 	  (coerce (/ (edge-probablity e) 100) 'float)
 	  (coerce (/ (edge-probablity e) 10) 'float)
+	  (cond 
+	    ((> (edge-probablity e) 90) 1)
+	    ((> (edge-probablity e) 40) 0.5)
+	    ((> (edge-probablity e) 1) 0.1)
+	    (t 0))))
 
-	  (cond ((> (edge-probablity e) 90) 1)
-		((> (edge-probablity e) 40) 0.5)
-		((> (edge-probablity e) 1) 0.1)
-		((eq (edge-probablity e) 0) 0)
-		)
-	  (coerce (/ (edge-probablity e) 40) 'float)
+;;(edge->dot (edge 1 2 :prob 0 :dur 20))
 
-	  ))
-
-;;(edge->dot (edge 1 2 :prob 9 :dur 20))
-
-(defmethod graph->dot ((g graph) &key)
-  (format nil "digraph{~%~{~a~}~{~a~}}"
-	  (loop for key being the hash-keys of (graph-nodes g)
-	     collect (node->dot (gethash key (graph-nodes g))))
-	  (loop for key being the hash-keys of (graph-edges g)
-	       append (mapcar #'edge->dot (gethash key (graph-edges g))))))
+(defmethod graph->dot ((g graph) &key (output nil))
+  (format output "digraph{~%")
+  (loop for val being the hash-values of (graph-nodes g)
+     do (node->dot val :output output))
+  (loop for val being the hash-values of (graph-edges g)
+     do (mapc #'(lambda (edge) (edge->dot edge :output output)) val))
+  (format output "~%}"))
 
 ;;(graph 'test ()
 ;;  (node 1 (mid 'a2 :tags '(blue)))

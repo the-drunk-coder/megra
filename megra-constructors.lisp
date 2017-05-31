@@ -125,7 +125,7 @@
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
 ;; one chain.
-;; (in-package :megra)
+ (in-package :megra)
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil) (step nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))
@@ -156,7 +156,10 @@
 			      ;; dispatcher concept ... 			             
 			      (if ,step			 
 				  (step-dispatch dispatcher (car event-processors))
-				  (perform-dispatch dispatcher (car event-processors) (incudine:now)))
+				  (incudine:at (incudine:now) #'perform-dispatch dispatcher (car event-processors) (incudine:now))
+				  ;;(incudine:at (incudine:now) #'incudine:nrt-funcall #'(lambda () (perform-dispatch dispatcher (car event-processors) (incudine:now))))
+
+				  )
 			      )))))))
 
 ;; chain events without dispatching ...
@@ -308,7 +311,7 @@
 ;;(in-package :megra)
 (defun graph->svg (graph file &key (renderer 'circo))
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
-    (format out-stream "~a" (graph->dot (source-graph (gethash graph *processor-directory*)))))
+    (graph->dot (source-graph (gethash graph *processor-directory*)) :output out-stream))
   (cond ((eq renderer 'dot)
 	 (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
 	((eq renderer 'neato)

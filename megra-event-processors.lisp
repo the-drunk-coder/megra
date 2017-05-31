@@ -97,10 +97,8 @@
 		       (let ((val (slot-value object (slot-definition-name slot))))
 			 (cond ((typep val 'param-mod-object) (evaluate val))
 			       ((typep val 'function) (funcall val))
-			       (t val)))
-		       
-		       (slot-value object (slot-definition-name slot))))))
-     copy))
+			       (t val)))		       
+		       (slot-value object (slot-definition-name slot)))))) copy))
 
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...

@@ -10,7 +10,11 @@
 (in-package :megra)
 
 (defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (let ((event-processor (gethash proc *processor-directory*)))
+  (let ((event-processor (gethash proc *processor-directory*))    
+	;;(nrt-p (not (incudine::rt-thread-p)))
+
+	)
+    ;;(incudine::nrt-msg incudine::warn "~@[n~]rt-thread" nrt-p)
     (when (and event-processor (is-active event-processor))
       ;; here, the events are produced and handled ...
       (loop for synced-proc in (synced-processors event-processor)
@@ -19,7 +23,8 @@
 	      (format t "~a" synced-proc)
 	      (activate synced-proc)
 	      (perform-dispatch sync-d synced-proc (incudine:now))))
-      (setf (synced-processors event-processor) nil)
+      (setf (synced-processors event-processor) nil)      
+      ;; (sb-thread:make-thread #'(lambda () (handle-events d (pull-events event-processor))))
       (handle-events d (pull-events event-processor))
       ;; here, the transition time between events is determinend,
       ;; and the next evaluation is scheduled ...
@@ -27,6 +32,7 @@
 					       (pull-transition
 						event-processor))))
 	     (next (+ time #[trans-time ms])))
+	;;(incudine:at next #'incudine:nrt-funcall #'(lambda () (perform-dispatch d proc next)))))))
 	(incudine:at next #'perform-dispatch d proc next)))))
 
 ;; manual step-by step dispatching ...

@@ -491,39 +491,71 @@
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
+
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds4 500) (f3 500) (a3 500) (c3 500)
+
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
+
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
+
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
+
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
+
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)) :randomize 100)
+
+
+(time (dotimes (i 1000) (graph->dot *test*)))
 
 (graph->code 'blab "/home/nik/brup.lisp")
 
 (dispatch () 'blab)
 
+(clear)
 
 (setf *discourage-percentage* 40)
 
-(progn 
-  (discourage 'blab)
-  (graph->svg 'blab "/home/nik/brup.dot" :renderer 'twopi))
+(discourage 'blab)
+
+
+
+
+
+(incudine:now)
+
+(defparameter *test* nil)
+
+; 1. Test:
+
+(setf *test* (graph->dot (source-graph (gethash 'blab *processor-directory*))))
+
+; 2. Test:
+
+(setf *test* (copy-instance (source-graph (gethash 'blab *processor-directory*))))
+
+(format nil "~a" (graph->dot *test*))
+
+; 3. Test:
+
+(setf *test* (source-graph (gethash 'blab *processor-directory*)))
+
+(graph->svg 'blab "/home/nik/brup.dot" :renderer 'twopi)
 
 (single-values->graph 'pitcher pitch '(a3 a4 d2))
 
