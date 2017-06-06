@@ -45,12 +45,14 @@
   (princ (dummy-name e)))
 
 ;; graph-based event-generator, the main one ...
+(in-package :megra)
 (defclass graph-event-processor (event-processor)
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
    (combine-mode :accessor combine-mode :initarg :combine-mode)
    (combine-filter :accessor combine-filter :initarg :combine-filter)
+   (affect-transition :accessor affect-transition :initarg :affect-transition)
    (path) ;; path is a predefined path
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
@@ -134,6 +136,20 @@
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
+(in-package :megra)
+
+(defmethod apply-self-transtion ((g graph-event-processor) current-transition transition &key)
+  (combine-events (list current-transition) (list transition) :mode (combine-mode g) :filter (combine-filter g)))
+
+(defmethod pull-transition ((g graph-event-processor) &key)
+  (if (successor g)
+      (let ((cur-trans (current-transition g)))
+	        
+	(if (affect-transition g)
+	    (apply-self-transtion g cur-trans (pull-transition (successor g)))
+	    (pull-transition (successor g))))
+      (current-transition g)))
+
 
 ;; with the advent of param-mod-objects, some of these might be deemed deprecated,
 ;; but left for legacy reasons ...

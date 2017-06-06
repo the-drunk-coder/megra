@@ -13,6 +13,7 @@
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
 (defmacro graph (name (&key (perma nil) (combine-mode ''append)
+			    (affect-transition nil)
 			    (combine-filter #'all-p)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
@@ -26,6 +27,7 @@
 				(make-instance 'graph-event-processor :name ,name
 					       :graph new-graph :copy-events (not ,perma)
 					       :current-node 1 :combine-mode ,combine-mode
+					       :affect-transition ,affect-transition
 					       :combine-filter ,combine-filter))))
 		 ,name)))
 

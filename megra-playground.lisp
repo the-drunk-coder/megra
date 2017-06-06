@@ -302,10 +302,16 @@
 ;; might be understood as a generalization of the
 ;; serialist paradigm
 
+
+
+(clear)
+
+(all-p (car (edge-content (edge 1 2 :prob 40))))
+
 ;; this is a nice one ...
 (dispatch ()
   (spigot 'tap-inc :flow t)
-  (oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t)
+  ;;(oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t)
   (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 32))
     (node 2 (pitch 52))
@@ -323,16 +329,16 @@
     (edge 2 2 :prob 55)
     (edge 2 1 :prob 45)
     (edge 3 1 :prob 100))
-  (graph 'durator (:combine-mode 'zip)
-    (node 1 (dur 512))
-    (node 2 (dur 768))
-    (edge 1 1 :prob 40)
-    (edge 1 2 :prob 60)
-    (edge 2 2 :prob 45)
+  (graph 'durator (:combine-mode 'zip :affect-transition nil)
+    (node 1 (dur 256))
+    (node 2 (dur 128))
+    (edge 1 1 :prob 40 :dur 256)
+    (edge 1 2 :prob 60 :dur 512)
+    (edge 2 2 :prob 45 :dur 1024)
     (edge 2 1 :prob 55))
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (mid 84 :lvl .9 :dur 50))
-    (edge 1 1 :prob 100 :dur 1000)))
+    (edge 1 1 :prob 100 :dur 500)))
 
 (encourage-with-tail 'tap-inc)
 (graph->code 'pitcher "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/pitcher-out.lisp")
