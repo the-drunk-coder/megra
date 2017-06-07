@@ -104,15 +104,16 @@
 			     :current-node 1 :combine-mode 'append
 			     :combine-filter #'all-p)))))))
 
-
 (defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
   (let ((new-graph (make-instance 'graph))
-	(count 1))		      
+	(count 1)
+	(len (list-length notes))
+	)		      
     (setf (graph-id new-graph) name)
     (mapc #'(lambda (note)	      
 	      (insert-node new-graph (node count (mid (car note) :lvl level :dur (- (cadr note) 10))))
-	      (if (> count 1)
-		  (insert-edge new-graph (edge (- count 1) count :prob 100 :dur (cadr note))))
+	      (if (< count len)
+		  (insert-edge new-graph (edge count (+ count 1) :prob 100 :dur (cadr note))))
 	      (incf count)) notes)
     ;; reverse last step
     (decf count)
