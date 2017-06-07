@@ -45,7 +45,8 @@
 (in-package :megra)
 
 ;; only for single values (pitch, duration, level etc )
-(defmacro values->graph (name event-type values &key (type 'loop) (randomize 0))
+(defmacro values->graph (name event-type values
+			 &key (type 'loop) (combine-mode 'append) (affect-transition nil) (randomize 0))
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
 	(count 1))		      
     (setf (graph-id new-graph) ,name)
@@ -71,18 +72,22 @@
 	(setf (gethash ,name *processor-directory*)
 	      (make-instance 'graph-event-processor :name ,name
 			     :graph new-graph :copy-events t
-			     :current-node 1 :combine-mode 'append
+			     :current-node 1 :combine-mode ,combine-mode
+			     :affect-transition ,affect-transition
 			     :combine-filter #'all-p)))))))
 
 ;; only for single values (pitch, duration, level etc )
-(defmacro values->transitions->graph (name event-type values transitions &key (type 'loop) (randomize 0))
-  `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
-	(count 1))		      
+(defmacro values->transitions->graph (name event-type values transitions
+				      &key (type 'loop) (randomize 0) (combine-mode 'append) (affect-transition nil))
+  `(funcall #'(lambda ()
+		(let ((new-graph (make-instance 'graph))
+		      (count 1)
+		      (len (list-length ,values)))		      
     (setf (graph-id new-graph) ,name)
     (mapc #'(lambda (value transdur)	      
 	      (insert-node new-graph (node count (,event-type value)))
-	      (if (> count 1)
-		  (insert-edge new-graph (edge (- count 1) count :prob 100 :dur transdur)))
+	      (if (< count len)
+		  (insert-edge new-graph (edge count (+ count 1) :prob 100 :dur transdur)))
 	      (incf count)
 	      ) ,values ,transitions)
     ;; reverse last step
@@ -101,14 +106,14 @@
 	(setf (gethash ,name *processor-directory*)
 	      (make-instance 'graph-event-processor :name ,name
 			     :graph new-graph :copy-events t
-			     :current-node 1 :combine-mode 'append
+			     :current-node 1 :combine-mode ,combine-mode
+			     :affect-transition ,affect-transition
 			     :combine-filter #'all-p)))))))
-
+;;(in-package :megra)
 (defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
   (let ((new-graph (make-instance 'graph))
 	(count 1)
-	(len (list-length notes))
-	)		      
+	(len (list-length notes)))		      
     (setf (graph-id new-graph) name)
     (mapc #'(lambda (note)	      
 	      (insert-node new-graph (node count (mid (car note) :lvl level :dur (- (cadr note) 10))))
@@ -118,7 +123,7 @@
     ;; reverse last step
     (decf count)
     (if (eq type 'loop)
-	(insert-edge new-graph (edge count 1 :prob 100 :dur default-dur)))
+	(insert-edge new-graph (edge count 1 :prob 100 :dur (cadr (car (reverse notes))))))
     ;; tbd: make dependent on randomize factor    
     (loop for src from 1 to count
        do (loop for dest from 1 to count
