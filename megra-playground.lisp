@@ -492,6 +492,8 @@
 
 (dispatch () 'gengen)
 
+(mapcar #'(lambda (valla vallb) (+ valla vallb)) '(2 1 1) '(1 1 ))
+
 ;; generate 
 (notes->midi-graph 'blab :notes '((ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
@@ -526,6 +528,13 @@
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)) :randomize 100)
 
+
+(values->transitions->graph 'durator dur '(500 1000 200) '(512 1024 256))
+
+(print-graph (gethash 'pitcher *processor-directory*))
+
+
+(values->graph 'pitcher pitch '(a3 a4 d2))
 
 (time (dotimes (i 1000) (graph->dot *test*)))
 

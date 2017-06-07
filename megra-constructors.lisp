@@ -12,6 +12,7 @@
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
+;;(in-package :megra)
 (defmacro graph (name (&key (perma nil) (combine-mode ''append)
 			    (affect-transition nil)
 			    (combine-filter #'all-p)) &body graphdata)
@@ -44,7 +45,7 @@
 (in-package :megra)
 
 ;; only for single values (pitch, duration, level etc )
-(defmacro single-values->graph (name event-type values &key (type 'loop) (randomize 0))
+(defmacro values->graph (name event-type values &key (type 'loop) (randomize 0))
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
 	(count 1))		      
     (setf (graph-id new-graph) ,name)
@@ -72,6 +73,37 @@
 			     :graph new-graph :copy-events t
 			     :current-node 1 :combine-mode 'append
 			     :combine-filter #'all-p)))))))
+
+;; only for single values (pitch, duration, level etc )
+(defmacro values->transitions->graph (name event-type values transitions &key (type 'loop) (randomize 0))
+  `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
+	(count 1))		      
+    (setf (graph-id new-graph) ,name)
+    (mapc #'(lambda (value transdur)	      
+	      (insert-node new-graph (node count (,event-type value)))
+	      (if (> count 1)
+		  (insert-edge new-graph (edge (- count 1) count :prob 100 :dur transdur)))
+	      (incf count)
+	      ) ,values ,transitions)
+    ;; reverse last step
+    (decf count)
+    (if (eq ',type 'loop)
+	(insert-edge new-graph (edge count 1 :prob 100)))
+    ;; tbd: make dependent on randomize factor    
+    (loop for src from 1 to count
+       do (loop for dest from 1 to count
+	     do (let ((randval (random 100)))
+		 (if (and (< randval ,randomize) (not (get-edge new-graph src dest)))
+		     (insert-edge new-graph
+				  (edge src dest :prob 0))))))
+    (if (gethash ,name *processor-directory*)
+	(setf (source-graph (gethash ,name *processor-directory*)) new-graph)
+	(setf (gethash ,name *processor-directory*)
+	      (make-instance 'graph-event-processor :name ,name
+			     :graph new-graph :copy-events t
+			     :current-node 1 :combine-mode 'append
+			     :combine-filter #'all-p)))))))
+
 
 (defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
   (let ((new-graph (make-instance 'graph))

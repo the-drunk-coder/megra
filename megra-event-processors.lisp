@@ -138,15 +138,14 @@
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
 (in-package :megra)
 
-(defmethod apply-self-transtion ((g graph-event-processor) current-transition transition &key)
-  (combine-events (list current-transition) (list transition) :mode (combine-mode g) :filter (combine-filter g)))
+(defmethod apply-self-transition ((g graph-event-processor) current-transition transition &key)
+  (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
 
 (defmethod pull-transition ((g graph-event-processor) &key)
   (if (successor g)
       (let ((cur-trans (current-transition g)))
-	        
 	(if (affect-transition g)
-	    (apply-self-transtion g cur-trans (pull-transition (successor g)))
+	    (apply-self-transition g cur-trans (pull-transition (successor g)))
 	    (pull-transition (successor g))))
       (current-transition g)))
 
