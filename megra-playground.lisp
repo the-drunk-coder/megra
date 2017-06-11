@@ -383,6 +383,24 @@
     (node 1 (mid 84 :lvl 1.0 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
+
+(dispatch ()
+  (spigot 'tap-inc :flow t)  
+  (graph 'origin () ;; for now, origin event needs to have handler ...
+    (node 1 (sine 50 :lvl 1.0 :lp-dist 1.0 :lp-freq 150 :lp-q 0.8 :rev 0.0 :atk 4 :rel 400 :dur 500))
+    (edge 1 1 :prob 100 :dur 1000)))
+
+
+(dispatch ()
+  (spigot 'tap-inc :flow t)  
+  (graph 'origin () ;; for now, origin event needs to have handler ...
+    (node 1 )
+    (edge 1 1 :prob 100 :dur 1000)))
+
+(buzz 1500 :lvl 1.0 :lp-dist 0.9 :lp-freq 1000 :lp-q 0.8 :rev 0.1 :atk 3 :rel 490 :dur 500)
+  
+(clear)
+
 ;; controller input, designed for AKAI LPD8 
 (register-knob 1 #'(lambda (val) (princ val)))
 
@@ -411,7 +429,6 @@
 
 (dispatch ()
   'all-to-all)
-
 
 
 ;; chiptune ftw ---
@@ -586,7 +603,6 @@
 ;;    to use a duratoin or level graph with more than one source ... thus,
 ;;    there need to be either a change in the representation, or some cloning function,
 ;;    like, (clone 'pitcher) ...
-;; combine transitions
 ;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
 ;;     especially interesting if step dispatching becomes more than a debugging feature ... 
 ;; symbols as values, resolve at render time ??
@@ -623,6 +639,7 @@
 ;; more vugs
 
 ;; DONE:
+;; combine transitions
 ;; functions as parameters ... 
 ;; only encourage/discourage processors that are active or in a chain ...
 ;; midi latency - that was easy ... thanks cm !
@@ -659,12 +676,50 @@
 ;; node color, inherited by events as tag ...
 
 ;; keep this for the sake of funcall
+
+(graph 'footwork-bd ()
+       (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
+		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
+       (node 2 (grain "03_electronics" "01_808_long_kick" :dur 512 :atk 0.1 :pos 0.5
+		      :lvl 0.9 :rate 1.0 :rev 0.0 :tags '(snare) ))
+       (node 3 (grain "03_electronics" "01_808_long_kick" :dur 130
+		      :lvl 1.0 :rate 1.0 :start 0.01 :atk 1 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.00 :pos 0.5))     
+       (edge 1 2 :prob 100 :dur 390)
+       (edge 2 1 :prob 20 :dur 130)
+       (edge 2 3 :prob 60 :dur 130)
+       (edge 3 3 :prob 20 :dur 390)
+       (edge 3 2 :prob 80 :dur 260))
+
+(graph 'footwork-sn ()
+       (node 1 (grain "03_electronics" "08_fat_snare" :dur 65
+		      :lvl 1.0 :rate 2.05 :start 0.01 :atk 1 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.01  :pos 0.5))
+       (node 2 (grain "03_electronics" "08_fat_snare" :dur 65 :atk 0.1 :pos 0.5
+		      :lvl 0.9 :rate 2.0 :rev 0.01 ))
+       (node 3 (grain "03_electronics" "08_fat_snare" :dur 65
+		      :lvl 1.0 :rate 2.0 :start 0.01 :atk 1 :rel 7
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.1 :pos 0.5))     
+       (edge 1 2 :prob 100 :dur 1560)
+       (edge 2 1 :prob 80 :dur 780)
+       (edge 2 3 :prob 20 :dur 390)
+       (edge 3 3 :prob 70 :dur 780)
+       (edge 3 2 :prob 30 :dur 130))
+
+
+
 (dispatch ()
- (oscillate-between 'lp-freq-b 'lp-freq 100 8000 :cycle 100)
- (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)
- (oscillate-between 'dist-b 'rate 0.1 1.0 :cycle 400)
- (oscillate-between 'q-b 'lp-q 0.1 1.0 :cycle 50) 
- 'the-512-beat)
+  (spigot 'footwork-tap :flow t)   
+  'footwork-bd)
+
+
+(dispatch (:sync-to 'footwork-tap)
+  (spigot 'footwork-sn-tap :flow t)   
+  'footwork-sn)
+
+
+(clear)
 
 (dispatch ()
   (spigot 'tada-tap :flow t)

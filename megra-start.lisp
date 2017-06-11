@@ -22,15 +22,15 @@
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
 (compile-file "megra-dsp-atoms")
 
-(load "megra-dsp-atoms")
+(load "/home/nik/REPOSITORIES/megra/megra-dsp-atoms")
 
 ;; wait !
 (compile-file "megra-dsp")
 
-(load "megra-dsp")
+(load "/home/nik/REPOSITORIES/megra/megra-dsp")
 
 ;; now everything should be ready to load the megra package ... 
-(load "megra-package")
+(load "/home/nik/REPOSITORIES/megra/megra-package")
 
 (in-package :megra)
 

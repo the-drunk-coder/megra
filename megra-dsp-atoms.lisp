@@ -90,6 +90,37 @@
       peak-freq peak-q peak-gain)
      lp-freq lp-q lp-dist)))
 
+
+(define-vug buzz-gen-id (freq			 
+			 gain		   
+			 harm
+			 lp-freq
+			 lp-q
+			 lp-dist		 
+			 a
+			 length
+			 r)
+  (with-samples ((snippet (buzz freq gain 3 :interpolation :cubic)))
+    (lpf18      	
+       (* (envelope (make-local-envelope `(0 ,gain ,gain 0) `(,a ,length ,r)) 1 1 #'identity)
+	  snippet )       
+     lp-freq lp-q lp-dist)))
+
+
+(define-vug sine-gen-id (freq			 
+			 gain			 
+			 lp-freq
+			 lp-q
+			 lp-dist			
+			 a
+			 length
+			 r)
+  (with-samples ((snippet (oscr freq gain)))
+    (lpf18
+     (* (envelope (make-local-envelope `(0 ,gain ,gain 0) `(,a ,length ,r)) 1 1 #'identity)
+	snippet )     
+     lp-freq lp-q lp-dist)))
+
 (define-vug gendy-filtered (amp-distr
 			    dur-distr
 			    amp-distr-param
@@ -110,6 +141,8 @@
       (gendy amp-distr dur-distr amp-distr-param dur-distr-param
 	     freq-min freq-max amp-scale dur-scale))
    lp-freq lp-q lp-dist))
+
+
 
 (define-vug convorev (in (revbuf pvbuffer) rev gain a length r)
   (* (delay-s (envelope (make-local-envelope `(0 ,gain ,gain 0)

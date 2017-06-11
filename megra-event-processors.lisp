@@ -60,8 +60,9 @@
    (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
 
 ;; turn back to textual representation ...
-(defmethod print-graph ((g graph-event-processor) &key)
-  (format nil "(graph '~a (:perma ~a :combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
+(in-package :megra)
+(defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
+  (format out-stream "(graph '~a (:perma ~a :combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
 	  (graph-id (source-graph g))
 	  (copy-events g)
 	  (combine-mode g)

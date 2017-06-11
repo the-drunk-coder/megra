@@ -55,6 +55,64 @@
 	  (convorev grain revbuf rev gain a length r)
 	  spatial-pos))))))
 
+(dsp! megra-buzz-rev (freq
+		      gain		   
+		      harm		       
+		      lp-freq
+		      lp-q
+		      lp-dist		      
+		      a
+		      length
+		      r
+		      spatial-pos
+		      rev
+		      (revbuf pvbuffer))
+  (with-samples ((buzzer (buzz-gen-id
+			  freq 			 
+			  gain
+			  harm 
+			  lp-freq
+			  lp-q
+			  lp-dist			  
+			  a
+			  length
+			  r)))
+    (foreach-frame
+      (foreach-channel
+	(cout
+	 (pan2
+	  (convorev buzzer revbuf rev gain a length r)
+	  spatial-pos))))))
+
+
+(dsp! megra-sine-rev (freq
+		      gain		   		      		       
+		      lp-freq
+		      lp-q
+		      lp-dist		      
+		      a
+		      length
+		      r
+		      spatial-pos
+		      rev
+		      (revbuf pvbuffer))
+  (with-samples ((sinusoid (sine-gen-id
+			    freq 			 
+			    gain			  
+			    lp-freq
+			    lp-q
+			    lp-dist			  
+			    a
+			    length
+			    r)))
+    (foreach-frame
+      (foreach-channel
+	(cout
+	 (pan2
+	  (convorev sinusoid revbuf rev gain a length r)
+	  spatial-pos))))))
+
+
 (dsp! megra-grain-ambi-rev ((buf buffer)
 		       unit-rate
 		       frames

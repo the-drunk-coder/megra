@@ -77,6 +77,7 @@
 			     :combine-filter #'all-p)))))))
 
 ;; only for single values (pitch, duration, level etc )
+(in-package :megra)
 (defmacro values->transitions->graph (name event-type values transitions
 				      &key (type 'loop) (randomize 0) (combine-mode 'append) (affect-transition nil))
   `(funcall #'(lambda ()
@@ -93,7 +94,7 @@
     ;; reverse last step
     (decf count)
     (if (eq ',type 'loop)
-	(insert-edge new-graph (edge count 1 :prob 100)))
+	(insert-edge new-graph (edge count 1 :prob 100 :dur (car (reverse ,transitions)))))
     ;; tbd: make dependent on randomize factor    
     (loop for src from 1 to count
        do (loop for dest from 1 to count
@@ -165,7 +166,7 @@
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
 ;; one chain.
- (in-package :megra)
+(in-package :megra)
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil) (step nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))

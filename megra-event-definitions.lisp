@@ -347,6 +347,65 @@
 		 (event-reverb g)
 		 scratch::*rev-chapel*)))))
 ;; end grain-event ...
+(define-event
+  :long-name harm-event
+  :short-name harm
+  :parent-events (event)
+  :parameters ((harm event-harmonies 5)) 
+  :direct-parameters (harm))
+
+(define-event
+  :long-name buzz-event
+  :short-name buzz
+  :parent-events (level-event
+		  harm-event
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (scratch::megra-buzz-rev
+	    (event-pitch evt)
+	    (event-level evt)
+	    (event-harmonies evt)	    
+	    (event-lp-freq evt)
+	    (event-lp-q evt)
+	    (event-lp-dist evt)	    
+	    (* (event-attack evt) 0.001)
+	    (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
+	    (* (event-release evt) 0.001)
+	    (event-position evt)
+	    (event-reverb evt)
+	    scratch::*rev-chapel*))
+
+
+(define-event
+  :long-name sine-event
+  :short-name sine
+  :parent-events (level-event		 
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (scratch::megra-sine-rev
+	    (event-pitch evt)
+	    (event-level evt)	    
+	    (event-lp-freq evt)
+	    (event-lp-q evt)
+	    (event-lp-dist evt)	    
+	    (* (event-attack evt) 0.001)
+	    (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
+	    (* (event-release evt) 0.001)
+	    (event-position evt)
+	    (event-reverb evt)
+	    scratch::*rev-chapel*))
 
 (define-event
   :long-name frequency-range-event
