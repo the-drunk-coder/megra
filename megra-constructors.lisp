@@ -166,16 +166,15 @@
 ;; dispatching ... one dispatcher per active event processor ...
 ;; if 'unique' is t, an event processor can only be hooked into
 ;; one chain.
-(in-package :megra)
+;;(in-package :megra)
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil) (step nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))
-			(detach (gethash (car (last event-processors))
-					 *processor-directory*) event-processors)) 
+			(detach (gethash (car (last event-processors)) *processor-directory*) event-processors)) 
 		      (when (not ,chain)
 			(connect event-processors))		      
 		      (if (and ,sync-to (gethash ,sync-to *processor-directory*))
-			  ;; if this processor is synced to another, don#t start now ..
+			  ;; if this processor is synced to another, don't start now ..
 			  ;; dispatching will be started by the processor this one is synced to 
 			  (progn			    
 			    (deactivate (car event-processors) :del nil)
@@ -184,24 +183,20 @@
 					  (list (car event-processors)))))
 			  ;; if the first event-processor is not active yet,
 			  ;; create a dispatcher to dispatch it ... 
-			  (unless (is-active (gethash (car event-processors)
-						      *processor-directory*))
-			    (let ((dispatcher (make-instance 'event-dispatcher)))
-			      (activate (car event-processors))
-			      ;; the step dispatching (with a new dispatcher
-			      ;; and chain rebuilding for
-			      ;; each dispatch)
-			      ;; is pretty inefficient and currently
-			      ;; only intended for debugging purposes.
-			      ;; If it should become a regular feature, i might need to rethink the
-			      ;; dispatcher concept ... 			             
-			      (if ,step			 
-				  (step-dispatch dispatcher (car event-processors))
-				  (incudine:at (incudine:now) #'perform-dispatch dispatcher (car event-processors) (incudine:now))
-				  ;;(incudine:at (incudine:now) #'incudine:nrt-funcall #'(lambda () (perform-dispatch dispatcher (car event-processors) (incudine:now))))
-
-				  )
-			      )))))))
+			  (unless (is-active (gethash (car event-processors) *processor-directory*))
+			    (activate (car event-processors))
+			    ;; the step dispatching (with a new dispatcher
+			    ;; and chain rebuilding for
+			    ;; each dispatch)
+			    ;; is pretty inefficient and currently
+			    ;; only intended for debugging purposes.
+			    ;; If it should become a regular feature, i might need to rethink the
+			    ;; dispatcher concept ... 			             
+			    (if ,step			 
+				(step-dispatch (car event-processors))
+				(incudine:at (incudine:now) #'perform-dispatch (car event-processors) (incudine:now))
+				;;(incudine:at (incudine:now) #'incudine:nrt-funcall #'(lambda () (perform-dispatch dispatcher (car event-processors) (incudine:now))))
+				)))))))
 
 ;; chain events without dispatching ...
 (defmacro chain ((&key (unique t)) &body proc-body)

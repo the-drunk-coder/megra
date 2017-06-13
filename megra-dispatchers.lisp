@@ -1,64 +1,53 @@
-;; event dispatchers and related stuff ... 
-(defclass dispatcher ()
-  ((step-dispatch)
-   (perform-dispatch)
-   (handle-events)
-   (handle-transition)))
+;; event dispatching and related stuff ... 
 
 ;; simple time-recursive dispatching
 ;; not using local variable binding to reduce consing (??)
 (in-package :megra)
 
-(defmethod perform-dispatch ((d dispatcher) proc time &key)
-  (let ((event-processor (gethash proc *processor-directory*))    
-	;;(nrt-p (not (incudine::rt-thread-p)))
-
-	)
-    ;;(incudine::nrt-msg incudine::warn "~@[n~]rt-thread" nrt-p)
+(defun perform-dispatch (proc time)
+  (let ((event-processor (gethash proc *processor-directory*)))    
     (when (and event-processor (is-active event-processor))
       ;; here, the events are produced and handled ...
       (loop for synced-proc in (synced-processors event-processor)
 	 ;; don't check if it's active, as only deactivated procs are added to sync list
-	 do (let ((sync-d (make-instance 'event-dispatcher)))
-	      (format t "~a" synced-proc)
+	 do (progn
 	      (activate synced-proc)
-	      (perform-dispatch sync-d synced-proc (incudine:now))))
+	      (perform-dispatch synced-proc (incudine:now))))
+      ;; reset all synced processors
       (setf (synced-processors event-processor) nil)      
-      ;; (sb-thread:make-thread #'(lambda () (handle-events d (pull-events event-processor))))
-      (handle-events d (pull-events event-processor))
+      ;; handle events from current graph
+      (handle-events (pull-events event-processor))
       ;; here, the transition time between events is determinend,
       ;; and the next evaluation is scheduled ...
-      (let* ((trans-time (handle-transition d (car
-					       (pull-transition
-						event-processor))))
-	     (next (+ time #[trans-time ms])))
+      (let* ((trans-time (handle-transition (car
+					     (pull-transition
+					      event-processor))))
+	     (next (+ time #[trans-time ms])))	
 	;;(incudine:at next #'incudine:nrt-funcall #'(lambda () (perform-dispatch d proc next)))))))
-	(incudine:at next #'perform-dispatch d proc next)))))
+	(incudine:at next #'perform-dispatch proc next)))))
 
 ;; manual step-by step dispatching ...
-(defmethod step-dispatch ((d dispatcher) proc &key)
+(defun step-dispatch (proc)
   (when (and (gethash proc *processor-directory*) (is-active (gethash proc *processor-directory*)) )
-    (handle-events d (pull-events (gethash proc *processor-directory*)))
-    (handle-transition d (car (pull-transition (gethash proc *processor-directory*))))))
+    (handle-events (pull-events (gethash proc *processor-directory*)))
+    (handle-transition (car (pull-transition (gethash proc *processor-directory*))))))
 
-(defmethod handle-transition ((s dispatcher) (tr transition) &key)
+(defun handle-transition (tr)
   (transition-duration tr))	 
 
 ;; dummy dispatcher for testing and development
-(defclass string-dispatcher (dispatcher) ())
+;;(defclass string-dispatcher (dispatcher) ())
 
-(defmethod handle-events ((s string-dispatcher) events &key)
-  (fresh-line)
-  (princ "the following events should be handled: ")
-  (mapc #'(lambda (event)
-	    (princ (event-message event))
-	    (princ " from ")
-	    (princ (event-source event))
-	    (princ ", ")) events))
+;;(defmethod handle-events ((s string-dispatcher) events &key)
+;;  (fresh-line)
+;;  (princ "the following events should be handled: ")
+;;  (mapc #'(lambda (event)
+;;	    (princ (event-message event))
+;;	    (princ " from ")
+;;	    (princ (event-source event))
+;;          (princ ", ")) events))
 
 ;; the main event dispatcher
-(defclass event-dispatcher (dispatcher) ())
-
-(defmethod handle-events ((e event-dispatcher) events &key)
+(defun handle-events (events)
   (mapc #'handle-event events))
 

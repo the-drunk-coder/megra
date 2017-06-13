@@ -385,7 +385,7 @@
 
 
 (dispatch ()
-  (spigot 'tap-inc :flow t)  
+  (spigot 'tap-inc-s :flow t)  
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (sine 50 :lvl 1.0 :lp-dist 1.0 :lp-freq 150 :lp-q 0.8 :rev 0.0 :atk 4 :rel 400 :dur 500))
     (edge 1 1 :prob 100 :dur 1000)))
@@ -393,12 +393,10 @@
 
 (dispatch ()
   (spigot 'tap-inc :flow t)  
-  (graph 'origin () ;; for now, origin event needs to have handler ...
-    (node 1 )
-    (edge 1 1 :prob 100 :dur 1000)))
+  (graph 'origin-2 () ;; for now, origin event needs to have handler ...
+    (node 1 (buzz 30 :lvl 1.0 :lp-dist 0.9 :lp-freq 200 :lp-q 0.5 :rev 0.0 :atk 3 :rel 490 :dur 500))
+    (edge 1 1 :prob 100 :dur 2300)))
 
-(buzz 1500 :lvl 1.0 :lp-dist 0.9 :lp-freq 1000 :lp-q 0.8 :rev 0.1 :atk 3 :rel 490 :dur 500)
-  
 (clear)
 
 ;; controller input, designed for AKAI LPD8 
