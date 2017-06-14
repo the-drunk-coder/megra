@@ -72,8 +72,7 @@
 	      (copy-slots-to-class a new-event)
 	      (copy-slots-to-class b new-event)
 	      (overwrite-slots b new-event)
-	      (overwrite-slots a new-event)
-	      ))))
+	      (overwrite-slots a new-event)))))
 
 ;; combining events ... a has precedence
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
@@ -88,8 +87,7 @@
 (defun print-tags (tags)
   (if tags
       (let ((tags-string (string-trim '(#\Space) (format nil "~{~a ~}" tags))))
-	(format nil ":tags '(~a) " tags-string))
-      ""))
+	(format nil ":tags '(~a) " tags-string)) ""))
 
 ;; helper method to print combi function name 
 (defun print-combi-fun (fun)
@@ -142,7 +140,7 @@
 					  (member (car x) direct-parameters)) parameters)
 				       (remove-if-not #'
 					(lambda (x)
-					  (member (car x) direct-parameters)) parent-parameters)))	 
+					  (member (car x) direct-parameters)) parent-parameters))) 
 	 (parent-keyword-parameters (remove-if #'(lambda (x) (member (car x) direct-parameters)) 
 					       parent-parameters))
 	 (parameter-names (mapcar #'car parameters))
@@ -212,14 +210,13 @@
 			 ',parent-keyword-parameter-names
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
-		 (print-combi-fun (value-combine-function evt)))))
-       ;; end event definition macro ...
-       )))
+		 (print-combi-fun (value-combine-function evt))))))))
+;; end event definition macro ...
 
 ;; another macro if you want to make an event available under a different
 ;; constructor, with different direct parameters and different defaults
 ;; the print-function will be the original one ...
-(in-package :megra)
+;;(in-package :megra)
 (defmacro define-event-alias (&key
 				alias
 				long-name				
@@ -258,5 +255,3 @@
 			,(intern "TAGS" "KEYWORD") tags
 			,(intern "COMBI-FUN" "KEYWORD") combi-fun
 			,@keyword-pairs)))))
-
-(equal '('a 23 'd) '('a 23 'd))

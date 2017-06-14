@@ -8,26 +8,39 @@
   (let ((event-processor (gethash proc *processor-directory*)))    
     (when (and event-processor (is-active event-processor))
       ;; here, the events are produced and handled ...
-      (loop for synced-proc in (synced-processors event-processor)
+      (when (synced-processors event-processor)
+	(loop for synced-proc in (synced-processors event-processor)
 	 ;; don't check if it's active, as only deactivated procs are added to sync list
-	 do (progn
-	      (activate synced-proc)
-	      (perform-dispatch synced-proc (incudine:now))))
-      ;; reset all synced processors
-      (setf (synced-processors event-processor) nil)      
+	   do (progn
+		(activate synced-proc)
+		(perform-dispatch synced-proc (incudine:now))))
+	;; reset all synced processors
+	(setf (synced-processors event-processor) nil))
       ;; handle events from current graph
       (handle-events (pull-events event-processor))
       ;; here, the transition time between events is determinend,
       ;; and the next evaluation is scheduled ...
-      (let* ((trans-time (handle-transition (car
-					     (pull-transition
-					      event-processor))))
-	     (next (+ time #[trans-time ms])))	
-	;;(incudine:at next #'incudine:nrt-funcall #'(lambda () (perform-dispatch d proc next)))))))
-	(incudine:at next #'perform-dispatch proc next)))))
+      (let ((trans-time (transition-duration (car (pull-transition event-processor)))))       
+	(incudine:aat (+ time #[trans-time ms]) #'perform-dispatch proc it)))))
 
-(defun handle-transition (tr)
-  (transition-duration tr))	 
+(defun perform-dispatch-norepeat (proc time)
+  (let ((event-processor (gethash proc *processor-directory*)))    
+    (when (and event-processor (is-active event-processor))
+      ;; here, the events are produced and handled ...
+      (when (synced-processors event-processor)
+	(loop for synced-proc in (synced-processors event-processor)
+	   ;; don't check if it's active, as only deactivated procs are added to sync list
+	   do (progn
+		(activate synced-proc)
+		(perform-dispatch synced-proc (incudine:now))))
+	;; reset all synced processors
+	(setf (synced-processors event-processor) nil))     
+      ;; handle events from current graph
+      (handle-events (pull-events event-processor))
+      ;; here, the transition time between events is determinend,
+      ;; and the next evaluation is scheduled ...
+      (let* ((trans-time (transition-duration (car (pull-transition event-processor))))
+	     (next (+ time #[trans-time ms])))))))
 
 (defun handle-events (events)
   (mapc #'handle-event events))
@@ -50,13 +63,9 @@
 			  ;; create a dispatcher to dispatch it ... 
 			  (unless (is-active (gethash (car event-processors) *processor-directory*))
 			    (activate (car event-processors))
-			    ;; the step dispatching 
-			    ;; with chain rebuilding for
-			    ;; each dispatch
-			    ;; is pretty inefficient and currently
-			    ;; only intended for debugging purposes.
+			    ;; The step dispatching with chain rebuilding each dispatch
+			    ;; is pretty inefficient and only intended for debugging purposes.
 			    ;; If it should become a regular feature, i might need to this concept ... 			             
-			    (incudine:at (incudine:now) #'perform-dispatch (car event-processors) (incudine:now) ,repeat)
-			    ;;(incudine:at (incudine:now) #'incudine:nrt-funcall #'(lambda () (perform-dispatch dispatcher (car event-processors) (incudine:now))))
+			    (incudine:at (incudine:now) #'perform-dispatch (car event-processors) (incudine:now))			    
 			    ))))))
 
