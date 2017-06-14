@@ -100,7 +100,6 @@
   (if (successor proc)
       (discourage-chain (successor proc))))
 
-(in-package :megra)
 (defun encourage-all ()
   (labels ((encourage-if-active-graph (key item)
 	     (if (is-active item)

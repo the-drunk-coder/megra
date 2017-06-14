@@ -81,8 +81,6 @@
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
 
-(in-package :megra)
-
 (defmethod get-edge ((g graph) source destination)
   (labels ((find-destination (edges destination)
 	     ;; might be more efficient to use edge list ordered by

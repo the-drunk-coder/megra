@@ -1,6 +1,6 @@
 ;; EVENT DEFINITIONS ...
 ;; the root event is defined in megra-event-base ...
-(in-package :megra)
+
 ;; accumulator class ...
 (define-event
   :long-name incomplete-event
@@ -53,8 +53,6 @@
 ;;;;;;;;;;;;;;;;;
 ;; MIDI events ;;
 ;;;;;;;;;;;;;;;;;
-(in-package :megra)
-
 (define-event
   :long-name midi-event
   :short-name mid
@@ -141,7 +139,6 @@
 ;; megra is ready for ambisonics !
 ;; pos is the simple stereo position,
 ;; azimuth, elevation and distance the ambisonics parameters
-(in-package :megra)
 (define-event
   :long-name spatial-event
   :short-name pos
@@ -237,7 +234,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GRAIN EVENT (slightly longer);;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (define-event
   :long-name grain-event
   :short-name grain
@@ -347,6 +343,7 @@
 		 (event-reverb g)
 		 scratch::*rev-chapel*)))))
 ;; end grain-event ...
+
 (define-event
   :long-name harm-event
   :short-name harm
@@ -381,7 +378,6 @@
 	    (event-reverb evt)
 	    scratch::*rev-chapel*))
 
-
 (define-event
   :long-name sine-event
   :short-name sine
@@ -406,7 +402,6 @@
 	    (event-position evt)
 	    (event-reverb evt)
 	    scratch::*rev-chapel*))
-
 (define-event
   :long-name frequency-range-event
   :short-name freq-range
@@ -477,7 +472,7 @@
 	  (event-elevation evt)
 	  (event-reverb evt)
 	  scratch::*rev-chapel*))))
-(in-package :megra)
+
 (define-event
   :long-name control-event
   :short-name ctrl

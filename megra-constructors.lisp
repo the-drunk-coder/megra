@@ -12,7 +12,6 @@
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
-;;(in-package :megra)
 (defmacro graph (name (&key (perma nil) (combine-mode ''append)
 			    (affect-transition nil)
 			    (combine-filter #'all-p)) &body graphdata)
@@ -35,14 +34,11 @@
 ;; replace the content (or parts of the content) of a graph ...
 (defun graph-replace (name new-content)
   (let ((current-graph (source-graph (gethash name *processor-directory*))))
-    ;;(princ new-content)
     (mapc #'(lambda (obj)
 	    (cond ((typep obj 'edge) (insert-edge current-graph obj))
 		  ((typep obj 'node) (insert-node current-graph obj))))
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
-
-(in-package :megra)
 
 ;; only for single values (pitch, duration, level etc )
 (defmacro values->graph (name event-type values
@@ -77,7 +73,8 @@
 			     :combine-filter #'all-p)))))))
 
 ;; only for single values (pitch, duration, level etc )
-(in-package :megra)
+;; takes a list of values and transition times and turns them into a graph
+;; filled with single-value events like (pitch ..) or (lvl ..)
 (defmacro values->transitions->graph (name event-type values transitions
 				      &key (type 'loop) (randomize 0) (combine-mode 'append) (affect-transition nil))
   `(funcall #'(lambda ()
@@ -110,7 +107,9 @@
 			     :current-node 1 :combine-mode ,combine-mode
 			     :affect-transition ,affect-transition
 			     :combine-filter #'all-p)))))))
-;;(in-package :megra)
+
+;; takes notes in the format '(pitch duration) ant turns them into a loop graph
+;; which might be randomized
 (defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
   (let ((new-graph (make-instance 'graph))
 	(count 1)
@@ -140,8 +139,6 @@
 			     :current-node 1 :combine-mode 'append
 			     :combine-filter #'all-p)))))
 
-
-
 ;; build the event processor chain, in the fashion of a douby-linked list ...
 (defun connect (processor-ids)
   (when (cadr processor-ids)
@@ -162,11 +159,6 @@
   (when (not (member (name processor) current-processor-ids))
     (princ (name processor))
     (deactivate (name processor))))
-
-;; dispatching ... one dispatcher per active event processor ...
-;; if 'unique' is t, an event processor can only be hooked into
-;; one chain.
-;;(in-package :megra)
 
 ;; chain events without dispatching ...
 (defmacro chain ((&key (unique t)) &body proc-body)
@@ -201,7 +193,6 @@
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
-;;(in-package :megra)
 (defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
 								     (affect-transition nil)
 								     (keep-state t) (track-state t)
@@ -217,7 +208,6 @@
     (when (gethash name *processor-directory*)
       (setf (is-active new-inst) t)
       (when keep-state
-	;;(princ "keep-state")
 	(setf (pmod-step new-inst) (pmod-step (gethash name *processor-directory*)))
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
@@ -314,7 +304,6 @@
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
 
-;;(in-package :megra)
 (defun graph->svg (graph file &key (renderer 'circo))
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
     (graph->dot (source-graph (gethash graph *processor-directory*)) :output out-stream))

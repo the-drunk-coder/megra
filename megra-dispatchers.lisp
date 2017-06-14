@@ -2,8 +2,6 @@
 
 ;; simple time-recursive dispatching
 ;; not using local variable binding to reduce consing (??)
-(in-package :megra)
-
 (defun perform-dispatch (proc time)
   (let ((event-processor (gethash proc *processor-directory*)))    
     (when (and event-processor (is-active event-processor))
@@ -45,6 +43,7 @@
 (defun handle-events (events)
   (mapc #'handle-event events))
 
+;; if 'unique' is t, an event processor can only be hooked into one chain.
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))

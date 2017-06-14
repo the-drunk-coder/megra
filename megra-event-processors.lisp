@@ -45,7 +45,6 @@
   (princ (dummy-name e)))
 
 ;; graph-based event-generator, the main one ...
-(in-package :megra)
 (defclass graph-event-processor (event-processor)
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
@@ -60,7 +59,6 @@
    (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
 
 ;; turn back to textual representation ...
-(in-package :megra)
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
   (format out-stream "(graph '~a (:perma ~a :combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
 	  (graph-id (source-graph g))
@@ -137,7 +135,6 @@
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
-(in-package :megra)
 
 (defmethod apply-self-transition ((g graph-event-processor) current-transition transition &key)
   (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
@@ -153,7 +150,6 @@
 
 ;; with the advent of param-mod-objects, some of these might be deemed deprecated,
 ;; but left for legacy reasons ...
-;;(in-package :megra)
 (defclass modifying-event-processor (event-processor)
   ((property :accessor modified-property :initarg :mod-prop)
    (last-values-by-source :accessor lastval)
@@ -187,7 +183,6 @@
 (defmethod apply-self :after ((m modifying-event-processor) events &key)
   (setf (pmod-step m) (1+ (pmod-step m))))
 	   
-
 (defmethod get-current-value ((m modifying-event-processor) (e event) &key)
   (if (track-state m)
       (gethash (event-source e) (lastval m))
@@ -241,13 +236,10 @@
 
 ;; make state-tracking switchable ??? 
 (defmethod apply-self ((c chance-combine) events &key)
-  ;;(princ "c_combi_")
   (mapc #'(lambda (event)	    
 	    (let ((chance-val (random 100)))
-	      ;;(princ chance-val)
 	      (if (< chance-val (combi-chance c))
 		  (progn
-		    ;;(princ "combi")
 		    (combine-single-events (event-to-combine c) event))
 		  event)))
 	(filter-events c events :check-mod-prop nil))

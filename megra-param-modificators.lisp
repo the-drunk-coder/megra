@@ -1,6 +1,5 @@
 ;; stateful parameter modifier ... (yes, really ...)
 ;; every one of those needs an "evaluate" function ...
-;; (in-package :megra)
 (defclass param-mod-object ()
   ((step :accessor pmod-step :initform 0)
    (time :accessor pmod-time :initform 0)
