@@ -365,7 +365,9 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (scratch::megra-buzz-rev
-	    (event-pitch evt)
+	    (if (typep (event-pitch evt) 'symbol)
+		(cm::hertz (event-pitch evt))
+		(event-pitch evt))
 	    (event-level evt)
 	    (event-harmonies evt)	    
 	    (event-lp-freq evt)
@@ -390,8 +392,10 @@
 		  filter-lp-event	          
 		  reverb-event)
   :direct-parameters (pitch)
-  :handler (scratch::megra-sine-rev
-	    (event-pitch evt)
+  :handler (scratch::megra-sine-rev	    
+	    (if (typep (event-pitch evt) 'symbol)
+		(cm::hertz (event-pitch evt))
+		(event-pitch evt))
 	    (event-level evt)	    
 	    (event-lp-freq evt)
 	    (event-lp-q evt)
