@@ -25,8 +25,10 @@
 (defparameter *buffer-directory* (make-hash-table :test 'equal))
 ;; sample root folder 
 (defparameter *sample-root* "/home/nik/SAMPLES/" )
+
 ;; consecutive buffer numbers for scsynth
-(defparameter *sc-sample-bufnums* 0)
+;; start with two as 0 and 1 are reserved for the reverb buffers ...
+(defparameter *sc-sample-bufnums* 2)
 
 (defparameter *eval-on-copy* nil)
 
