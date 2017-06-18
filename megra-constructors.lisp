@@ -249,6 +249,11 @@
 (defun clear ()
   (setf *processor-directory* (make-hash-table :test 'eql)))
 
+(defun stop ()
+  (loop for proc being the hash-keys of *processor-directory*
+     do (deactivate proc)))
+
+
 ;; convenience functions to set params in some object ...
 (defun pset (object param value)
   (setf (slot-value (gethash object *processor-directory*) param) value))
