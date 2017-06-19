@@ -252,7 +252,7 @@
 	       (sample-file event-sample-file)
 	       (sample-location event-sample-location)) 
   :direct-parameters (sample-folder sample-file)
-  :handler (handle-grain-event-incu evt) ;; currently only using include, anyway ...
+  :handler (handle-grain-event-sc evt) ;; currently only using include, anyway ...
   ;;(if (member 'inc (event-backends g)) )
   ;;(if (member 'sc (event-backends g)) (handle-grain-event-sc g))
   )
@@ -263,31 +263,6 @@
 	(concatenate 'string *sample-root*
 		     (event-sample-folder g) "/" (event-sample-file g) ".wav")))
 
-;; handler method for grain event, supercollider
-(defmethod handle-grain-event-sc ((g grain-event) &key)
-  (unless (gethash (event-sample-location g) *buffer-directory*)
-    (register-sample (event-sample-location g)))
-  (let ((bufnum (gethash (event-sample-location g) *buffer-directory*)))
-    (cm::send-osc  
-     "/s_new"	    
-     "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
-     "grain_2ch" -1 0 1
-     "bufnum" bufnum
-     "lvl" (coerce (event-level g) 'float)
-     "rate" (coerce (event-rate g) 'float)
-     "start" (coerce (event-start g) 'float)
-     "lp_freq" (coerce (event-lp-freq g) 'float)
-     "lp_q" (coerce (event-lp-q g) 'float)
-     "lp_dist" (coerce (event-lp-dist g) 'float)
-     "pf_freq" (coerce (event-pf-freq g) 'float)
-     "pf_q" (coerce (event-pf-q g) 'float)
-     "pf_gain" (coerce (event-pf-gain g) 'float)
-     "hp_freq" (coerce (event-hp-freq g) 'float)
-     "hp_q" (coerce (event-hp-q g)  'float)
-     "a" (coerce (* (event-attack g) 0.001) 'float)
-     "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
-     "r" (coerce (* (event-release g) 0.001) 'float)
-     "pos" (coerce (- (event-position g) 0.5) 'float))))
 
 ;; handler method for grain event, incudine
 (defmethod handle-grain-event-incu ((g grain-event) &key)
@@ -406,6 +381,7 @@
 	    (event-position evt)
 	    (event-reverb evt)
 	    scratch::*rev-chapel*))
+
 (define-event
   :long-name frequency-range-event
   :short-name freq-range

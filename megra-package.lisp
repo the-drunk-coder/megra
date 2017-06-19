@@ -64,6 +64,7 @@
 (load "megra-param-modificators")
 (load "megra-event-base")
 (load "megra-event-definitions")
+(load "megra-supercollider-event-handlers")
 (load "megra-structures")
 (load "megra-event-processors")
 (load "megra-disencourage")

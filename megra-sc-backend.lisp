@@ -2,11 +2,7 @@
 
 (defun register-sample (sample-loc)
   ;; register sample ...
-  (output (new cm::osc 
-	    :path "/b_allocRead"
-	    :time (now)
-	    :types "isii"
-	    :message `(,*sc-sample-bufnums* ,sample-loc 0 -1)))
+  (osc:message cm::*oscout* "/b_allocRead" "isii" *sc-sample-bufnums* sample-loc 0 -1)
   (setf (gethash sample-loc *buffer-directory*) *sc-sample-bufnums*)
   (setf *sc-sample-bufnums* (1+ *sc-sample-bufnums*)))
 
@@ -17,35 +13,23 @@
 (defparameter *chapel-buflength* 63488)
 (defparameter *ir-spectral-bufnum* 1)
 
+(defun init-sc-base-group ()
+  (osc:message cm::*oscout* "/g_new" "iii" 1 0 0))
+
 ;; this sequence of messages 
 (defun prepare-ir ()
   ;; allocate and read buffer
-  (output (new cm::osc 
-	    :path "/b_allocRead"
-	    :time (now)
-	    :types "isii"
-	    :message `(0 "/home/nik/SAMPLES/IR/ir1.wav" 0 -1)))
+  (osc:message cm::*oscout* "/b_allocRead" "isii" 0 "/home/nik/SAMPLES/IR/ir1.wav" 0 -1)
   (sleep 0.5)
   ;; allocate buffer 
-  (output (new cm::osc 
-	    :path "/b_alloc"
-	    :time (now)
-	    :types "iiii"
-	    :message `(,*ir-spectral-bufnum* ,*chapel-buflength* 1 0)))
+  (osc:message cm::*oscout* "/b_alloc" "iiii" *ir-spectral-bufnum* *chapel-buflength* 1 0)
   (sleep 0.5)
   ;; prepare part conv
-  (output (new cm::osc 
-	    :path "/b_gen"
-	    :time (now)
-	    :types "isii"
-	    :message `(,*ir-spectral-bufnum* "PreparePartConv" 0 ,*chapel-ir-length*))))
+  (osc:message cm::*oscout* "/b_gen" "isii"
+	       *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*))
 
 (defun free-sample (bufnum)
-  (output (new cm::osc 
-	    :path "/b_free"
-	    :time (now)
-	    :types "i"
-	    :message `(,bufnum))))
+  (osc:message "/b_free" "i" bufnum))
 
 (defun free-all-samples ()
   ;; this is so amazing i just have to use it ...
