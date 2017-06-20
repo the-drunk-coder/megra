@@ -113,7 +113,6 @@
 		     :value (car (multiple-value-list (round (event-cc-value evt)))))	     
 		   :at (incudine:now)))
 
-(in-package :megra)
 (define-event-alias
   :long-name midi-control-change-event
   :alias gb2-shape
@@ -252,71 +251,15 @@
 	       (sample-file event-sample-file)
 	       (sample-location event-sample-location)) 
   :direct-parameters (sample-folder sample-file)
-  :handler (handle-grain-event-sc evt) ;; currently only using include, anyway ...
-  ;;(if (member 'inc (event-backends g)) )
-  ;;(if (member 'sc (event-backends g)) (handle-grain-event-sc g))
-  )
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu evt))
+	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt))))
 
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (event-sample-location g)
 	(concatenate 'string *sample-root*
 		     (event-sample-folder g) "/" (event-sample-file g) ".wav")))
-
-
-;; handler method for grain event, incudine
-(defmethod handle-grain-event-incu ((g grain-event) &key)
-  (unless (gethash (event-sample-location g) *buffer-directory*)
-    (let* ((buffer (incudine:buffer-load (event-sample-location g)))
-	   (bdata (make-buffer-data :buffer buffer
-				    :buffer-rate (/ (incudine:buffer-sample-rate buffer)
-						    (incudine:buffer-frames buffer))
-				    :buffer-frames (incudine:buffer-frames buffer))))
-      (setf (gethash (event-sample-location g) *buffer-directory*) bdata)))
-  (let ((bdata (gethash (event-sample-location g) *buffer-directory*)))    
-    (cond ((not (event-ambi-p g))
-	   (scratch::megra-grain-rev (buffer-data-buffer bdata)
-		 (buffer-data-buffer-rate bdata)
-		 (buffer-data-buffer-frames bdata)
-		 (event-level g)
-		 (event-rate g)
-		 (event-start g)
-		 (event-lp-freq g)
-		 (event-lp-q g)
-		 (event-lp-dist g)
-		 (event-pf-freq g)
-		 (event-pf-q g)
-		 (event-pf-gain g)
-		 (event-hp-freq g)
-		 (event-hp-q g)
-		 (* (event-attack g) 0.001)
-		 (* (- (event-duration g) (event-attack g) (event-release g)) 0.001)
-		 (* (event-release g) 0.001)
-		 (event-position g)
-		 (event-reverb g)
-		 scratch::*rev-chapel*))
-	((event-ambi-p g)  
-	 (scratch::megra-grain-ambi-rev (buffer-data-buffer bdata)
-		 (buffer-data-buffer-rate bdata)
-		 (buffer-data-buffer-frames bdata)
-		 (event-level g)
-		 (event-rate g)
-		 (event-start g)
-		 (event-lp-freq g)
-		 (event-lp-q g)
-		 (event-lp-dist g)
-		 (event-pf-freq g)
-		 (event-pf-q g)
-		 (event-pf-gain g)
-		 (event-hp-freq g)
-		 (event-hp-q g)
-		 (* (event-attack g) 0.001)
-		 (* (- (event-duration g) (event-attack g) (event-release g)) 0.001)
-		 (* (event-release g) 0.001)
-		 (+ (event-azimuth g) *global-azimuth-offset*)
-		 (+ (event-elevation g) *global-elevation-offset*)
-		 (event-reverb g)
-		 scratch::*rev-chapel*)))))
 ;; end grain-event ...
 
 (define-event

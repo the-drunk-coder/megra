@@ -22,7 +22,8 @@
   buffer-frames)
 
 ;; storage for sample buffers 
-(defparameter *buffer-directory* (make-hash-table :test 'equal))
+(defparameter *incu-buffer-directory* (make-hash-table :test 'equal))
+(defparameter *sc-buffer-directory* (make-hash-table :test 'equal))
 ;; sample root folder 
 (defparameter *sample-root* "/home/nik/SAMPLES/" )
 
@@ -65,6 +66,7 @@
 (load "megra-event-base")
 (load "megra-event-definitions")
 (load "megra-supercollider-event-handlers")
+(load "megra-incudine-event-handlers")
 (load "megra-structures")
 (load "megra-event-processors")
 (load "megra-disencourage")

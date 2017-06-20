@@ -178,9 +178,12 @@
 					     keyword-parameter-defaults)
 				   ,@(mapcar #'list parent-keyword-parameter-names
 					     parent-keyword-parameter-defaults)
+				   (backends '(,*default-dsp-backend*))
 				   (tags nil)
 				   (combi-fun #'replace-value))
 	 (make-instance ',class-name
+			;; add the very basic keyword parameters 'by hand'
+			,(intern "BACKENDS" "KEYWORD") backends
 			,(intern "TAGS" "KEYWORD") tags
 			,(intern "COMBI-FUN" "KEYWORD") combi-fun
 			,@keyword-pairs

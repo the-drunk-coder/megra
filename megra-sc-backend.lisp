@@ -3,7 +3,7 @@
 (defun register-sample (sample-loc)
   ;; register sample ...
   (osc:message cm::*oscout* "/b_allocRead" "isii" *sc-sample-bufnums* sample-loc 0 -1)
-  (setf (gethash sample-loc *buffer-directory*) *sc-sample-bufnums*)
+  (setf (gethash sample-loc *sc-buffer-directory*) *sc-sample-bufnums*)
   (setf *sc-sample-bufnums* (1+ *sc-sample-bufnums*)))
 
 ;; the buflength was empirically determined using sclang.

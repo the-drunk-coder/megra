@@ -59,7 +59,7 @@
 ;; use the grain event to play a (or parts of) a soundfile
 (graph 'the-grain () 
   (node 1 (grain "misc" "tada" :dur 512 :pos 0.0 :lvl 0.5 :rate 0.4 :atk 64 :rel 65 :rev 0.2
-		 :ambi nil))
+		 :ambi-p nil :backend '(sc)))
        (edge 1 1 :prob 100 :dur 512))
 
 (dispatch (:sync-to 'the-512-beat)
@@ -68,6 +68,10 @@
 
 
 (deactivate 'the-grain)
+
+(event-backends (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
+		 :lvl 0.9 :rate 1.0 :rev 0.0		 
+		 :ambi-p t))
 
 (graph 'ambi-test ()
   (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
