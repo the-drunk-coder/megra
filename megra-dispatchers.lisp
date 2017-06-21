@@ -13,7 +13,7 @@
 	 ;; don't check if it's active, as only deactivated procs are added to sync list
 	   do (progn
 		(activate synced-proc)
-		(perform-dispatch synced-proc incudine-time)))
+		(perform-dispatch synced-proc osc-time incudine-time)))
 	;; reset all synced processors
 	(setf (synced-processors event-processor) nil))
       ;; handle events from current graph
