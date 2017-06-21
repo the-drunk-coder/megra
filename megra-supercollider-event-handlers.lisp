@@ -1,12 +1,12 @@
 ;; handler method for grain event, supercollider
 (in-package :megra)
-(defmethod handle-grain-event-sc ((g grain-event) &key)
+(defmethod handle-grain-event-sc ((g grain-event) timestamp &key)
   (unless (gethash (event-sample-location g) *sc-buffer-directory*)
     (register-sample (event-sample-location g)))
   ;; might save a hashtable access here ... later ...
-  (let ((bufnum (gethash (event-sample-location g) *sc-buffer-directory*))) 
-    (if (> (event-reverb g) 0)
-     (osc:simple-bundle cm::*oscout* 0  
+  (let ((bufnum (gethash (event-sample-location g) *sc-buffer-directory*)))    
+    (if (> (event-reverb g) 0)     
+     (osc:simple-bundle cm::*oscout* (+ timestamp 0.1)  
      "/s_new"	    
      "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
      "grain_2ch_rev" -1 0 1
@@ -26,9 +26,8 @@
      "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
      "r" (coerce (* (event-release g) 0.001) 'float)
      "pos" (coerce (- (event-position g) 0.5) 'float)
-     "rev" (coerce (event-reverb g) 'float)
-     )
-    (osc:simple-bundle cm::*oscout* 0  
+     "rev" (coerce (event-reverb g) 'float))
+    (osc:simple-bundle cm::*oscout* (+ timestamp 0.1)  
      "/s_new"	    
      "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
      "grain_2ch" -1 0 1

@@ -10,7 +10,7 @@
 (defun replace-value (b a) a)
 
 ;; see what we can still do with this ... 
-(defmethod handle-event ((e event) &key))
+(defmethod handle-event ((e event) timestamp &key))
 
 ;; DIRECTLY EVENT-RELEATED OBJECT HANDLING METHODS ...
 (defmethod event-has-slot ((e event) slot &key)
@@ -121,6 +121,7 @@
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
+(in-package :megra)
 (defmacro define-event (&key
 			  short-name
 			  long-name
@@ -195,7 +196,7 @@
        (if ,create-accessors
 	   (progn ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)))
        ;; produce event handler method ...
-       (defmethod handle-event ((evt ,class-name) &key) ,handler)
+       (defmethod handle-event ((evt ,class-name) timestamp &key) ,handler)
        ;; assemble printer method ...              
        (defmethod print-event ((evt ,class-name) &key)
 	 (string-downcase (format nil "(~a ~{~a~}~{~a~}~{~a~}~a~a)"

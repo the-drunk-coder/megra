@@ -253,7 +253,7 @@
   :direct-parameters (sample-folder sample-file)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt))))
+	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt timestamp))))
 
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)

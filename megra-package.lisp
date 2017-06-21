@@ -60,6 +60,11 @@
 
 (defparameter *global-midi-delay* 0.12)
 
+(defparameter *global-osc-delay* 0.08)
+
+;;(defparameter *default-dsp-backend* 'inc)
+(defparameter *default-dsp-backend* 'sc)
+
 ;; load the megra stuff except for dsp ...
 (load "megra-object-handling")
 (load "megra-param-modificators")
@@ -73,5 +78,5 @@
 (load "megra-dispatchers")
 (load "megra-constructors")
 (load "megra-event-filters")
-(load "megra-sc-backend")
+(load "megra-supercollider-interface")
 (load "megra-visualize")

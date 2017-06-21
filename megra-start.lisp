@@ -12,13 +12,15 @@
   (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
   ;; send osc msgs to scsynth ...
   ;;(osc-open-default :host "127.0.0.1" :port 57110 :direction :output )    
-  (defvar *oscout* (osc:open :host "127.0.0.1" :port 57110 :direction :output :latency .2))
+  (defvar *oscout* (osc:open :host "127.0.0.1" :port 57110 :direction :output :latency 0))
   (setf *out* (cm::new cm::incudine-stream))
   (setf *rts-out* *out*)
   ;;(setf (incudine::logger-level) :info)
   (incudine::recv-start *midiin*))
 
-;;(defvar *oscout* (osc:open :host "127.0.0.1" :port 57110 :direction :output :latency .1))
+;;(defvar *oscout* (osc:open :host "127.0.0.1" :port 9801 :direction :output :latency .1))
+
+(osc:close *oscout*)
 
 (incudine:rt-stop)
 ;;(incudine::block-size)
@@ -45,6 +47,4 @@
 
 ;;(ql:update-all-dists)
 
-(defparameter *default-dsp-backend* 'inc)
-;;(defparameter *default-dsp-backend* 'sc)
 

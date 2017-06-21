@@ -2,7 +2,9 @@
 
 ;; simple time-recursive dispatching
 ;; not using local variable binding to reduce consing (??)
-(defun perform-dispatch (proc time)
+(in-package :megra)
+
+(defun perform-dispatch (proc osc-time incudine-time)
   (let ((event-processor (gethash proc *processor-directory*)))    
     (when (and event-processor (is-active event-processor))
       ;; here, the events are produced and handled ...
@@ -11,15 +13,16 @@
 	 ;; don't check if it's active, as only deactivated procs are added to sync list
 	   do (progn
 		(activate synced-proc)
-		(perform-dispatch synced-proc (incudine:now))))
+		(perform-dispatch synced-proc incudine-time)))
 	;; reset all synced processors
 	(setf (synced-processors event-processor) nil))
       ;; handle events from current graph
-      (handle-events (pull-events event-processor))
+      (handle-events (pull-events event-processor) osc-time)
       ;; here, the transition time between events is determinend,
       ;; and the next evaluation is scheduled ...
       (let ((trans-time (transition-duration (car (pull-transition event-processor)))))       
-	(incudine:aat (+ time #[trans-time ms]) #'perform-dispatch proc it)))))
+	(incudine:aat (+ incudine-time #[trans-time ms])
+		      #'perform-dispatch proc (+ osc-time (* trans-time 0.001)) it)))))
 
 (defun perform-dispatch-norepeat (proc time)
   (let ((event-processor (gethash proc *processor-directory*)))    
@@ -40,14 +43,15 @@
       (let* ((trans-time (transition-duration (car (pull-transition event-processor))))
 	     (next (+ time #[trans-time ms])))))))
 
-(defun handle-events (events)
-  (mapc #'handle-event events))
-
+(defun handle-events (events osc-timestamp)
+  (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
+(in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
 		      (when (and ,unique (not ,chain))
-			(detach (gethash (car (last event-processors)) *processor-directory*) event-processors)) 
+			(detach (gethash (car (last event-processors)) *processor-directory*)
+				event-processors)) 
 		      (when (not ,chain)
 			(connect event-processors))		      
 		      (if (and ,sync-to (gethash ,sync-to *processor-directory*))
@@ -62,9 +66,7 @@
 			  ;; create a dispatcher to dispatch it ... 
 			  (unless (is-active (gethash (car event-processors) *processor-directory*))
 			    (activate (car event-processors))
-			    ;; The step dispatching with chain rebuilding each dispatch
-			    ;; is pretty inefficient and only intended for debugging purposes.
-			    ;; If it should become a regular feature, i might need to this concept ... 			             
-			    (incudine:at (incudine:now) #'perform-dispatch (car event-processors) (incudine:now))			    
-			    ))))))
+			    (incudine:at (incudine:now) #'perform-dispatch
+					 (car event-processors)
+					 (incudine:timestamp) (incudine:now))))))))
 
