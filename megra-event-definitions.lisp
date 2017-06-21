@@ -266,7 +266,7 @@
   :long-name harm-event
   :short-name harm
   :parent-events (event)
-  :parameters ((harm event-harmonies 5)) 
+  :parameters ((harm event-harmonies 3)) 
   :direct-parameters (harm))
 
 (define-event
@@ -282,21 +282,9 @@
 		  filter-lp-event	          
 		  reverb-event)
   :direct-parameters (pitch)
-  :handler (scratch::megra-buzz-rev
-	    (if (typep (event-pitch evt) 'symbol)
-		(cm::hertz (event-pitch evt))
-		(event-pitch evt))
-	    (event-level evt)
-	    (event-harmonies evt)	    
-	    (event-lp-freq evt)
-	    (event-lp-q evt)
-	    (event-lp-dist evt)	    
-	    (* (event-attack evt) 0.001)
-	    (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
-	    (* (event-release evt) 0.001)
-	    (event-position evt)
-	    (event-reverb evt)
-	    scratch::*rev-chapel*))
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-buzz-event-incu evt))
+	     (if (member 'sc (event-backends evt)) (handle-buzz-event-sc evt timestamp))))
 
 (define-event
   :long-name sine-event
@@ -310,20 +298,9 @@
 		  filter-lp-event	          
 		  reverb-event)
   :direct-parameters (pitch)
-  :handler (scratch::megra-sine-rev	    
-	    (if (typep (event-pitch evt) 'symbol)
-		(cm::hertz (event-pitch evt))
-		(event-pitch evt))
-	    (event-level evt)	    
-	    (event-lp-freq evt)
-	    (event-lp-q evt)
-	    (event-lp-dist evt)	    
-	    (* (event-attack evt) 0.001)
-	    (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
-	    (* (event-release evt) 0.001)
-	    (event-position evt)
-	    (event-reverb evt)
-	    scratch::*rev-chapel*))
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-sine-event-incu evt))
+	     (if (member 'sc (event-backends evt)) (handle-sine-event-sc evt timestamp))))
 
 (define-event
   :long-name frequency-range-event

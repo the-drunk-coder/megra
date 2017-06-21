@@ -29,14 +29,14 @@
 	       *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*))
 
 (defun free-sample (bufnum)
-  (osc:message "/b_free" "i" bufnum))
+  (osc:message cm::*oscout* "/b_free" "i" bufnum))
 
 (defun free-all-samples ()
   ;; this is so amazing i just have to use it ...
-  (loop for key being the hash-keys of *buffer-directory*
+  (loop for key being the hash-keys of *sc-buffer-directory*
      do (free-sample key))
   ;; clear client-side buffer
-  (setf *buffer-directory* (make-hash-table :test 'eql))
+  (setf *sc-buffer-directory* (make-hash-table :test 'eql))
   (setf *sc-sample-bufnums* 2))
 
 

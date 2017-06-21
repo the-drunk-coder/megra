@@ -44,7 +44,7 @@
 
 ;; load ir data for reverb (contains hardcoded stuff)
 (prepare-ir)
-
+(free-all-samples)
 ;;(ql:update-all-dists)
 
 
