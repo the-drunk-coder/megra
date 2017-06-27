@@ -185,11 +185,61 @@
   :direct-parameters (atk))
 
 (define-event
+  :long-name decay-event
+  :short-name dec
+  :parent-events (event)
+  :parameters ((dec event-decay 20)) 
+  :direct-parameters (dec))
+
+(define-event
+  :long-name sustain-event
+  :short-name sus
+  :parent-events (event)
+  :parameters ((sus event-sustain 50)) 
+  :direct-parameters (sus))
+
+(define-event
   :long-name release-event
   :short-name rel
   :parent-events (event)
   :parameters ((rel event-release 5)) 
   :direct-parameters (rel))
+
+(define-event
+  :long-name pulsewidth-event
+  :short-name pw
+  :parent-events (event)
+  :parameters ((pw event-pulsewidth 5)) 
+  :direct-parameters (pw))
+
+(define-event
+  :long-name level-lfo-event
+  :short-name lvl-lfo
+  :parent-events (event)
+  :parameters ((lvl-lfo-speed event-level-lfo-speed 0.5)
+	       (lvl-lfo-depth event-level-lfo-depth 0.08)) 
+  :direct-parameters (lvl-lfo-speed))
+
+(define-event
+  :long-name mix-event
+  :short-name mix
+  :parent-events (event)
+  :parameters ((mix event-mix 0.2)) 
+  :direct-parameters (mix))
+
+(define-event
+  :long-name velocity-event
+  :short-name vel
+  :parent-events (event)
+  :parameters ((vel event-velocity 0.8)) 
+  :direct-parameters (vel))
+
+(define-event
+  :long-name mod-index-event
+  :short-name mod-idx
+  :parent-events (event)
+  :parameters ((mod-idx event-mod-index 0.3)) 
+  :direct-parameters (mod-idx))
 
 (define-event
   :long-name start-event
@@ -301,6 +351,81 @@
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-sine-event-incu evt))
 	     (if (member 'sc (event-backends evt)) (handle-sine-event-sc evt timestamp))))
+
+(define-event
+  :long-name square-event
+  :short-name sqr
+  :parent-events (level-event
+		  pulsewidth-event		  
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  decay-event
+		  sustain-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt)) (handle-square-event-sc evt timestamp))))
+
+(define-event
+  :long-name meow-event
+  :short-name meow
+  :parent-events (level-event		  
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  decay-event
+		  sustain-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt)) (handle-meow-event-sc evt timestamp))))
+
+(define-event
+  :long-name risset-event
+  :short-name risset
+  :parent-events (level-event		  
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  decay-event
+		  sustain-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt)) (handle-risset-event-sc evt timestamp))))
+
+(define-event
+  :long-name pluck-event
+  :short-name pluck
+  :parent-events (level-event		  
+		  spatial-event
+		  pitch-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt)) (handle-pluck-event-sc evt timestamp))))
+
+(define-event
+  :long-name dx-rhodes-event
+  :short-name dx-rhodes
+  :parent-events (level-event		  
+		  spatial-event
+		  pitch-event
+		  velocity-event
+		  level-lfo-event
+		  mix-event
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt)) (handle-dx-rhodes-event-sc evt timestamp))))
 
 (define-event
   :long-name frequency-range-event
