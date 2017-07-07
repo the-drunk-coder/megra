@@ -60,7 +60,7 @@
 
 (defparameter *global-midi-delay* 0.12)
 
-(defparameter *global-osc-delay* 0.08)
+(defparameter *global-osc-delay* 0.1)
 
 ;;(defparameter *default-dsp-backend* 'inc)
 (defparameter *default-dsp-backend* 'sc)

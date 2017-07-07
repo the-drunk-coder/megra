@@ -595,6 +595,23 @@
 
 (print-graph (gethash 'pitcher *processor-directory*))
 
+
+(graph 'be-there-square ()
+  (node 1 (sqr 'a1 :lvl .8 :atk 400 :dec 200 :sus 1000 :rel 300 :lp-freq 1000
+	       :lp-freq 1000 :lp-lfo-speed 2.5 :lp-lfo-depth 1.0 :lp-q 0.7))
+  (node 2 (sqr 'c1 :lvl .9 :atk 400 :dec 200 :sus 1000 :rel 300 :lp-freq 1000
+	       :lp-freq 1000 :lp-lfo-speed 2.5 :lp-lfo-depth 1.0 :lp-q 0.7))
+  (node 3 (sqr 'e2 :lvl .9 :atk 400 :dec 200 :sus 1000 :rel 300
+	       :lp-freq 1000 :lp-lfo-speed 2.2 :lp-lfo-depth 1.0 :lp-q 0.7))
+  (edge 1 2 :prob 50 :dur 1500)
+  (edge 1 3 :prob 50 :dur 1750)
+  (edge 2 1 :prob 100 :dur 1500)
+  (edge 3 1 :prob 100 :dur 1250))
+
+(dispatch () 'be-there-square)
+(clear)
+
+
 ;; TBD:
 ;; check -- stream modifiers on pmod events ... should be resolved while
 ;; copying, but it's not always the casem as it seems ... 

@@ -216,9 +216,55 @@
   :long-name level-lfo-event
   :short-name lvl-lfo
   :parent-events (event)
-  :parameters ((lvl-lfo-speed event-level-lfo-speed 0.5)
-	       (lvl-lfo-depth event-level-lfo-depth 0.08)) 
+  :parameters ((lvl-lfo-speed event-level-lfo-speed 0.0)
+	       (lvl-lfo-depth event-level-lfo-depth 0.0)
+	       (lvl-lfo-phase event-level-lfo-phase 0.0)) 
   :direct-parameters (lvl-lfo-speed))
+
+(define-event
+  :long-name frequency-lfo-event
+  :short-name freq-lfo
+  :parent-events (event)
+  :parameters ((freq-lfo-speed event-freq-lfo-speed 0.0)
+	       (freq-lfo-depth event-freq-lfo-depth 0.0)
+	       (freq-lfo-phase event-freq-lfo-phase 0.0)) 
+  :direct-parameters (freq-lfo-speed))
+
+(define-event
+  :long-name lowpass-frequency-lfo-event
+  :short-name lp-freq-lfo
+  :parent-events (event)
+  :parameters ((lp-lfo-speed event-lp-lfo-speed 0.0)
+	       (lp-lfo-depth event-lp-lfo-depth 0.0)
+	       (lp-lfo-phase event-lp-lfo-phase 0.0)) 
+  :direct-parameters (lp-lfo-speed))
+
+(define-event
+  :long-name highpass-frequency-lfo-event
+  :short-name hp-freq-lfo
+  :parent-events (event)
+  :parameters ((hp-lfo-speed event-hp-lfo-speed 0.0)
+	       (hp-lfo-depth event-hp-lfo-depth 0.0)
+	       (hp-lfo-phase event-hp-lfo-phase 0.0)) 
+  :direct-parameters (hp-lfo-speed))
+
+(define-event
+  :long-name peak-frequency-lfo-event
+  :short-name peak-freq-lfo
+  :parent-events (event)
+  :parameters ((peak-lfo-speed event-peak-lfo-speed 0.0)
+	       (peak-lfo-depth event-peak-lfo-depth 0.0)
+	       (peak-lfo-phase event-peak-lfo-phase 0.0)) 
+  :direct-parameters (peak-lfo-speed))
+
+(define-event
+  :long-name peak-gain-lfo-event
+  :short-name peak-gain-lfo
+  :parent-events (event)
+  :parameters ((peak-gain-lfo-speed event-peak-gain-lfo-speed 0.0)
+	       (peak-gain-lfo-depth event-peak-gain-lfo-depth 0.0)
+	       (peak-gain-lfo-phase event-peak-gain-lfo-phase 0.0)) 
+  :direct-parameters (peak-gain-lfo-speed))
 
 (define-event
   :long-name mix-event
@@ -356,14 +402,21 @@
   :long-name square-event
   :short-name sqr
   :parent-events (level-event
-		  pulsewidth-event		  
+		  pulsewidth-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+		  filter-hp-event
+		  highpass-frequency-lfo-event
+		  filter-peak-event
+		  peak-frequency-lfo-event
+		  peak-gain-lfo-event
 		  spatial-event
 		  pitch-event
+		  frequency-lfo-event
 		  attack-event
 		  decay-event
 		  sustain-event
-		  release-event		  
-		  filter-lp-event	          
+		  release-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -422,6 +475,7 @@
 		  velocity-event
 		  level-lfo-event
 		  mix-event
+		  mod-index-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
