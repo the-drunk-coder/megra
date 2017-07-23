@@ -23,13 +23,19 @@
 (defmethod events-compatible ((a event) (b event) &key)
   (subsetp (class-slots (class-of a)) (class-slots (class-of b)) :test 'slot-eq))
 
+(defun eval-slot-value (slot-value)
+  (cond ((typep slot-value 'param-mod-object) (evaluate slot-value))
+	((typep slot-value 'function) (funcall slot-value))
+	(t slot-value)))
+
 (defmethod overwrite-slots ((a event) (b event) &key)
   (loop for slot in (class-slots (class-of a))
      do (when (slot-boundp-using-class (class-of b) b slot)
 	  (unless (member (slot-definition-name slot) *protected-slots*)
 	    (setf (slot-value b (slot-definition-name slot))
-		  (funcall (value-combine-function a) (slot-value b (slot-definition-name slot))
-			   (slot-value a (slot-definition-name slot))))))) b)
+		  (funcall (value-combine-function a)
+			   (eval-slot-value (slot-value b (slot-definition-name slot)))
+			   (eval-slot-value (slot-value a (slot-definition-name slot)))))))) b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
   (loop for slot in (class-direct-slots (class-of a))
@@ -48,10 +54,7 @@
 (defun create-accessor (class-name accessor-name param-name)
   `(defgeneric ,accessor-name (,class-name)
     (:method ((,class-name ,class-name))
-      (let ((val (slot-value ,class-name ',param-name)))
-	(cond ((typep val 'param-mod-object) (evaluate val))
-	      ((typep val 'function) (funcall val))
-	      (t val))))))
+      (eval-slot-value (slot-value ,class-name ',param-name)))))
 
 (defun get-param-definition (slot)
   (list

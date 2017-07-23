@@ -9,7 +9,25 @@
 ;; dispatch the graph to make it sound 
 ;; the empty parentheses are the space for additional options
 ;; (which we don't use so far ... )
-(dispatch () 'uno-midi) 
+(dispatch ()
+	  (graph 'duration-generator ()
+		 (node 1 (dur 512))
+		 (node 2 (dur 768 ))
+		 (edge 1 1 :prob 80)
+		 (edge 1 2 :prob 20)
+		 (edge 2 1 :prob 80)
+		 (edge 2 2 :prob 20))
+	  (graph 'pitch-generator ()
+		 (node 1 (pitch 'a2))
+		 (node 2 (pitch 'c3))
+		 (node 3 (pitch 'gs2))
+		 (edge 1 2 :prob 80 :dur 1024)
+		 (edge 1 3 :prob 20 :dur 512)
+		 (edge 2 1 :prob 70 :dur 1024)
+		 (edge 2 2 :prob 30 :dur 1024)
+		 (edge 3 1 :prob 60 :dur 1024)
+		 (edge 3 2 :prob 40 :dur 512))
+	  ) 
 
 (clear)
 ;; deactivate to make it stop
