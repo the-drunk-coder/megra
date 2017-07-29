@@ -58,7 +58,7 @@
 (defparameter *global-azimuth-offset* 0.0)
 (defparameter *global-elevation-offset* 0.0)
 
-(defparameter *global-midi-delay* 0.25)
+(defparameter *global-midi-delay* 0.28)
 
 (defparameter *global-osc-delay* 0.21)
 

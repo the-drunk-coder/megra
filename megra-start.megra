@@ -1,4 +1,5 @@
-(require 'cm)
+;;(require 'cm)
+(require 'cm-incudine)
 (in-package :cm)
 
 ;; initialize -- seems like it has to be like this ...
@@ -35,7 +36,7 @@
 (load "/home/nik/REPOSITORIES/megra/megra-dsp")
 
 ;; now everything should be ready to load the megra package ... 
-(load "/home/nik/REPOSITORIES/megra/megra-package")
+(load "/home/nik/RE22POSITORIES/megra/megra-package")
 
 (in-package :megra)
 
