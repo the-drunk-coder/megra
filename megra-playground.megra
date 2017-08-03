@@ -10,17 +10,17 @@
 ;; the empty parentheses are the space for additional options
 ;; (which we don't use so far ... )
 (dispatch ()
-	  (graph 'duration-generator ()
-		 (node 1 (dur 512))
-		 (node 2 (dur 768 ))
-		 (edge 1 1 :prob 80)
-		 (edge 1 2 :prob 20)
-		 (edge 2 1 :prob 80)
-		 (edge 2 2 :prob 20))
+	  (graph 'duration-generator (:combine-mode 'zip :affect-transition t)
+		 (node 1 (dur 64))
+		 (node 2 (dur 96))
+		 (edge 1 1 :prob 80 :dur 64)
+		 (edge 1 2 :prob 20 :dur 64)
+		 (edge 2 1 :prob 80 :dur 128)
+		 (edge 2 2 :prob 20 :dur 128))
 	  (graph 'pitch-generator ()
-		 (node 1 (pitch 'a2))
-		 (node 2 (pitch 'c3))
-		 (node 3 (pitch 'gs2))
+		 (node 1 (mid 'a2))
+		 (node 2 (mid 'c3))
+		 (node 3 (mid 'gs2))
 		 (edge 1 2 :prob 80 :dur 1024)
 		 (edge 1 3 :prob 20 :dur 512)
 		 (edge 2 1 :prob 70 :dur 1024)
@@ -631,6 +631,10 @@
 
 
 ;; TBD:
+
+;; error message when sync is not viable ? 
+;; total crash ?? how to reproduce ? 
+;; combine mode is not updated ... 
 ;; check -- stream modifiers on pmod events ... should be resolved while
 ;; copying, but it's not always the casem as it seems ... 
 ;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 

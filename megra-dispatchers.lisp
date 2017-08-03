@@ -45,7 +45,7 @@
 
 (defun handle-events (events osc-timestamp)
   (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
-(in-package :megra)
+
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 (defmacro dispatch ((&key (sync-to nil) (unique t) (chain nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		      
@@ -59,9 +59,11 @@
 			  ;; dispatching will be started by the processor this one is synced to 
 			  (progn			    
 			    (deactivate (car event-processors) :del nil)
-			    (setf (synced-processors (gethash ,sync-to *processor-directory*))
-				  (append (synced-processors (gethash ,sync-to *processor-directory*))
-					  (list (car event-processors)))))
+			    ;; add only once ... 
+			    (unless (member ,sync-to (synced-processors (gethash ,sync-to *processor-directory*)))
+			      (setf (synced-processors (gethash ,sync-to *processor-directory*))
+				    (append (synced-processors (gethash ,sync-to *processor-directory*))
+					    (list (car event-processors))))))
 			  ;; if the first event-processor is not active yet,
 			  ;; create a dispatcher to dispatch it ... 
 			  (unless (is-active (gethash (car event-processors) *processor-directory*))
