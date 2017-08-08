@@ -94,8 +94,8 @@
 (graph 'ambi-test ()
   (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
 		 :lvl 0.9 :rate 1.0 :rev 0.0
-		 :azi #'(oscillate-between 0.0 3.14 :cycle 50)
-		 :ele #'(oscillate-between 0.0 3.14 :cycle 60)
+		 :azi #'(stream-oscillate-between 'glubsch 0.0 3.14 :cycle 50)
+		 :ele #'(oscillate-between 'wubsch 0.0 3.14 :cycle 60)
 		 :ambi t))
   (edge 1 1 :prob 100
 	:dur #'()

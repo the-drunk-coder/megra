@@ -140,33 +140,7 @@
 			     :combine-filter #'all-p)))))
 
 ;; build the event processor chain, in the fashion of a douby-linked list ...
-(defun connect (processor-ids)
-  (when (cadr processor-ids)
-    (setf (successor (gethash (car processor-ids) *processor-directory*))
-	  (gethash (cadr processor-ids) *processor-directory*))
-    (setf (predecessor (gethash (cadr processor-ids) *processor-directory*))
-	  (gethash (car processor-ids) *processor-directory*))    
-    (connect (cdr processor-ids))))
 
-;; ensure uniqueness by detaching event processors (will be re-attached if necessary)
-;; and deactivate all those currently not needed ...
-(defun detach (processor current-processor-ids)
-  (when (predecessor processor)
-    (detach (predecessor processor) current-processor-ids)
-    (setf (predecessor processor) nil))
-  (when (successor processor)
-    (setf (successor processor) nil))
-  (when (not (member (name processor) current-processor-ids))
-    (princ (name processor))
-    (deactivate (name processor))))
-
-;; chain events without dispatching ...
-(defmacro chain ((&key (unique t)) &body proc-body)
-  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))
-		      (when ,unique 
-			(detach (gethash (car (last event-processors))
-					 *processor-directory*) event-processors))
-		      (connect event-processors)))))
 
 (defun toggle (proc)
   (if (is-active (gethash proc *processor-directory*))
@@ -233,18 +207,6 @@
       (setf (is-active new-inst) t))
     (setf (gethash name *processor-directory*) new-inst))
   name)
-
-;; deactivate ... if it's a modifying event processor, delete it ... 
-(defun deactivate (event-processor-id &key (del nil))
-  (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
-  ;; this is as un-functional as it gets, but anyway ...
-  (if (and del
-	   (or (typep (gethash event-processor-id *processor-directory*) 'modifying-event-processor)
-	       (typep (gethash event-processor-id *processor-directory*) 'spigot)))
-      (setf (gethash event-processor-id *processor-directory*) nil)))
-
-(defun activate (event-processor-id)
-  (setf (is-active (gethash event-processor-id *processor-directory*)) t))
 
 (defun clear ()
   (setf *processor-directory* (make-hash-table :test 'eql)))

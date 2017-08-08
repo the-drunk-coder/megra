@@ -2,12 +2,11 @@
 (defclass event-processor ()
   ((pull-events)
    (pull-transition)       
-   (active :accessor is-active :initform nil)
    (successor :accessor successor :initform nil)
    (predecessor :accessor predecessor :initform nil)   
    (current-events)      ;; abstract
    (current-transition)  ;; abstract   
-   (synced-processors :accessor synced-processors :initform nil)
+   (chain-bound :accessor chain-bound :initform nil)   
    (name :accessor name :initarg :name)))
 
 (defmethod pull-events ((e event-processor) &key)
@@ -218,17 +217,6 @@
 	(filter-events o events))
   events)
 
-;; special event processor for convenience purposes, to define
-;; a persistent endpoint for a chain, i.e. when constantly modifying
-;; the chain in the development process.
-(defclass spigot (event-processor)
-  ((flow :accessor flow :initarg :flow :initform t)))
-
-(defmethod apply-self ((s spigot) events &key)
-    (if (flow s)
-	events
-	'()))
-(in-package :megra)
 (defclass chance-combine (modifying-event-processor)
   ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
    (combi-chance :accessor combi-chance :initarg :combi-chance)
@@ -259,8 +247,71 @@
 	(filter-events b events))
   events)
 
+(defclass processor-chain (event-processor)
+  ((topmost-processor :accessor topmost-processor :initarg :topmost)
+   (synced-chains :accessor synced-chains :initform nil)
+   (active :accessor is-active :initform nil :initarg :is-active)))
 
+(defun activate (chain-id)
+  (setf (is-active (gethash chain-id *chain-directory*) t))
 
+;; deactivate ... if it's a modifying event processor, delete it ... 
+(defun deactivate (event-processor-id &key (del nil))
+  (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
+  ))
+
+  
+(defmethod pull-events ((p processor-chain) &key)
+  (pull-events (topmost-processor p)))
+
+(defmethod pull-transition ((p processor-chain) &key)
+  (pull-transition (topmost-processor p)))
+
+(defun connect (processor-ids last chain-name &optional (unique t))
+  (let ((current (gethash (car processor-ids) *processor-directory*))
+	(next (gethash (cadr processor-ids) *processor-directory*)))
+    ;; if you try to hook it into a different chain ... 
+    (if (and unique (not (eql (chain-bound current) chain-name)))
+	(progn
+	  (incudine::msg
+	   error
+	   "cannot connect ~D, already bound ..."
+	   (car processor-ids))
+	  ;; revert the work that has been done so far ... 
+	  (detach last))      
+	(when (cadr processor-ids)
+	  ;; if processor already has predecessor, it means that it is already
+	  ;; bound in a chain ... 		
+	  (setf (successor current *processor-directory*) next)
+	  (setf (predecessor next) current)
+	  (setf (chain-bound current) chain-name)
+	  (connect (cdr processor-ids) current chain-name unique))))
+
+  )
+
+(defun detach (processor)
+  (when (predecessor processor)
+    (detach (predecessor processor) current-processor-ids)
+    (setf (predecessor processor) nil))
+  (when (successor processor)
+    (setf (successor processor) nil))
+  (setf (chain-bound processor) nil))
+
+;; chain events without dispatching ...
+(defmacro chain (name (&key (unique t) (activate nil)) &body proc-body)
+  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		    
+		      (connect event-processors ,unique)
+		      ;; assume the chaining went well 
+		      (let ((topmost-proc (gethash
+					   (car (event-processors))
+					   *processor-directory*)))
+			(if (chain-bound topmost-proc)
+			    (setf (gethash ,name *chain-directory*)
+				  (make-instance
+				   'processor-chain
+				   :topmost topmost-proc
+				   :is-active ,activate))
+			    nil))))))
 
 
 

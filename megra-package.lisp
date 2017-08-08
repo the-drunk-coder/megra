@@ -44,6 +44,7 @@
 
 ;; main storage for event processors
 (defparameter *processor-directory* (make-hash-table :test 'eql))
+(defparameter *chain-directory* (make-hash-table :test 'eql))
 
 ;; the default backend for DSP
 ;; 'inc -> incudine
