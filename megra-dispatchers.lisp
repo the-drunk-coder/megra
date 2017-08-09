@@ -5,7 +5,7 @@
 (in-package :megra)
 
 (defun perform-dispatch (chain-id osc-time incudine-time)
-  (let ((chain (gethash chain *chain-directory*)))    
+  (let ((chain (gethash chain-id *chain-directory*)))    
     (when (and chain (is-active chain))
       ;; here, the events are produced and handled ...
       (when (synced-chains chain)
@@ -46,32 +46,37 @@
 (defun handle-events (events osc-timestamp)
   (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
 
+(in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 (defmacro dispatch (name (&key (sync-to nil) (unique t)) &body proc-body)
-  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))
-		      (cond ((and (gethash ,name *chain-directory*) (>= 0 (length event-processors)))
+  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body))
+			  (old-chain (gethash ,name *chain-directory*)))		      		     
+		      ;; first, construct the chain ...
+		      (cond ((and old-chain (>= 0 (length event-processors)))
 			     ;; if chain is active, do nothing, otherwise activate 
 			     (incudine::msg info "chain ~D already present, handling it ..." ,name))			    
-			    ((and (gethash ,name *chain-directory*) (< 0 (length event-processors)))
+			    ((and old-chain (< 0 (length event-processors)))
+			     (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
 			     ;; rebuild chain, activate
-			     (unless (chain ,name ,@proc-body)
-			       (incudine::msg error "couldn't rebuild chain ~D" ,name)
-			       (return)))	       	     
+			     (unless (chain ,name (:activate (is-active old-chain)) ,@proc-body)
+			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain))))	       	     
 			    ((>= 0 (length event-processors))
 			     ;; if there's no chain present under this name, and no material to build one,
 			     ;; it's an error condition ...
 			     (incudine::msg error "cannot build chain ~D from nothing ..." ,name))
 			    ((< 0 (length event-processors))
+			     (incudine::msg info "new chain ~D, building it ..." ,name)
 			     ;; build chain, activate
-			     (unless (chain ,name ,@proc-body)
-			       (incudine::msg error "couldn't build chain ~D" ,name)
-			       (return)))))
+			     (unless (chain ,name () ,@proc-body)
+			       (incudine::msg error "couldn't build chain ~D" ,name)))
+			    (t (incudine::msg error "invalid state"))))
+		 (incudine::msg info "built chain ~D" ,name)
 		 ;; if we've reached this point, we should have a valid chain, or left the function ...
 		 (let ((chain (gethash ,name *chain-directory*)))
 		   (when (and ,sync-to (gethash ,sync-to *chain-directory*))
 		       (deactivate ,name)
 		       (unless (member ,sync-to (synced-chains (gethash ,sync-to *chain-directory*)))
-			      (setf (synced-processors (gethash ,sync-to *chain-directory*))
+			      (setf (synced-chains (gethash ,sync-to *chain-directory*))
 				    (append (synced-chains (gethash ,sync-to *chain-directory*))
 					    (list ,name))))
 		       ;; nothing more to to, syncing chain will start this one ..

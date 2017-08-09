@@ -9,7 +9,7 @@
 ;; dispatch the graph to make it sound 
 ;; the empty parentheses are the space for additional options
 ;; (which we don't use so far ... )
-(dispatch ()
+(dispatch 'd1 ()
 	  (graph 'duration-generator (:combine-mode 'zip :affect-transition t)
 		 (node 1 (dur 64))
 		 (node 2 (dur 96))
@@ -53,11 +53,11 @@
        (edge 2 1 :prob 100 :dur 400))
 
 (clear)
-(dispatch () 'dos-midi)
+(dispatch 'd1 () 'dos-midi)
 
 ;; sync dispatching, will be performed when the graph specified
 ;; as sync-to is dispatched
-(dispatch (:sync-to 'dos-midi) 'uno-midi-synced)
+(sink 's1 (:sync-to 'dos-midi) 'uno-midi-synced)
 
 (deactivate 'dos-midi)
 (deactivate 'uno-midi-synced)
@@ -67,7 +67,7 @@
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
 ;; in any case, the last graph in the chain determines the timing
-(dispatch ()
+(sink 's1 ()
   'uno-midi
   'dos-midi)
 
@@ -80,7 +80,7 @@
 		 :ambi-p nil :backend '(sc)))
        (edge 1 1 :prob 100 :dur 512))
 
-(dispatch (:sync-to 'the-512-beat)
+(dispatch 'd1 (:sync-to 'the-512-beat)
   ;;(chance-combine 'grain-lvl-cc 0 (lvl 0.0))
   'the-grain)
 
@@ -101,8 +101,7 @@
 	:dur #'()
 	))
 
-(dispatch ()
-  (spigot 'ambi-tap-512 :flow t)
+(dispatch 'd1 ()  
   (oscillate-between 'osc-azi 'azi 0.0 3.14 :cycle 50)
   (oscillate-between 'osc-ele 'ele 0.0 3.14 :cycle 20)
   'ambi-test)
@@ -138,10 +137,9 @@
 (defun is-snare-p (event)
   (member 'snare (event-tags event)))
 
-(dispatch () 'the-grain)
+(sink 's1 () 'the-grain)
 
-(dispatch ()
-  (spigot 'tap-512 :flow t)
+(sink 's1 ()  
   (chance-combine 'grain-lvl-cc 0 (lvl 0.0):filter #'is-snare-p)
   (stream-oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
   'the-512-beat)
@@ -157,25 +155,21 @@
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 100))
 
-(dispatch ()
-  (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
+(sink 's1 ()
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
   (oscillate-between 'tres-osc 'lvl 0.1 0.9 :cycle 100)
   'tres-midi)
 
-;; i'd recommend using a spigot when experiment with the chains, to provide
-;; a persistent outlet ... otherwise you might get strange effects ...
 ;; try uncommenting the elements ...
 ;; if you set the :flow parameter to nil, dispatching will also stop, but the
 ;; dispatcher will keep trying to pull (in contrast to deactivating)
-(dispatch ()
-  (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
+(sink 's1 ()  
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
   (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
   'tres-midi)
 
 ;; hook an event modifier into the chain ...
-(dispatch ()
+(sink 's1 ()
  'tres-midi
  (brownian-motion 'tres-rw 'pitch :step-size 5 :ubound 84 :lbound 50 :wrap t)
  'uno-midi)
@@ -194,12 +188,11 @@
   (node 1 (ctrl #'(lambda () (pset 'tres-rw 'step-size (random 10)))))
   (edge 1 1 :prob 100 :dur 5000))
 
-(dispatch ()
-  (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
+(sink 's1 ()  
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
   'tres-midi)
 
-(dispatch ()
+(sink 's1 ()
   'tres-ctrl)
 
 (deactivate 'tres-ctrl)
@@ -216,18 +209,15 @@
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 100))
 
-(dispatch ()
-  (spigot 'tap-a :flow t) ;; spigot helps in the development process ... 
+(sink 's1 ()  
   'tres-midi)
 
-(dispatch ()
-  (spigot 'tap-b :flow t) ;; spigot helps in the development process ... 
+(sink 's1 ()
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)
   (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
   'tres-midi)
 
-(dispatch ()
-  (spigot 'tap-c :flow t) ;; spigot helps in the development process ... 
+(sink 's1 ()  
   'tres-midi)
 
 ;; 2.) non-unique
@@ -241,13 +231,11 @@
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 200))
 
-(dispatch (:unique nil)
-  (spigot 'tap-d :flow t) ;; spigot helps in the development process ... 
+(sink 's1 (:unique nil)  
   (brownian-motion 'tres-rw 'pitch :step-size 1 :lbound 50 :ubound 60 :wrap t)
   'tres-midi)
 
-(dispatch (:unique nil)
-    (spigot 'tap-g :flow t) ;; spigot helps in the development process ... 
+(sink 's1 (:unique nil)    
     ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
     'tres-midi)
 
@@ -259,15 +247,12 @@
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 200))
 
-(chain ()     
-   (spigot 'tap-b :flow t)
+(chain 's1 ()        
    (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
    (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
    'tres-midi)
 
-;; just remember to set the :chain flag, otherwise your chain will get disconnected ...
-(dispatch (:chain t)
-	  'tap-b)
+(sink 's1 ())
 
 (deactivate 'tap-b)
 
@@ -283,8 +268,7 @@
 (defun has-blue-tag-p (event)
   (member 'blue (event-tags event)))
 
-(dispatch ()
-  (spigot 'tap-fil :flow t)
+(sink 's1 ()  
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84
 		   :lbound 50 :wrap t :filter #'has-red-tag-p)  
   'tres-midi)
@@ -292,47 +276,41 @@
 ;; CONDUCTOR GRAPHS -  create graph-based scores by dispatching chains with a conductor graph
 (clear)
 
-(chain ()     
-   (spigot 'tap-x :flow t)   
+(chain 'c1 ()     
    (graph 'x-midi ()
        (node 1 (mid 84 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 200)))
 
 
-(chain ()     
-   (spigot 'tap-y :flow t)   
+(chain 'c2 ()        
    (graph 'y-midi ()
        (node 1 (mid 85 :lvl .9 :dur 50))
        (edge 1 1 :prob 100 :dur 400)))
 
 ;; in this case, don't delete the spigot, as the graph doesn't recreate the chain ...
 (graph 'xy-ctrl ()
-  (node 1 (ctrl #'(lambda () (dispatch (:chain t) 'tap-x))))
-  (node 2 (ctrl #'(lambda () (dispatch (:chain t) 'tap-y))))
-  (node 3 (ctrl #'(lambda () (deactivate 'tap-x :del nil))))
-  (node 4 (ctrl #'(lambda () (deactivate 'tap-y :del nil))))
+  (node 1 (ctrl #'(lambda () (sink 'c1 ()))))
+  (node 2 (ctrl #'(lambda () (sink 'c2 ()))))
+  (node 3 (ctrl #'(lambda () (deactivate 'c1 :del nil))))
+  (node 4 (ctrl #'(lambda () (deactivate 'c2 :del nil))))
   (edge 1 2 :prob 100 :dur 4000)
   (edge 2 3 :prob 100 :dur 4000)
   (edge 3 4 :prob 100 :dur 4000)
   (edge 4 1 :prob 100 :dur 4000))
 
-(dispatch () 'xy-ctrl)
+(sink 's1 ())
 
-(deactivate 'xy-ctrl)
+(deactivate 's1)
 
 ;; incrementally build events ...
 ;; might be understood as a generalization of the
 ;; serialist paradigm
-
-
-
 (clear)
 
 (all-p (car (edge-content (edge 1 2 :prob 40))))
 
 ;; this is a nice one ...
-(dispatch ()
-  (spigot 'tap-inc :flow t)
+(sink 's1 ()  
   ;;(oscillate-between 'dur-osc 'dur 150 400 :cycle 200 :affect-transition t)
   (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 32))
@@ -376,8 +354,7 @@
 (clear)
 
 ;; this is a nice one ...
-(dispatch ()
-  (spigot 'tap-inc :flow t)  
+(sink 's1 ()  
   (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 32))
     (node 2 (pitch 52))
@@ -392,8 +369,7 @@
     (edge 2 1 :prob 100 :dur 1000)))
 
 ;; another variant, with different value combi functions ...
-(dispatch ()
-  (spigot 'tap-inc :flow t)  
+(sink 's1 ()
   (graph 'pitcher (:combine-mode 'zip)
     (node 1 (pitch 10 :combi-fun #'-))
     (node 2 (pitch 30 :combi-fun #'-))
@@ -406,15 +382,13 @@
     (edge 1 1 :prob 100 :dur 1000)))
 
 
-(dispatch ()
-  (spigot 'tap-inc-s :flow t)  
+(sink 's1 ()
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (sine 50 :lvl 1.0 :lp-dist 1.0 :lp-freq 150 :lp-q 0.8 :rev 0.0 :atk 4 :rel 400 :dur 500))
     (edge 1 1 :prob 100 :dur 1000)))
 
 
-(dispatch ()
-  (spigot 'tap-inc :flow t)  
+(sink 's1 ()
   (graph 'origin-2 () ;; for now, origin event needs to have handler ...
     (node 1 (buzz 30 :lvl 1.0 :lp-dist 0.9 :lp-freq 200 :lp-q 0.5 :rev 0.0 :atk 3 :rel 490 :dur 500))
     (edge 1 1 :prob 100 :dur 2300)))
@@ -447,12 +421,12 @@
        (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
        (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
 
-(dispatch ()
+(sink 's1 ()
   'all-to-all)
 
 
 ;; chiptune ftw ---
-(dispatch ()
+(sink 's1 ()
   (graph 'gb2-cc-sh ()
     (node 1 (gb2-shape 30))
     (edge 1 1 :dur 1000 :prob 100))
@@ -509,12 +483,12 @@
   (node 1 (mid 60 :lvl .8 :dur 1000))
   (edge 1 1 :prob 20 :dur 20))
 
-(dispatch () 'check-midi-note-off)
+(sink 's1 () 'check-midi-note-off)
 
 (clear)
 
 ;; it's possible to define modifications directly on the parameters 
-(dispatch ()
+(sink 's1 ()
   (graph 'origin () 
     (node 1 (mid (brownian :start 60 :lower 40 :upper 70)
 		 :lvl (oscil 0.0 1.0 :cycle 100)
@@ -527,7 +501,7 @@
        (node 1 (gendy 100 900))
        (edge 1 1 :prob 100 :dur 300))
 
-(dispatch () 'gengen)
+(sink 's1 () 'gengen)
 
 (mapcar #'(lambda (valla vallb) (+ valla vallb)) '(2 1 1) '(1 1 ))
 
@@ -577,7 +551,7 @@
 
 (graph->code 'blab "/home/nik/brup.lisp")
 
-(dispatch () 'blab)
+(sink 's1 () 'blab)
 
 (clear)
 
@@ -613,7 +587,6 @@
 
 (print-graph (gethash 'pitcher *processor-directory*))
 
-
 (graph 'be-there-square ()
   (node 1 (sqr 'a1 :lvl .8 :atk 400 :dec 200 :sus 1000 :rel 300 :lp-freq 1000
 	       :lp-freq 1000 :lp-lfo-speed 2.5 :lp-lfo-depth 1.0 :lp-q 0.7))
@@ -626,7 +599,7 @@
   (edge 2 1 :prob 100 :dur 1500)
   (edge 3 1 :prob 100 :dur 1250))
 
-(dispatch () 'be-there-square)
+(sink 's1 () 'be-there-square)
 (clear)
 
 
@@ -750,20 +723,16 @@
 
 
 
-(dispatch ()
-  (spigot 'footwork-tap :flow t)   
+(sink 's1 ()  
   'footwork-bd)
 
-
-(dispatch (:sync-to 'footwork-tap)
-  (spigot 'footwork-sn-tap :flow t)   
+(sink 's1 (:sync-to 'footwork-tap)  
   'footwork-sn)
 
 
 (clear)
 
-(dispatch ()
-  (spigot 'tada-tap :flow t)
+(sink 's1 ()  
   (brownian-motion 'start-b 'start :step-size 0.001 :ubound 0.001 :lbound 0.8 :wrap t)
   (oscillate-between 'lp-freq-c 'lp-freq 100 8000 :cycle 1000)
   (oscillate-between 'q-c 'lp-q 0.1 1.0 :cycle 50)

@@ -140,12 +140,10 @@
 			     :combine-filter #'all-p)))))
 
 ;; build the event processor chain, in the fashion of a douby-linked list ...
-
-
-(defun toggle (proc)
-  (if (is-active (gethash proc *processor-directory*))
-      (deactivate proc :del nil)
-      (dispatch (:chain t) proc)))
+;;(defun toggle (proc)
+;;  (if (is-active (gethash proc *processor-directory*))
+;;      (deactivate proc :del nil)
+;;      (dispatch (:chain t) proc)))
 
 ;; modifying ... always check if the modifier is already present !
 (defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
@@ -159,9 +157,10 @@
 				 :is-wrapped wrap
 				 :track-state track-state
 				 :affect-transition affect-transition
-				 :event-filter filter)))    
-    (when (gethash name *processor-directory*)
-      (setf (is-active new-inst) t)
+				 :event-filter filter))
+	(old-inst (gethash name *processor-directory*)))    
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst))
       (when keep-state
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
     (setf (gethash name *processor-directory*) new-inst))
@@ -177,20 +176,14 @@
 				 :lower lower-boundary
 				 :track-state track-state
 				 :affect-transition affect-transition
-				 :event-filter filter)))
+				 :event-filter filter))
+	(old-inst (gethash name *processor-directory*)))
     ;; if a current instance is replaced ...
-    (when (gethash name *processor-directory*)
-      (setf (is-active new-inst) t)
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst))
       (when keep-state
 	(setf (pmod-step new-inst) (pmod-step (gethash name *processor-directory*)))
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
-    (setf (gethash name *processor-directory*) new-inst))
-  name)
-
-(defun spigot (name &key flow)
-  (let ((new-inst (make-instance 'spigot :flow flow :name name)))
-    (when (gethash name *processor-directory*)
-      (setf (is-active new-inst) t))
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
@@ -202,18 +195,22 @@
 				 :track-state nil
 				 :mod-prop nil
 				 :affect-transition affect-transition
-				 :event-filter filter)))
-    (when (gethash name *processor-directory*)
-      (setf (is-active new-inst) t))
+				 :event-filter filter))
+	(old-inst (gethash name *processor-directory*)))
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst)))
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
+(in-package :megra)
+
 (defun clear ()
-  (setf *processor-directory* (make-hash-table :test 'eql)))
+  (setf *processor-directory* (make-hash-table :test 'eql))
+  (setf *chain-directory* (make-hash-table :test 'eql)))
 
 (defun stop ()
-  (loop for proc being the hash-keys of *processor-directory*
-     do (deactivate proc)))
+  (loop for chain being the hash-keys of *chain-directory*
+     do (deactivate chain)))
 
 
 ;; convenience functions to set params in some object ...

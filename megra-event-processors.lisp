@@ -252,26 +252,30 @@
    (synced-chains :accessor synced-chains :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)))
 
+(in-package :megra)
 (defun activate (chain-id)
-  (setf (is-active (gethash chain-id *chain-directory*) t))
+  (incudine::msg info "activating ~D" chain-id)
+  (setf (is-active (gethash chain-id *chain-directory*)) t))
 
 ;; deactivate ... if it's a modifying event processor, delete it ... 
-(defun deactivate (event-processor-id &key (del nil))
-  (setf (is-active (gethash event-processor-id *processor-directory*)) nil)
-  ))
+(defun deactivate (chain-id &key (del nil))
+  (setf (is-active (gethash chain-id *chain-directory*)) nil))
 
-  
 (defmethod pull-events ((p processor-chain) &key)
   (pull-events (topmost-processor p)))
 
 (defmethod pull-transition ((p processor-chain) &key)
   (pull-transition (topmost-processor p)))
 
-(defun connect (processor-ids last chain-name &optional (unique t))
+(in-package :megra)
+(defun connect (processor-ids last chain-name unique)
   (let ((current (gethash (car processor-ids) *processor-directory*))
-	(next (gethash (cadr processor-ids) *processor-directory*)))
+	(next (gethash (cadr processor-ids) *processor-directory*))
+	(last (gethash last *processor-directory*)))
     ;; if you try to hook it into a different chain ... 
-    (if (and unique (not (eql (chain-bound current) chain-name)))
+    (if (and unique
+	     (chain-bound current)
+	     (not (eql (chain-bound current) chain-name)))
 	(progn
 	  (incudine::msg
 	   error
@@ -282,12 +286,10 @@
 	(when (cadr processor-ids)
 	  ;; if processor already has predecessor, it means that it is already
 	  ;; bound in a chain ... 		
-	  (setf (successor current *processor-directory*) next)
+	  (setf (successor current) next)
 	  (setf (predecessor next) current)
 	  (setf (chain-bound current) chain-name)
-	  (connect (cdr processor-ids) current chain-name unique))))
-
-  )
+	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))))
 
 (defun detach (processor)
   (when (predecessor processor)
@@ -298,12 +300,13 @@
   (setf (chain-bound processor) nil))
 
 ;; chain events without dispatching ...
+(in-package :megra)
 (defmacro chain (name (&key (unique t) (activate nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		    
-		      (connect event-processors ,unique)
+		      (connect event-processors nil ,name ,unique)
 		      ;; assume the chaining went well 
 		      (let ((topmost-proc (gethash
-					   (car (event-processors))
+					   (car event-processors)
 					   *processor-directory*)))
 			(if (chain-bound topmost-proc)
 			    (setf (gethash ,name *chain-directory*)
@@ -311,7 +314,7 @@
 				   'processor-chain
 				   :topmost topmost-proc
 				   :is-active ,activate))
-			    nil))))))
+			    (incudine::msg error "chain-building went wrong, seemingly ...")))))))
 
 
 
