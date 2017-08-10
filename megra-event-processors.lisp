@@ -7,7 +7,9 @@
    (current-events)      ;; abstract
    (current-transition)  ;; abstract   
    (chain-bound :accessor chain-bound :initform nil)   
-   (name :accessor name :initarg :name)))
+   (name :accessor name :initarg :name)
+   (clones :accessor clones :initform nil)
+   (update-close :accessor update-clones :initarg :update-clones :initform nil)))
 
 (defmethod pull-events ((e event-processor) &key)
   (if (successor e)

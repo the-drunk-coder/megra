@@ -17,15 +17,26 @@
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
 
 ;; shorthand for edge
-(defun e (src dest &key prob (dur 512))
-  (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
+(defun e (src dest &key p (d 512))
+  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
+
+;; this is very similar to the copy-instance method for events,
+;; there's just nothing evaluated ... 
+(defmethod clone-instance (object)
+   (let ((copy (allocate-instance (class-of object))))
+     (loop for slot in (class-slots (class-of object))
+	do (when (slot-boundp-using-class (class-of object) object slot)
+	     (setf (slot-value copy (slot-definition-name slot))	   		   
+		   (slot-value object (slot-definition-name slot)))))
+     copy))
 
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
 (defmacro graph (name (&key (perma nil) (combine-mode ''append)
 			    (affect-transition nil)
-			    (combine-filter #'all-p)) &body graphdata)
+			    (combine-filter #'all-p)
+			    (update-clones t)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
 		      (mapc #'(lambda (obj)
@@ -33,13 +44,31 @@
 				      ((typep obj 'node) (insert-node new-graph obj))))
 			    (list ,@graphdata))
 		      (if (gethash ,name *processor-directory*)
-			  (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
+			  ;; update existing instance
+			  (let ((cur-instance (gethash ,name *processor-directory*)))
+			    (setf (source-graph cur-instance) new-graph)
+			    (setf (affect-transition cur-instance) ,affect-transition)
+			    (setf (combine-mode cur-instance) ,combine-mode)
+			    (setf (combine-filter cur-instance) ,combine-filter)
+			    (setf (update-clones cur-instance) ,update-clones)
+			    (setf (copy-events cur-instance) (not ,perma))
+			    (when ,update-clones
+			      (mapc #'(lambda (proc-id)
+					(let ((my-clone (gethash proc-id *processor-directory*)))
+					  (setf (source-graph my-clone) (clone-instance new-graph))
+					  (setf (affect-transition my-clone) ,affect-transition)
+					  (setf (combine-mode my-clone) ,combine-mode)
+					  (setf (combine-filter my-clone) ,combine-filter)
+					  (setf (update-clones my-clone) ,update-clones)
+					  (setf (copy-events my-clone) (not ,perma))))
+					(clones cur-instance))))			    
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
 					       :graph new-graph :copy-events (not ,perma)
 					       :current-node 1 :combine-mode ,combine-mode
 					       :affect-transition ,affect-transition
-					       :combine-filter ,combine-filter))))
+					       :combine-filter ,combine-filter
+					       :update-clones ,update-clones))))
 		 ,name)))
 
 ;;  shorthand for graph
@@ -300,3 +329,18 @@
 						   "-Goverlap=scalexy -Gnodesep=0.6 -Gstart=0.5")))
 	((eq renderer 'twopi)
 	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
+
+(in-package :megra)
+(defun clone (original-id clone-id)
+  (let ((original (gethash original-id *processor-directory*)))
+    (when original
+      (let* ((clone (clone-instance original))
+	     (graph-clone (clone-instance (source-graph original))))
+	(setf (graph-id graph-clone) clone-id)
+	(setf (name clone) clone-id)
+	(setf (chain-bound clone) nil)
+	(setf (source-graph clone) graph-clone)
+	(setf (gethash clone-id *processor-directory*) clone))
+      (unless (member clone-id (clones original))
+	(setf (clones original) (append (clones original) (list clone-id))))
+      clone-id)))

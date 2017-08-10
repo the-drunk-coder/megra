@@ -29,6 +29,52 @@
 		 (edge 3 2 :prob 40 :dur 512))
 	  ) 
 
+
+
+
+(clone 'dur-gen 'dur-gen-2)
+
+(pring 'dur-gen-2)
+
+;; BUG: first dispatch d1, then d2, then d1 again
+;; expected: second dispatch has no effect, as pitch-generator
+;; is already bound ...
+(sink 'd1 ()
+	  (g 'dur-gen (:combine-mode 'zip :affect-transition t)
+		 (n 1 (dur 64))
+		 (n 2 (dur 96))
+		 (e 1 1 :p 80 :d 64)
+		 (e 1 2 :p 20 :d 640)
+		 (e 2 1 :p 80 :d 1280)
+		 (e 2 2 :p 20 :d 128))
+	  (g 'pitch-generator ()
+		 (n 1 (mid 'a2))
+		 (n 2 (mid 'c3))
+		 (n 3 (mid 'gs2))
+		 (e 1 2 :p 80 :d 1024)
+		 (e 1 3 :p 20 :d 512)
+		 (e 2 1 :p 70 :d 1024)
+		 (e 2 2 :p 30 :d 1024)
+		 (e 3 1 :p 60 :d 1024)
+		 (e 3 2 :p 40 :d 512))) 
+
+
+(dispatch 'd2 ()
+	  (clone 'dur-gen 'dur-gen-2)
+	  (graph 'pitch-generator ()
+		 (node 1 (mid 'a4))
+		 (node 2 (mid 'c4))
+		 (node 3 (mid 'gs4))
+		 (edge 1 2 :prob 80 :dur 1024)
+		 (edge 1 3 :prob 20 :dur 512)
+		 (edge 2 1 :prob 70 :dur 1024)
+		 (edge 2 2 :prob 30 :dur 1024)
+		 (edge 3 1 :prob 60 :dur 1024)
+		 (edge 3 2 :prob 40 :dur 512))) 
+
+
+
+
 (clear)
 ;; deactivate to make it stop
 (deactivate 'uno-midi)
@@ -607,10 +653,9 @@
 
 
 ;; TBD:
-
+;; fix stopping bug ...
 ;; error message when sync is not viable ? 
 ;; total crash ?? how to reproduce ? 
-;; combine mode is not updated ... 
 ;; check -- stream modifiers on pmod events ... should be resolved while
 ;; copying, but it's not always the casem as it seems ... 
 ;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
@@ -620,7 +665,6 @@
 ;;    to use a duratoin or level graph with more than one source ... thus,
 ;;    there need to be either a change in the representation, or some cloning function,
 ;;    like, (clone 'pitcher) ...
- 
 ;; symbols as values, resolve at render time ??
 ;; live-visualizer
 ;; yasnippets 
@@ -656,6 +700,7 @@
 ;; more vugs
 
 ;; DONE:
+;; combine mode is not updated ... 
 ;; got rid of spigot 
 ;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
 ;;     especially interesting if step dispatching becomes more than a debugging feature ...
