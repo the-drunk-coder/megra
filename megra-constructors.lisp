@@ -20,7 +20,6 @@
 (defun e (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
 
-
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
@@ -223,10 +222,12 @@
   (setf *processor-directory* (make-hash-table :test 'eql))
   (setf *chain-directory* (make-hash-table :test 'eql)))
 
-(defun stop ()
-  (loop for chain being the hash-keys of *chain-directory*
-     do (deactivate chain)))
-
+(in-package :megra)
+(defun stop (&rest chains)
+  (if (<= (length chains) 0)
+   (loop for chain being the hash-keys of *chain-directory*
+      do (deactivate chain))
+   (mapc #'deactivate chains)))
 
 ;; convenience functions to set params in some object ...
 (defun pset (object param value)
