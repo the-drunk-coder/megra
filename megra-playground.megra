@@ -41,10 +41,10 @@
        (node 1 (mid 59 :lvl .8 :dur 1500))
        (node 2 (mid 73 :lvl .9 :dur 1500))
        (node 3 (mid 78 :lvl .9 :dur 350))
-       (edge 1 2 :prob 50 :dur 1500)
-       (edge 1 3 :prob 50 :dur 1750)
-       (edge 2 1 :prob 100 :dur 1500)
-       (edge 3 1 :prob 100 :dur 1250))
+       (edge 1 2 :prob 50 :dur 5500)
+       (edge 1 3 :prob 50 :dur 6750)
+       (edge 2 1 :prob 100 :dur 5500)
+       (edge 3 1 :prob 100 :dur 6250))
 
 (graph 'uno-midi-synced ()
        (node 1 (mid 65 :lvl .8 :dur 200))
@@ -52,12 +52,15 @@
        (edge 1 2 :prob 100 :dur 400)
        (edge 2 1 :prob 100 :dur 400))
 
-(clear)
-(dispatch 'd1 () 'dos-midi)
 
+(dispatch 'd1 ()
+  'dos-midi)
+
+
+(clear)
 ;; sync dispatching, will be performed when the graph specified
 ;; as sync-to is dispatched
-(sink 's1 (:sync-to 'dos-midi) 'uno-midi-synced)
+(dispatch 'd2 (:sync-to 'd1) 'uno-midi-synced)
 
 (deactivate 'dos-midi)
 (deactivate 'uno-midi-synced)

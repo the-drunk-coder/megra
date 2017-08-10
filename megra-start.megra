@@ -16,8 +16,10 @@
   (defvar *oscout* (osc:open :host "127.0.0.1" :port 57110 :direction :output :latency 0))
   (setf *out* (cm::new cm::incudine-stream))
   (setf *rts-out* *out*)
-  ;;(setf (incudine::logger-level) :info)
+  (setf (incudine::logger-level) :info)
   (incudine::recv-start *midiin*))
+
+(setf (incudine::logger-level) :info)
 
 ;;(defvar *oscout* (osc:open :host "127.0.0.1" :port 9801 :direction :output :latency .1))
 

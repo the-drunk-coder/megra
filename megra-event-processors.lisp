@@ -287,9 +287,9 @@
 	  ;; if processor already has predecessor, it means that it is already
 	  ;; bound in a chain ... 		
 	  (setf (successor current) next)
-	  (setf (predecessor next) current)
-	  (setf (chain-bound current) chain-name)
-	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))))
+	  (setf (predecessor next) current)	  
+	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))
+    (setf (chain-bound current) chain-name)))
 
 (defun detach (processor)
   (when (predecessor processor)

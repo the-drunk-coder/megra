@@ -73,20 +73,22 @@
 		 (incudine::msg info "built chain ~D" ,name)
 		 ;; if we've reached this point, we should have a valid chain, or left the function ...
 		 (let ((chain (gethash ,name *chain-directory*)))
-		   (when (and ,sync-to (gethash ,sync-to *chain-directory*))
-		       (deactivate ,name)
-		       (unless (member ,sync-to (synced-chains (gethash ,sync-to *chain-directory*)))
-			      (setf (synced-chains (gethash ,sync-to *chain-directory*))
-				    (append (synced-chains (gethash ,sync-to *chain-directory*))
-					    (list ,name))))
-		       ;; nothing more to to, syncing chain will start this one ..
-		       (return))
-		   ;; when the chain is not active yet, activate ... 
-		   (unless (is-active chain)
-			    (activate ,name)
-			    (incudine:at (incudine:now) #'perform-dispatch
-					 ,name
-					 (incudine:timestamp) (incudine:now)))))))
+		   (if (and ,sync-to (gethash ,sync-to *chain-directory*))
+		       (progn			 
+			 (deactivate ,name)
+			 (unless (member ,name (synced-chains (gethash ,sync-to *chain-directory*)))
+			   (incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" ,name ,sync-to ,name ,sync-to)
+			   (setf (synced-chains (gethash ,sync-to *chain-directory*))
+				 (append (synced-chains (gethash ,sync-to *chain-directory*))
+					 (list ,name)))))
+		       (unless (is-active chain)
+			 (activate ,name)
+			 (incudine:at (incudine:now) #'perform-dispatch
+				      ,name
+				      (incudine:timestamp) (incudine:now)))
+		       )
+		   
+		   ))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
