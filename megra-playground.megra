@@ -620,8 +620,7 @@
 ;;    to use a duratoin or level graph with more than one source ... thus,
 ;;    there need to be either a change in the representation, or some cloning function,
 ;;    like, (clone 'pitcher) ...
-;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
-;;     especially interesting if step dispatching becomes more than a debugging feature ... 
+ 
 ;; symbols as values, resolve at render time ??
 ;; live-visualizer
 ;; yasnippets 
@@ -631,6 +630,7 @@
 ;; ambisonics panner - sc
 ;; note names 
 ;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
+;;     -> important only or programmatic control, live you can just comment them out ... 
 ;; arranging modifiers in graphs ...
 ;; 'funnel event combnation mode
 ;; 'all event combination mode 
@@ -656,6 +656,10 @@
 ;; more vugs
 
 ;; DONE:
+;; got rid of spigot 
+;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
+;;     especially interesting if step dispatching becomes more than a debugging feature ...
+;;  --> now a chain is active, 
 ;; combine transitions
 ;; functions as parameters ... 
 ;; only encourage/discourage processors that are active or in a chain ...

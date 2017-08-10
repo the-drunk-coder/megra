@@ -3,11 +3,23 @@
 (defun node (id &rest content)
   (make-instance 'node :id id :content content :color 'white))
 
+;; shorthand for node 
+(defun n (id &rest content)
+  (make-instance 'node :id id :content content :color 'white))
+
 (defmacro node-col (id (&key (col ''white)) &body content)
   `(make-instance 'node :id ,id :content (list ,@content) :color ,col))
 
+;; shorthand for node-col
+(setf (macro-function 'n-c) (macro-function 'node-col))
+
 (defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
+
+;; shorthand for edge
+(defun e (src dest &key prob (dur 512))
+  (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
+
 
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
@@ -30,6 +42,9 @@
 					       :affect-transition ,affect-transition
 					       :combine-filter ,combine-filter))))
 		 ,name)))
+
+;;  shorthand for graph
+(setf (macro-function 'g) (macro-function 'graph))
 
 ;; replace the content (or parts of the content) of a graph ...
 (defun graph-replace (name new-content)
