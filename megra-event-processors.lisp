@@ -276,16 +276,17 @@
 	(last (gethash last *processor-directory*)))
     ;; if you try to hook it into a different chain ... 
     (if (and unique
-	     (chain-bound current)
-	     (not (eql (chain-bound current) chain-name)))
+	     next 
+	     (chain-bound next)
+	     (not (eql (chain-bound next) chain-name)))
 	(progn
 	  (incudine::msg
 	   error
-	   "cannot connect ~D, already bound ..."
-	   (car processor-ids))
+	   "cannot connect to ~D, already bound ..."
+	   (cadr processor-ids))
 	  ;; revert the work that has been done so far ... 
 	  (detach last))      
-	(when (cadr processor-ids)
+	(when next
 	  ;; if processor already has predecessor, it means that it is already
 	  ;; bound in a chain ... 		
 	  (setf (successor current) next)
@@ -294,12 +295,13 @@
     (setf (chain-bound current) chain-name)))
 
 (defun detach (processor)
-  (when (predecessor processor)
-    (detach (predecessor processor) current-processor-ids)
-    (setf (predecessor processor) nil))
-  (when (successor processor)
-    (setf (successor processor) nil))
-  (setf (chain-bound processor) nil))
+  (when processor
+    (when (predecessor processor)
+      (detach (predecessor processor) current-processor-ids)
+      (setf (predecessor processor) nil))
+    (when (successor processor)
+      (setf (successor processor) nil))    
+    (setf (chain-bound processor) nil)))
 
 ;; chain events without dispatching ...
 (in-package :megra)
