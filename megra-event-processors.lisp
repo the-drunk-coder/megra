@@ -285,7 +285,7 @@
 	   "cannot connect to ~D, already bound ..."
 	   (cadr processor-ids))
 	  ;; revert the work that has been done so far ... 
-	  (detach last))      
+	  (detach current))      
 	(when next
 	  ;; if processor already has predecessor, it means that it is already
 	  ;; bound in a chain ... 		
