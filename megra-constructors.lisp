@@ -75,13 +75,19 @@
 (setf (macro-function 'g) (macro-function 'graph))
 
 ;; replace the content (or parts of the content) of a graph ...
-(defun graph-replace (name new-content)
+(defun graph-add (name new-content)
   (let ((current-graph (source-graph (gethash name *processor-directory*))))
     (mapc #'(lambda (obj)
 	    (cond ((typep obj 'edge) (insert-edge current-graph obj))
 		  ((typep obj 'node) (insert-node current-graph obj))))
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
+
+;; tbd
+;;(defun grow (&key content (node-id nil)   ))
+
+;; tbd
+;;(defun prune (&key nc (nid nil)  ))
 
 ;; only for single values (pitch, duration, level etc )
 (defmacro values->graph (name event-type values
