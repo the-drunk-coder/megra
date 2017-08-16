@@ -618,7 +618,6 @@
 
 (print-graph (gethash 'pitcher *processor-directory*))
 
-
 (values->graph 'pitcher pitch '(a3 a4 d2))
 
 (time (dotimes (i 1000) (graph->dot *test*)))
@@ -632,9 +631,6 @@
 (setf *discourage-percentage* 40)
 
 (discourage 'blab)
-
-
-
 
 
 (incudine:now)
@@ -817,6 +813,28 @@
   (oscillate-between 'rate-b 'rate 0.1 0.14 :cycle 400) 
   'the-grain)
 
+
+(incudine::make-osc-responder *oscin* "/blub/test" "iii"
+                    (lambda (a b c)
+		      (incudine::msg warn "~D ~D ~D"
+		      		     a b c)
+		      ))
+
+(sink 's1 ()  
+  (graph 'pitcher (:combine-mode 'zip)
+    (node 1 (pitch 42))
+    (node 2 (pitch 62))    
+    (edge 1 1 :prob 60)
+    (edge 1 2 :prob 40)
+    (edge 2 2 :prob 55)
+    (edge 2 1 :prob 45))
+   (graph 'origin () ;; for now, origin event needs to have handler ...
+    (node 1 (mid 84 :lvl .9 :dur 50))
+    (node 2 (mid 84 :lvl .9 :dur 50))
+    (edge 1 2 :prob 100 :dur 64)
+    (edge 2 1 :prob 100 :dur 128)))
+
+(clear)
 
 
 

@@ -1,4 +1,4 @@
-;;(require 'cm)
+ ;;(require 'cm)
 (require 'cm-incudine)
 (in-package :cm)
 
@@ -10,7 +10,7 @@
   ;;(midi-open-default :direction :input)
   (defvar *midiin* (midi-open-default :direction :input))
   (defvar *midiout* (midi-open-default :direction :output))
-  (osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
+  ;;(osc-open-default :host "127.0.0.1" :port 3002 :direction :input)
   ;; send osc msgs to scsynth ...
   ;;(osc-open-default :host "127.0.0.1" :port 57110 :direction :output )    
   (defvar *oscout* (osc:open :host "127.0.0.1" :port 57110 :direction :output :latency 0))
@@ -20,10 +20,6 @@
   (incudine::recv-start *midiin*))
 
 (setf (incudine::logger-level) :info)
-
-;;(defvar *oscout* (osc:open :host "127.0.0.1" :port 9801 :direction :output :latency .1))
-
-(osc:close *oscout*)
 
 (incudine:rt-stop)
 ;;(incudine::block-size)
@@ -41,6 +37,13 @@
 (load "/home/nik/REPOSITORIES/megra/megra-package")
 
 (in-package :megra)
+
+;; recieve anything on the specified port ...
+(defparameter *oscin* (osc:open :host "0.0.0.0" :port 7400 :direction :input))
+
+(incudine::recv-start *oscin*)
+
+;;(osc:close *oscin*)
 
 ;; init group one if scsynth started from command line 
 (init-sc-base-group)
