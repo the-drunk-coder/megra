@@ -68,6 +68,7 @@
       (mapcan #'get-param-definitions (sb-mop::class-direct-superclasses event-class))))
 
 ;; a overwrites b, b (or incomplete) is returned ...
+(in-package :megra)
 (defmethod combine-single-events ((a event) (b event) &key)
   (cond ((events-compatible a b) (overwrite-slots a b))
 	;; merge events into a new incomplete event
@@ -78,13 +79,18 @@
 	      (overwrite-slots a new-event)))))
 
 ;; combining events ... a has precedence
+(in-package :megra)
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
-	((eq mode 'zip) (let ((filtered-and-combined
-			       (mapcar #'combine-single-events events-a
-				       (remove-if-not filter events-b)))
-			      (rest (remove-if filter events-b)))
-			  (append filtered-and-combined rest)))))
+	((eq mode 'zip) (mapc
+			 #'(lambda (ev-a ev-b)
+			     (if (funcall filter ev-b)
+				 (combine-single-events ev-a ev-b)
+				 ev-b
+				 ))
+			 events-a
+			 events-b
+			 ))))
 
 ;; helper methods to turn events back into their textual representation ...
 (defun print-tags (tags)

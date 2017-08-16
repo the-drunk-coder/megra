@@ -224,16 +224,17 @@
    (combi-chance :accessor combi-chance :initarg :combi-chance)
    (step :accessor pmod-step :initform 0)))
 
-;; make state-tracking switchable ??? 
+;; make state-tracking switchable ???
+(in-package :megra)
 (defmethod apply-self ((c chance-combine) events &key)
-  (mapc #'(lambda (event)	    
+  (mapcar #'(lambda (event)	    
 	    (let ((chance-val (random 100)))
-	      (if (< chance-val (combi-chance c))
-		  (progn
-		    (combine-single-events (event-to-combine c) event))
+	      (if (and (funcall (event-filter c) event) (< chance-val (combi-chance c)))		  
+		  (combine-single-events (event-to-combine c) event)		  
 		  event)))
-	(filter-events c events :check-mod-prop nil))
-  events)
+	;;(filter-events c events :check-mod-prop nil)
+	events
+	))
 
 ;; a random walk on whatever parameter ...
 (defclass stream-brownian-motion (modifying-event-processor generic-brownian-motion) ())
@@ -321,11 +322,8 @@
 				   :is-active ,activate))
 			    (incudine::msg error "chain-building went wrong, seemingly ..."))
 			;; if an old chain was present, preserve active state 
-			(when old-chain
-
-			  )
-			
-			)))))
+			(when (and old-chain (is-active old-chain))
+			  (activate ,name)))))))
 
 
 
