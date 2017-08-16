@@ -311,14 +311,21 @@
 		      ;; assume the chaining went well 
 		      (let ((topmost-proc (gethash
 					   (car event-processors)
-					   *processor-directory*)))
+					   *processor-directory*))
+			    (old-chain (gethash ,name *chain-directory*)))		        
 			(if (chain-bound topmost-proc)
 			    (setf (gethash ,name *chain-directory*)
 				  (make-instance
 				   'processor-chain
 				   :topmost topmost-proc
 				   :is-active ,activate))
-			    (incudine::msg error "chain-building went wrong, seemingly ...")))))))
+			    (incudine::msg error "chain-building went wrong, seemingly ..."))
+			;; if an old chain was present, preserve active state 
+			(when old-chain
+
+			  )
+			
+			)))))
 
 
 
