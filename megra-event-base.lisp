@@ -83,14 +83,13 @@
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
 	((eq mode 'zip) (mapc
-			 #'(lambda (ev-a ev-b)
+			 #'(lambda (ev-b ev-a)
 			     (if (funcall filter ev-b)
 				 (combine-single-events ev-a ev-b)
-				 ev-b
-				 ))
-			 events-a
+				 ev-b))
+			 ;; got to be in this order as mapc returns first list 
 			 events-b
-			 ))))
+			 events-a ))))
 
 ;; helper methods to turn events back into their textual representation ...
 (defun print-tags (tags)
