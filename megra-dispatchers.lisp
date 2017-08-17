@@ -71,7 +71,7 @@
 			 (unless (chain ,name () ,@proc-body)
 			   (incudine::msg error "couldn't build chain ~D" ,name)))
 			(t (incudine::msg error "invalid state"))))
-		(incudine::msg info "built chain ~D" ,name)
+		(incudine::msg info "hopefully built chain ~D ..." ,name)
 		;; if we've reached this point, we should have a valid chain, or left the function ...
 		(let ((chain (gethash ,name *chain-directory*)))
 		  (if (and ,sync-to (gethash ,sync-to *chain-directory*))

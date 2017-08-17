@@ -315,15 +315,15 @@
 					   *processor-directory*))
 			    (old-chain (gethash ,name *chain-directory*)))		        
 			(if (chain-bound topmost-proc)
-			    (setf (gethash ,name *chain-directory*)
-				  (make-instance
-				   'processor-chain
-				   :topmost topmost-proc
-				   :is-active ,activate))
-			    (incudine::msg error "chain-building went wrong, seemingly ..."))
-			;; if an old chain was present, preserve active state 
-			(when (and old-chain (is-active old-chain))
-			  (activate ,name)))))))
+			    (let ((new-chain (make-instance
+					       'processor-chain
+					       :topmost topmost-proc
+					       :is-active ,activate))) 
+			      ;; if an old chain was present, preserve active state 
+			      (when (and old-chain (is-active old-chain))
+				(activate ,name))
+			      (setf (gethash ,name *chain-directory*) new-chain))
+			    (incudine::msg error "chain-building went wrong, seemingly ...")))))))
 
 
 
