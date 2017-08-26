@@ -321,7 +321,7 @@
 					       :is-active ,activate))) 
 			      ;; if an old chain was present, preserve active state 
 			      (when (and old-chain (is-active old-chain))
-				(activate ,name))
+			        (setf (is-active new-chain) t))
 			      (setf (gethash ,name *chain-directory*) new-chain))
 			    (incudine::msg error "chain-building went wrong, seemingly ...")))))))
 

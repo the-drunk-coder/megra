@@ -668,16 +668,21 @@
 	       :lp-freq 1000 :lp-lfo-speed 2.5 :lp-lfo-depth 1.0 :lp-q 0.7))
   (node 3 (sqr 'e2 :lvl .9 :atk 400 :dec 200 :sus 1000 :rel 300
 	       :lp-freq 1000 :lp-lfo-speed 2.2 :lp-lfo-depth 1.0 :lp-q 0.7))
-  (edge 1 2 :prob 50 :dur 1500)
-  (edge 1 3 :prob 50 :dur 1750)
-  (edge 2 1 :prob 100 :dur 1500)
-  (edge 3 1 :prob 100 :dur 1250))
+  (edge 1 2 :prob 50 :dur 1024)
+  (edge 1 3 :prob 50 :dur 2048)
+  (edge 2 1 :prob 100 :dur 512)
+  (edge 3 1 :prob 100 :dur 1024))
 
-(sink 's1 () 'be-there-square)
-(clear)
+(sink 's2 () 'be-there-square)
+
+(stop 's2)
+
 
 
 ;; TBD:
+;; BUG multiple dispatch with sync leads to strange 'results 
+;; BUG risset doesn't resolve note names 
+;; BUG pluck event 
 ;; fix stopping bug ...
 ;; error message when sync is not viable ? 
 ;; total crash ?? how to reproduce ? 
@@ -725,6 +730,7 @@
 ;; more vugs
 
 ;; DONE:
+;; BUG active state preservation
 ;; combine mode is not updated ... 
 ;; got rid of spigot 
 ;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
