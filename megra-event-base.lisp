@@ -89,7 +89,7 @@
 				 ev-b))
 			 ;; got to be in this order as mapc returns first list 
 			 events-b
-			 events-a ))))
+			 events-a))))
 
 ;; helper methods to turn events back into their textual representation ...
 (defun print-tags (tags)

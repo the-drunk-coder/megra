@@ -17,7 +17,9 @@
   ((upper-boundary :accessor pmod-upper :initarg :upper)
    (lower-boundary :accessor pmod-lower :initarg :lower)   
    (cycle :accessor pmod-cycle :initarg :cycle )
-   (type :accessor pmod-osc-type :initarg :type)))
+   (type :accessor pmod-osc-type :initarg :type));; not really used yet ... 
+  )
+
 
 ;; this one is stateless, not dependent on current value ...
 (defclass param-oscillate-between (generic-oscillate-between param-mod-object) nil)
@@ -32,6 +34,31 @@
 ;; constructor
 (defun oscil (lower upper &key (cycle 128))
   (make-instance 'param-oscillate-between :lower lower :upper upper :cycle cycle))
+
+(in-package :megra)
+(defclass generic-fade ()
+  ((from :accessor pmod-from :initarg :from)
+   (to :accessor pmod-to :initarg :to)   
+   (steps :accessor pmod-steps :initarg :steps )
+   (type :accessor pmod-fade-type :initarg :type)
+   (current-value :accessor pmod-current-value :initarg :start-value)))
+
+(defclass param-fade (generic-fade param-mod-object) ())
+
+(in-package :megra)
+
+;; so far only sinusoidal fades are supported ... 
+(defmethod evaluate ((p param-fade))
+  (if (> (pmod-step p) (pmod-steps p))
+      (pmod-to p)
+      (let* ((osc-range (- (pmod-to p) (pmod-from p)))		   
+	     (degree-increment (/ 90 (pmod-steps p)))
+	     (degree (* degree-increment (min (pmod-step p) (pmod-steps p)))))    
+	(+ (pmod-from p) (* (sin (radians degree)) osc-range)))))
+
+;; fade constructor
+(defun fade (from to &key (steps 128))
+  (make-instance 'param-fade :from from :to to :steps steps :start-value from))
 
 (defclass generic-brownian-motion ()
   ((upper-boundary :accessor pmod-upper :initarg :upper)

@@ -1,4 +1,4 @@
- ;;(require 'cm)
+;;(require 'cm)
 (require 'cm-incudine)
 (in-package :cm)
 

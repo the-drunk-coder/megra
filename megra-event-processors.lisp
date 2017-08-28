@@ -190,7 +190,7 @@
       (slot-value e (modified-property m))))
 
 (defmethod filter-events ((m modifying-event-processor) events &key (check-mod-prop t))
-  (labels ((current-filter-p (event)
+w  (labels ((current-filter-p (event)
 	     (if check-mod-prop
 		 (and (event-has-slot-by-name event (modified-property m))
 				 (funcall (event-filter m) event))
@@ -223,6 +223,10 @@
   ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
    (combi-chance :accessor combi-chance :initarg :combi-chance)
    (step :accessor pmod-step :initform 0)))
+
+;; make combi-chance accessible to live modifications
+;; the create-accessor only works within a macro ... pretty hacky, all in all ... 
+(eval (create-accessor 'chance-combine 'combi-chance 'combi-chance))
 
 ;; make state-tracking switchable ???
 (in-package :megra)
