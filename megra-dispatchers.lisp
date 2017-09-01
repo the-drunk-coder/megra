@@ -10,7 +10,8 @@
       ;; here, the events are produced and handled ...
       (when (synced-chains chain)
 	(loop for synced-chain in (synced-chains chain)
-	 ;; don't check if it's active, as only deactivated procs are added to sync list
+	   ;; don't check if it's active, as only deactivated procs
+	   ;; are added to sync list
 	   do (progn
 		(activate synced-chain)
 		(perform-dispatch synced-chain osc-time incudine-time)))
@@ -20,9 +21,14 @@
       (handle-events (pull-events chain) osc-time)
       ;; here, the transition time between events is determinend,
       ;; and the next evaluation is scheduled ...
-      (let ((trans-time (transition-duration (car (pull-transition chain)))))       
-	(incudine:aat (+ incudine-time #[trans-time ms])
-		      #'perform-dispatch chain-id (+ osc-time (* trans-time 0.001)) it)))))
+      ;; this method works only with SC,
+      ;; with INCUDINE itself it'll be imprecise ... 
+      (let* ((trans-time (transition-duration (car (pull-transition chain))))
+	     (next-osc-time (+ osc-time (* trans-time 0.001)))
+	     (next-incu-time (+ incudine-time
+				#[(- next-osc-time (incudine::timestamp)) s])))
+	(incudine:aat next-incu-time
+		      #'perform-dispatch chain-id next-osc-time it)))))
 
 (defun perform-dispatch-norepeat (proc time)
   (let ((event-processor (gethash proc *processor-directory*)))    
