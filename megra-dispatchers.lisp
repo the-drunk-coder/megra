@@ -54,7 +54,7 @@
 
 (in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
-(defmacro dispatch (name (&key (sync-to nil) (unique t)) &body proc-body)
+(defmacro dispatch (name (&key (sync-to nil) (unique t) (msync nil)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors (list ,@proc-body))
 		      (old-chain (gethash ,name *chain-directory*)))		      		     
@@ -65,7 +65,7 @@
 			((and old-chain (< 0 (length event-processors)))
 			 (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
 			 ;; rebuild chain, activate
-			 (unless (chain ,name (:activate (is-active old-chain)) ,@proc-body)
+			 (unless (chain-from-list ,name event-processors :activate (is-active old-chain))
 			   (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain))))	       	     
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
@@ -74,20 +74,20 @@
 			((< 0 (length event-processors))
 			 (incudine::msg info "new chain ~D, trying to build it ..." ,name)
 			 ;; build chain, activate
-			 (unless (chain ,name () ,@proc-body)
+			 (unless (chain-from-list ,name event-processors)
 			   (incudine::msg error "couldn't build chain ~D" ,name)))
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)
 		;; if we've reached this point, we should have a valid chain, or left the function ...
 		(let ((chain (gethash ,name *chain-directory*)))
-		  (if (and ,sync-to (gethash ,sync-to *chain-directory*))
-		      (progn			 
-			(deactivate ,name)
-			(unless (member ,name (synced-chains (gethash ,sync-to *chain-directory*)))
+		  (if (and ,sync-to (gethash ,sync-to *chain-directory*))		      			
+		      (unless (and (member ,name (synced-chains (gethash ,sync-to *chain-directory*)))
+				   (not ,msync))
+			  (deactivate ,name)
 			  (incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" ,name ,sync-to ,name ,sync-to)
 			  (setf (synced-chains (gethash ,sync-to *chain-directory*))
 				(append (synced-chains (gethash ,sync-to *chain-directory*))
-					(list ,name)))))
+					(list ,name))))
 		      (unless (is-active chain)
 			(activate ,name)
 			(incudine:at (incudine:now) #'perform-dispatch

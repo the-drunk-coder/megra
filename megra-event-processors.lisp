@@ -148,7 +148,6 @@
 	    (pull-transition (successor g))))
       (current-transition g)))
 
-
 ;; with the advent of param-mod-objects, some of these might be deemed deprecated,
 ;; but left for legacy reasons ...
 (defclass modifying-event-processor (event-processor)
@@ -242,6 +241,32 @@
 	events
 	))
 
+;; the constructor ... 
+(defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p))
+  (let ((new-inst (make-instance 'chance-combine
+				 :name name
+				 :combi-chance chance
+				 :event-to-combine event
+				 :track-state nil
+				 :mod-prop nil
+				 :affect-transition affect-transition
+				 :event-filter filter))
+	(old-inst (gethash name *processor-directory*)))
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst)))
+    (setf (gethash name *processor-directory*) new-inst))
+  name)
+
+;; shorthand
+(in-package :megra)
+(defun cc (chance event &key (at nil) (f #'all-p) (id nil))
+  (let ((cc-name (if id
+		     id
+		     (gensym))))
+    (incudine::msg info "~D" cc-name)
+    (chance-combine cc-name chance event :affect-transition at :filter f)
+    ))
+
 ;; a random walk on whatever parameter ...
 (defclass stream-brownian-motion (modifying-event-processor generic-brownian-motion) ())
   
@@ -314,22 +339,29 @@
 (in-package :megra)
 (defmacro chain (name (&key (unique t) (activate nil)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		    
-		      (connect event-processors nil ,name ,unique)
-		      ;; assume the chaining went well 
-		      (let ((topmost-proc (gethash
-					   (car event-processors)
-					   *processor-directory*))
-			    (old-chain (gethash ,name *chain-directory*)))		        
-			(if (chain-bound topmost-proc)
-			    (let ((new-chain (make-instance
-					       'processor-chain
-					       :topmost topmost-proc
-					       :is-active ,activate))) 
-			      ;; if an old chain was present, preserve active state 
-			      (when (and old-chain (is-active old-chain))
-			        (setf (is-active new-chain) t))
-			      (setf (gethash ,name *chain-directory*) new-chain))
-			    (incudine::msg error "chain-building went wrong, seemingly ...")))))))
+		      (chain-from-list
+		       ,name
+		       event-processors
+		       :unique ,unique
+		       :activate, activate)))))
+
+(defun chain-from-list (name event-processors &key (unique t) (activate nil))
+  (connect event-processors nil name unique)
+  ;; assume the chaining went well 
+  (let ((topmost-proc (gethash
+		       (car event-processors)
+		       *processor-directory*))
+	(old-chain (gethash name *chain-directory*)))		        
+    (if (chain-bound topmost-proc)
+	(let ((new-chain (make-instance
+			  'processor-chain
+			  :topmost topmost-proc
+			  :is-active activate))) 
+	  ;; if an old chain was present, preserve active state 
+	  (when (and old-chain (is-active old-chain))
+	    (setf (is-active new-chain) t))
+	  (setf (gethash name *chain-directory*) new-chain))
+	(incudine::msg error "chain-building went wrong, seemingly ..."))))
 
 
 

@@ -236,20 +236,6 @@
     (setf (gethash name *processor-directory*) new-inst))
   name)
 
-(defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p))
-  (let ((new-inst (make-instance 'chance-combine
-				 :name name
-				 :combi-chance chance
-				 :event-to-combine event
-				 :track-state nil
-				 :mod-prop nil
-				 :affect-transition affect-transition
-				 :event-filter filter))
-	(old-inst (gethash name *processor-directory*)))
-    (when old-inst
-      (setf (chain-bound new-inst) (chain-bound old-inst)))
-    (setf (gethash name *processor-directory*) new-inst))
-  name)
 
 (in-package :megra)
 
