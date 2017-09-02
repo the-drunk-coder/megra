@@ -209,7 +209,7 @@
   :long-name pulsewidth-event
   :short-name pw
   :parent-events (event)
-  :parameters ((pw event-pulsewidth 5)) 
+  :parameters ((pw event-pulsewidth 0.5)) 
   :direct-parameters (pw))
 
 (define-event
