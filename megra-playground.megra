@@ -698,8 +698,9 @@
 
 
 ;; TBD:
+;; avoid complete stop on case of wrong note name ... 
+;; avoid complete stop when sync is called with nil graph 
 ;; BUG multiple dispatch with sync leads to strange 'results 
-;; BUG risset doesn't resolve note names 
 ;; BUG pluck event 
 ;; fix stopping bug ...
 ;; error message when sync is not viable ? 
@@ -748,6 +749,7 @@
 ;; more vugs
 
 ;; DONE:
+;; BUG risset doesn't resolve note names 
 ;; BUG active state preservation
 ;; combine mode is not updated ... 
 ;; got rid of spigot 

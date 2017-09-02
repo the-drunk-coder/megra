@@ -436,7 +436,8 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
-	     (if (member 'sc (event-backends evt)) (handle-meow-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-meow-event-sc evt timestamp))))
 
 (define-event
   :long-name risset-event
@@ -452,19 +453,22 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
-	     (if (member 'sc (event-backends evt)) (handle-risset-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-risset-event-sc evt timestamp))))
 
 (define-event
   :long-name pluck-event
   :short-name pluck
   :parent-events (level-event		  
 		  spatial-event
+		  duration-event
 		  pitch-event		  
 		  filter-lp-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
-	     (if (member 'sc (event-backends evt)) (handle-pluck-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-pluck-event-sc evt timestamp))))
 
 (define-event
   :long-name dx-rhodes-event
@@ -479,7 +483,8 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
-	     (if (member 'sc (event-backends evt)) (handle-dx-rhodes-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-dx-rhodes-event-sc evt timestamp))))
 
 (define-event
   :long-name frequency-range-event
@@ -490,6 +495,7 @@
   :direct-parameters (freq-min freq-max))
 
 ;; gendy-based event ... extremly cpu-intensive ... 
+;; not available in supercollider backend at the moment ... 
 (define-event
   :long-name gendy-event
   :short-name gendy

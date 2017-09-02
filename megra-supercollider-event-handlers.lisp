@@ -247,7 +247,7 @@
 			 "lp_freq" (coerce (event-lp-freq p) 'float)
 			 "lp_q" (coerce (event-lp-q p) 'float)
 			 "lp_dist" (coerce (event-lp-dist p) 'float)	    
-			 "length" (coerce (* (event-duration p) 0.001) 'float)			 
+			 "length" (coerce (* (event-duration p) 0.001) 'float)	 
 			 "pos" (coerce (- (event-position p) 0.5) 'float)
 			 "rev" (coerce (event-reverb p) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
@@ -271,8 +271,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
 			 "risset_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch r) 'symbol)
-				    (cm::hertz (event-pitch r))
-				    (event-pitch r)) 'float)			 
+					    (cm::hertz (event-pitch r))
+					    (event-pitch r)) 'float)
 			 "gain" (coerce (event-level r) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq r) 'float)
 			 "lp_q" (coerce (event-lp-q r) 'float)
@@ -288,8 +288,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "risset_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch r) 'symbol)
-				    (cm::hertz (event-pitch r))
-				    (event-pitch r)) 'float)
+					    (cm::hertz (event-pitch r))
+					    (event-pitch r)) 'float)
 			 "gain" (coerce (event-level r) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq r) 'float)
 			 "lp_q" (coerce (event-lp-q r) 'float)
