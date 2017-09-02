@@ -383,6 +383,41 @@
 	     (if (member 'sc (event-backends evt)) (handle-buzz-event-sc evt timestamp))))
 
 (define-event
+  :long-name square-event
+  :short-name sqr
+  :parent-events (level-event
+		  pulsewidth-event		  
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  decay-event
+		  sustain-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-square-event-sc evt timestamp))))
+
+(define-event
+  :long-name saw-event
+  :short-name saw
+  :parent-events (level-event		 
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  decay-event
+		  sustain-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-saw-event-sc evt timestamp))))
+
+(define-event
   :long-name sine-event
   :short-name sine
   :parent-events (level-event		 
@@ -397,30 +432,6 @@
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-sine-event-incu evt))
 	     (if (member 'sc (event-backends evt)) (handle-sine-event-sc evt timestamp))))
-
-(define-event
-  :long-name square-event
-  :short-name sqr
-  :parent-events (level-event
-		  pulsewidth-event
-		  filter-lp-event
-		  lowpass-frequency-lfo-event
-		  filter-hp-event
-		  highpass-frequency-lfo-event
-		  filter-peak-event
-		  peak-frequency-lfo-event
-		  peak-gain-lfo-event
-		  spatial-event
-		  pitch-event
-		  frequency-lfo-event
-		  attack-event
-		  decay-event
-		  sustain-event
-		  release-event	          
-		  reverb-event)
-  :direct-parameters (pitch)
-  :handler (progn	     
-	     (if (member 'sc (event-backends evt)) (handle-square-event-sc evt timestamp))))
 
 (define-event
   :long-name meow-event
