@@ -142,7 +142,7 @@
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
-			 "buzz_2ch" -1 0 1
+			 "sqr_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
 				    (cm::hertz (event-pitch s))
 				    (event-pitch s)) 'float)
@@ -162,7 +162,7 @@
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
 			 "siiisfsfsfsfsfsfsfsfsfsfsfsf"
-			 "sqr_2ch_rev" -1 0 1
+			 "saw_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
 				    (cm::hertz (event-pitch s))
 				    (event-pitch s)) 'float)			 
@@ -179,7 +179,7 @@
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
-			 "buzz_2ch" -1 0 1
+			 "saw_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
 				    (cm::hertz (event-pitch s))
 				    (event-pitch s)) 'float)

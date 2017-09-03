@@ -81,7 +81,7 @@ SynthDef.new(\saw_2ch, { | freq, gain, pulsewidth, a, d, s, r, lp_freq, lp_q, lp
 	var lim_cutoff = min(lp_freq,15000);
 	var lim_freq = min(freq, 15000);
 	var lim_gain = min(gain, 1.1);
-       var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
+	var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
 	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
 	var snd = LPF18.ar(LFSaw.ar(freq, width:pulsewidth), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv, doneAction: 2);
 	Out.ar(0, Pan2.ar(snd, pos))
