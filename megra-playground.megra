@@ -13,26 +13,12 @@
     (e 2 3 :p 10 :d 200)
     (e 2 2 :p 80 :d 300)
     (e '(2 2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2 2) 1 :p 50 :d 600)
-    
+    (e '(2 2 2 2 2) 1 :p 50 :d 600)   
     (e 3 1 :p 100 :d 300)))
 
+
+
 (stop)
-
-(current-transition (topmost-processor (gethash 's1 *chain-directory*)))
-
-(graph-highest-edge-order (source-graph (topmost-processor (gethash 's1 *chain-directory*))))
-
-(gethash 5
-		  (graph-edges
-		   (source-graph
-		    (topmost-processor (gethash 's1 *chain-directory*)))))
-
-(gethash '(2 2 2 2 2)
-	 (gethash 5
-		  (graph-edges
-		   (source-graph
-		    (topmost-processor (gethash 's1 *chain-directory*))))))
 
 (clear)
 
@@ -43,9 +29,6 @@
     (e 1 2 :p 100 :d #'(lambda () (+ 10 (random 900))))
     (e 2 1 :p 100 :d 400)))
 
-
-
-
 (clear)
 
 (sink 's2 () 
@@ -54,35 +37,18 @@
     (e 1 1 :p 100 :d 256)
     ))
 
-;;   |-------|
-;;  [1]--20--|
-;;       |
-;;       ---        --->[2] 
-;;
 
 (g 'dos-midi ()
    (n 1 (mid 44))
    (n 2 (mid 44))
-   (n 3 (mid 44))
-   
+   (n 3 (mid 44))   
    (e 1 1 :p 20 :d 256)
    (e 1 2 :p 80 :d 256)
    (e 2 3 :p 100 :d 256)
    (e 3 2 :p 50 :d 256)
    (e 3 1 :p 50 :d 256)
    (e '(3 2 3) 1 :p 90 :d 256)
-   (e '(3 2 3) 2 :p 10 :d 256)
-   
-
-   )
-
-(defvar fader (fade 30 2 :steps 10))
-
-(pmod-step fader)
-
-(evaluate fader)
-
-(pmod-current-value fader)
+   (e '(3 2 3) 2 :p 10 :d 256))
 
 (stop 's1)
 
@@ -107,11 +73,7 @@
 		 (edge 2 1 :prob 70 :dur 1024)
 		 (edge 2 2 :prob 30 :dur 1024)
 		 (edge 3 1 :prob 60 :dur 1024)
-		 (edge 3 2 :prob 40 :dur 512))
-	  ) 
-
-
-
+		 (edge 3 2 :prob 40 :dur 512))) 
 
 (clone 'dur-gen 'dur-gen-2)
 
@@ -763,7 +725,6 @@
 
 ;; TBD:
 ;; clean up auto-named stream mods
-;; vom
 ;; addressing ?
 ;; avoid complete stop on case of wrong note name ... 
 ;; avoid complete stop when sync is called with nil graph 
@@ -816,6 +777,7 @@
 ;; more vugs
 
 ;; DONE:
+;; vom - variable order edges !!!
 ;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
 ;; BUG pluck event 
 ;; BUG risset doesn't resolve note names 
