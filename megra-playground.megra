@@ -1,13 +1,50 @@
 (in-package :megra)
 ;; define some test graph structures
 
+(sink 's1 ()
+  (g 'some-sines ()
+    (n 1 (sine 'a3 :lvl .6 :dur 200))
+    (n 2 (sine 'c4 :lvl .6 :dur 200))
+    (n 3 (sine 'e4 :lvl .6 :dur 200))
+    (e 1 2 :p 50 :d 300)
+    (e 1 1 :p 50 :d 300) 
+    (e '(1 1 1) 3 :p 100 :d 900)     
+    (e 2 1 :p 10 :d 300)
+    (e 2 3 :p 10 :d 200)
+    (e 2 2 :p 80 :d 300)
+    (e '(2 2 2 2 2) 3 :p 50 :d 600)
+    (e '(2 2 2 2 2) 1 :p 50 :d 600)
+    
+    (e 3 1 :p 100 :d 300)))
+
+(stop)
+
+(current-transition (topmost-processor (gethash 's1 *chain-directory*)))
+
+(graph-highest-edge-order (source-graph (topmost-processor (gethash 's1 *chain-directory*))))
+
+(gethash 5
+		  (graph-edges
+		   (source-graph
+		    (topmost-processor (gethash 's1 *chain-directory*)))))
+
+(gethash '(2 2 2 2 2)
+	 (gethash 5
+		  (graph-edges
+		   (source-graph
+		    (topmost-processor (gethash 's1 *chain-directory*))))))
+
+(clear)
 
 (sink 's1 ()
-  (graph 'uno-midi ()
-    (node 1 (mid #'(lambda () (+ 20 (random 60))) :lvl .8 :dur 200))
-    (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
-    (edge 1 2 :prob 100 :dur #'(lambda () (+ 10 (random 900))))
-    (edge 2 1 :prob 100 :dur 400)))
+  (g 'uno-midi ()
+    (n 1 (mid #'(lambda () (+ 20 (random 60))) :lvl .8 :dur 200))
+    (n 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
+    (e 1 2 :p 100 :d #'(lambda () (+ 10 (random 900))))
+    (e 2 1 :p 100 :d 400)))
+
+
+
 
 (clear)
 
@@ -16,6 +53,28 @@
     (n 1 (mid 44 :lvl (fade 0.0 1.0 :steps 10) :dur 200))    
     (e 1 1 :p 100 :d 256)
     ))
+
+;;   |-------|
+;;  [1]--20--|
+;;       |
+;;       ---        --->[2] 
+;;
+
+(g 'dos-midi ()
+   (n 1 (mid 44))
+   (n 2 (mid 44))
+   (n 3 (mid 44))
+   
+   (e 1 1 :p 20 :d 256)
+   (e 1 2 :p 80 :d 256)
+   (e 2 3 :p 100 :d 256)
+   (e 3 2 :p 50 :d 256)
+   (e 3 1 :p 50 :d 256)
+   (e '(3 2 3) 1 :p 90 :d 256)
+   (e '(3 2 3) 2 :p 10 :d 256)
+   
+
+   )
 
 (defvar fader (fade 30 2 :steps 10))
 
@@ -452,17 +511,17 @@
 ;; this is a nice one ...
 (sink 's1 ()  
   (graph 'pitcher (:combine-mode 'zip)
-    (node 1 (pitch 32))
-    (node 2 (pitch 52))
+    (node 1 (pitch 'a4))
+    (node 2 (pitch 'as6))
     (edge 1 1 :prob 60)
     (edge 1 2 :prob 40)
     (edge 2 2 :prob 55)
     (edge 2 1 :prob 45))
    (graph 'origin () ;; for now, origin event needs to have handler ...
-    (node 1 (mid 84 :lvl .9 :dur 50))
-    (node 2 (mid 84 :lvl .9 :dur 50))
-    (edge 1 2 :prob 100 :dur 1000)
-    (edge 2 1 :prob 100 :dur 1000)))
+    (node 1 (sine 'a3 :lvl .9 :dur 50))
+    (node 2 (sine 'a4 :lvl .9 :dur 50))
+    (edge 1 2 :prob 100 :dur 100)
+    (edge 2 1 :prob 100 :dur 100)))
 
 ;; another variant, with different value combi functions ...
 (sink 's1 ()
@@ -591,6 +650,16 @@
 		 :dur (oscil 100 1000 :cycle 100)))
     (edge 1 1 :prob 100 :dur (oscil 110 1100 :cycle 100))))
 
+(graph 'vom ()
+  (n 1 (mid 31))
+  (n 2 (mid 31))
+  (n 3 (mid 31))
+  (e 1 1 :p 100)
+
+  
+  )
+
+
 (clear) 
 
 (graph 'gengen ()
@@ -680,8 +749,9 @@
 (print-graph (gethash 'pitcher *processor-directory*))
 
 (graph 'be-there-square ()
-  (n 1 (saw 900 :lvl .4 :atk 3 :dec 46 :sus 50 :rel 10
-	    :lp-freq 2000 :rev 0.0 :lp-q 0.4 :lp-dist 0.8))
+  (n 1 (saw (brownian :lower 50 :upper 90 :step-size 5)
+	    :lvl .4 :atk 3 :dec 46 :sus 50 :rel 10
+	    :lp-freq 300 :rev 0.0 :lp-q 0.4 :lp-dist 0.8))
   (edge 1 1 :prob 100 :dur 128))
 
 (sink 's2 () 'be-there-square)
@@ -692,21 +762,24 @@
 
 
 ;; TBD:
+;; clean up auto-named stream mods
+;; vom
+;; addressing ?
 ;; avoid complete stop on case of wrong note name ... 
 ;; avoid complete stop when sync is called with nil graph 
 ;; BUG multiple dispatch with sync leads to strange 'results 
-;; BUG pluck event 
 ;; fix stopping bug ...
 ;; error message when sync is not viable ? 
 ;; total crash ?? how to reproduce ? 
 ;; check -- stream modifiers on pmod events ... should be resolved while
 ;; copying, but it's not always the casem as it seems ... 
-;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
+;; simplify startup 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
 ;;    to use a duratoin or level graph with more than one source ... thus,
-;;    there need to be either a change in the representation, or some cloning function,
+;;    there need to be either a change in the representation, or some
+;;    cloning function,
 ;;    like, (clone 'pitcher) ...
 ;; symbols as values, resolve at render time ??
 ;; live-visualizer
@@ -743,6 +816,8 @@
 ;; more vugs
 
 ;; DONE:
+;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
+;; BUG pluck event 
 ;; BUG risset doesn't resolve note names 
 ;; BUG active state preservation
 ;; combine mode is not updated ... 

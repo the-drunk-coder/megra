@@ -109,12 +109,21 @@
   (when (> (trace-length g) 0)
     (setf (traced-path g) (nconc (traced-path g) (list (current-node g))))
     (when (> (list-length (traced-path g)) (trace-length g))
-      (setf (traced-path g) (delete (car (traced-path g)) (traced-path g) :count 1))))
+      (setf (traced-path g)
+	    (delete (car (traced-path g)) (traced-path g) :count 1))))
   (if (copy-events g)
-      (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g)))))
+      (mapcar #'copy-instance
+	      (node-content (gethash (current-node g)
+				     (graph-nodes (source-graph g)))))
       (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
+(defun match-trace (path pattern)
+	 (let ((ldiff (- (length path) (length pattern))))
+	   (if (>= ldiff 0)
+	       (equal (nthcdr ldiff path) pattern))))
+
 ;; get the transition and set next current node ...
+(in-package :megra)
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
       ((choice-list (edge counter)
@@ -122,16 +131,36 @@
 	    collect counter))
        (collect-choices (edges counter)
 	 (if edges
-	     (append (choice-list (car edges) counter) (collect-choices (cdr edges) (1+ counter)))
+	     (append (choice-list (car edges) counter)
+		     (collect-choices (cdr edges) (1+ counter)))
 	     '())))
-  (let* ((current-edges (gethash (current-node g) (graph-edges (source-graph g))))
-	 (current-choices (collect-choices current-edges 0))
-	 (chosen-edge-id (nth (random (length current-choices)) current-choices))
-	 (chosen-edge (nth chosen-edge-id current-edges))) 
-    (setf (current-node g) (edge-destination chosen-edge))
-    (if (copy-events g)
-	(mapcar #'copy-instance (edge-content chosen-edge))
-	(edge-content chosen-edge)))))
+    ;; prioritize higher-order edges ...
+    ;; this loop construction is creepy ...
+    (loop named order-loop for order from (graph-highest-edge-order (source-graph g)) downto 1
+       ;; iterate over the edge orders ...
+       if (gethash order (graph-edges (source-graph g)))
+       do (let ((edges-for-order (gethash order (graph-edges (source-graph g)))))	    
+	    ;;(incudine::msg info "edge order: ~D" order)
+	    (loop for pattern being the hash-keys of edges-for-order
+	       ;; now, not only single nodes but also paths can serve as "source"
+	       do (when (match-trace (traced-path g) pattern)
+		    ;;(incudine::msg info "found edge ! pattern ~D" pattern)
+		    (let* ((current-edges (gethash pattern edges-for-order))
+			   (current-choices (collect-choices current-edges 0))
+			   (chosen-edge-id (nth (random (length current-choices))
+						current-choices))
+			   (chosen-edge (nth chosen-edge-id current-edges)))
+		      ;;(incudine::msg info "current-choices ~D" current-choices)
+		      ;;(incudine::msg info "chosen edge id ~D" chosen-edge-id)
+		      ;;(incudine::msg info "possible edges ~D" current-edges)
+		      ;;(incudine::msg info "found edge ~D" chosen-edge)
+		      (setf (current-node g) (edge-destination chosen-edge))
+		      ;; if a valid transition has been found, jump out ... 
+		      (if (copy-events g)
+			  (return-from order-loop
+			    (mapcar #'copy-instance (edge-content chosen-edge)))
+			  (return-from order-loop (edge-content chosen-edge))
+			  ))))))))
 
 ;; events are the successor events 
 (defmethod apply-self ((g graph-event-processor) events &key)
