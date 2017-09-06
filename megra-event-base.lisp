@@ -204,7 +204,9 @@
        (if ,create-accessors
 	   (progn ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)))
        ;; produce event handler method ...
-       (defmethod handle-event ((evt ,class-name) timestamp &key) ,handler)
+       (defmethod handle-event ((evt ,class-name) timestamp &key)
+	 (handler-case ,handler
+	   (simple-error (e) (incudine::msg error "~D" e))))
        ;; assemble printer method ...              
        (defmethod print-event ((evt ,class-name) &key)
 	 (string-downcase (format nil "(~a ~{~a~}~{~a~}~{~a~}~a~a)"

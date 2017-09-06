@@ -193,7 +193,6 @@
 			 "r" (coerce (* (event-release s) 0.001) 'float)
 			 "pos" (coerce (- (event-position s) 0.5) 'float))))
 
-
 (defmethod handle-meow-event-sc ((m meow-event) timestamp &key)
   (if (> (event-reverb m) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
@@ -327,5 +326,5 @@
 			 "lfoSpeed" (coerce (event-level-lfo-speed d) 'float)
 			 "lfoDepth" (coerce (event-level-lfo-depth d) 'float)
 			 "modIndex" (coerce (event-mod-index d) 'float)
-			 "vel" (coerce (event-velocity d) 'float)			 
+			 "vel" (coerce (event-velocity d) 'float)
 			 "pos" (coerce (- (event-position d) 0.5) 'float))))
