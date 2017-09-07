@@ -14,11 +14,20 @@
 	   ;; are added to sync list
 	   do (progn
 		(activate synced-chain)
-		(perform-dispatch synced-chain osc-time incudine-time)))
+		;; secure this to ensure smooth operation in case of
+		;; forgotten graphs ... 
+		(handler-case
+		    (perform-dispatch synced-chain osc-time incudine-time)
+		  (simple-error (e) (incudine::msg error "~D" e)))))
 	;; reset all synced processors
 	(setf (synced-chains chain) nil))
       ;; handle events from current graph
-      (handle-events (pull-events chain) osc-time)
+      ;; again, secure this, so that the chain can be restarted
+      ;; without having to clear everything ...  
+      (handler-case (handle-events (pull-events chain) osc-time)
+	(simple-error (e)
+	  (incudine::msg error "Cannot pull and handle events: ~D" e)
+	  (setf (is-active chain) nil)))
       ;; here, the transition time between events is determinend,
       ;; and the next evaluation is scheduled ...
       ;; this method works only with SC,
