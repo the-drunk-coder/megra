@@ -77,27 +77,77 @@ SynthDef(\buzz_2ch_rev, {|freq=1000, lvl=0.5, harm=3, lp_freq=19000, lp_q=0.1,
 }).store;
 
 
-SynthDef.new(\saw_2ch, { | freq, gain, pulsewidth, a, d, s, r, lp_freq, lp_q, lp_dist, pos |
-	var lim_cutoff = min(lp_freq,15000);
-	var lim_freq = min(freq, 15000);
+SynthDef.new(\saw_2ch, { | freq=440, gain=0.5, a=0.5, length=0.5, r=0.5, lp_freq=880, lp_q=1, lp_dist=0.5, pos=0.5 |
+	var lim_cutoff = min(lp_freq,18000);
+	var lim_freq = min(freq, 18000);
 	var lim_gain = min(gain, 1.1);
-	var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
-	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
-	var snd = LPF18.ar(LFSaw.ar(freq, width:pulsewidth), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv, doneAction: 2);
+	var filterenv = Env.new([0, lp_freq, lp_freq, 0], [a, length, r]);
+	var ampenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	//var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
+	//var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = LPF18.ar(LFSaw.ar(freq), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv, doneAction: 2);
 	Out.ar(0, Pan2.ar(snd, pos))
 }).store;
 
-SynthDef.new(\saw_2ch_rev, { | freq, gain, pulsewidth, a, d, s, r, lp_freq, lp_q, lp_dist, pos, rev |
+SynthDef.new(\sqr_2ch, { | freq=440, gain=0.5, a=0.5, length=0.5, r=0.5, lp_freq=880, lp_q=1, lp_dist=0.5, pos=0.5, pulsewidth=0.5 |
+	var lim_cutoff = min(lp_freq,18000);
+	var lim_freq = min(freq, 18000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env.new([0, lp_freq, lp_freq, 0], [a, length, r]);
+	var ampenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	//var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
+	//var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = LPF18.ar(LFPulse.ar(freq, width:pulsewidth), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv, doneAction: 2);
+	Out.ar(0, Pan2.ar(snd, pos))
+}).store;
+
+SynthDef.new(\saw_adsr_2ch, { | freq, gain, a, d, s, r, lp_freq, lp_q, lp_dist, pos |
+	var lim_cutoff = min(lp_freq, 18000);
+	var lim_freq = min(freq, 18000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
+	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
+	var snd = LPF18.ar(LFSaw.ar(freq), EnvGen.ar(f1ilterenv), lp_q, lp_dist) * EnvGen.ar(ampenv, doneAction: 2);
+	Out.ar(0, Pan2.ar(snd, pos))
+}).store;
+
+SynthDef.new(\saw_adsr_2ch_rev, { | freq, gain, pulsewidth, a, d, s, r, lp_freq, lp_q, lp_dist, pos, rev |
 	var lim_cutoff = min(lp_freq,15000);
 	var lim_freq = min(freq, 15000);
 	var lim_gain = min(gain, 1.1);
 	var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
 	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
-	var snd = LPF18.ar(LFSaw.ar(freq, width:pulsewidth), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
+	var snd = LPF18.ar(LFSaw.ar(freqh), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
 	var revsnd = PartConv.ar(snd, 2048, 1, rev);
 	var mixsnd = (snd * (1.0 - rev)) + revsnd;
 	var outenv = Env.new([0, gain, gain, 0], [a, d + s + r + 2.0, 0.1]);
 	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos))
+}).store;
+
+SynthDef.new(\saw_2ch_rev, { | freq, gain, a, length r, lp_freq, lp_q, lp_dist, pos, rev |
+	var lim_cutoff = min(lp_freq,15000);
+	var lim_freq = min(freq, 15000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env.new([0, lim_cutoff, lim_cutoff, 0], [a, length, r]);
+	var ampenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	var snd = LPF18.ar(LFSaw.ar(freq), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
+	var revsnd = PartConv.ar(snd, 2048, 1, rev);
+	var mixsnd = (snd * (1.0 - rev)) + revsnd;
+	var outenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2, r]);
+	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos));
+}).store;
+
+SynthDef.new(\sqr_2ch_rev, { | freq, gain, a, length r, lp_freq, lp_q, lp_dist, pos, rev, pulsewidth |
+	var lim_cutoff = min(lp_freq,15000);
+	var lim_freq = min(freq, 15000);
+	var lim_gain = min(gain, 1.1);
+	var filterenv = Env.new([0, lim_cutoff, lim_cutoff, 0], [a, length, r]);
+	var ampenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	var snd = LPF18.ar(LFPulse.ar(freq,  width:pulsewidth), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
+	var revsnd = PartConv.ar(snd, 2048, 1, rev);
+	var mixsnd = (snd * (1.0 - rev)) + revsnd;
+	var outenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2, r]);
+	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos));
 }).store;
 
 SynthDef.new(\sqr_2ch, { | freq, gain, pulsewidth, a, d, s, r, lp_freq, lp_q, lp_dist, pos |

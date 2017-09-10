@@ -383,8 +383,8 @@
 	     (if (member 'sc (event-backends evt)) (handle-buzz-event-sc evt timestamp))))
 
 (define-event
-  :long-name square-event
-  :short-name sqr
+  :long-name square-adsr-event
+  :short-name sqr-adsr
   :parent-events (level-event
 		  pulsewidth-event		  
 		  spatial-event
@@ -401,8 +401,8 @@
 		 (handle-square-event-sc evt timestamp))))
 
 (define-event
-  :long-name saw-event
-  :short-name saw
+  :long-name saw-adsr-event
+  :short-name saw-adsr
   :parent-events (level-event		 
 		  spatial-event
 		  pitch-event
@@ -415,7 +415,41 @@
   :direct-parameters (pitch)
   :handler (progn	     
 	     (if (member 'sc (event-backends evt))
-		 (handle-saw-event-sc evt timestamp))))
+		 (handle-saw-adsr-event-sc evt timestamp))))
+
+(define-event
+  :long-name saw-event
+  :short-name saw
+  :parent-events (level-event		 
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-saw-event-incu evt))
+	     (if (member 'sc (event-backends evt)) (handle-saw-event-sc evt timestamp))))
+
+(define-event
+  :long-name square-event
+  :short-name sqr
+  :parent-events (level-event		 
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event
+		  pulsewidth-event
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-square-event-incu evt))
+	     (if (member 'sc (event-backends evt)) (handle-square-event-sc evt timestamp))))
+
 
 (define-event
   :long-name sine-event

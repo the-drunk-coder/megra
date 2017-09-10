@@ -83,6 +83,79 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
+(defmethod handle-saw-event-sc ((s saw-event) timestamp &key)
+  (if (> (event-reverb s) 0)     
+      (osc:simple-bundle cm::*oscout* timestamp  
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsfsf"
+			 "saw_2ch_rev" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)			 
+			 "lvl" (coerce (event-level s) 'float)
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "rev" (coerce (event-reverb s) 'float))
+      (osc:simple-bundle cm::*oscout* timestamp
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsf"
+			 "saw_2ch" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)
+			 "lvl" (coerce (event-level s) 'float)	    
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 )))
+
+(defmethod handle-square-event-sc ((s square-event) timestamp &key)
+  (if (> (event-reverb s) 0)     
+      (osc:simple-bundle cm::*oscout* timestamp  
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsfsfsf"
+			 "sqr_2ch_rev" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)			 
+			 "lvl" (coerce (event-level s) 'float)
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "rev" (coerce (event-reverb s) 'float)
+			 "pulsewidth" (coerce (event-pulsewidth s) 'float))
+      (osc:simple-bundle cm::*oscout* timestamp
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsfsf"
+			 "sqr_2ch" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)
+			 "lvl" (coerce (event-level s) 'float)	    
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pulsewidth" (coerce (event-pulsewidth s) 'float)
+			 )))
+
+
 (defmethod handle-buzz-event-sc ((b buzz-event) timestamp &key)
   (if (> (event-reverb b) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
@@ -119,7 +192,7 @@
 			 "pos" (coerce (- (event-position b) 0.5) 'float)
 			 "harm" (coerce (event-harmonies b) 'float))))
 
-(defmethod handle-square-event-sc ((s square-event) timestamp &key)
+(defmethod handle-square-adsr-event-sc ((s square-adsr-event) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -157,7 +230,7 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 "pulsewidth" (coerce (event-pulsewidth s) 'float))))
 
-(defmethod handle-saw-event-sc ((s saw-event) timestamp &key)
+(defmethod handle-saw-adsr-event-sc ((s saw-adsr-event) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
