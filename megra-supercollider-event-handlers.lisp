@@ -83,6 +83,111 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
+(defmethod handle-triangle-event-sc ((s triangle-event) timestamp &key)
+  (if (> (event-reverb s) 0)     
+      (osc:simple-bundle cm::*oscout* timestamp  
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsfsf"
+			 "tri_2ch_rev" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)			 
+			 "lvl" (coerce (event-level s) 'float)
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "rev" (coerce (event-reverb s) 'float))
+      (osc:simple-bundle cm::*oscout* timestamp
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsf"
+			 "tri_2ch" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)
+			 "lvl" (coerce (event-level s) 'float)	    
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 )))
+
+(defmethod handle-cub-event-sc ((s cub-event) timestamp &key)
+  (if (> (event-reverb s) 0)     
+      (osc:simple-bundle cm::*oscout* timestamp  
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsfsf"
+			 "cub_2ch_rev" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)			 
+			 "lvl" (coerce (event-level s) 'float)
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "rev" (coerce (event-reverb s) 'float))
+      (osc:simple-bundle cm::*oscout* timestamp
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsf"
+			 "cub_2ch" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)
+			 "lvl" (coerce (event-level s) 'float)	    
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 )))
+
+(defmethod handle-par-event-sc ((s par-event) timestamp &key)
+  (if (> (event-reverb s) 0)     
+      (osc:simple-bundle cm::*oscout* timestamp  
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsfsf"
+			 "par_2ch_rev" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)			 
+			 "lvl" (coerce (event-level s) 'float)
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "rev" (coerce (event-reverb s) 'float))
+      (osc:simple-bundle cm::*oscout* timestamp
+			 "/s_new"	    
+			 "siiisfsfsfsfsfsfsfsfsf"
+			 "par_2ch" -1 0 1
+			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
+				    (cm::hertz (event-pitch s))
+				    (event-pitch s)) 'float)
+			 "lvl" (coerce (event-level s) 'float)	    
+			 "lp_freq" (coerce (event-lp-freq s) 'float)
+			 "lp_q" (coerce (event-lp-q s) 'float)
+			 "lp_dist" (coerce (event-lp-dist s) 'float)	    
+			 "a" (coerce (* (event-attack s) 0.001) 'float)
+			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
+			 "r" (coerce (* (event-release s) 0.001) 'float)
+			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 )))
+
 (defmethod handle-saw-event-sc ((s saw-event) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  

@@ -468,6 +468,60 @@
 	     (if (member 'sc (event-backends evt)) (handle-sine-event-sc evt timestamp))))
 
 (define-event
+  :long-name triangle-event
+  :short-name tri
+  :parent-events (level-event		 
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'inc (event-backends evt))
+		 (handle-triangle-event-incu evt))
+	     (if (member 'sc (event-backends evt))
+		 (handle-triangle-event-sc evt timestamp))))
+;; LFCub
+(define-event
+  :long-name cub-event
+  :short-name cub
+  :parent-events (level-event		 
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'inc (event-backends evt))
+		 (handle-cub-event-incu evt))
+	     (if (member 'sc (event-backends evt))
+		 (handle-cub-event-sc evt timestamp))))
+;; LFPar
+(define-event
+  :long-name par-event
+  :short-name par
+  :parent-events (level-event		 
+		  duration-event
+		  spatial-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'inc (event-backends evt))
+		 (handle-par-event-incu evt))
+	     (if (member 'sc (event-backends evt))
+		 (handle-par-event-sc evt timestamp))))
+
+(define-event
   :long-name meow-event
   :short-name meow
   :parent-events (level-event		  
