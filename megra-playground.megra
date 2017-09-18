@@ -2,9 +2,9 @@
 ;; define some test graph structures
 
 (g 'some-sines ()
-    (n 1 (sqr 'a2 :lvl .6 :lp-freq 300 :lp-dist 1.0 :dur 200))
-    (n 2 (sine 'c2 :lp-freq 900 :lvl .6 :dur 200))
-    (n 3 (saw 'e3 :lp-freq 900 :lvl .6 :dur 200))
+    (n 1 (tri 'd1 :lvl .6 :lp-freq 1000 :lp-dist 1.0 :dur 200))
+    (n 2 (sqr 'a1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))
+    (n 3 (saw 'f1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))
     (e 1 2 :p 50 :d 300)
     (e 1 1 :p 50 :d 300) 
     (e '(1 1 1) 3 :p 100 :d 900)     
@@ -16,7 +16,7 @@
     (e 3 1 :p 100 :d 300))
 
 (sink 's1 (:sync-to 's2)
-  (cc 100 (rev 0.1))
+  (cc 0 (rev 0.1))
   'some-sines
   )
 
