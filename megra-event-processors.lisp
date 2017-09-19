@@ -313,7 +313,8 @@
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
    (synced-chains :accessor synced-chains :initform nil)
-   (active :accessor is-active :initform nil :initarg :is-active)))
+   (active :accessor is-active :initform nil :initarg :is-active)
+   (shift :accessor chain-shift :initform 0.0 :initarg :shift)))
 
 (in-package :megra)
 (defun activate (chain-id)
@@ -366,15 +367,16 @@
 
 ;; chain events without dispatching ...
 (in-package :megra)
-(defmacro chain (name (&key (unique t) (activate nil)) &body proc-body)
+(defmacro chain (name (&key (unique t) (activate nil) (shift 0.0)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		    
 		      (chain-from-list
 		       ,name
 		       event-processors
 		       :unique ,unique
-		       :activate, activate)))))
+		       :activate, activate
+		       :shift ,shift)))))
 
-(defun chain-from-list (name event-processors &key (unique t) (activate nil))
+(defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0))
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
   (let ((topmost-proc (gethash
@@ -385,7 +387,8 @@
 	(let ((new-chain (make-instance
 			  'processor-chain
 			  :topmost topmost-proc
-			  :is-active activate))) 
+			  :is-active activate
+			  :shift shift))) 
 	  ;; if an old chain was present, preserve active state 
 	  (when (and old-chain (is-active old-chain))
 	    (setf (is-active new-chain) t))

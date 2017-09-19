@@ -16,9 +16,13 @@
 		(activate synced-chain)
 		;; secure this to ensure smooth operation in case of
 		;; forgotten graphs ... 
-		(handler-case
-		    (perform-dispatch synced-chain osc-time incudine-time)
-		  (simple-error (e) (incudine::msg error "~D" e)))))
+		(let ((sync-shift
+		       (chain-shift (gethash synced-chain *chain-directory*))))
+		  (handler-case
+		      (perform-dispatch synced-chain
+					(+ osc-time (* sync-shift 0.001))
+					(+ incudine-time #[sync-shift ms]))
+		    (simple-error (e) (incudine::msg error "~D" e))))))
 	;; reset all synced processors
 	(setf (synced-chains chain) nil))
       ;; handle events from current graph
@@ -63,7 +67,8 @@
 
 (in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
-(defmacro dispatch (name (&key (sync-to nil) (unique t) (msync nil)) &body proc-body)
+;; i have to rethink the semantics of the 'msync' parameter, really ... 
+(defmacro dispatch (name (&key (sync-to nil) (unique t) (msync nil) (shift 0.0)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors (list ,@proc-body))
 		      (old-chain (gethash ,name *chain-directory*)))		      		     
@@ -74,7 +79,7 @@
 			((and old-chain (< 0 (length event-processors)))
 			 (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
 			 ;; rebuild chain, activate
-			 (unless (chain-from-list ,name event-processors :activate (is-active old-chain))
+			 (unless (chain-from-list ,name event-processors :activate (is-active old-chain) :shift ,shift)
 			   (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain))))	       	     
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
@@ -83,7 +88,7 @@
 			((< 0 (length event-processors))
 			 (incudine::msg info "new chain ~D, trying to build it ..." ,name)
 			 ;; build chain, activate
-			 (unless (chain-from-list ,name event-processors)
+			 (unless (chain-from-list ,name event-processors :shift ,shift)
 			   (incudine::msg error "couldn't build chain ~D" ,name)))
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)
@@ -92,16 +97,16 @@
 		  (if (and ,sync-to (gethash ,sync-to *chain-directory*))		      			
 		      (unless (and (member ,name (synced-chains (gethash ,sync-to *chain-directory*)))
 				   (not ,msync))
-			  (deactivate ,name)
-			  (incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" ,name ,sync-to ,name ,sync-to)
-			  (setf (synced-chains (gethash ,sync-to *chain-directory*))
-				(append (synced-chains (gethash ,sync-to *chain-directory*))
-					(list ,name))))
+			(deactivate ,name)
+			(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" ,name ,sync-to ,name ,sync-to)
+			(setf (synced-chains (gethash ,sync-to *chain-directory*))
+			      (append (synced-chains (gethash ,sync-to *chain-directory*))
+				      (list ,name))))
 		      (unless (is-active chain)
 			(activate ,name)
-			(incudine:at (incudine:now) #'perform-dispatch
+			(incudine:at (+ (incudine:now) #[(chain-shift chain) ms]) #'perform-dispatch
 				     ,name
-				     (incudine:timestamp) (incudine:now))))))))
+				     (+ (incudine:timestamp) (* (chain-shift chain) 0.001)) (+ (incudine:now) #[(chain-shift chain) ms]))))))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
