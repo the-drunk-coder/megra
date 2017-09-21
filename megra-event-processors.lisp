@@ -293,8 +293,7 @@
 		     id
 		     (gensym))))
     (incudine::msg info "~D" cc-name)
-    (chance-combine cc-name chance event :affect-transition at :filter f)
-    ))
+    (chance-combine cc-name chance event :affect-transition at :filter f)))
 
 ;; a random walk on whatever parameter ...
 (defclass stream-brownian-motion (modifying-event-processor generic-brownian-motion) ())
@@ -313,17 +312,20 @@
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
    (synced-chains :accessor synced-chains :initform nil)
+   (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
    (shift :accessor chain-shift :initform 0.0 :initarg :shift)))
 
 (in-package :megra)
-(defun activate (chain-id)
-  (incudine::msg info "activating ~D" chain-id)
-  (setf (is-active (gethash chain-id *chain-directory*)) t))
+(defun activate (chain)
+  (incudine::msg info "activating ~D" chain)
+  (setf (is-active chain) t))
 
-;; deactivate ... if it's a modifying event processor, delete it ... 
-(defun deactivate (chain-id &key (del nil))
-  (setf (is-active (gethash chain-id *chain-directory*)) nil))
+;; deactivate ... if it's a modifying event processor, delete it ...
+(in-package :megra)
+(defun deactivate (chain)
+  (incudine::msg info "deactivating ~D" chain)
+  (setf (is-active chain) nil))
 
 (defmethod pull-events ((p processor-chain) &key)
   (pull-events (topmost-processor p)))

@@ -1,6 +1,36 @@
 (in-package :megra)
 ;; define some test graph structures
 
+(sink 'drums-sink ()
+  (graph 'drums ()
+    (node 1 (grain "02_instruments" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
+    (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
+    (edge 1 2 :dur 1000 :prob 100)
+    (edge 2 1 :dur 1000 :prob 100)))
+
+;; the solution is rather prosaic:
+(sink 'bassline-sink (:sync-to 'drums-sink) ;; <-- sync to ...
+  (graph 'bassline ()
+    (node 1 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 2 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (edge 1 2 :dur 1000 :prob 100)
+    (edge 2 1 :dur 1000 :prob 100)))
+
+(sink 'guitar-sink (:sync-to 'drums-sink :shift 0) ;;<- sync, but wait for 200ms!
+  (graph 'guitar ()
+    (node 1 (grain "02_instruments" "09_egit_lick_high_140bpm"
+		   :lvl 0.5
+		   :lp-dist 0.9
+		   :dur 160
+		   :start 0.21 ;; <- start position, relative to the file length
+		   :rate 1.0)) ;; <- playback rate ..
+    (edge 1 1 :dur 1000 :prob 100)))
+
+(clear)
+(stop)
+
+(incudine::flush-pending)
+
 (g 'some-sines ()
     (n 1 (tri 'd1 :lvl .6 :lp-freq 1000 :lp-dist 1.0 :dur 200))
     (n 2 (sqr 'a1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))

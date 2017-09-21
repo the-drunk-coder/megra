@@ -240,15 +240,19 @@
 (in-package :megra)
 
 (defun clear ()
+  ;; first of all stop all events already passed to incudine ...
+  (incudine::flush-pending)
   (setf *processor-directory* (make-hash-table :test 'eql))
+  (loop for chain being the hash-values of *chain-directory*
+       do (deactivate chain))       
   (setf *chain-directory* (make-hash-table :test 'eql)))
 
 (in-package :megra)
-(defun stop (&rest chains)
+(defun stop (&rest chains)  
   (if (<= (length chains) 0)
-   (loop for chain being the hash-keys of *chain-directory*
+   (loop for chain being the hash-values of *chain-directory*
       do (deactivate chain))
-   (mapc #'deactivate chains)))
+   (mapc #'(lambda (chain-id) (deactivate (gethash chain-id *chain-directory*))) chains)))
 
 ;; convenience functions to set params in some object ...
 (defun pset (object param value)
