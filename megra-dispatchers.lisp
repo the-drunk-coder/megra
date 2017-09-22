@@ -1,10 +1,21 @@
 ;; event dispatching and related stuff ... 
 
 ;; simple time-recursive dispatching
-;; not using local variable binding to reduce consing (??)
 (in-package :megra)
 
-(defun perform-dispatch (chain osc-time incudine-time)  
+(defun perform-dispatch (chain osc-time incudine-time)
+  ;;(incudine::msg info "perform dispatch ~D" chain)
+  ;; create anschluss when old instance has been deactivated (hopefully)
+  (when (anschluss-kette chain)    
+    (let ((sync-shift (chain-shift (anschluss-kette chain))))
+      (handler-case		    
+	  (incudine:aat (+ incudine-time #[sync-shift ms])
+			#'perform-dispatch
+			(anschluss-kette chain)    
+			(+ osc-time (* sync-shift 0.001))
+			it)		  		
+	(simple-error (e) (incudine::msg error "~D" e)))))
+  ;; regular case ... 
   (when (and chain (is-active chain))
     ;; here, the events are produced and handled ...
     (when (synced-chains chain)
@@ -29,7 +40,6 @@
     ;; handle events from current graph
     ;; again, secure this, so that the chain can be restarted
     ;; without having to clear everything ...
-    ;; (incudine::msg info "pull and handle events from: ~D" chain)
     (handler-case (handle-events (pull-events chain) osc-time)
       (simple-error (e)
 	(incudine::msg error "cannot pull and handle events: ~D" e)
@@ -60,15 +70,20 @@
 			 (incudine::msg info "chain ~D waiting for sync ..." ,name))
 			((and old-chain (>= 0 (length event-processors)))
 			 ;; this (probably) means that the chain has been constructed by the chain macro
-			 ;; if chain is active, do nothing, otherwise activate 
+			 ;; if chain is active, do nothing, otherwise activate
+			 (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
 			 (incudine::msg info "chain ~D already present, handling it ..." ,name))			    
 			((and old-chain (< 0 (length event-processors)))
 			 ;; this means that the chain will be replaced ... 
 			 (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
-			 ;; rebuild chain, activate
-			 (if (chain-from-list ,name event-processors :activate (is-active old-chain) :shift ,shift)
-			     (deactivate old-chain)
-			     (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain))))	       	     
+			 ;; rebuild chain, activate, create "anschluss" to old chain (means s.th. flange or continuity)
+			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
+				(new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff)))
+			   (if (not new-chain)
+			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
+			   ;; in that case, the syncing chain will do the anschluss ...
+			   (unless ,sync-to (setf (anschluss-kette old-chain) new-chain))
+			   (deactivate old-chain))) 
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
 			 ;; it's an error condition ...

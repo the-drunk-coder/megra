@@ -327,7 +327,8 @@
 	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
 
 (in-package :megra)
-(defun clone (original-id clone-id)
+
+(defun clone (original-id clone-id &key (track t))
   (let ((original (gethash original-id *processor-directory*)))
     (when original
       (let* ((clone (clone-instance original))
@@ -336,7 +337,8 @@
 	(setf (name clone) clone-id)
 	(setf (chain-bound clone) nil)
 	(setf (source-graph clone) graph-clone)
-	(setf (gethash clone-id *processor-directory*) clone))
-      (unless (member clone-id (clones original))
-	(setf (clones original) (append (clones original) (list clone-id))))
+	(setf (gethash clone-id *processor-directory*) clone))      
+      (when track
+	(unless (member clone-id (clones original))
+	  (setf (clones original) (append (clones original) (list clone-id)))))
       clone-id)))

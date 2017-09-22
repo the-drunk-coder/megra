@@ -312,6 +312,7 @@
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
    (synced-chains :accessor synced-chains :initform nil)
+   (anschluss-kette :accessor anschluss-kette :initform nil)
    (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
    (shift :accessor chain-shift :initform 0.0 :initarg :shift)))

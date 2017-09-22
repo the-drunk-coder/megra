@@ -8,6 +8,19 @@
     (edge 1 2 :dur 1000 :prob 100)
     (edge 2 1 :dur 1000 :prob 100)))
 
+
+(stop 'drums-sink-clone)
+(stop 'drums-sink)
+
+(clone 'drums 'drums-dl)
+
+(sink 'drums-sink-clone (:shift 0)
+  'drums-dl
+
+  )
+
+(clear)
+
 ;; the solution is rather prosaic:
 (sink 'bassline-sink (:sync-to 'drums-sink) ;; <-- sync to ...
   (graph 'bassline ()
@@ -16,7 +29,7 @@
     (edge 1 2 :dur 1000 :prob 100)
     (edge 2 1 :dur 1000 :prob 100)))
 
-(sink 'guitar-sink (:sync-to 'drums-sink :shift 0) ;;<- sync, but wait for 200ms!
+(sink 'guitar-sink (:sync-to 'drums-sink :shift 100) ;;<- sync, but wait for 200ms!
   (graph 'guitar ()
     (node 1 (grain "02_instruments" "09_egit_lick_high_140bpm"
 		   :lvl 0.5
@@ -52,11 +65,28 @@
 
 (clear)
 
-(sink 's2 ()
+(sink 's2 (:branch t)
   (g 'some-other-sines ()
-    (n 1 (sine 'd4 :lvl .6 :dur 200))
-    (n 2 (sine 'f3 :lvl .6 :dur 200))
-    (n 3 (sine 'b4 :lvl .6 :dur 200))
+    (n 1 (sine 'ds6 :lvl .6 :dur 200))
+    (n 2 (sine 'fs4 :lvl .6 :dur 200))
+    (n 3 (sine 'bs5 :lvl .6 :dur 200))
+    (e 1 2 :p 50 :d 300)
+    (e 1 1 :p 50 :d 300) 
+    (e '(1 1 1) 3 :p 100 :d 900)     
+    (e 2 1 :p 10 :d 300)
+    (e 2 3 :p 10 :d 200)
+    (e 2 2 :p 80 :d 300)
+    (e '(2 2 2 2 2) 3 :p 50 :d 600)
+    (e '(2 2 2 2 2) 1 :p 50 :d 600)   
+    (e 3 1 :p 100 :d 300)))
+
+(gethash 's2 *branch-directory*)
+
+(sink 's2 (:branch t)
+  (g 'other-sines ()
+    (n 1 (sine 'd6 :lvl .6 :dur 200))
+    (n 2 (sine 'f4 :lvl .6 :dur 200))
+    (n 3 (sine 'b5 :lvl .6 :dur 200))
     (e 1 2 :p 50 :d 300)
     (e 1 1 :p 50 :d 300) 
     (e '(1 1 1) 3 :p 100 :d 900)     
@@ -781,11 +811,10 @@
 ;; note names for filter freqs - generic way ?
 ;; clean up auto-named stream mods
 ;; addressing ?
-;; BUG multiple dispatch with sync leads to strange 'results 
 ;; error message when sync is not viable ? 
 ;; total crash ?? how to reproduce ? 
 ;; check -- stream modifiers on pmod events ... should be resolved while
-;; copying, but it's not always the casem as it seems ... 
+;;   copying, but it's not always the casem as it seems ... 
 ;; simplify startup 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
@@ -810,6 +839,18 @@
 ;;     if event has only dur -> default sample ? Precedence ? Fallback ?
 ;; programmatically hook processor in between two others (hook 'proc :post 'bla)
 ;; merge streams ? (merge 'tap-a 'tap-b) -- POSSIBLE only if streams have same origin ...
+;; track phase offset per event source for oscillate-between
+;; define meaningful behaviour for non-mandatory modifiers ...
+;; (chance ...) shortcut ... even though the semantics of "chance" is
+;;    slightly different, as is evaluates the chance of something to happen for the current
+;;    event, whereas a graph modifies the modification for the next event ... 
+;; graph-theory stuff -- graph transformations etc
+;; midi note blocker for disklavier
+
+
+;; DONE:
+;; syncstart (for live use mainly ...)
+;; more vugs
 ;; parameter faders/modders - anonymous
 ;;    (mid 84 :lvl '(fade 0.2 0.4 :step 10)) -> step inc after each (handle-event)
 ;;    (oscillate-between ... :ubound '(fade 0.4 :step 400)
@@ -817,17 +858,7 @@
 ;;        before event evaluation
 ;;        before event modification (i.e. before the modifier acts)
 ;;     CONFLICT: what if event passes through modifier ? 
-;; track phase offset per event source for oscillate-between
-;; define meaningful behaviour for non-mandatory modifiers ...
-;; (chance ...) shortcut ... even though the semantics of "chance" is
-;;    slightly different, as is evaluates the chance of something to happen for the current
-;;    event, whereas a graph modifies the modification for the next event ... 
-;; graph-theory stuff -- graph transformations etc
-;; syncstart (for live use mainly ...)
-;; midi note blocker for disklavier
-;; more vugs
-
-;; DONE:
+;; BUG multiple dispatch with sync leads to strange 'results 
 ;; avoid complete stop when sync is called with nil graph -- still relevant ?
 ;;    yes - start chain, then sync other chain with nil graph ...
 ;; make chain re-startable, even when there's a nil somewhere (without clearing)
