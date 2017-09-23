@@ -1,21 +1,62 @@
 (in-package :megra)
 ;; define some test graph structures
 
-(sink 'drums-sink ()
-  (graph 'drums ()
-    (node 1 (grain "02_instruments" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
-    (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
-    (edge 1 2 :dur 1000 :prob 100)
-    (edge 2 1 :dur 1000 :prob 100)))
+(sink 's2 (:branch t :sync-to 'drums-sink)
+  (cc 80 (rev 0.1) :id 'bullerbü)
+  (g 'some-other-sines ()
+    (n 1 (sine 'd4 :lvl .6 :dur 200))
+    (n 2 (sine 'es5 :lvl .6 :dur 200))
+    (n 3 (sine 'b4 :lvl .6 :dur 200))
+    (n 3 (sine 'cs5 :lvl .6 :dur 200))
+    (e 1 2 :p 50 :d 300)
+    (e 1 1 :p 50 :d 300) 
+    (e '(1 1 1) 3 :p 100 :d 900)     
+    (e 2 1 :p 10 :d 300)
+    (e 2 3 :p 10 :d 200)
+    (e 2 2 :p 80 :d 300)
+    (e '(2 2 2 2) 3 :p 50 :d 600)
+    (e '(2 2 2 2) 1 :p 50 :d 600)   
+    (e 3 1 :p 100 :d 300)))
 
+(sink 's3 ()
+  (clone 'some-other-sines 'smore-sines :track nil)
+  )
+
+(clear)
+
+(sink 'drums-sink (:branch t)
+  (cc 100 (rev 0.1))
+  (graph 'drums ()
+    (node 1 (grain "02_instruments" "jazzy_bd" :rev 0.0
+		   :lvl 0.9 :rate 3.2 :lp-dist 0.9 :dur 100))
+    (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
+		   :dur 100 :rate 12 :rev 0.0))
+    (edge 1 2 :dur 900 :prob 100)
+    (edge 2 1 :dur 900 :prob 100)))
+
+(merg 's2)
+
+(gethash 'drums-sink *branch-directory*)
+
+(clear)
 
 (stop 'drums-sink-clone)
 (stop 'drums-sink)
 
 (clone 'drums 'drums-dl)
 
+(clone 'drums 'drums-dl-2 :track nil)
+
 (sink 'drums-sink-clone (:shift 0)
+  (cc 0 (lvl 0.0))
   'drums-dl
+
+  )
+
+
+(sink 'drums-sink-clone-2 (:shift 0)
+  (cc 0 (lvl 0.0))
+  'drums-dl-2
 
   )
 
@@ -301,6 +342,7 @@
   (edge 1 1 :prob 100
 	:dur #'()
 	))
+
 
 (dispatch 'd1 ()  
   (oscillate-between 'osc-azi 'azi 0.0 3.14 :cycle 50)

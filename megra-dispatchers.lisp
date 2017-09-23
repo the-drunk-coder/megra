@@ -61,12 +61,47 @@
 (in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
-(defmacro dispatch (name (&key (sync-to nil) (unique t) (shift 0.0)) &body proc-body)
+(defmacro dispatch (name (&key (sync-to nil) (branch nil) (unique t) (shift 0.0)) &body proc-body)
+  ;; when we're branching the chain, we temporarily save the state of all processor
+  ;; directories (as we cannot be sure which ones are used ...)
+  (when branch
+    (loop for proc-id being the hash-keys of *processor-directory*
+       do (setf (gethash proc-id *prev-processor-directory*)
+		(clone proc-id proc-id :track nil :store nil))))
   `(funcall #'(lambda ()
-		(let ((event-processors (list ,@proc-body))
+		(let ((event-processors
+		       ;;replace symbols by
+		       (mapc #'(lambda (proc) (when (typep proc 'symbol)
+					   (gethash proc *processor-directory*)))
+			     (list ,@proc-body)))
 		      (old-chain (gethash ,name *chain-directory*)))		  
 		  ;; first, construct the chain ...
-		  (cond ((and old-chain (wait-for-sync old-chain))			 
+		  (cond ((and ,branch old-chain)
+			 ;; if we're branching, move the current chain to the branch directory
+			 ;; and replace the one in the chain-directory by a copy ...
+			 (incudine::msg info "branching chain ~D" ,name)			 
+			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
+				;; build a chain from the previous states of the event processors ... 
+				(real-old-chain (chain-from-list ,name
+							    (mapcar #'(lambda (proc)									
+								        (gethash (name proc) *prev-processor-directory*))
+								    event-processors)
+							    :activate (is-active old-chain)
+							    :shift shift-diff))
+				;; build the new chain from the current states 
+				(new-chain (chain-from-list ,name
+							    (mapcar #'(lambda (proc)									
+									(clone (name proc) (gensym (symbol-name (name proc))) :track nil))
+								    event-processors)
+							    :activate nil
+							    :shift shift-diff)))
+			   (if (not new-chain)
+			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
+			   ;; in that case, the syncing chain will do the
+			   (deactivate old-chain) ;; dactivate old chain and set anschluss
+			   (setf (anschluss-kette old-chain) real-old-chain)
+			   (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list real-old-chain)))))
+			((and old-chain (wait-for-sync old-chain))			 
 			 (incudine::msg info "chain ~D waiting for sync ..." ,name))
 			((and old-chain (>= 0 (length event-processors)))
 			 ;; this (probably) means that the chain has been constructed by the chain macro

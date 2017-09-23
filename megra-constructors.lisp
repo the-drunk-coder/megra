@@ -34,9 +34,9 @@
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
 (defmacro graph (name (&key (perma nil) (combine-mode ''append)
-			    (affect-transition nil)
-			    (combine-filter #'all-p)
-			    (update-clones t)) &body graphdata)
+		       (affect-transition nil)
+		       (combine-filter #'all-p)
+		       (update-clones t)) &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
 		      (mapc #'(lambda (obj)
@@ -61,15 +61,15 @@
 					  (setf (combine-filter my-clone) ,combine-filter)
 					  (setf (update-clones my-clone) ,update-clones)
 					  (setf (copy-events my-clone) (not ,perma))))
-					(clones cur-instance))))			    
+				    (clones cur-instance)))
+			    cur-instance)			    
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
 					       :graph new-graph :copy-events (not ,perma)
 					       :current-node 1 :combine-mode ,combine-mode
 					       :affect-transition ,affect-transition
 					       :combine-filter ,combine-filter
-					       :update-clones ,update-clones))))
-		 ,name)))
+					       :update-clones ,update-clones)))))))
 
 ;;  shorthand for graph
 (setf (macro-function 'g) (macro-function 'graph))
@@ -188,11 +188,6 @@
 			     :current-node 1 :combine-mode 'append
 			     :combine-filter #'all-p)))))
 
-;; build the event processor chain, in the fashion of a douby-linked list ...
-;;(defun toggle (proc)
-;;  (if (is-active (gethash proc *processor-directory*))
-;;      (deactivate proc :del nil)
-;;      (dispatch (:chain t) proc)))
 
 ;; modifying ... always check if the modifier is already present !
 (defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
@@ -212,8 +207,7 @@
       (setf (chain-bound new-inst) (chain-bound old-inst))
       (when keep-state
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
-    (setf (gethash name *processor-directory*) new-inst))
-  name)
+    (setf (gethash name *processor-directory*) new-inst)))
 
 (defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
 								     (affect-transition nil)
@@ -233,8 +227,7 @@
       (when keep-state
 	(setf (pmod-step new-inst) (pmod-step (gethash name *processor-directory*)))
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
-    (setf (gethash name *processor-directory*) new-inst))
-  name)
+    (setf (gethash name *processor-directory*) new-inst)))
 
 
 (in-package :megra)
@@ -245,7 +238,18 @@
   (setf *processor-directory* (make-hash-table :test 'eql))
   (loop for chain being the hash-values of *chain-directory*
        do (deactivate chain))       
-  (setf *chain-directory* (make-hash-table :test 'eql)))
+  (loop for branch being the hash-values of *branch-directory*
+     do (mapc #'deactivate branch))       
+  (setf *chain-directory* (make-hash-table :test 'eql))
+  (setf *branch-directory* (make-hash-table :test 'eql)))
+
+(megra)
+(defun merge (proc-id)
+  (mapc #'deactivate (gethash proc-id *branch-directory*))
+  
+  (setf (gethash proc-id *branch-directory*) nil))
+
+
 
 (in-package :megra)
 (defun stop (&rest chains)  
@@ -328,17 +332,18 @@
 
 (in-package :megra)
 
-(defun clone (original-id clone-id &key (track t))
+(defun clone (original-id clone-id &key (track t) (store t))
   (let ((original (gethash original-id *processor-directory*)))
     (when original
-      (let* ((clone (clone-instance original))
-	     (graph-clone (clone-instance (source-graph original))))
-	(setf (graph-id graph-clone) clone-id)
+      (let ((clone (clone-instance original)))
+	(when (typep original 'graph-event-processor)
+	  (setf (source-graph clone) (clone-instance (source-graph original)))
+	  (setf (graph-id (source-graph clone)) clone-id))	
 	(setf (name clone) clone-id)
-	(setf (chain-bound clone) nil)
-	(setf (source-graph clone) graph-clone)
-	(setf (gethash clone-id *processor-directory*) clone))      
-      (when track
-	(unless (member clone-id (clones original))
-	  (setf (clones original) (append (clones original) (list clone-id)))))
-      clone-id)))
+	(setf (chain-bound clone) nil)	
+	(when store
+	  (setf (gethash clone-id *processor-directory*) clone))
+	(when track
+	  (unless (member clone-id (clones original))
+	    (setf (clones original) (append (clones original) (list clone-id)))))
+	clone))))

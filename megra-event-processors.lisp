@@ -267,8 +267,7 @@
 		  (combine-single-events (event-to-combine c) event)		  
 		  event)))
 	;;(filter-events c events :check-mod-prop nil)
-	events
-	))
+	events))
 
 ;; the constructor ... 
 (defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p))
@@ -283,8 +282,7 @@
 	(old-inst (gethash name *processor-directory*)))
     (when old-inst
       (setf (chain-bound new-inst) (chain-bound old-inst)))
-    (setf (gethash name *processor-directory*) new-inst))
-  name)
+    (setf (gethash name *processor-directory*) new-inst)))
 
 ;; shorthand
 (in-package :megra)
@@ -312,7 +310,8 @@
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
    (synced-chains :accessor synced-chains :initform nil)
-   (anschluss-kette :accessor anschluss-kette :initform nil)
+   ;; think of anschluss-zug -> connection train ... 
+   (anschluss-kette :accessor anschluss-kette :initform nil) 
    (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
    (shift :accessor chain-shift :initform 0.0 :initarg :shift)))
@@ -336,9 +335,8 @@
 
 (in-package :megra)
 (defun connect (processor-ids last chain-name unique)
-  (let ((current (gethash (car processor-ids) *processor-directory*))
-	(next (gethash (cadr processor-ids) *processor-directory*))
-	(last (gethash last *processor-directory*)))
+  (let ((current (car processor-ids))
+	(next (cadr processor-ids)))
     ;; if you try to hook it into a different chain ... 
     (if (and unique
 	     next 
@@ -359,19 +357,23 @@
 	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))
     (setf (chain-bound current) chain-name)))
 
-(defun detach (processor)
-  (when processor
-    (when (predecessor processor)
-      (detach (predecessor processor) current-processor-ids)
-      (setf (predecessor processor) nil))
-    (when (successor processor)
-      (setf (successor processor) nil))    
-    (setf (chain-bound processor) nil)))
+
+;;(defun detach (processor)
+;; (when processor
+;;   (when (predecessor processor)
+;;    (detach (predecessor processor) current-processor-ids)
+;;    (setf (predecessor processor) nil))
+;;  (when (successor processor)
+;;    (setf (successor processor) nil))    
+;;  (setf (chain-bound processor) nil)))
 
 ;; chain events without dispatching ...
 (in-package :megra)
 (defmacro chain (name (&key (unique t) (activate nil) (shift 0.0)) &body proc-body)
-  `(funcall #'(lambda () (let ((event-processors (list ,@proc-body)))		    
+  `(funcall #'(lambda () (let ((event-processors
+			   (mapc #'(lambda (proc) (when (typep proc 'symbol)
+					       (gethash proc *processor-directory*)))
+				 (list ,@proc-body))))		    
 		      (chain-from-list
 		       ,name
 		       event-processors
@@ -379,12 +381,10 @@
 		       :activate, activate
 		       :shift ,shift)))))
 
-(defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0))
+(defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil))
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
-  (let ((topmost-proc (gethash
-		       (car event-processors)
-		       *processor-directory*))
+  (let ((topmost-proc (car event-processors))
 	(old-chain (gethash name *chain-directory*)))		        
     (if (chain-bound topmost-proc)
 	(let ((new-chain (make-instance
@@ -393,9 +393,13 @@
 			  :is-active activate
 			  :shift shift))) 
 	  ;; if an old chain was present, preserve active state 
-	  (when (and old-chain (is-active old-chain))
-	    (setf (is-active new-chain) t))
-	  (setf (gethash name *chain-directory*) new-chain))
+	  ;;(when (and old-chain (is-active old-chain))
+	   ;; (setf (is-active new-chain) t))
+	  (if branch
+	      (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list new-chain)))
+	      (setf (gethash name *chain-directory*) new-chain))
+
+	  )
 	(incudine::msg error "chain-building went wrong, seemingly ..."))))
 
 
