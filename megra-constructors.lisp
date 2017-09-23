@@ -243,8 +243,8 @@
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql)))
 
-(megra)
-(defun merge (proc-id)
+(in-package :megra)
+(defun merg (proc-id)
   (mapc #'deactivate (gethash proc-id *branch-directory*))
   
   (setf (gethash proc-id *branch-directory*) nil))
