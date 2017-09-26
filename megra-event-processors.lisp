@@ -371,8 +371,9 @@
 (in-package :megra)
 (defmacro chain (name (&key (unique t) (activate nil) (shift 0.0)) &body proc-body)
   `(funcall #'(lambda () (let ((event-processors
-			   (mapc #'(lambda (proc) (when (typep proc 'symbol)
-					       (gethash proc *processor-directory*)))
+			   (mapcar #'(lambda (proc) (if (typep proc 'symbol)
+						   (gethash proc *processor-directory*)
+						   proc))
 				 (list ,@proc-body))))		    
 		      (chain-from-list
 		       ,name
@@ -393,13 +394,11 @@
 			  :is-active activate
 			  :shift shift))) 
 	  ;; if an old chain was present, preserve active state 
-	  ;;(when (and old-chain (is-active old-chain))
-	   ;; (setf (is-active new-chain) t))
+	  ;; (when (and old-chain (is-active old-chain))
+	  ;; (setf (is-active new-chain) t))
 	  (if branch
-	      (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list new-chain)))
-	      (setf (gethash name *chain-directory*) new-chain))
-
-	  )
+	      (setf (gethash name *branch-directory*) (append (gethash name *branch-directory*) (list new-chain)))
+	      (setf (gethash name *chain-directory*) new-chain)))
 	(incudine::msg error "chain-building went wrong, seemingly ..."))))
 
 

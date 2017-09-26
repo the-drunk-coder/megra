@@ -43,7 +43,8 @@
     (handler-case (handle-events (pull-events chain) osc-time)
       (simple-error (e)
 	(incudine::msg error "cannot pull and handle events: ~D" e)
-	(setf (is-active chain) nil)))
+	;;(setf (is-active chain) nil)
+	))
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...
     ;; this method works only with SC,
@@ -58,6 +59,7 @@
 (defun handle-events (events osc-timestamp)
   (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
 
+
 (in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
@@ -69,11 +71,17 @@
        do (setf (gethash proc-id *prev-processor-directory*)
 		(clone proc-id proc-id :track nil :store nil))))
   `(funcall #'(lambda ()
-		(let ((event-processors
-		       ;;replace symbols by
-		       (mapc #'(lambda (proc) (when (typep proc 'symbol)
-					   (gethash proc *processor-directory*)))
-			     (list ,@proc-body)))
+		(let* ((event-processors-raw
+		       ;;replace symbols by instances
+		       (mapcar #'(lambda (proc) (if (typep proc 'symbol)
+					       (gethash proc *processor-directory*)
+					       proc))
+			       (list ,@proc-body)))
+		       ;; if there's a faulty proc somewhere, proceed with an empty
+		       ;; list ... dispatching will just continue with the old chain ... 
+		      (event-processors (if (member nil event-processors-raw)
+					    nil
+					    event-processors-raw))
 		      (old-chain (gethash ,name *chain-directory*)))		  
 		  ;; first, construct the chain ...
 		  (cond ((and ,branch old-chain)
@@ -105,9 +113,12 @@
 			 (incudine::msg info "chain ~D waiting for sync ..." ,name))
 			((and old-chain (>= 0 (length event-processors)))
 			 ;; this (probably) means that the chain has been constructed by the chain macro
+			 ;; OR that the chain would be faulty and thus, was not built (i.e. if it contained a proc
+			 ;; that doesn't exist)
+			 ;;
 			 ;; if chain is active, do nothing, otherwise activate
 			 (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
-			 (incudine::msg info "chain ~D already present, handling it ..." ,name))			    
+			 (incudine::msg info "chain ~D already present (maybe the attempt to rebuild was faulty ?), handling it ..." ,name))			    
 			((and old-chain (< 0 (length event-processors)))
 			 ;; this means that the chain will be replaced ... 
 			 (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
@@ -122,7 +133,7 @@
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
 			 ;; it's an error condition ...
-			 (incudine::msg error "cannot build chain ~D from nothing ..." ,name))
+			 (incudine::msg error "cannot build chain ~D from nothing" ,name))
 			((< 0 (length event-processors))
 			 (incudine::msg info "new chain ~D, trying to build it ..." ,name)
 			 ;; build chain, activate
