@@ -128,7 +128,7 @@
 			   (if (not new-chain)
 			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
 			   ;; in that case, the syncing chain will do the anschluss ...
-			   (unless ,sync-to (setf (anschluss-kette old-chain) new-chain))
+			   (unless (gethash ,sync-to *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
 			   (deactivate old-chain))) 
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
