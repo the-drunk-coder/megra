@@ -857,6 +857,9 @@
 
 
 ;; TBD:
+;; evtl BUG - missing stream filter predicates can lead to chain not being started
+;; more selective branching - revert to last/first state ??
+;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
 ;; note names for filter freqs - generic way ?
 ;; clean up auto-named stream mods
 ;; addressing ?
