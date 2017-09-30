@@ -31,15 +31,16 @@
 
 (clear)
 
-(sink 'drums-sink (:branch t)
+(sink 'drums-sink ()
   (cc 100 (rev 0.1))
   (graph 'drums ()
     (node 1 (grain "02_instruments" "jazzy_bd" :rev 0.0
-		   :lvl 0.9 :rate 3.2 :lp-dist 0.9 :dur 100))
+		   :lvl 0.9 :rate 0.9 :lp-dist 0.9 :dur 100))
     (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
-		   :dur 100 :rate 12 :rev 0.0))
+		   :dur 300 :rate 0.5 :lp- :rev 0.0))
     (edge 1 2 :dur 900 :prob 100)
-    (edge 2 1 :dur 900 :prob 100)))
+    (edge 2 1 :dur 900 :prob 100))
+  )
 
 (merg 's2)
 
@@ -324,10 +325,10 @@
 (deactivate 'uno-midi)
 (clear)
 ;; use the grain event to play a (or parts of) a soundfile
+
 (graph 'the-grain () 
-  (node 1 (grain "misc" "tada" :dur 512 :pos 0.0 :lvl 0.5 :rate 0.4 :atk 64 :rel 65 :rev 0.2
-		 :ambi-p nil :backend '(sc)))
-       (edge 1 1 :prob 100 :dur 512))
+  (node 1 (grain "misc" "tada" :dur 3000 :lp-freq 6000 :pos 0.5 :lvl 1.0 :rate 0.5 :atk 64 :rel 65 :rev 0.0))
+       (edge 1 1 :prob 100 :dur 2000 ))
 
 (dispatch 'd1 (:sync-to 'the-512-beat)
   ;;(chance-combine 'grain-lvl-cc 0 (lvl 0.0))
@@ -859,7 +860,6 @@
 ;; TBD:
 ;; evtl BUG - missing stream filter predicates can lead to chain not being started
 ;; more selective branching - revert to last/first state ??
-;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
 ;; note names for filter freqs - generic way ?
 ;; clean up auto-named stream mods
 ;; addressing ?
@@ -901,6 +901,7 @@
 
 
 ;; DONE:
+;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
 ;; syncstart (for live use mainly ...)
 ;; more vugs
 ;; parameter faders/modders - anonymous

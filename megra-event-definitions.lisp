@@ -234,10 +234,10 @@
   :long-name lowpass-frequency-lfo-event
   :short-name lp-freq-lfo
   :parent-events (event)
-  :parameters ((lp-lfo-speed event-lp-lfo-speed 0.0)
-	       (lp-lfo-depth event-lp-lfo-depth 0.0)
-	       (lp-lfo-phase event-lp-lfo-phase 0.0)) 
-  :direct-parameters (lp-lfo-speed))
+  :parameters ((lp-freq-lfo-speed event-lp-freq-lfo-speed 0.0)
+	       (lp-freq-lfo-depth event-lp-freq-lfo-depth 0.0)
+	       (lp-freq-lfo-phase event-lp-freq-lfo-phase 0.0)) 
+  :direct-parameters (lp-freq-fo-speed))
 
 (define-event
   :long-name highpass-frequency-lfo-event
@@ -341,6 +341,7 @@
 		  release-event
 		  filter-hp-event
 		  filter-lp-event
+		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
   :parameters ((sample-folder event-sample-folder)
