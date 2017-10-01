@@ -32,12 +32,14 @@
 (clear)
 
 (sink 'drums-sink ()
-  (cc 100 (rev 0.1))
+  
   (graph 'drums ()
     (node 1 (grain "02_instruments" "jazzy_bd" :rev 0.0
 		   :lvl 0.9 :rate 0.9 :lp-dist 0.9 :dur 100))
     (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
-		   :dur 300 :rate 0.5 :lp- :rev 0.0))
+		   :dur 800 :rate 0.5 :lp-freq-lfo-speed 1.0
+		   :lp-freq-lfo-depth 1.0 :lp-freq-lfo-phase 0.5 :lp-freq 9000
+		   :rev 0.0))
     (edge 1 2 :dur 900 :prob 100)
     (edge 2 1 :dur 900 :prob 100))
   )

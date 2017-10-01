@@ -8,7 +8,7 @@
     (if (> (event-reverb g) 0)     
 	(osc:simple-bundle cm::*oscout* timestamp  
 			   "/s_new"	    
-			   "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			   "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
 			   "grain_2ch_rev" -1 0 1
 			   "bufnum" bufnum
 			   "lvl" (coerce (event-level g) 'float)
@@ -32,7 +32,7 @@
 			   "rev" (coerce (event-reverb g) 'float))
 	(osc:simple-bundle cm::*oscout* timestamp
 			   "/s_new"	    
-			   "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			   "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
 			   "grain_2ch" -1 0 1
 			   "bufnum" bufnum
 			   "lvl" (coerce (event-level g) 'float)
