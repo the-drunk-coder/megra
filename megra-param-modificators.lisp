@@ -20,7 +20,6 @@
    (type :accessor pmod-osc-type :initarg :type));; not really used yet ... 
   )
 
-
 ;; this one is stateless, not dependent on current value ...
 (defclass param-oscillate-between (generic-oscillate-between param-mod-object) nil)
 
@@ -39,7 +38,7 @@
 (defclass generic-fade ()
   ((from :accessor pmod-from :initarg :from)
    (to :accessor pmod-to :initarg :to)   
-   (steps :accessor pmod-steps :initarg :steps )
+   (steps :accessor pmod-steps :initarg :steps)
    (type :accessor pmod-fade-type :initarg :type)
    (current-value :accessor pmod-current-value :initarg :start-value)))
 
@@ -92,8 +91,53 @@
     new-value))
 
 (defun brownian (&key upper lower (start 0) (step-size 1) (wrap t) (limit nil))
-  (make-instance 'param-brownian-motion :upper upper :lower lower :step-size step-size
-		 :is-bounded limit :is-wrapped wrap :start-value start))
-				        
+  (make-instance 'param-brownian-motion
+		 :upper upper :lower lower :step-size step-size
+		 :is-bounded limit :is-wrapped wrap
+		 :start-value start))
 
+(defclass generic-envelope ()
+  ((levels :accessor pmod-envelope-levels :initarg :levels :initform nil)
+   (steps :accessor pmod-envelope-steps :initarg :steps :initform nil)
+   (current-from :accessor pmod-current-from)
+   (current-to :accessor pmod-current-to)   
+   (current-steps :accessor pmod-current-steps)
+   (last-steps :accessor pmod-last-steps :initform 0)
+   (done :accessor pmod-done :initform nil)))
 
+(defclass param-envelope (generic-envelope param-mod-object) ())
+
+(defmethod initialize-instance :after ((p param-envelope) &key)
+  (setf (pmod-current-from p) (car (pmod-envelope-levels p)))
+  (setf (pmod-current-to p) (cadr (pmod-envelope-levels p)))
+  (setf (pmod-current-steps p) (car (pmod-envelope-steps p)))
+  ;; drop first values
+  (setf (pmod-envelope-levels p) (cdr (pmod-envelope-levels p)))
+  (setf (pmod-envelope-steps p) (cdr (pmod-envelope-steps p))))
+
+(defmethod evaluate :before ((p param-envelope)) 
+  (cond ((and (<= (pmod-current-steps p) (- (pmod-step p) (pmod-last-steps p)))
+	     (cadr (pmod-envelope-levels p)))  
+	 (setf (pmod-last-steps p) (+ (pmod-last-steps p) (pmod-current-steps p)))
+	 (setf (pmod-current-from p) (car (pmod-envelope-levels p)))
+	 (setf (pmod-current-to p) (cadr (pmod-envelope-levels p)))
+	 (setf (pmod-current-steps p) (car (pmod-envelope-steps p)))
+	 ;; drop first values
+	 (setf (pmod-envelope-levels p) (cdr (pmod-envelope-levels p)))
+	 (setf (pmod-envelope-steps p) (cdr (pmod-envelope-steps p))))
+	((and (<= (pmod-current-steps p) (- (pmod-step p) (pmod-last-steps p)))
+	      (not (cadr (pmod-envelope-levels p))))
+	 (setf (pmod-done p) t))))
+
+(defmethod evaluate ((p param-envelope))
+  (if (or (eql (pmod-current-from p) (pmod-current-to p))
+	  (pmod-done p))
+      (pmod-current-to p)
+      (let* ((osc-range (- (pmod-current-to p) (pmod-current-from p)))		   
+	     (degree-increment (/ 90 (pmod-current-steps p)))
+	     (degree (* degree-increment (min (- (pmod-step p) (pmod-last-steps p))
+					      (pmod-current-steps p)))))    
+	(+ (pmod-current-from p) (* (sin (radians degree)) osc-range)))))
+
+(defun env (levels steps)
+  (make-instance 'param-envelope :levels levels :steps steps))

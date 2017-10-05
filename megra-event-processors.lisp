@@ -294,7 +294,8 @@
     (chance-combine cc-name chance event :affect-transition at :filter f)))
 
 ;; a random walk on whatever parameter ...
-(defclass stream-brownian-motion (modifying-event-processor generic-brownian-motion) ())
+(defclass stream-brownian-motion
+    (modifying-event-processor generic-brownian-motion) ())
   
 ;; make state-tracking switchable ??? 
 (defmethod apply-self ((b stream-brownian-motion) events &key)
