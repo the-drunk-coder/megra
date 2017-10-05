@@ -2,27 +2,29 @@
 
 (g 'gleichlauf-cello-inc ()
   (node 1 (grain "02_instruments" "pizz_f4" :dur 65
-		 :lvl 0.7 :rate 0.6 :start 0.04 :atk 1 :rel 7
-		 :lp-dist 1.0 :lp-freq 5000 :hp-freq 1000 :rev 0.0 :pos 0.5))
-  (edge 1 1 :prob 100 :dur 500))
+		 :lvl 0.7 :rate 1.0 :start 0.0
+		 :atk 1 :rel 7 :lp-dist 1.0 :lp-freq 5000
+		 :hp-freq 1000 :rev 0.0 :pos 0.5))
+  (edge 1 1 :prob 100 :dur 200))
 
+(sink 'cel () 'gleichlauf-cello-inc)
+
+(graph 'piano ()
+       (node 1 (mid 'f3 :dur 128 :lvl 0.9))
+       (edge 1 1 :prob 100 :dur 200))
+
+(sink 'pia (:sync-to 'gleichlauf-cello-inc) 'piano)
 
 (graph 'buzz-volca ()
-       (node 1 (volca 'g1 :dur 255
-		      :lvl 0.6))
-       
+       (node 1 (volca 'g1 :dur 255 :lvl 0.6))
        (edge 1 1 :prob 100 :dur 500))
+
+(sink 'buz (:sync-to 'gleichlauf-cello-inc) 'buzz-volca)
 
 (graph 'gb-ping ()
-       (node 1 (gb2 'g3 :dur 255
-		      :lvl 0.6))
-       
+       (node 1 (gb2 'g3 :dur 255 :lvl 0.6))
        (edge 1 1 :prob 100 :dur 500))
 
-(sink 'c1 () 'gleichlauf-cello-inc)
-
-(dispatch (:sync-to 'gleichlauf-cello-inc) 'buzz-volca)
-
-(dispatch (:sync-to 'gleichlauf-cello-inc) 'gb-ping)
+(sink 'gab (:sync-to 'gleichlauf-cello-inc) 'gb-ping)
 
 (clear)

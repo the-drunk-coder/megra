@@ -60,13 +60,12 @@
   :parameters ((channel event-channel 0))
   :direct-parameters (pitch)
   :handler (events (cm::new cm::midi
-		     :time *global-midi-delay*
+		     :time *global-midi-delay*			  
 		     :channel (event-channel evt)
 		     :keynum (event-pitch evt)
-		     :duration (coerce (* (event-duration evt) 0.001) 'single-float)
-		     :amplitude (round (* 127 (event-level evt))))
-		   :at (incudine:now)))
-
+		     :duration (coerce
+				(* (event-duration evt) 0.001) 'single-float)
+		     :amplitude (round (* 127 (event-level evt))))))
 
 (define-event-alias
   :long-name midi-event
@@ -110,7 +109,8 @@
 		     :time *global-midi-delay*
 		     :channel (event-cc-channel evt)
 		     :controller (event-cc-controller evt)
-		     :value (car (multiple-value-list (round (event-cc-value evt)))))	     
+		     :value (car (multiple-value-list
+				  (round (event-cc-value evt)))))	     
 		   :at (incudine:now)))
 
 (define-event-alias

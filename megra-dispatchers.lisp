@@ -3,14 +3,13 @@
 ;; simple time-recursive dispatching
 (in-package :megra)
 
-(defun perform-dispatch (chain osc-time incudine-time)
-  ;;(incudine::msg info "perform dispatch ~D" chain)
+(defun perform-dispatch-sep-times (chain osc-time incudine-time)
   ;; create anschluss when old instance has been deactivated (hopefully)
   (when (anschluss-kette chain)    
     (let ((sync-shift (chain-shift (anschluss-kette chain))))
       (handler-case		    
 	  (incudine:aat (+ incudine-time #[sync-shift ms])
-			#'perform-dispatch
+			#'perform-dispatch-sep-times
 			(anschluss-kette chain)    
 			(+ osc-time (* sync-shift 0.001))
 			it)		  		
@@ -30,7 +29,7 @@
 	      ;; forgotten graphs ... 	        
 	      (handler-case		    
 		  (incudine:aat (+ incudine-time #[sync-shift ms])
-				#'perform-dispatch
+				#'perform-dispatch-sep-times
 				synced-chain
 				(+ osc-time (* sync-shift 0.001))
 				it)		  		
@@ -56,9 +55,50 @@
       (incudine:aat next-incu-time
 		    #'perform-dispatch chain next-osc-time it))))
 
+(defun perform-dispatch (chain incudine-time)
+  ;; create anschluss when old instance has been deactivated (hopefully)
+  (when (anschluss-kette chain)    
+    (let ((sync-shift (chain-shift (anschluss-kette chain))))
+      (handler-case		    
+	  (incudine:aat (+ incudine-time #[sync-shift ms])
+			#'perform-dispatch
+			(anschluss-kette chain)    		        
+			it)		  		
+	(simple-error (e) (incudine::msg error "~D" e)))))
+  ;; regular case ... 
+  (when (and chain (is-active chain))
+    ;; here, the events are produced and handled ...
+    (when (synced-chains chain)
+      (loop for synced-chain in (synced-chains chain)	     
+	 ;; don't check if it's active, as only deactivated procs
+	 ;; are added to sync list
+	 do (let ((sync-shift (chain-shift synced-chain)))	        
+	      (activate synced-chain)
+	      (setf (wait-for-sync synced-chain) nil)
+	      (setf (chain-shift synced-chain) 0)
+	      ;; secure this to ensure smooth operation in case of
+	      ;; forgotten graphs ... 	        
+	      (handler-case		    
+		  (incudine:aat (+ incudine-time #[sync-shift ms])
+				#'perform-dispatch			        
+				it)		  		
+		(simple-error (e) (incudine::msg error "~D" e)))))
+      ;; reset all synced processors
+      (setf (synced-chains chain) nil))
+    ;; handle events from current graph
+    ;; again, secure this, so that the chain can be restarted
+    ;; without having to clear everything ...
+    (handler-case (handle-events (pull-events chain) (incudine::rt-time-offset))
+      (simple-error (e)
+	(incudine::msg error "cannot pull and handle events: ~D" e)))
+    ;; here, the transition time between events is determinend,
+    ;; and the next evaluation is scheduled ...    
+    (let* ((trans-time (transition-duration (car (pull-transition chain))))	   
+	   (next-incu-time (+ incudine-time #[trans-time ms])))
+      (incudine:aat next-incu-time #'perform-dispatch chain it))))
+
 (defun handle-events (events osc-timestamp)
   (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
-
 
 (in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
@@ -157,11 +197,16 @@
 				      (list chain))))		      
 		      (unless (or (is-active chain) (wait-for-sync chain))					        
 			(activate chain)
-			(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
-				     #'perform-dispatch
-				     chain
-				     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
-				     (+ (incudine:now) #[(chain-shift chain) ms]))))))))
+			;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
+			;;	     #'perform-dispatch-sep-times
+			;;	     chain
+			;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
+			;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
+			(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
+				    #'perform-dispatch
+				    chain				     
+				    it))
+		      )))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
