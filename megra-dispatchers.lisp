@@ -80,7 +80,8 @@
 	      ;; forgotten graphs ... 	        
 	      (handler-case		    
 		  (incudine:aat (+ incudine-time #[sync-shift ms])
-				#'perform-dispatch			        
+				#'perform-dispatch
+			        synced-chain
 				it)		  		
 		(simple-error (e) (incudine::msg error "~D" e)))))
       ;; reset all synced processors
