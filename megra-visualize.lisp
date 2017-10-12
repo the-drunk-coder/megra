@@ -33,11 +33,12 @@
 	    ((> (edge-probablity e) 1) 0.1)
 	    (t 0))))
 
+(in-package :megra)
 (defmethod graph->dot ((g graph) &key (output nil))
   (format output "digraph{~%")
   (loop for val being the hash-values of (graph-nodes g)
      do (node->dot val :output output))
-  (loop for val being the hash-values of (graph-edges g)
+  (loop for val being the hash-values of (gethash 1 (graph-edges g))
      do (mapc #'(lambda (edge) (edge->dot edge :output output)) val))
   (format output "~%}"))
 

@@ -38,7 +38,7 @@
 (in-package :megra)
 
 ;; recieve anything on the specified port ...
-(defparameter *oscin* (osc:open :host "0.0.0.0" :port 7400 :direction :input))
+(defparameter *oscin* (osc:open :host "0.0.0.0" :port 12000 :direction :input))
 
 (incudine::recv-start *oscin*)
 

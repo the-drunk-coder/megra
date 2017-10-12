@@ -72,7 +72,7 @@
 			     #\tab
 			     (print-node (gethash key (graph-nodes (source-graph g))))))	  
 	  (loop for key being the hash-keys of
-	       (graph-edges (source-graph g))
+	       (gethash 1 (graph-edges (source-graph g)))
 	     append
 	       (mapcar #'(lambda (edge) (format nil "~C~a~%"
 			    #\tab

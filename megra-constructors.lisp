@@ -109,7 +109,11 @@
     (loop for src from 1 to count
        do (loop for dest from 1 to count
 	     do (let ((randval (random 100)))
-		 (if (and (< randval ,randomize) (not (get-edge new-graph src dest)))
+		  (if (and (< randval ,randomize)
+			   (not (get-edge new-graph
+					  (if (typep src 'sequence)
+					      src
+					      (list src)) dest)))
 		     (insert-edge new-graph
 				  (edge src dest :prob 0))))))
     (if (gethash ,name *processor-directory*)
@@ -145,7 +149,11 @@
     (loop for src from 1 to count
        do (loop for dest from 1 to count
 	     do (let ((randval (random 100)))
-		 (if (and (< randval ,randomize) (not (get-edge new-graph src dest)))
+		  (if (and (< randval ,randomize)
+			   (not (get-edge new-graph
+					  (if (typep src 'sequence)
+					      src
+					      (list src)) dest)))
 		     (insert-edge new-graph
 				  (edge src dest :prob 0))))))
     (if (gethash ,name *processor-directory*)
@@ -177,7 +185,11 @@
     (loop for src from 1 to count
        do (loop for dest from 1 to count
 	     do (let ((randval (random 100)))
-		 (if (and (< randval randomize) (not (get-edge new-graph src dest)))
+		  (if (and (< randval randomize)
+			   (not (get-edge new-graph
+					  (if (typep src 'sequence)
+					      src
+					      (list src)) dest)))
 		     (insert-edge new-graph
 				  (edge src dest :prob 0 :dur default-dur))))))
     (if (gethash name *processor-directory*)
@@ -243,15 +255,10 @@
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql)))
 
-(in-package :megra)
 (defun merg (proc-id)
-  (mapc #'deactivate (gethash proc-id *branch-directory*))
-  
+  (mapc #'deactivate (gethash proc-id *branch-directory*))  
   (setf (gethash proc-id *branch-directory*) nil))
 
-
-
-(in-package :megra)
 (defun stop (&rest chains)  
   (if (<= (length chains) 0)
    (loop for chain being the hash-values of *chain-directory*
