@@ -70,15 +70,13 @@
 	  (loop for key being the hash-keys of (graph-nodes (source-graph g))
 	     collect (format nil "~C~a~%"
 			     #\tab
-			     (print-node (gethash key (graph-nodes (source-graph g))))))	  
-	  (loop for key being the hash-keys of
-	       (gethash 1 (graph-edges (source-graph g)))
-	     append
-	       (mapcar #'(lambda (edge) (format nil "~C~a~%"
-			    #\tab
-			    (print-edge edge)))
-		       (gethash key (graph-edges (source-graph g)))))))
-
+			     (print-node
+			      (gethash key (graph-nodes (source-graph g))))))	  
+	  (let ((order-one-edges (gethash 1 (graph-edges (source-graph g)))))
+	      (loop for key being the hash-keys of order-one-edges
+		 append (mapcar
+			 #'(lambda (edge) (format nil "~C~a~%" #\tab (print-edge edge)))
+			 (gethash key order-one-edges))))))
 
 ;; initialize counter hash table ...
 (defmethod initialize-instance :after ((g graph-event-processor) &key)

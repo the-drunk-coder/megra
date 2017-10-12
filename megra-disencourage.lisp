@@ -13,15 +13,14 @@
   ;; the double reverse is performed to drop the last element, as this will be
   ;; not really percieved by the user, i guess ... 
   (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
-     do (let* ((encouraged-edge (get-edge (source-graph g)
-					  (if (typep src 'list)
-					      src
-					      (list src))
+     do (let* ((edge-source (if (typep src 'list) src (list src)))
+	       (encouraged-edge (get-edge (source-graph g)
+					  edge-source
 					  dest))
 	       (discouraged-edges (shuffle-list
 				   (remove encouraged-edge
 					   ;; get edges for order 1 ... 
-					   (gethash src (gethash 1 (graph-edges (source-graph g)))))))
+					   (gethash edge-source (gethash 1 (graph-edges (source-graph g)))))))
 	       (discourage-points prob-mod))
 	  ;;(format t "encourage ~a ~a" src dest)
 	  ;; the edge to encourage
@@ -51,7 +50,9 @@
   ;; not really percieved by the user, i guess ... 
   (loop for (src dest) on (reverse (cdr (reverse (traced-path g)))) while dest
      do (let* ((edge-source (if (typep src 'list) src (list src)))
-	       (discouraged-edge (get-edge (source-graph g) edge-source dest))
+	       (discouraged-edge (get-edge (source-graph g)
+					   edge-source
+					   dest))
 	       (encouraged-edges (shuffle-list
 				  (remove discouraged-edge
 					  (gethash edge-source (gethash 1 (graph-edges (source-graph g)))))))
