@@ -134,7 +134,8 @@
 	     '())))
     ;; prioritize higher-order edges ...
     ;; this loop construction is creepy ...
-    (loop named order-loop for order from (graph-highest-edge-order (source-graph g)) downto 1
+    (loop named order-loop for order from
+	 (graph-highest-edge-order (source-graph g)) downto 1
        ;; iterate over the edge orders ...
        if (gethash order (graph-edges (source-graph g)))
        do (let ((edges-for-order (gethash order (graph-edges (source-graph g)))))	    

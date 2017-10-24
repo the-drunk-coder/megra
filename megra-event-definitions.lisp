@@ -145,7 +145,7 @@
   :parameters ((pos event-position 0.5)
 	       (azi event-azimuth 0.0)
 	       (ele event-elevation 0.0)
-	       (dst event-distance 0.0)
+	       (dst event-distance 2.0)
 	       (ambi-p event-ambi-p nil)) 
   :direct-parameters (pos))
 
@@ -313,7 +313,7 @@
   :short-name filter-lp
   :parent-events (event)
   :parameters ((lp-freq event-lp-freq 19000)
-	       (lp-q event-lp-q 0.4)
+	       (lp-q event-lp-q 0.1)
 	       (lp-dist event-lp-dist 0.0)) 
   :direct-parameters (lp-freq))
 

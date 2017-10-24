@@ -6,53 +6,106 @@
   ;; might save a hashtable access here ... later ...
   (let ((bufnum (gethash (event-sample-location g) *sc-buffer-directory*)))    
     (if (> (event-reverb g) 0)     
-	(osc:simple-bundle cm::*oscout* timestamp  
-			   "/s_new"	    
-			   "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
-			   "grain_2ch_rev" -1 0 1
-			   "bufnum" bufnum
-			   "lvl" (coerce (event-level g) 'float)
-			   "rate" (coerce (event-rate g) 'float)
-			   "start" (coerce (event-start g) 'float)
-			   "lp_freq" (coerce (event-lp-freq g) 'float)
-			   "lp_q" (coerce (event-lp-q g) 'float)
-			   "lp_dist" (coerce (event-lp-dist g) 'float)
-			   "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
-			   "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
-			   "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
-			   "pf_freq" (coerce (event-pf-freq g) 'float)
-			   "pf_q" (coerce (event-pf-q g) 'float)
-			   "pf_gain" (coerce (event-pf-gain g) 'float)
-			   "hp_freq" (coerce (event-hp-freq g) 'float)
-			   "hp_q" (coerce (event-hp-q g)  'float)
-			   "a" (coerce (* (event-attack g) 0.001) 'float)
-			   "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
-			   "r" (coerce (* (event-release g) 0.001) 'float)
-			   "pos" (coerce (- (event-position g) 0.5) 'float)
-			   "rev" (coerce (event-reverb g) 'float))
-	(osc:simple-bundle cm::*oscout* timestamp
-			   "/s_new"	    
-			   "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
-			   "grain_2ch" -1 0 1
-			   "bufnum" bufnum
-			   "lvl" (coerce (event-level g) 'float)
-			   "rate" (coerce (event-rate g) 'float)
-			   "start" (coerce (event-start g) 'float)
-			   "lp_freq" (coerce (event-lp-freq g) 'float)
-			   "lp_q" (coerce (event-lp-q g) 'float)
-			   "lp_dist" (coerce (event-lp-dist g) 'float)
-			   "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
-			   "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
-			   "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
-			   "pf_freq" (coerce (event-pf-freq g) 'float)
-			   "pf_q" (coerce (event-pf-q g) 'float)
-			   "pf_gain" (coerce (event-pf-gain g) 'float)
-			   "hp_freq" (coerce (event-hp-freq g) 'float)
-			   "hp_q" (coerce (event-hp-q g)  'float)
-			   "a" (coerce (* (event-attack g) 0.001) 'float)
-			   "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
-			   "r" (coerce (* (event-release g) 0.001) 'float)
-			   "pos" (coerce (- (event-position g) 0.5) 'float)))))
+	(if (event-ambi-p g)
+	    (osc:simple-bundle cm::*oscout* timestamp  
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_ambi_rev" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)
+			       "lp_dist" (coerce (event-lp-dist g) 'float)
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "hp_q" (coerce (event-hp-q g)  'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "azi" (coerce (* (event-azimuth g) 3.14159) 'float)
+			       "ele" (coerce (* (event-elevation g) (* 3.14159 0.5)) 'float)
+			       "radius" (coerce (* (event-distance g) 0.001) 'float)			       
+			       "rev" (coerce (event-reverb g) 'float))
+	    (osc:simple-bundle cm::*oscout* timestamp  
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_2ch_rev" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)
+			       "lp_dist" (coerce (event-lp-dist g) 'float)
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "hp_q" (coerce (event-hp-q g)  'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "pos" (coerce (- (event-position g) 0.5) 'float)
+			       "rev" (coerce (event-reverb g) 'float)))
+	(if (event-ambi-p g)
+	    (osc:simple-bundle cm::*oscout* timestamp
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_ambi" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)
+			       "lp_dist" (coerce (event-lp-dist g) 'float)
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "hp_q" (coerce (event-hp-q g)  'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "azi" (coerce (* (event-azimuth g) 3.14159) 'float)
+			       "ele" (coerce (* (event-elevation g) (* 3.14159 0.5)) 'float)
+			       "radius" (coerce (* (event-distance g) 0.001) 'float))
+	    (osc:simple-bundle cm::*oscout* timestamp
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_2ch" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)
+			       "lp_dist" (coerce (event-lp-dist g) 'float)
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "hp_q" (coerce (event-hp-q g)  'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "pos" (coerce (- (event-position g) 0.5) 'float))))))
 
 (defmethod handle-sine-event-sc ((s sine-event) timestamp &key)
   (if (> (event-reverb s) 0)     
@@ -61,8 +114,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "sine_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -77,8 +130,8 @@
 			 "siiisfsfsfsfsfsfsfsfsf"
 			 "sine_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -96,8 +149,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "tri_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -112,8 +165,8 @@
 			 "siiisfsfsfsfsfsfsfsfsf"
 			 "tri_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -131,8 +184,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "cub_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -147,8 +200,8 @@
 			 "siiisfsfsfsfsfsfsfsfsf"
 			 "cub_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -166,8 +219,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "par_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -182,8 +235,8 @@
 			 "siiisfsfsfsfsfsfsfsfsf"
 			 "par_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -201,8 +254,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "saw_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -217,8 +270,8 @@
 			 "siiisfsfsfsfsfsfsfsfsf"
 			 "saw_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -236,8 +289,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
 			 "sqr_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -253,8 +306,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "sqr_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -274,8 +327,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
 			 "buzz_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch b) 'symbol)
-				    (cm::hertz (event-pitch b))
-				    (event-pitch b)) 'float)			 
+					    (cm::hertz (event-pitch b))
+					    (event-pitch b)) 'float)			 
 			 "lvl" (coerce (event-level b) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq b) 'float)
 			 "lp_q" (coerce (event-lp-q b) 'float)
@@ -291,8 +344,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "buzz_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch b) 'symbol)
-				    (cm::hertz (event-pitch b))
-				    (event-pitch b)) 'float)
+					    (cm::hertz (event-pitch b))
+					    (event-pitch b)) 'float)
 			 "lvl" (coerce (event-level b) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq b) 'float)
 			 "lp_q" (coerce (event-lp-q b) 'float)
@@ -310,8 +363,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsfsf"
 			 "sqr_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -328,8 +381,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
 			 "sqr_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -348,8 +401,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsfsf"
 			 "saw_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)			 
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)			 
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -365,8 +418,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
 			 "saw_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch s) 'symbol)
-				    (cm::hertz (event-pitch s))
-				    (event-pitch s)) 'float)
+					    (cm::hertz (event-pitch s))
+					    (event-pitch s)) 'float)
 			 "lvl" (coerce (event-level s) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq s) 'float)
 			 "lp_q" (coerce (event-lp-q s) 'float)
@@ -384,8 +437,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsfsf"
 			 "meow_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch m) 'symbol)
-				    (cm::hertz (event-pitch m))
-				    (event-pitch m)) 'float)			 
+					    (cm::hertz (event-pitch m))
+					    (event-pitch m)) 'float)			 
 			 "lvl" (coerce (event-level m) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq m) 'float)
 			 "lp_q" (coerce (event-lp-q m) 'float)
@@ -401,8 +454,8 @@
 			 "siiisfsfsfsfsfsfsfsfsfsf"
 			 "meow_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch m) 'symbol)
-				    (cm::hertz (event-pitch m))
-				    (event-pitch m)) 'float)
+					    (cm::hertz (event-pitch m))
+					    (event-pitch m)) 'float)
 			 "lvl" (coerce (event-level m) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq m) 'float)
 			 "lp_q" (coerce (event-lp-q m) 'float)
@@ -421,8 +474,8 @@
 			 "siiisfsfsfsfsfsfsfsf"
 			 "pluck_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch p) 'symbol)
-				    (cm::hertz (event-pitch p))
-				    (event-pitch p)) 'float)			 
+					    (cm::hertz (event-pitch p))
+					    (event-pitch p)) 'float)			 
 			 "lvl" (coerce (event-level p) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq p) 'float)
 			 "lp_q" (coerce (event-lp-q p) 'float)
@@ -435,8 +488,8 @@
 			 "siiisfsfsfsfsfsfsf"
 			 "pluck_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch p) 'symbol)
-				    (cm::hertz (event-pitch p))
-				    (event-pitch p)) 'float)
+					    (cm::hertz (event-pitch p))
+					    (event-pitch p)) 'float)
 			 "lvl" (coerce (event-level p) 'float)	    
 			 "lp_freq" (coerce (event-lp-freq p) 'float)
 			 "lp_q" (coerce (event-lp-q p) 'float)
@@ -487,8 +540,8 @@
 			 "siiisfsfsfsfsfsfsfsfsf"
 			 "rhodey_sc_2ch_rev" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch d) 'symbol)
-				    (cm::hertz (event-pitch d))
-				    (event-pitch d)) 'float)			 
+					    (cm::hertz (event-pitch d))
+					    (event-pitch d)) 'float)			 
 			 "lvl" (coerce (event-level d) 'float)
 			 
 			 "mix" (coerce (event-mix d) 'float)	    
@@ -503,8 +556,8 @@
 			 "siiisfsfsfsfsfsfsfsf"
 			 "rhodey_sc_2ch" -1 0 1
 			 "freq" (coerce (if (typep (event-pitch d) 'symbol)
-				    (cm::hertz (event-pitch d))
-				    (event-pitch d)) 'float)
+					    (cm::hertz (event-pitch d))
+					    (event-pitch d)) 'float)
 			 "gain" (coerce (event-level d) 'float)	    
 			 "mix" (coerce (event-mix d) 'float)	    
 			 "lfoSpeed" (coerce (event-level-lfo-speed d) 'float)
