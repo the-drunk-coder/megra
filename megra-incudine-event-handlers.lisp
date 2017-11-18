@@ -50,8 +50,8 @@
 					  (* (- (event-duration g)
 						(event-attack g) (event-release g)) 0.001)
 					  (* (event-release g) 0.001)
-					  (+ (event-azimuth g) *global-azimuth-offset*)
-					  (+ (event-elevation g) *global-elevation-offset*)
+					  (* (event-azimuth g) 3.14159)
+					  (* (event-elevation g) (* 3.14159 0.5))
 					  (event-reverb g)
 					  scratch::*rev-chapel*)))))
 

@@ -153,7 +153,7 @@
 (define-event-alias
   :long-name spatial-event
   :alias ambi-pos
-  :direct-parameters (azi ele)
+  :direct-parameters (azi ele dst)
   :alias-defaults ((ambi-p t)))
 
 ;; custom print function to take into account the aliases

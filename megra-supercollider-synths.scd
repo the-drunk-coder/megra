@@ -59,7 +59,7 @@ SynthDef(\grain_ambi, {
 	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
 
 	var ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16;
-	# ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16 = FaustHOAEncoder3.ar(sample_lp * EnvGen.ar(outenv, doneAction:2), 0, radius, azi, ele, 1);
+	# ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16 = FaustHOAEncoder3.ar(sample_lp * EnvGen.ar(outenv, doneAction:2), 0, radius, azi, ele, 0);
 	Out.ar(0, FaustHOAConverter3.ar(ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16, input:1, output:2));
 
 }).store;
@@ -114,9 +114,9 @@ SynthDef(\grain_ambi_rev, {
 	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
 	var sample_rev = PartConv.ar(sample_lp, 2048, 1, rev);
 	var sample_out = (sample_lp * (1.0 - rev)) + sample_rev;
-	var revenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2.5, r]);
+	var revenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 1.5, r]);
 	var ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16;
-	# ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16 = FaustHOAEncoder3.ar(sample_out *  EnvGen.ar(revenv, doneAction:2), 0, radius, azi, ele, 1);
+	# ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16 = FaustHOAEncoder3.ar(sample_out *  EnvGen.ar(revenv, doneAction:2), 0, radius, azi, ele, 0);
 	Out.ar(0, FaustHOAConverter3.ar(ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16, input:1, output:2));
 }).store;
 
