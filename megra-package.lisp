@@ -50,12 +50,6 @@
 (defparameter *chain-directory* (make-hash-table :test 'eql))
 (defparameter *branch-directory* (make-hash-table :test 'eql))
 
-
-;; the default backend for DSP
-;; 'inc -> incudine
-;; 'sc -> SuperCollider
-(defparameter *default-dsp-backend* 'inc)
-
 (defparameter *pi* 3.14159265359)
 
 (defparameter *midi-responders* (make-hash-table :test 'eql))
@@ -64,9 +58,14 @@
 (defparameter *global-azimuth-offset* 0.0)
 (defparameter *global-elevation-offset* 0.0)
 
-(defparameter *global-midi-delay* 0.1)
+(defparameter *global-midi-delay* 0.17)
 
-(defparameter *global-osc-delay* 0.05)
+(defparameter *global-osc-delay* 0.02)
+
+
+;; the default backend for DSP
+;; 'inc -> incudine
+;; 'sc -> SuperCollider
 
 ;;(defparameter *default-dsp-backend* 'inc)
 (defparameter *default-dsp-backend* 'sc)
