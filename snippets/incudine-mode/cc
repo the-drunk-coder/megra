@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: chance-combine
+# key: cc
+# --
+(cc $1 ($2 $3))

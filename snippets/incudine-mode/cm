@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: chance-mute
+# key: cm
+# --
+(cc $1 (lvl 0.0))

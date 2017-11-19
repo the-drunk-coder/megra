@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: edge
+# key: ed
+# --
+(e $1 $2 :d $3 :p $4)
