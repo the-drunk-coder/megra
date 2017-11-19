@@ -79,7 +79,7 @@
   (let ((current-graph (source-graph (gethash name *processor-directory*))))
     (mapc #'(lambda (obj)
 	    (cond ((typep obj 'edge) (insert-edge current-graph obj))
-		  ((typep obj 'node) (insert-node current-graph obj))))
+ 		  ((typep obj 'node) (insert-node current-graph obj))))
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
 
@@ -204,7 +204,7 @@
 ;; modifying ... always check if the modifier is already present !
 (defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
 				     (affect-transition nil) (keep-state t)
-				     (track-state t) (filter #'all-p))
+				     (track-state t) (filter #'all-p) (store nil))
   (let ((new-inst (make-instance 'stream-brownian-motion :step-size step-size :mod-prop param
 				 :name name
 				 :upper ubound
@@ -219,12 +219,16 @@
       (setf (chain-bound new-inst) (chain-bound old-inst))
       (when keep-state
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
-    (setf (gethash name *processor-directory*) new-inst)))
+    (when store
+      (setf (gethash name *processor-directory*) new-inst))
+    new-inst))
 
 (defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
-								     (affect-transition nil)
-								     (keep-state t) (track-state t)
-								     (filter #'all-p))
+									    (affect-transition nil)
+									    (keep-state t) (track-state t)
+									    (filter #'all-p)
+									    (store nil)
+									    )
   (let ((new-inst (make-instance 'stream-oscillate-between :mod-prop param :name name
 				 :cycle cycle
 				 :upper upper-boundary
@@ -239,7 +243,9 @@
       (when keep-state
 	(setf (pmod-step new-inst) (pmod-step (gethash name *processor-directory*)))
 	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
-    (setf (gethash name *processor-directory*) new-inst)))
+    (when store
+      (setf (gethash name *processor-directory*) new-inst))
+    new-inst))
 
 
 (in-package :megra)

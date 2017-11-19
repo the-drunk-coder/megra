@@ -268,8 +268,10 @@
 	;;(filter-events c events :check-mod-prop nil)
 	events))
 
-;; the constructor ... 
-(defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p))
+;; the constructor ... if store is set, it'll be stored in the processor directory,
+;; if not, it'll be stored in the processor directory by the chain building
+;; routine
+(defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p) (store nil))
   (let ((new-inst (make-instance 'chance-combine
 				 :name name
 				 :combi-chance chance
@@ -281,7 +283,9 @@
 	(old-inst (gethash name *processor-directory*)))
     (when old-inst
       (setf (chain-bound new-inst) (chain-bound old-inst)))
-    (setf (gethash name *processor-directory*) new-inst)))
+    (when store
+      (setf (gethash name *processor-directory*) new-inst))
+    new-inst))
 
 ;; shorthand
 (in-package :megra)
@@ -367,20 +371,45 @@
 ;;    (setf (successor processor) nil))    
 ;;  (setf (chain-bound processor) nil)))
 
+(defun gen-proc-name (ch-name proc idx)
+  (intern (concatenate 'string
+		       (string ch-name) "-"
+		       (string (class-name (class-of proc))) "-"
+		       (format nil "~d" idx))))
+
 ;; chain events without dispatching ...
 (in-package :megra)
+
+;; handle the processor list ...
+(defun gen-proc-list (ch-name proc-list)
+  (let ((idx 0))
+    (mapcar #'(lambda (proc)
+		(incf idx)
+		(if (typep proc 'symbol)
+		    (gethash proc *processor-directory*)  
+		    ;; check if proc is already present,
+		    ;; if not, name it and insert it
+		    ;; the proc constructor will check if
+		    ;; there's
+		    ;; an old instance of itself,
+		    ;; and replace itself in that case
+		    (unless (or (typep proc 'graph-event-processor)
+				(gethash (name proc) *processor-directory*))
+		      (let ((proc-name (gen-proc-name ch-name proc idx)))
+			(setf (name proc) proc-name)
+			(setf (gethash proc-name *processor-directory*) proc)))))
+	    proc-list)))
+
 (defmacro chain (name (&key (unique t) (activate nil) (shift 0.0)) &body proc-body)
-  `(funcall #'(lambda () (let ((event-processors
-			   (mapcar #'(lambda (proc) (if (typep proc 'symbol)
-						   (gethash proc *processor-directory*)
-						   proc))
-				 (list ,@proc-body))))		    
-		      (chain-from-list
-		       ,name
-		       event-processors
-		       :unique ,unique
-		       :activate, activate
-		       :shift ,shift)))))
+  `(funcall #'(lambda ()
+		(let ((event-processors
+		       (gen-proc-list ,name (list ,@proc-body)))))
+		(chain-from-list
+		 ,name
+		 event-processors
+		 :unique ,unique
+		 :activate ,activate
+		 :shift ,shift))))
 
 (defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil))
   (connect event-processors nil name unique)

@@ -113,17 +113,14 @@
 		(clone proc-id proc-id :track nil :store nil))))
   `(funcall #'(lambda ()
 		(let* ((event-processors-raw
-		       ;;replace symbols by instances
-		       (mapcar #'(lambda (proc) (if (typep proc 'symbol)
-					       (gethash proc *processor-directory*)
-					       proc))
-			       (list ,@proc-body)))
+			;; replace symbols by instances, generate proper names, insert into proc directory
+		        (gen-proc-list ,name (list ,@proc-body)))
 		       ;; if there's a faulty proc somewhere, proceed with an empty
 		       ;; list ... dispatching will just continue with the old chain ... 
-		      (event-processors (if (member nil event-processors-raw)
-					    nil
-					    event-processors-raw))
-		      (old-chain (gethash ,name *chain-directory*)))		  
+		       (event-processors (if (member nil event-processors-raw)
+					     nil
+					     event-processors-raw))
+		       (old-chain (gethash ,name *chain-directory*)))		  
 		  ;; first, construct the chain ...
 		  (cond ((and ,branch old-chain)
 			 ;; if we're branching, move the current chain to the branch directory
