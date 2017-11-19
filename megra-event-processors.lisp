@@ -385,19 +385,21 @@
   (let ((idx 0))
     (mapcar #'(lambda (proc)
 		(incf idx)
-		(if (typep proc 'symbol)
-		    (gethash proc *processor-directory*)  
-		    ;; check if proc is already present,
-		    ;; if not, name it and insert it
-		    ;; the proc constructor will check if
-		    ;; there's
-		    ;; an old instance of itself,
-		    ;; and replace itself in that case
-		    (unless (or (typep proc 'graph-event-processor)
-				(gethash (name proc) *processor-directory*))
-		      (let ((proc-name (gen-proc-name ch-name proc idx)))
-			(setf (name proc) proc-name)
-			(setf (gethash proc-name *processor-directory*) proc)))))
+		(cond ((typep proc 'symbol)
+		       (gethash proc *processor-directory*))
+		      ;; check if proc is already present,
+		      ;; if not, name it and insert it
+		      ;; the proc constructor will check if
+		      ;; there's
+		      ;; an old instance of itself,
+		      ;; and replace itself in that case
+		      ((and (not (typep proc 'graph-event-processor))
+			    (not (gethash (name proc) *processor-directory*)))
+		       (let ((proc-name (gen-proc-name ch-name proc idx)))
+			 (setf (name proc) proc-name)
+			 (setf (gethash proc-name *processor-directory*) proc)))
+		      ((typep proc 'graph-event-processor) proc)
+		      ))
 	    proc-list)))
 
 (defmacro chain (name (&key (unique t) (activate nil) (shift 0.0) (group nil)) &body proc-body)
