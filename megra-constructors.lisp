@@ -261,15 +261,26 @@
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql)))
 
-(defun merg (proc-id)
-  (mapc #'deactivate (gethash proc-id *branch-directory*))  
-  (setf (gethash proc-id *branch-directory*) nil))
+(defun merg (chain-or-group-id)
+  (if (gethash chain-or-group-id *group-directory*)
+      (mapc #'merg (gethash chain-or-group-id *group-directory*))  
+      (progn
+	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
+	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun stop (&rest chains)  
   (if (<= (length chains) 0)
-   (loop for chain being the hash-values of *chain-directory*
-      do (deactivate chain))
-   (mapc #'(lambda (chain-id) (deactivate (gethash chain-id *chain-directory*))) chains)))
+      (loop for chain being the hash-values of *chain-directory*
+	 do (deactivate chain))
+      (mapc #'(lambda (id)
+		;; if it's a group, stop the group
+		(if (gethash id *group-directory*)
+		    (mapc #'(lambda (chain)
+			      (deactivate (gethash chain *chain-directory*)))
+			  (gethash id *group-directory*))
+		    ;; if it's a chain, stop the chain ...
+		    (deactivate (gethash id *chain-directory*))))
+		chains)))
 
 ;; convenience functions to set params in some object ...
 (defun pset (object param value)

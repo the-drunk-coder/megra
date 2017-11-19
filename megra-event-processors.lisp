@@ -400,7 +400,7 @@
 			(setf (gethash proc-name *processor-directory*) proc)))))
 	    proc-list)))
 
-(defmacro chain (name (&key (unique t) (activate nil) (shift 0.0)) &body proc-body)
+(defmacro chain (name (&key (unique t) (activate nil) (shift 0.0) (group nil)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors
 		       (gen-proc-list ,name (list ,@proc-body)))))
@@ -409,9 +409,10 @@
 		 event-processors
 		 :unique ,unique
 		 :activate ,activate
-		 :shift ,shift))))
+		 :shift ,shift
+		 :group ,group))))
 
-(defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil))
+(defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil) (group nil))
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
   (let ((topmost-proc (car event-processors))
@@ -425,6 +426,8 @@
 	  ;; if an old chain was present, preserve active state 
 	  ;; (when (and old-chain (is-active old-chain))
 	  ;; (setf (is-active new-chain) t))
+	  (if group
+	      (setf (gethash group *group-directory*) (append (gethash group *group-directory*) (list name))))
 	  (if branch
 	      (setf (gethash name *branch-directory*) (append (gethash name *branch-directory*) (list new-chain)))
 	      (setf (gethash name *chain-directory*) new-chain)))

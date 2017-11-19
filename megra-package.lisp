@@ -43,12 +43,21 @@
 (defvar *discourage-percentage* 5)
 
 (in-package :megra)
-;; main storage for event processors
+
+;; main storage for event processors (a processor can be used without
+;; being kept here, but at least historically it has been practical
+;; to keep track of certain things)
 (defparameter *processor-directory* (make-hash-table :test 'eql))
+
 ;; when branching, keep the previous states ... 
 (defparameter *prev-processor-directory* (make-hash-table :test 'eql))
+
+;; chains and branches 
 (defparameter *chain-directory* (make-hash-table :test 'eql))
 (defparameter *branch-directory* (make-hash-table :test 'eql))
+
+;; chain groups ... 
+(defparameter *group-directory* (make-hash-table :test 'eql))
 
 (defparameter *pi* 3.14159265359)
 

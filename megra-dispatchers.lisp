@@ -104,7 +104,8 @@
 (in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
-(defmacro dispatch (name (&key (sync-to nil) (branch nil) (unique t) (shift 0.0)) &body proc-body)
+;; as of november 2017, i don't even rememeber what i ever meant by 
+(defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (unique t) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   (when branch
@@ -133,14 +134,16 @@
 								        (gethash (name proc) *prev-processor-directory*))
 								    event-processors)
 							    :activate (is-active old-chain)
-							    :shift shift-diff))
+							    :shift shift-diff
+							    :group ,group))
 				;; build the new chain from the current states 
 				(new-chain (chain-from-list ,name
 							    (mapcar #'(lambda (proc)									
 									(clone (name proc) (gensym (symbol-name (name proc))) :track nil))
 								    event-processors)
 							    :activate nil
-							    :shift shift-diff)))
+							    :shift shift-diff
+							    :group ,group)))
 			   (if (not new-chain)
 			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
 			   ;; in that case, the syncing chain will do the
@@ -162,7 +165,7 @@
 			 (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
 			 ;; rebuild chain, activate, create "anschluss" to old chain (means s.th. flange or continuity)
 			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
-				(new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff)))
+				(new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff :group ,group)))
 			   (if (not new-chain)
 			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
 			   ;; in that case, the syncing chain will do the anschluss ...
@@ -203,8 +206,7 @@
 			(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
 				    #'perform-dispatch
 				    chain				     
-				    it))
-		      )))))
+				    it)))))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
