@@ -36,6 +36,13 @@
 		(simple-error (e) (incudine::msg error "~D" e)))))
       ;; reset all synced processors
       (setf (synced-chains chain) nil))
+    (handler-case
+	(when (synced-progns chain)
+	  (mapc #'funcall (synced-progns chain))
+	  (setf (synced-progns chain) nil))
+      (simple-error (e)
+	(incudine::msg error "cannot handle sync-progns: ~D" e)))
+    
     ;; handle events from current graph
     ;; again, secure this, so that the chain can be restarted
     ;; without having to clear everything ...
@@ -44,6 +51,7 @@
 	(incudine::msg error "cannot pull and handle events: ~D" e)
 	;;(setf (is-active chain) nil)
 	))
+    
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...
     ;; this method works only with SC,
@@ -86,12 +94,21 @@
 		(simple-error (e) (incudine::msg error "~D" e)))))
       ;; reset all synced processors
       (setf (synced-chains chain) nil))
+    (handler-case
+	(when (synced-progns chain)
+	  (mapc #'funcall (synced-progns chain))
+	  (setf (synced-progns chain) nil))
+      (simple-error (e)
+	(incudine::msg error "cannot handle sync-progns: ~D" e)))
+
     ;; handle events from current graph
     ;; again, secure this, so that the chain can be restarted
     ;; without having to clear everything ...
+    
     (handler-case (handle-events (pull-events chain) (incudine::rt-time-offset))
       (simple-error (e)
 	(incudine::msg error "cannot pull and handle events: ~D" e)))
+    
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...    
     (let* ((trans-time (transition-duration (car (pull-transition chain))))	   
@@ -130,12 +147,12 @@
 			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
 				;; build a chain from the previous states of the event processors ... 
 				(real-old-chain (chain-from-list ,name
-							    (mapcar #'(lambda (proc)									
-								        (gethash (name proc) *prev-processor-directory*))
-								    event-processors)
-							    :activate (is-active old-chain)
-							    :shift shift-diff
-							    :group ,group))
+								 (mapcar #'(lambda (proc)									
+									     (gethash (name proc) *prev-processor-directory*))
+									 event-processors)
+								 :activate (is-active old-chain)
+								 :shift shift-diff
+								 :group ,group))
 				;; build the new chain from the current states 
 				(new-chain (chain-from-list ,name
 							    (mapcar #'(lambda (proc)									
@@ -155,8 +172,7 @@
 			((and old-chain (>= 0 (length event-processors)))
 			 ;; this (probably) means that the chain has been constructed by the chain macro
 			 ;; OR that the chain would be faulty and thus, was not built (i.e. if it contained a proc
-			 ;; that doesn't exist)
-			 ;;
+			 ;; that doesn't exist)		     
 			 ;; if chain is active, do nothing, otherwise activate
 			 (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
 			 (incudine::msg info "chain ~D already present (maybe the attempt to rebuild was faulty ?), handling it ..." ,name))			    
@@ -204,9 +220,9 @@
 			;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
 			;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
 			(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
-				    #'perform-dispatch
-				    chain				     
-				    it)))))))
+				      #'perform-dispatch
+				      chain				     
+				      it)))))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))

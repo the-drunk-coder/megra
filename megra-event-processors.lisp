@@ -314,6 +314,7 @@
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
    (synced-chains :accessor synced-chains :initform nil)
+   (synced-progns :accessor synced-progns :initform nil)
    ;; think of anschluss-zug -> connection train ... 
    (anschluss-kette :accessor anschluss-kette :initform nil) 
    (wait-for-sync :accessor wait-for-sync :initform nil)
@@ -405,14 +406,14 @@
 (defmacro chain (name (&key (unique t) (activate nil) (shift 0.0) (group nil)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors
-		       (gen-proc-list ,name (list ,@proc-body)))))
+		       (gen-proc-list ,name (list ,@proc-body))))
 		(chain-from-list
 		 ,name
 		 event-processors
 		 :unique ,unique
 		 :activate ,activate
 		 :shift ,shift
-		 :group ,group))))
+		 :group ,group)))))
 
 (defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil) (group nil))
   (connect event-processors nil name unique)

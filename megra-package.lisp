@@ -59,6 +59,7 @@
 ;; chain groups ... 
 (defparameter *group-directory* (make-hash-table :test 'eql))
 
+
 (defparameter *pi* 3.14159265359)
 
 (defparameter *midi-responders* (make-hash-table :test 'eql))

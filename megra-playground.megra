@@ -13,21 +13,32 @@
     (e 2 3 :p 10 :d 200)
     (e 2 2 :p 80 :d 300)
     (e '(2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2) 1 :p 50 :d 600)   
+    (e '(2 2 2 2) 1 :p 50 :d 600)
     (e 3 1 :p 100 :d 300))
 
-(sink 's2 ()
-  (cc 80 (rev 0.1) )
-  (cc 20 (lvl 0.2) )
-  (cc 20 (atk 150) )
+(chain 's2 ()
+  (cc 80 (rev 0.1))
+  (cc 20 (lvl 0.2))
+  (cc 20 (atk 150))
   'some-other-sines-2
   )
 
+
+(sink 'blub (:shift 0 :group 'a)
+  'some-other-sines)
+
 (current-events (gethash 'some-other-sines *processor-directory*))
 
-(sink 's3 ()
-  (clone 'some-other-sines 'smore-sines :track nil)
-  )
+
+(macroexpand-1 '(sync-progn 's2
+  (sink 's1 (:sync-to nil :branch nil :shift 0 :group 'a ))))
+
+(sync-progn 'blub
+  (sink 's2 (:sync-to nil :branch nil :shift 0 :group 'a )))
+
+(gethash 'blub *sync-progn*)
+
+(setf *s)
 
 (clear)
 
