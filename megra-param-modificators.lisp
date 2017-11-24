@@ -90,7 +90,7 @@
     ;; return new value
     new-value))
 
-(defun brownian (&key upper lower (start 0) (step-size 1) (wrap t) (limit nil))
+(defun brownian (lower upper &key (start 0) (step-size 1) (wrap t) (limit nil))
   (make-instance 'param-brownian-motion
 		 :upper upper :lower lower :step-size step-size
 		 :is-bounded limit :is-wrapped wrap
