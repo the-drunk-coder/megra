@@ -2,4 +2,4 @@
 # name: sink
 # key: si
 # --
-(sink '$1 (:sync-to nil :branch nil :shift 0 :group $2) $3)
+(sink '$1 (:sync-to nil :branch nil :shift 0 :group ${2:'DEFAULT}) $3)
