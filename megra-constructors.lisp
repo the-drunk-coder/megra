@@ -227,8 +227,7 @@
 									    (affect-transition nil)
 									    (keep-state t) (track-state t)
 									    (filter #'all-p)
-									    (store nil)
-									    )
+									    (store nil))
   (let ((new-inst (make-instance 'stream-oscillate-between :mod-prop param :name name
 				 :cycle cycle
 				 :upper upper-boundary

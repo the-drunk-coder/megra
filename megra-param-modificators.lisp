@@ -103,7 +103,9 @@
    (current-to :accessor pmod-current-to)   
    (current-steps :accessor pmod-current-steps)
    (last-steps :accessor pmod-last-steps :initform 0)
-   (done :accessor pmod-done :initform nil)))
+   (done :accessor pmod-done :initform nil)
+   (repeat :accessor pmod-repeat :initarg :repeat :initform nil)
+   ))
 
 (defclass param-envelope (generic-envelope param-mod-object) ())
 
@@ -112,9 +114,16 @@
   (setf (pmod-current-to p) (cadr (pmod-envelope-levels p)))
   (setf (pmod-current-steps p) (car (pmod-envelope-steps p)))
   ;; drop first values
-  (setf (pmod-envelope-levels p) (cdr (pmod-envelope-levels p)))
-  (setf (pmod-envelope-steps p) (cdr (pmod-envelope-steps p))))
-
+  (if (pmod-repeat p)
+      (progn
+	(setf (pmod-envelope-levels p) (append (cdr (pmod-envelope-levels p))
+					       (list (car (pmod-envelope-levels p)))))
+	(setf (pmod-envelope-steps p) (append (cdr (pmod-envelope-steps p))
+					      (list (car (pmod-envelope-steps p))))))
+      (progn
+	(setf (pmod-envelope-levels p) (cdr (pmod-envelope-levels p)))
+	(setf (pmod-envelope-steps p) (cdr (pmod-envelope-steps p))))))
+  
 (defmethod evaluate :before ((p param-envelope)) 
   (cond ((and (<= (pmod-current-steps p) (- (pmod-step p) (pmod-last-steps p)))
 	     (cadr (pmod-envelope-levels p)))  
@@ -123,8 +132,15 @@
 	 (setf (pmod-current-to p) (cadr (pmod-envelope-levels p)))
 	 (setf (pmod-current-steps p) (car (pmod-envelope-steps p)))
 	 ;; drop first values
-	 (setf (pmod-envelope-levels p) (cdr (pmod-envelope-levels p)))
-	 (setf (pmod-envelope-steps p) (cdr (pmod-envelope-steps p))))
+	 (if (pmod-repeat p)
+	     (progn
+	       (setf (pmod-envelope-levels p) (append (cdr (pmod-envelope-levels p))
+						      (list (car (pmod-envelope-levels p)))))
+	       (setf (pmod-envelope-steps p) (append (cdr (pmod-envelope-steps p))
+						     (list (car (pmod-envelope-steps p))))))
+	     (progn
+	       (setf (pmod-envelope-levels p) (cdr (pmod-envelope-levels p)))
+	       (setf (pmod-envelope-steps p) (cdr (pmod-envelope-steps p))))))
 	((and (<= (pmod-current-steps p) (- (pmod-step p) (pmod-last-steps p)))
 	      (not (cadr (pmod-envelope-levels p))))
 	 (setf (pmod-done p) t))))
@@ -139,5 +155,5 @@
 					      (pmod-current-steps p)))))    
 	(+ (pmod-current-from p) (* (sin (radians degree)) osc-range)))))
 
-(defun env (levels steps)
-  (make-instance 'param-envelope :levels levels :steps steps))
+(defun env (levels steps &key repeat)
+  (make-instance 'param-envelope :levels levels :steps steps :repeat repeat))
