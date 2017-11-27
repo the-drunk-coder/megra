@@ -1,7 +1,8 @@
 # -*- mode: snippet -*-
 # name: single-grain
-# key: singlegrain	
+# key: sigra
 # --
+
 (g $1 ()
    (n 1 (grain $2 $3 :dur $4 :rate 1.0 :lp-freq 3000 :lp-dist 0.5 :lvl 0.7))
    (e 1 1 :d $5 :p 100)
