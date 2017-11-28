@@ -26,13 +26,28 @@
 
 (sink 'rere (:sync-to nil :branch nil :shift 0 :group 'DEFAULT)
   (g 'crepes ()
-    (n 1 (grain "elec" "bd808" :dur 90 :rate 9.0 :lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t) :lp-dist 0.5 :lvl 0.7))
+    (n 1 (grain "elec" "bd808" :dur 90 :rate 1.0
+		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
+		:lp-dist 0.5 :lvl 0.7))
     (e 1 1 :d 1000 :p 100)
     )
 )
 
+(sink 'dede (:sync-to nil :branch nil :shift 0 :group 'DEFAULT)
+  (g 'crepessu ()
+    (n 1 (grain "elec" "sncr78" :dur 90 :rate 1.0
+		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
+		:lp-dist 0.5 :lvl 0.7))
+    (e 1 1 :d 1000 :p 100)
+    ))
+
+(gethash 'DEFAULT *group-directory*)
+
+(stop 'DEFAULT)
+
 
 (clear)
+
 (sink 'blub (:shift 0 :group 'a)
   'some-other-sines)
 

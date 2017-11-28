@@ -1,4 +1,5 @@
-;; this file contains all the language functions, serving as the interface to the user ...
+;; this file once contained all the language functions, serving as the interface to the user,
+;; but lateron i found it clearer to put the functions directly next to their backend stuff ...
 ;; (unless those that are directly provided by, say, event definition ...)
 (defun node (id &rest content)
   (make-instance 'node :id id :content content :color 'white))
@@ -258,13 +259,14 @@
   (loop for branch being the hash-values of *branch-directory*
      do (mapc #'deactivate branch))       
   (setf *chain-directory* (make-hash-table :test 'eql))
+  (setf *group-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql)))
 
 (defun merg (chain-or-group-id)
   (if (gethash chain-or-group-id *group-directory*)
       (mapc #'merg (gethash chain-or-group-id *group-directory*))  
       (progn
-	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
+	(mapc #'deactivatde (gethash chain-or-group-id *branch-directory*))
 	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun stop (&rest chains)  

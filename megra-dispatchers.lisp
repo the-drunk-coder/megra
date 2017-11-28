@@ -194,7 +194,7 @@
 			((< 0 (length event-processors))
 			 (incudine::msg info "new chain ~D, trying to build it ..." ,name)
 			 ;; build chain, activate
-			 (unless (chain-from-list ,name event-processors :shift ,shift)
+			 (unless (chain-from-list ,name event-processors :shift ,shift :group ,group)
 			   (incudine::msg error "couldn't build chain ~D" ,name)))
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)

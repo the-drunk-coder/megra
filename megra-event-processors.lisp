@@ -429,8 +429,9 @@
 	  ;; if an old chain was present, preserve active state 
 	  ;; (when (and old-chain (is-active old-chain))
 	  ;; (setf (is-active new-chain) t))
-	  (if group
-	      (setf (gethash group *group-directory*) (append (gethash group *group-directory*) (list name))))
+	  (let ((group-list (gethash group *group-directory*)))
+	    (if (and group (not (member name group-list))) 
+		(setf (gethash group *group-directory*) (append group-list (list name)))))
 	  (if branch
 	      (setf (gethash name *branch-directory*) (append (gethash name *branch-directory*) (list new-chain)))
 	      (setf (gethash name *chain-directory*) new-chain)))
