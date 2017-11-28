@@ -14,7 +14,7 @@
 		 :atk 1 :rel 7 :lp-q 0.8 :lp-dist 0.0 :lp-freq 2000
 		 :hp-freq 100 :hp-q 0.4 :rev 0.0 :pos 0.5
 		 ))
-  (edge 1 1 :prob 100 :dur (oscil 130 1200)))
+  (edge 1 1 :prob 100 :dur 500))
 
 
 (g 'gleichlauf-cello-inc-amb ()

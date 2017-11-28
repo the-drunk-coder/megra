@@ -415,6 +415,12 @@
 		 :shift ,shift
 		 :group ,group)))))
 
+(defun assign-chain-to-group (chain-name group)
+  (let ((group-list (gethash group *group-directory*)))
+    (if (and group (not (member chain-name group-list))) 
+	(setf (gethash group *group-directory*) (append group-list (list chain-name))))))
+
+
 (defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil) (group nil))
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
@@ -429,9 +435,7 @@
 	  ;; if an old chain was present, preserve active state 
 	  ;; (when (and old-chain (is-active old-chain))
 	  ;; (setf (is-active new-chain) t))
-	  (let ((group-list (gethash group *group-directory*)))
-	    (if (and group (not (member name group-list))) 
-		(setf (gethash group *group-directory*) (append group-list (list name)))))
+	  
 	  (if branch
 	      (setf (gethash name *branch-directory*) (append (gethash name *branch-directory*) (list new-chain)))
 	      (setf (gethash name *chain-directory*) new-chain)))

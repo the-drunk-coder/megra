@@ -175,6 +175,11 @@
 			 ;; that doesn't exist)		     
 			 ;; if chain is active, do nothing, otherwise activate
 			 (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
+			 ;; assign to group in case chain macro hasn't done this ...
+			 (when group
+			   
+			   )
+
 			 (incudine::msg info "chain ~D already present (maybe the attempt to rebuild was faulty ?), handling it ..." ,name))			    
 			((and old-chain (< 0 (length event-processors)))
 			 ;; this means that the chain will be replaced ... 
