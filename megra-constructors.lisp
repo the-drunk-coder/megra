@@ -266,7 +266,7 @@
   (if (gethash chain-or-group-id *group-directory*)
       (mapc #'merg (gethash chain-or-group-id *group-directory*))  
       (progn
-	(mapc #'deactivatde (gethash chain-or-group-id *branch-directory*))
+	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
 	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun stop (&rest chains)  

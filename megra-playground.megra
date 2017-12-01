@@ -41,7 +41,7 @@
     (e 1 1 :d 1000 :p 100)
     ))
 
-(gethash 'DEFAULT *group-directory*)
+(gethash 'a *group-directory*)
 
 (stop 'DEFAULT)
 
