@@ -57,7 +57,11 @@
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
-   (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
+   (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)
+   (osc-vis-out :accessor osc-vis-out)
+   )
+  
+  )
 
 ;; turn back to textual representation ...
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
@@ -103,6 +107,7 @@
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
+  (osc:message (osc-vis-out g) "/set_current_node" "i" (current-node g))
   ;; append to trace
   (when (> (trace-length g) 0)
     (setf (traced-path g) (nconc (traced-path g) (list (current-node g))))
@@ -389,6 +394,7 @@
 		(cond ((typep proc 'symbol)
 		       (gethash proc *processor-directory*))
 		      ;; check if proc is already present,
+
 		      ;; if not, name it and insert it
 		      ;; the proc constructor will check if
 		      ;; there's

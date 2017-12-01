@@ -16,10 +16,15 @@
   ;; send osc msgs to scsynth ...
   ;;(osc-open-default :host "127.0.0.1" :port 57110 :direction :output )    
   (defvar *oscout* (osc:open :host "127.0.0.1" :port 57110 :direction :output :latency 0))
+  (defvar *osc-vis-1* (osc:open :direction :output :port 12000))
+  (defvar *osc-vis-2* (osc:open :direction :output :port 12001))
   (setf *out* (cm::new cm::incudine-stream))
   (setf *rts-out* *out*)
   (setf (incudine::logger-level) :error)
   (incudine::recv-start *midiin*))
+
+(setf (osc:latency *osc-vis-1*) 1.2)
+  
 
 (setf (incudine::logger-level) :info)
 
