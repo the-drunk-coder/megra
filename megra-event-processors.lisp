@@ -107,6 +107,7 @@
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
+  ;; VIS OUT !!
   (osc:message (osc-vis-out g) "/set_current_node" "i" (current-node g))
   ;; append to trace
   (when (> (trace-length g) 0)

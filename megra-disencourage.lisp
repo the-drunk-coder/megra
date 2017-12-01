@@ -29,6 +29,12 @@
 		    (setf (edge-probablity encouraged-edge)
 			  (+ (edge-probablity encouraged-edge) prob-mod))
 		    (setf (edge-probablity encouraged-edge) 100)))
+	 (osc:message (osc-vis-out g)
+		       "/set_edge_weight" "iif"
+		       (edge-source encouraged-edge)
+		       (edge-destination encouraged-edge)
+		       (coerce  (* (edge-probablity encouraged-edge) 0.1) 'float)
+		       )
 	  ;; distribute discourageing points
 	  (loop while (and (> discourage-points 0) (> (list-length discouraged-edges) 0))
 	     do (let ((current-edge (car discouraged-edges)))		  
@@ -64,6 +70,12 @@
 		    (setf (edge-probablity discouraged-edge)
 			  (- (edge-probablity discouraged-edge) prob-mod))
 		    (setf (edge-probablity discouraged-edge) 0)))
+	  (osc:message (osc-vis-out g)
+		       "/set_edge_weight" "iif"
+		       (edge-source discouraged-edge)
+		       (edge-destination discouraged-edge)
+		       (coerce  (* (edge-probablity discouraged-edge) 0.1) 'float)
+		       )
 	  ;; distribute encourageing points
 	  (loop while (and (> encourage-points 0) (> (list-length encouraged-edges) 0))
 	     do (let ((current-edge (car encouraged-edges)))		  
