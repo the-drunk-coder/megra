@@ -58,10 +58,7 @@
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
    (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)
-   (osc-vis-out :accessor osc-vis-out)
-   )
-  
-  )
+   (osc-vis-out :accessor osc-vis-out)))
 
 ;; turn back to textual representation ...
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
@@ -161,6 +158,13 @@
 		      ;;(incudine::msg info "found edge ~D" chosen-edge)
 		      (setf (current-node g) (edge-destination chosen-edge))
 		      ;; if a valid transition has been found, jump out ... 
+		      ;; first order edges can be visualized easily
+		      (when (eql order 1)
+			;; VIS OUT !!
+			(osc:message (osc-vis-out g) "/set_current_edge" "ii"
+				     (edge-source chosen-edge)
+				     (edge-destination chosen-edge)))
+		      ;; higher order -> subway map style ??		      
 		      (if (copy-events g)
 			  (return-from order-loop
 			    (mapcar #'copy-instance (edge-content chosen-edge)))

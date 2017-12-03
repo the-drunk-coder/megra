@@ -17,10 +17,13 @@
 	       (encouraged-edge (get-edge (source-graph g)
 					  edge-source
 					  dest))
-	       (discouraged-edges (shuffle-list
-				   (remove encouraged-edge
-					   ;; get edges for order 1 ... 
-					   (gethash edge-source (gethash 1 (graph-edges (source-graph g)))))))
+	       (discouraged-edges
+		(shuffle-list
+		 (remove encouraged-edge
+			 ;; get edges for order 1 ... 
+			 (gethash edge-source
+				  (gethash 1 (graph-edges (source-graph g)))))))
+	       (ghost-edges nil)
 	       (discourage-points prob-mod))
 	  ;;(format t "encourage ~a ~a" src dest)
 	  ;; the edge to encourage
@@ -33,23 +36,41 @@
 		       "/set_edge_weight" "iif"
 		       (edge-source encouraged-edge)
 		       (edge-destination encouraged-edge)
-		       (coerce  (* (edge-probablity encouraged-edge) 0.1) 'float)
+		       (coerce (* (edge-probablity encouraged-edge) 0.25) 'float)
 		       )
-	  ;; distribute discourageing points
-	  (loop while (and (> discourage-points 0) (> (list-length discouraged-edges) 0))
+	 ;; distribute discouraging points
+	 (loop while (and (> discourage-points 0)
+			   (> (list-length discouraged-edges) 0))
 	     do (let ((current-edge (car discouraged-edges)))		  
 		  ;;(format t "discourage: ~a ~a ~%" (edge-source current-edge)
-		  ;; (edge-destination current-edge) )
-		  (when (>= (edge-probablity current-edge) 1)
-		    (decf (edge-probablity current-edge))
-		    (setf discourage-points (- discourage-points 1)))
-		  (if (<= (edge-probablity current-edge) 0)
-		      ;; remove edge that has zero prob
-		      (setf discouraged-edges (remove current-edge discouraged-edges))
-		      ;; otherwise, rotate
-		      (setf discouraged-edges (append
-					       (remove current-edge discouraged-edges)
-					       (list current-edge)))))))))
+		  ;;	  (edge-destination current-edge) )
+		  (cond ((<= (edge-probablity current-edge) 99)
+			 (incf (edge-probablity current-edge))
+			 (setf discourage-points (- discourage-points 1)))
+			((>= (edge-probablity current-edge) 100)
+			 ;; remove edge that has zero prob
+			 (setf discouraged-edges
+			       (remove current-edge discouraged-edges))
+			 (setf ghost-edges
+			       (append ghost-edges (list current-edge))))
+			 ;; otherwise, rotate
+			(t (setf discouraged-edges (append
+						   (remove current-edge
+							   discouraged-edges)
+						   (list current-edge)))))))
+	  (loop for edge in discouraged-edges
+	     do (osc:message (osc-vis-out g)
+			     "/set_edge_weight" "iif"
+			     (edge-source edge)
+			     (edge-destination edge)
+			     (coerce (* (edge-probablity edge) 0.25) 'float)))
+	  (loop for edge in ghost-edges
+	     do (osc:message (osc-vis-out g)
+			     "/set_edge_weight" "iif"
+			     (edge-source edge)
+			     (edge-destination edge)
+			     (coerce (* (edge-probablity edge) 0.25) 'float)))
+	  )))
 
 (defmethod discourage-path ((g graph-event-processor) prob-mod &key)
   ;; the double reverse is performed to drop the last element, as this will be
@@ -59,9 +80,12 @@
 	       (discouraged-edge (get-edge (source-graph g)
 					   edge-source
 					   dest))
-	       (encouraged-edges (shuffle-list
-				  (remove discouraged-edge
-					  (gethash edge-source (gethash 1 (graph-edges (source-graph g)))))))
+	       (encouraged-edges
+		(shuffle-list
+		 (remove discouraged-edge
+			 (gethash edge-source
+				  (gethash 1 (graph-edges (source-graph g)))))))
+	       (satiated-edges nil)
 	       (encourage-points prob-mod))
 	  ;;(format t "discourage ~a ~a" src dest)
 	  ;; the edge to discourage
@@ -70,27 +94,44 @@
 		    (setf (edge-probablity discouraged-edge)
 			  (- (edge-probablity discouraged-edge) prob-mod))
 		    (setf (edge-probablity discouraged-edge) 0)))
+	  ;; notify visualizer
 	  (osc:message (osc-vis-out g)
 		       "/set_edge_weight" "iif"
 		       (edge-source discouraged-edge)
 		       (edge-destination discouraged-edge)
-		       (coerce  (* (edge-probablity discouraged-edge) 0.1) 'float)
-		       )
-	  ;; distribute encourageing points
-	  (loop while (and (> encourage-points 0) (> (list-length encouraged-edges) 0))
+		       (coerce  (* (edge-probablity discouraged-edge) 0.25) 'float))
+	  ;; distribute encouraging points
+	  (loop while (and (> encourage-points 0)
+			   (> (list-length encouraged-edges) 0))
 	     do (let ((current-edge (car encouraged-edges)))		  
 		  ;;(format t "encourage: ~a ~a ~%" (edge-source current-edge)
 		  ;;	  (edge-destination current-edge) )
-		  (when (<= (edge-probablity current-edge) 99)
-		    (incf (edge-probablity current-edge))
-		    (setf encourage-points (- encourage-points 1)))
-		  (if (>= (edge-probablity current-edge) 100)
-		      ;; remove edge that has zero prob
-		      (setf encouraged-edges (remove current-edge encouraged-edges))
-		      ;; otherwise, rotate
-		      (setf encouraged-edges (append
-					       (remove current-edge encouraged-edges)
-					       (list current-edge)))))))))
+		  (cond ((<= (edge-probablity current-edge) 99)
+			 (incf (edge-probablity current-edge))
+			 (setf encourage-points (- encourage-points 1)))
+			((>= (edge-probablity current-edge) 100)
+			 ;; remove edge that has zero prob
+			 (setf encouraged-edges
+			       (remove current-edge encouraged-edges))
+			 (setf satiated-edges
+			       (append satiated-edges (list current-edge))))
+			 ;; otherwise, rotate
+			(t (setf encouraged-edges (append
+						   (remove current-edge
+							   encouraged-edges)
+						   (list current-edge)))))))
+	  (loop for edge in encouraged-edges
+	     do (osc:message (osc-vis-out g)
+			     "/set_edge_weight" "iif"
+			     (edge-source edge)
+			     (edge-destination edge)
+			     (coerce (* (edge-probablity edge) 0.25) 'float)))
+	  (loop for edge in satiated-edges
+	     do (osc:message (osc-vis-out g)
+			     "/set_edge_weight" "iif"
+			     (edge-source edge)
+			     (edge-destination edge)
+			     (coerce (* (edge-probablity edge) 0.25) 'float))))))
 
 ;; encourage or discourage single graph event processor
 (defun encourage (graph)

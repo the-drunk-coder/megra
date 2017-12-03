@@ -23,7 +23,8 @@
   (setf (incudine::logger-level) :error)
   (incudine::recv-start *midiin*))
 
-(setf (osc:latency *osc-vis-1*) 1.2)
+(setf (osc:latency *osc-vis-1*) 0.99)
+(setf (osc:latency *osc-vis-2*) 0.99)
   
 
 (setf (incudine::logger-level) :info)
