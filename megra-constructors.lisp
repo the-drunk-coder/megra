@@ -374,8 +374,12 @@
 	clone))))
 
 (defmacro sync-progn (ch &body funcs)
-  `(funcall #'(lambda () (let ((chain (gethash ,ch *chain-directory*)))
-		      (when chain
-			(setf (synced-progns chain)
+  `(funcall #'(lambda ()
+		(let ((chain (gethash ,ch *chain-directory*)))
+		  (when chain		    
+		    (setf (synced-progns chain)
 			      (append (synced-progns chain)
 				      (list (lambda () ,@funcs)))))))))
+
+
+

@@ -41,8 +41,8 @@
 	  (mapc #'funcall (synced-progns chain))
 	  (setf (synced-progns chain) nil))
       (simple-error (e)
-	(incudine::msg error "cannot handle sync-progns: ~D" e)))
-    
+	(incudine::msg error "cannot handle sync-progns: ~D" e)
+	(setf (synced-progns chain) nil)))
     ;; handle events from current graph
     ;; again, secure this, so that the chain can be restarted
     ;; without having to clear everything ...
@@ -99,8 +99,8 @@
 	  (mapc #'funcall (synced-progns chain))
 	  (setf (synced-progns chain) nil))
       (simple-error (e)
-	(incudine::msg error "cannot handle sync-progns: ~D" e)))
-
+	(incudine::msg error "cannot handle sync-progns: ~D" e)
+	(setf (synced-progns chain) nil)))
     ;; handle events from current graph
     ;; again, secure this, so that the chain can be restarted
     ;; without having to clear everything ...
