@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: single-volca
+# key: sivol
+# --
+
+(g $1 ()
+   (n 1 (volca $2 :dur $3 :lvl 0.7))
+   (e 1 1 :d $4 :p 100)
+   )

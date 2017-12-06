@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: chain
+# key: cha
+# --
+(chain '$1 () $2)
