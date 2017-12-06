@@ -262,10 +262,10 @@
 (defmethod apply-self ((c chance-combine) events &key)
   (mapcar #'(lambda (event)	    
 	    (let ((chance-val (random 100)))
-	      (if (and (funcall (event-filter c) event) (< chance-val (combi-chance c)))		  
+	      (if (and (funcall (event-filter c) event)
+		       (< chance-val (combi-chance c)))		  
 		  (combine-single-events (event-to-combine c) event)		  
-		  event)))
-	;;(filter-events c events :check-mod-prop nil)
+		  event)))        
 	events))
 
 ;; the constructor ... if store is set, it'll be stored in the processor directory,
@@ -288,7 +288,6 @@
     new-inst))
 
 ;; shorthand
-(in-package :megra)
 (defun cc (chance event &key (at nil) (f #'all-p) (id nil))
   (let ((cc-name (if id
 		     id
@@ -304,8 +303,10 @@
 (defmethod apply-self ((b stream-brownian-motion) events &key)
   (mapc #'(lambda (event)	    
 	    (let* ((current-value (get-current-value b event))
-		   (new-value (cap b (+ current-value
-					(* (nth (random 2) '(-1 1)) (pmod-step-size b))))))
+		   (new-value (cap b
+				   (+ current-value
+				      (* (nth (random 2) '(-1 1))
+					 (pmod-step-size b))))))
 	      (setf (gethash (event-source event) (lastval b)) new-value)
 	      (setf (slot-value event (modified-property b)) new-value)))
 	(filter-events b events))
@@ -338,7 +339,6 @@
 (defmethod pull-transition ((p processor-chain) &key)
   (pull-transition (topmost-processor p)))
 
-(in-package :megra)
 (defun connect (processor-ids last chain-name unique)
   (let ((current (car processor-ids))
 	(next (cadr processor-ids)))
@@ -362,24 +362,11 @@
 	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))
     (setf (chain-bound current) chain-name)))
 
-
-;;(defun detach (processor)
-;; (when processor
-;;   (when (predecessor processor)
-;;    (detach (predecessor processor) current-processor-ids)
-;;    (setf (predecessor processor) nil))
-;;  (when (successor processor)
-;;    (setf (successor processor) nil))    
-;;  (setf (chain-bound processor) nil)))
-
 (defun gen-proc-name (ch-name proc idx)
   (intern (concatenate 'string
 		       (string ch-name) "-"
 		       (string (class-name (class-of proc))) "-"
 		       (format nil "~d" idx))))
-
-;; chain events without dispatching ...
-(in-package :megra)
 
 ;; handle the processor list ...
 (defun gen-proc-list (ch-name proc-list)
@@ -415,12 +402,20 @@
 		 :shift ,shift
 		 :group ,group)))))
 
+;; if no group is given, the current group will be used ... 
 (defun assign-chain-to-group (chain-name group)
-  (let ((group-list (gethash group *group-directory*)))
-    (if (and group (not (member chain-name group-list))) 
-	(setf (gethash group *group-directory*) (append group-list (list chain-name))))))
+  ;; if no groupname is given, use current group ... 
+  (let* ((groupname (if group group *current-group*))
+	 (group-list (gethash groupname *group-directory*)))
+    (if (not (member chain-name group-list))
+	(setf (gethash groupname *group-directory*)
+	      (append group-list (list chain-name))))))
 
-(defun chain-from-list (name event-processors &key (unique t) (activate nil) (shift 0.0) (branch nil) (group nil))
+(defun chain-from-list (name event-processors &key (unique t)
+						(activate nil)
+						(shift 0.0)
+						(branch nil)
+						(group nil))
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
   (let ((topmost-proc (car event-processors))
@@ -430,13 +425,13 @@
 			  'processor-chain
 			  :topmost topmost-proc
 			  :is-active activate
-			  :shift shift))) 
-	  ;; if an old chain was present, preserve active state 
-	  ;; (when (and old-chain (is-active old-chain))
-	  ;; (setf (is-active new-chain) t))
+			  :shift shift)))	  	  
+	  ;; assign chain to a group
 	  (assign-chain-to-group name group)
+	  ;; handle branching ...
 	  (if branch
-	      (setf (gethash name *branch-directory*) (append (gethash name *branch-directory*) (list new-chain)))
+	      (setf (gethash name *branch-directory*)
+		    (append (gethash name *branch-directory*) (list new-chain)))
 	      (setf (gethash name *chain-directory*) new-chain)))
 	(incudine::msg error "chain-building went wrong, seemingly ..."))))
 

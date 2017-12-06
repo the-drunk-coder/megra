@@ -247,9 +247,6 @@
       (setf (gethash name *processor-directory*) new-inst))
     new-inst))
 
-
-(in-package :megra)
-
 (defun clear ()
   ;; first of all stop all events already passed to incudine ...
   (incudine::flush-pending)
@@ -260,7 +257,8 @@
      do (mapc #'deactivate branch))       
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *group-directory* (make-hash-table :test 'eql))
-  (setf *branch-directory* (make-hash-table :test 'eql)))
+  (setf *branch-directory* (make-hash-table :test 'eql))
+  (setf *current-group* 'DEFAULT))
 
 (defun merg (chain-or-group-id)
   (if (gethash chain-or-group-id *group-directory*)
@@ -381,5 +379,6 @@
 			      (append (synced-progns chain)
 				      (list (lambda () ,@funcs)))))))))
 
-
-
+;;
+(defun group (groupname)
+  (setf *current-group* groupname))

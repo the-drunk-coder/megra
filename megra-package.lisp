@@ -72,6 +72,7 @@
 
 (defparameter *global-osc-delay* 0.12)
 
+(defparameter *current-group* 'DEFAULT)
 
 ;; the default backend for DSP
 ;; 'inc -> incudine
