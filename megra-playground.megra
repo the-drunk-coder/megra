@@ -1,11 +1,14 @@
 (in-package :megra)
 ;; define some test graph structures
 
-(g 'some-other-sines ()
+
+(clear)
+
+(g 'some-other-sines (:rand 100)
     (n 1 (sine 'd4 :lvl .6 :dur 200))
     (n 2 (sine 'es5 :lvl .6 :dur 200))
     (n 3 (sine 'b4 :lvl .6 :dur 200))
-    (n 3 (sine 'cs5 :lvl .6 :dur 200))
+    (n 4 (sine 'cs5 :lvl .6 :dur 200))
     (e 1 2 :p 50 :d 300)
     (e 1 1 :p 50 :d 300) 
     (e '(1 1 1) 3 :p 100 :d 900)     
@@ -16,6 +19,8 @@
     (e '(2 2 2 2) 1 :p 50 :d 600)
     (e 3 1 :p 100 :d 300))
 
+(pring 'some-other-sines t)
+
 (chain 's2 ()
   (cc 80 (rev 0.1))
   (cc 20 (lvl 0.2))
@@ -24,7 +29,7 @@
   )
 
 
-(sink 'rere (:sync-to nil :branch nil :shift 0 :group 'DEFAULT)
+(sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
     (n 1 (grain "elec" "bd808" :dur 90 :rate 1.0
 		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
@@ -33,7 +38,7 @@
     )
 )
 
-(sink 'dede (:sync-to nil :branch nil :shift 0 :group 'DEFAULT)
+(sink 'dede (:sync-to nil :branch nil :shift 0)
   (g 'crepessu ()
     (n 1 (grain "elec" "sncr78" :dur 90 :rate 1.0
 		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
@@ -41,7 +46,11 @@
     (e 1 1 :d 1000 :p 100)
     ))
 
-(gethash 'a *group-directory*)
+
+(group 'blba)
+
+(gethash 'blba *group-directory*)
+(gethash 'DEFAULT *group-directory*)
 
 (stop 'DEFAULT)
 
@@ -914,7 +923,7 @@
 
 (print-graph (gethash 'pitcher *processor-directory*))
 
-(graph 'be-there-square ()
+(graph 'be-there-square (:rand 100) ;; <--- thes would make it a fully connected graph
   (n 1 (saw (brownian :lower 50 :upper 90 :step-size 5)
 	    :lvl .4 :atk 3 :dec 46 :sus 50 :rel 10
 	    :lp-freq 300 :rev 0.0 :lp-q 0.4 :lp-dist 0.8))
@@ -928,13 +937,13 @@
 
 
 ;; TBD:
+;; adding random edges as feature of graph ... 
 ;; evtl BUG - missing stream filter predicates can lead to chain not being started
 ;; more selective branching - revert to last/first state ??
 ;; note names for filter freqs - generic way ?
-;; clean up auto-named stream mods
 ;; addressing ?
 ;; error message when sync is not viable ? 
-;; total crash ?? how to reproduce ? 
+;; total crash ?? how to reproduce ?  -- reversing order of graphs while playing ?
 ;; check -- stream modifiers on pmod events ... should be resolved while
 ;;   copying, but it's not always the casem as it seems ... 
 ;; simplify startup 
@@ -942,7 +951,7 @@
 ;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
 ;;    to use a duratoin or level graph with more than one source ... thus,
-;;    there need to be either a change in the representation, or some
+;;    there need to be either a change in dhe representation, or some
 ;;    cloning function,
 ;;    like, (clone 'pitcher) ...
 ;; symbols as values, resolve at render time ??
@@ -971,6 +980,7 @@
 
 
 ;; DONE:
+;; clean up auto-named stream mods
 ;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
 ;; syncstart (for live use mainly ...)
 ;; more vugs

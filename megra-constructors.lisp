@@ -34,16 +34,22 @@
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
-(defmacro graph (name (&key (perma nil) (combine-mode ''append)
+(defmacro graph (name (&key
+		       (perma nil) ;; what's this ???
+		       (combine-mode ''append)
 		       (affect-transition nil)
 		       (combine-filter #'all-p)
-		       (update-clones t)) &body graphdata)
+		       (update-clones t) ;; what's this ???
+		       (rand 0))
+		 &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
 		      (mapc #'(lambda (obj)
 				(cond ((typep obj 'edge) (insert-edge new-graph obj))
 				      ((typep obj 'node) (insert-node new-graph obj))))
-			    (list ,@graphdata))
+			    (list ,@graphdata))		      
+		      ;; add random blind edges ...
+		      (if (> ,rand 0) (randomize-edges new-graph ,rand))  
 		      (if (gethash ,name *processor-directory*)
 			  ;; update existing instance
 			  (let ((cur-instance (gethash ,name *processor-directory*)))
@@ -90,9 +96,24 @@
 ;; tbd
 ;;(defun prune (&key nc (nid nil)  ))
 
+(defmethod randomize-edges ((g graph) chance )
+  (loop for src being the hash-keys of (graph-nodes g)
+     do (loop for dest being the hash-keys of (graph-nodes g)
+	   do (let ((randval (random 100)))
+		(if (and (< randval chance)
+			 (not
+			  (get-edge g (if (typep src 'sequence)
+					  src
+					  (list src)) dest)))
+		    (insert-edge g (edge src dest :prob 0)))))))
+   
+
 ;; only for single values (pitch, duration, level etc )
 (defmacro values->graph (name event-type values
-			 &key (type 'loop) (combine-mode 'append) (affect-transition nil) (randomize 0))
+			 &key (type 'loop)
+			   (combine-mode 'append)
+			   (affect-transition nil)
+			   (randomize 0))
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
 	(count 1))		      
     (setf (graph-id new-graph) ,name)
@@ -106,17 +127,8 @@
     (decf count)
     (if (eq ',type 'loop)
 	(insert-edge new-graph (edge count 1 :prob 100)))
-    ;; tbd: make dependent on randomize factor    
-    (loop for src from 1 to count
-       do (loop for dest from 1 to count
-	     do (let ((randval (random 100)))
-		  (if (and (< randval ,randomize)
-			   (not (get-edge new-graph
-					  (if (typep src 'sequence)
-					      src
-					      (list src)) dest)))
-		     (insert-edge new-graph
-				  (edge src dest :prob 0))))))
+    ;; add random blind edges 
+    (if (> ,randomize 0) (randomize-edges new-graph ,randomize ))
     (if (gethash ,name *processor-directory*)
 	(setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 	(setf (gethash ,name *processor-directory*)
@@ -146,17 +158,8 @@
     (decf count)
     (if (eq ',type 'loop)
 	(insert-edge new-graph (edge count 1 :prob 100 :dur (car (reverse ,transitions)))))
-    ;; tbd: make dependent on randomize factor    
-    (loop for src from 1 to count
-       do (loop for dest from 1 to count
-	     do (let ((randval (random 100)))
-		  (if (and (< randval ,randomize)
-			   (not (get-edge new-graph
-					  (if (typep src 'sequence)
-					      src
-					      (list src)) dest)))
-		     (insert-edge new-graph
-				  (edge src dest :prob 0))))))
+    ;; add random blind edges ...
+    (if (> ,randomize 0) (randomize-edges new-graph ,randomize))  
     (if (gethash ,name *processor-directory*)
 	(setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 	(setf (gethash ,name *processor-directory*)
@@ -182,17 +185,8 @@
     (decf count)
     (if (eq type 'loop)
 	(insert-edge new-graph (edge count 1 :prob 100 :dur (cadr (car (reverse notes))))))
-    ;; tbd: make dependent on randomize factor    
-    (loop for src from 1 to count
-       do (loop for dest from 1 to count
-	     do (let ((randval (random 100)))
-		  (if (and (< randval randomize)
-			   (not (get-edge new-graph
-					  (if (typep src 'sequence)
-					      src
-					      (list src)) dest)))
-		     (insert-edge new-graph
-				  (edge src dest :prob 0 :dur default-dur))))))
+    ;; add random blind edges ...
+    (if (> randomize 0) (randomize-edges new-graph randomize))
     (if (gethash name *processor-directory*)
 	(setf (source-graph (gethash name *processor-directory*)) new-graph)
 	(setf (gethash name *processor-directory*)
@@ -379,6 +373,6 @@
 			      (append (synced-progns chain)
 				      (list (lambda () ,@funcs)))))))))
 
-;;
+;; set the default group
 (defun group (groupname)
   (setf *current-group* groupname))
