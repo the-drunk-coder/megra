@@ -19,9 +19,7 @@
     (e 3 1 :p 100 :d 300))
 
 (sink 'sins (:sync-to nil :branch nil :shift 0)
-  'some-other-sines
-  )
-
+  'some-other-sines)
 
 (pring 'some-other-sines t)
 
@@ -31,7 +29,6 @@
   (cc 20 (atk 150))
   'some-other-sines-2
   )
-
 
 (sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
@@ -902,7 +899,6 @@
 
 (discourage 'blab)
 
-
 (incudine:now)
 
 (defparameter *test* nil)
@@ -941,7 +937,6 @@
 
 
 ;; TBD:
-;; adding random edges as feature of graph ... 
 ;; evtl BUG - missing stream filter predicates can lead to chain not being started
 ;; more selective branching - revert to last/first state ??
 ;; note names for filter freqs - generic way ?
@@ -960,7 +955,6 @@
 ;;    like, (clone 'pitcher) ...
 ;; symbols as values, resolve at render time ??
 ;; live-visualizer
-;; yasnippets 
 ;; automatically deactivate if final state is reached 
 ;; check why chance-combine doesn't work in any position
 ;;    (currently seems to work only in end position) 
@@ -984,6 +978,7 @@
 
 
 ;; DONE:
+;; adding random edges as feature of graph ... 
 ;; clean up auto-named stream mods
 ;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
 ;; syncstart (for live use mainly ...)
@@ -1046,7 +1041,7 @@
 ;; avoid duplicate dispatches -- works !
 ;; automatic re-activation -- works !
 ;; node color, inherited by events as tag ...
-
+;; yasnippets 
 ;; keep this for the sake of funcall
 
 (graph 'footwork-bd ()

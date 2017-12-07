@@ -1,7 +1,18 @@
 (require 'cm-incudine)
 (in-package :cm)
 
-;; initialize -- seems like it has to be like this ...
+;; --------- PATHS TO SET ------------- ;; 
+
+;; path to megra package
+(defparameter *megra-package-path* "/home/nik/REPOSITORIES/megra/megra-package")
+
+;; sample root folder
+(defparameter *sample-root* "/home/nik/SAMPLES/" )
+
+;; --------- END PATHS TO SET ------------- ;;
+
+
+;; --------- INITIALIZATION --------------- ;;
 (progn  
   ;; start incudine, wait a little
   (incudine:rt-start)
@@ -23,7 +34,7 @@
   (incudine::recv-start *midiin*))
 
 ;; now everything should be ready to load the megra package ... 
-(load "/home/nik/REPOSITORIES/megra/megra-package")
+(load *megra-package-path*)
 
 (in-package :megra)
 

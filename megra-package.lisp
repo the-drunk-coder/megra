@@ -24,8 +24,6 @@
 ;; storage for sample buffers 
 (defparameter *incu-buffer-directory* (make-hash-table :test 'equal))
 (defparameter *sc-buffer-directory* (make-hash-table :test 'equal))
-;; sample root folder 
-(defparameter *sample-root* "/home/nik/SAMPLES/" )
 
 ;; consecutive buffer numbers for scsynth
 ;; start with two as 0 and 1 are reserved for the reverb buffers ...
