@@ -1,7 +1,6 @@
 (in-package :megra)
 ;; define some test graph structures
 
-
 (clear)
 
 (g 'some-other-sines (:rand 100)
@@ -18,6 +17,11 @@
     (e '(2 2 2 2) 3 :p 50 :d 600)
     (e '(2 2 2 2) 1 :p 50 :d 600)
     (e 3 1 :p 100 :d 300))
+
+(sink 'sins (:sync-to nil :branch nil :shift 0)
+  'some-other-sines
+  )
+
 
 (pring 'some-other-sines t)
 

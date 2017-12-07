@@ -1,6 +1,5 @@
  ;; sometimes ... 
 ;;(ql:update-all-dists)
-
 (require 'cm-incudine)
 (in-package :cm)
 
@@ -21,19 +20,19 @@
   (setf (incudine::logger-level) :error)
   (incudine::recv-start *midiin*))
 
-(setf (incudine::logger-level) :info)
+;;(setf (incudine::logger-level) :info)
 
-(incudine:rt-stop)
+;;(incudine:rt-stop)
 ;;(incudine::block-size)
 ;; then load the megra dsp stuff .. wait until compilation has finished !!
-(compile-file "megra-dsp-atoms")
+;;(compile-file "megra-dsp-atoms")
 
-(load "/home/nik/REPOSITORIES/megra/megra-dsp-atoms")
+;;(load "/home/nik/REPOSITORIES/megra/megra-dsp-atoms")
 
 ;; wait !
-(compile-file "megra-dsp")
+;;(compile-file "megra-dsp")
 
-(load "/home/nik/REPOSITORIES/megra/megra-dsp")
+;;(load "/home/nik/REPOSITORIES/megra/megra-dsp")
 
 ;; now everything should be ready to load the megra package ... 
 (load "/home/nik/REPOSITORIES/megra/megra-package")
@@ -41,9 +40,9 @@
 (in-package :megra)
 
 ;; recieve anything on the specified port ...
-(defparameter *oscin* (osc:open :host "0.0.0.0" :port 12000 :direction :input))
+;;(defparameter *oscin* (osc:open :host "0.0.0.0" :port 12000 :direction :input))
 
-(incudine::recv-start *oscin*)
+;;(incudine::recv-start *oscin*)
 
 ;;(osc:close *oscin*)
 
@@ -53,7 +52,7 @@
 ;; load ir data for reverb (contains hardcoded stuff)
 (prepare-ir)
 
-(free-all-samples)
+;;(free-all-samples)
 ;;(ql:update-all-dists)
 
 

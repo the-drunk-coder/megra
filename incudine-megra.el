@@ -150,6 +150,12 @@ If BLOCK-SIZE is positive, set the new block size before starting."
   (interactive)
   (incudine-eval "(incudine:rt-stop)"))
 
+(defun incudine-load-megra ()
+  "Load Megra package."
+  (interactive)
+  (incudine-eval "(load \"/home/nik/REPOSITORIES/megra/megra-load.megra\")"))
+
+
 (defun incudine-free-node (&optional id)
   "Stop to play a node of the graph.
 If ID is negative, call INCUDINE:STOP instead of INCUDINE:FREE.
@@ -326,7 +332,7 @@ rego file or call tags-loop-continue."
   (define-key map "\C-cv" 'incudine-show-repl)
   (define-key map "\C-cs" 'incudine-scratch)
   (define-key map "\C-c\M-o" 'incudine-repl-clear-buffer)
-  ;;(define-key map "\C-cms" 'megra-start)
+  (define-key map "\C-cm" 'incudine-load-megra)
   (define-key map "\C-crs" 'incudine-rt-start)
   (define-key map "\C-crq" 'incudine-rt-stop)
   (define-key map "\C-cp" 'incudine-pause-node)
@@ -338,7 +344,8 @@ rego file or call tags-loop-continue."
   (define-key map "\C-cim" 'incudine-rt-memory-free-size)
   (define-key map "\C-cip" 'incudine-peak-info)
   (define-key map "\C-cll" 'incudine-logger-level-choice)
-  (define-key map "\C-clt" 'incudine-logger-time-choice))
+  (define-key map "\C-clt" 'incudine-logger-time-choice)
+  )
 
 (defvar incudine-mode-map
   (let ((map (make-sparse-keymap "Incudine")))

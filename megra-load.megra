@@ -1,0 +1,37 @@
+(require 'cm-incudine)
+(in-package :cm)
+
+;; initialize -- seems like it has to be like this ...
+(progn  
+  ;; start incudine, wait a little
+  (incudine:rt-start)
+  (sleep 1)  
+  ;; int midi io
+  (defvar *midiin* (midi-open-default :direction :input))
+  (defvar *midiout* (midi-open-default :direction :output))
+  ;; port to supercollider
+  (defvar *oscout* (osc:open :host "127.0.0.1"
+			     :port 57110
+			     :direction :output
+			     :latency 0))
+  ;; misc cm-stuff ...
+  (setf *out* (cm::new cm::incudine-stream))
+  (setf *rts-out* *out*)
+  ;; log level
+  (setf (incudine::logger-level) :error)
+  ;; start recieving midi 
+  (incudine::recv-start *midiin*))
+
+;; now everything should be ready to load the megra package ... 
+(load "/home/nik/REPOSITORIES/megra/megra-package")
+
+(in-package :megra)
+
+;; init group one if scsynth started from command line
+;; (scsynth need to be started manually still)
+(init-sc-base-group)
+
+;; load ir data for reverb (contains hardcoded stuff)
+(prepare-ir)
+
+
