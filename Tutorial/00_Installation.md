@@ -1,19 +1,17 @@
-========================
-MEGRA INSTALLATION GUIDE
-========================
+# MEGRA INSTALLATION GUIDE
 
-*******************************************************************
-DISCLAIMER: This guide is still on "expert" mode, like with so many
-	    projects in their early stage, and probably incomplete.
+## DISCLAIMER
+This guide is still on "expert" mode, like with so many
+projects in their early stage, and probably incomplete.
 
-	    I'm constantly working on making things more frictionless,
-	    but i'm not there yet.
+I'm constantly working on making things more frictionless,
+but i'm not there yet.
 
-	    In the meanwhilie, contact me, either per email (nik@parkellipsen.de)
+In the meanwhile, contact me, either per email (nik@parkellipsen.de)
 	    or via the Livecoding slack channel (@parkellipsen),
 	    and i'd be glad to help you making things work. 
-*******************************************************************	    
 
+## OS SUPPORT
 This installation guide is based on linux, specifically Arch Linux.
 Most programs you need will be available with other distributions, but
 usually an older version (at least in the official repositories).
@@ -33,6 +31,8 @@ will work well ...
 I assume you have a linux system up and running, and it's generally capable
 of making sound.
 
+## REQUIREMENTS
+
 Now install:
 - jack
 - SuperCollider (> 3.7, higher recommended ... )
@@ -48,6 +48,8 @@ Clone the following repositories (ideally in your quicklisp/local-projects folde
 - cm-incudine:    https://github.com/ormf/cm-incudine
 - fudi-incudine:  https://github.com/ormf/fudi-incudine
 - cm-fomus:       https://github.com/ormf/cm-fomus
+
+## SETUP
 
 Follow these instructions how to setup incudine (the underlying library for
 sound and osc scheduling ... it's worth to have a look at!)
