@@ -57,7 +57,6 @@
 ;; chain groups ... 
 (defparameter *group-directory* (make-hash-table :test 'eql))
 
-
 (defparameter *pi* 3.14159265359)
 
 (defparameter *midi-responders* (make-hash-table :test 'eql))
@@ -76,21 +75,24 @@
 ;; 'inc -> incudine
 ;; 'sc -> SuperCollider
 
+;; redefine sample root in megra package ...
+(defparameter *sample-root* cm::*sample-root*)
+
 ;;(defparameter *default-dsp-backend* 'inc)
 (defparameter *default-dsp-backend* 'sc)
 
 ;; load the megra stuff except for dsp ...
-(load "megra-object-handling")
-(load "megra-param-modificators")
-(load "megra-event-base")
-(load "megra-event-definitions")
-(load "megra-supercollider-event-handlers")
-(load "megra-incudine-event-handlers")
-(load "megra-structures")
-(load "megra-event-processors")
-(load "megra-disencourage")
-(load "megra-dispatchers")
-(load "megra-constructors")
-(load "megra-event-filters")
-(load "megra-supercollider-interface")
-(load "megra-visualize")
+(load (concatenate 'string cm::*megra-root* "/megra-object-handling"))
+(load (concatenate 'string cm::*megra-root* "/megra-param-modificators"))
+(load (concatenate 'string cm::*megra-root* "/megra-event-base"))
+(load (concatenate 'string cm::*megra-root* "/megra-event-definitions"))
+(load (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers"))
+(load (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers"))
+(load (concatenate 'string cm::*megra-root* "/megra-structures"))
+(load (concatenate 'string cm::*megra-root* "/megra-event-processors"))
+(load (concatenate 'string cm::*megra-root* "/megra-disencourage"))
+(load (concatenate 'string cm::*megra-root* "/megra-dispatchers"))
+(load (concatenate 'string cm::*megra-root* "/megra-constructors"))
+(load (concatenate 'string cm::*megra-root* "/megra-event-filters"))
+(load (concatenate 'string cm::*megra-root* "/megra-supercollider-interface"))
+(load (concatenate 'string cm::*megra-root* "/megra-visualize"))
