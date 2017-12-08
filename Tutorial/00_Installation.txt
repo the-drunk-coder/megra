@@ -6,9 +6,12 @@ MEGRA INSTALLATION GUIDE
 DISCLAIMER: This guide is still on "expert" mode, like with so many
 	    projects in their early stage, and probably incomplete.
 
-	    If you need any help,
-	    contact me, either per email (nik@parkellipsen.de) or
-	    in the Livecoding slack channel (@parkellipsen).
+	    I'm constantly working on making things more frictionless,
+	    but i'm not there yet.
+
+	    In the meanwhilie, contact me, either per email (nik@parkellipsen.de)
+	    or via the Livecoding slack channel (@parkellipsen),
+	    and i'd be glad to help you making things work. 
 *******************************************************************	    
 
 This installation guide is based on linux, specifically Arch Linux.
