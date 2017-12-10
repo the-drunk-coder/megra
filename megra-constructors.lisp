@@ -43,16 +43,16 @@
 		       (rand 0))
 		 &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
-		      (setf (graph-id new-graph) ,name)    
+		      (setf (graph-id new-graph) ',name)    
 		      (mapc #'(lambda (obj)
 				(cond ((typep obj 'edge) (insert-edge new-graph obj))
 				      ((typep obj 'node) (insert-node new-graph obj))))
 			    (list ,@graphdata))		      
 		      ;; add random blind edges ...
 		      (if (> ,rand 0) (randomize-edges new-graph ,rand))  
-		      (if (gethash ,name *processor-directory*)
+		      (if (gethash ',name *processor-directory*)
 			  ;; update existing instance
-			  (let ((cur-instance (gethash ,name *processor-directory*)))
+			  (let ((cur-instance (gethash ',name *processor-directory*)))
 			    (setf (source-graph cur-instance) new-graph)
 			    (setf (affect-transition cur-instance) ,affect-transition)
 			    (setf (combine-mode cur-instance) ,combine-mode)
@@ -70,13 +70,19 @@
 					  (setf (copy-events my-clone) (not ,perma))))
 				    (clones cur-instance)))
 			    cur-instance)			    
-			  (setf (gethash ,name *processor-directory*)
-				(make-instance 'graph-event-processor :name ,name
+			  ;; bind to variable, so we don't need quotes ...
+			  (progn
+			    (setf ,name (make-instance 'graph-event-processor :name ',name
 					       :graph new-graph :copy-events (not ,perma)
 					       :current-node 1 :combine-mode ,combine-mode
 					       :affect-transition ,affect-transition
 					       :combine-filter ,combine-filter
-					       :update-clones ,update-clones)))))))
+					       :update-clones ,update-clones))
+			  (setf (gethash ',name *processor-directory*)
+				,name))
+			  
+			  
+			  )))))
 
 ;;  shorthand for graph
 (setf (macro-function 'g) (macro-function 'graph))
@@ -107,7 +113,6 @@
 					  (list src)) dest)))
 		    (insert-edge g (edge src dest :prob 0)))))))
    
-
 ;; only for single values (pitch, duration, level etc )
 (defmacro values->graph (name event-type values
 			 &key (type 'loop)
@@ -367,7 +372,7 @@
 
 (defmacro sync-progn (ch &body funcs)
   `(funcall #'(lambda ()
-		(let ((chain (gethash ,ch *chain-directory*)))
+		(let ((chain (gethash ',ch *chain-directory*)))
 		  (when chain		    
 		    (setf (synced-progns chain)
 			      (append (synced-progns chain)

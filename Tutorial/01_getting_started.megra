@@ -12,8 +12,8 @@
 ;; move the curser to somewhere in between the outer
 ;; parenthesis and hit C-<return>:
 
-(sink 'event-sink ()
-  (graph 'first-sounds ()
+(sink event-sink ()
+  (graph first-sounds ()
       (node 1 (sine 'a4 :lvl 0.5 :dur 500))
       (edge 1 1 :dur 1000 :prob 100)))
 
@@ -58,15 +58,15 @@
 ;; Anyway, let's play around with this a little:
 
 ;; Any node can contain more than one event ! 
-(sink 'event-sink ()
-  (graph 'first-sounds ()
+(sink event-sink ()
+  (graph first-sounds ()
     (node 1 (sine 'a4 :lvl 0.5 :dur 500)
 	    (sine 'c4 :lvl 0.5 :dur 500))
       (edge 1 1 :dur 1000 :prob 100)))
 
 ;; It'd be boring if you could't put event in sequences, no ?
-(sink 'event-sink ()
-  (graph 'first-sounds ()
+(sink event-sink ()
+  (graph first-sounds ()
     (node 1 (sine 'a4 :lvl 0.5 :dur 500))
     (node 2 (sine 'c4 :lvl 0.5 :dur 500))
     (edge 1 2 :dur 1000 :prob 100)
@@ -77,16 +77,16 @@
 ;; yourself which one you like better ...
 ;; (if you wonder by now if mégra can only produce sine beeps, of course not ...
 ;; the sonic possiblities will be explored later ...)
-(sink 'event-sink () 
-  (g 'first-sounds ()
+(sink event-sink () 
+  (g first-sounds ()
     (n 1 (sine 'a4 :lvl 0.5 :dur 500))
     (n 2 (sine 'c4 :lvl 0.5 :dur 500))
     (e 1 2 :d 1000 :p 100)
     (e 2 1 :d 1000 :p 100)))
 
 ;; Now the magic of conditional probabilies begin to dawn ...
-(sink 'event-sink () 
-  (g 'first-sounds ()
+(sink event-sink () 
+  (g first-sounds ()
     (n 1 (sine 'a4 :lvl 0.5 :dur 500))
     (n 2 (sine 'c4 :lvl 0.5 :dur 500))
     (e 1 1 :d 1000 :p 50)
@@ -97,8 +97,8 @@
 
 ;; let's complete the chord ! And make it a little faster ... 
 ;; Remember to visualize ! 
-(sink 'event-sink () ; <- these empty parenthesis are important ! 
-  (g 'first-sounds () ; <- don't forget them (more later!)
+(sink event-sink () ; <- these empty parenthesis are important ! 
+  (g first-sounds () ; <- don't forget them (more later!)
     (n 1 (sine 'a4 :lvl 0.5 :dur 500))
     (n 2 (sine 'c4 :lvl 0.5 :dur 500))
     (n 3 (sine 'e4 :lvl 0.5 :dur 500)) 
@@ -120,8 +120,8 @@
 ;; for now see the documentation there ... ):
 
 ;; Note names:
-(sink 'spam-sink () ; <- Sinks can be named arbitrarily ... 
-  (g 'spam ()  ; <- graphs as well ... 
+(sink spam-sink () ; <- Sinks can be named arbitrarily ... 
+  (g spam ()  ; <- graphs as well ... 
     (n 1 (sine 'a4 :lvl 0.5 :dur 500))
     (n 2 (sine 'cs4 :lvl 0.5 :dur 500)) ; add an 's' for 'sharp'
     (n 3 (sine 'e4 :lvl 0.5 :dur 500)
@@ -133,8 +133,8 @@
     (e 3 1 :d 500 :p 100)))
 
 ;; Frequencies:
-(sink 'eggs-sink () 
-  (g 'eggs ()
+(sink eggs-sink () 
+  (g eggs ()
     (n 1 (sine 200 :lvl 0.5 :dur 300))
     (n 2 (sine 331 :lvl 0.5 :dur 300))
     (n 3 (sine 432 :lvl 0.5 :dur 300)) 
@@ -149,6 +149,7 @@
 ;; state, they're completely unsynchronized.
 
 ;; you can stop them separately as well ! 
+;; (working on getting rid of the quotes here as well !)
 (stop 'spam-sink) ;; Break !
 (stop 'eggs-sink)
 (clear) ;; reset session (more about that later as well ! )
@@ -159,8 +160,8 @@
 
 ;; You'll notice that this construction as it is is
 ;; a little boring, as it stays on the A most of the time.
-(sink 'eggs-sink () 
-  (g 'eggs ()
+(sink eggs-sink () 
+  (g eggs ()
     (n 1 (sine 'a3 :lvl 0.5 :dur 300))
     (n 2 (sine 'c4 :lvl 0.5 :dur 300))
     (n 3 (sine 'e4 :lvl 0.5 :dur 300))
