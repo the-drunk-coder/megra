@@ -228,4 +228,6 @@
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
+;; even shorter, tidal style ... 
+(setf (macro-function 's) (macro-function 'dispatch))
 
