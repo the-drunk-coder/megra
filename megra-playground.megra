@@ -1,8 +1,9 @@
 (in-package :megra)
 ;; define some test graph structures
 
-(sink .sada (:sync-to nil :branch nil :shift 0)
-  (g 'some-other-sines-2 ()
+(clear)
+
+(g 'some-other-sines (:rand 100)
     (n 1 (sine 'd4 :lvl .6 :dur 200))
     (n 2 (sine 'es5 :lvl .6 :dur 200))
     (n 3 (sine 'b4 :lvl .6 :dur 200))
@@ -16,40 +17,21 @@
     (e '(2 2 2 2) 3 :p 50 :d 600)
     (e '(2 2 2 2) 1 :p 50 :d 600)
     (e 3 1 :p 100 :d 300))
-  )
 
-
-
-
-
-(format t "~D" Some-other-sines-2)
-
-
-(makunbound 'some-other-sines)
-
-(sink sins (:sync-to nil :branch nil :shift 0)
-  some-other-sines-2)
-
-(pring some-other-sines)
-
-(clear)
+(sink 'sins (:sync-to nil :branch nil :shift 0)
+  'some-other-sines)
 
 (pring 'some-other-sines t)
 
-(chain s2 ()
+(chain 's2 ()
   (cc 80 (rev 0.1))
   (cc 20 (lvl 0.2))
   (cc 20 (atk 150))
-  some-other-sines-2)
+  'some-other-sines-2
+  )
 
-(s 'blub)
-
-
-(s blub )
-
-(s blub)
-(sink rere (:sync-to nil :branch nil :shift 0)
-  (g crepes ()
+(sink 'rere (:sync-to nil :branch nil :shift 0)
+  (g 'crepes ()
     (n 1 (grain "elec" "bd808" :dur 90 :rate 1.0
 		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
 		:lp-dist 0.5 :lvl 0.7))

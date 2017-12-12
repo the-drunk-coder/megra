@@ -152,7 +152,7 @@
 		(let ((new-graph (make-instance 'graph))
 		      (count 1)
 		      (len (list-length ,values)))		      
-    (setf (graph-id new-graph) ',name)
+    (setf (graph-id new-graph) ,name)
     (mapc #'(lambda (value transdur)	      
 	      (insert-node new-graph (node count (,event-type value)))
 	      (if (< count len)
@@ -165,10 +165,10 @@
 	(insert-edge new-graph (edge count 1 :prob 100 :dur (car (reverse ,transitions)))))
     ;; add random blind edges ...
     (if (> ,randomize 0) (randomize-edges new-graph ,randomize))  
-    (if (gethash ',name *processor-directory*)
-	(setf (source-graph (gethash ',name *processor-directory*)) new-graph)
-	(setf (gethash ',name *processor-directory*)
-	      (make-instance 'graph-event-processor :name ',name
+    (if (gethash ,name *processor-directory*)
+	(setf (source-graph (gethash ,name *processor-directory*)) new-graph)
+	(setf (gethash ,name *processor-directory*)
+	      (make-instance 'graph-event-processor :name ,name
 			     :graph new-graph :copy-events t
 			     :current-node 1 :combine-mode ,combine-mode
 			     :affect-transition ,affect-transition
@@ -246,17 +246,10 @@
       (setf (gethash name *processor-directory*) new-inst))
     new-inst))
 
-
-
 (defun clear ()
   ;; first of all stop all events already passed to incudine ...
   (incudine::flush-pending)
-  ;; clear bindings
-  (loop for proc being the hash-keys of *processor-directory*
-       do (makunbound proc))
-  ;; clear directory
   (setf *processor-directory* (make-hash-table :test 'eql))
-  
   (loop for chain being the hash-values of *chain-directory*
        do (deactivate chain))       
   (loop for branch being the hash-values of *branch-directory*
@@ -266,14 +259,12 @@
   (setf *branch-directory* (make-hash-table :test 'eql))
   (setf *current-group* 'DEFAULT))
 
-(defmacro merg (chain-or-group-id)
-  `(funcall (lambda ()
-	      (if (gethash ',chain-or-group-id *group-directory*)
-		  (mapc #'merg (gethash ',chain-or-group-id *group-directory*))  
-		  (progn
-		    (mapc #'deactivate
-			  (gethash ',chain-or-group-id *branch-directory*))
-		    (setf (gethash ',chain-or-group-id *branch-directory*) nil))))))
+(defun merg (chain-or-group-id)
+  (if (gethash chain-or-group-id *group-directory*)
+      (mapc #'merg (gethash chain-or-group-id *group-directory*))  
+      (progn
+	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
+	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun stop (&rest chains)  
   (if (<= (length chains) 0)
