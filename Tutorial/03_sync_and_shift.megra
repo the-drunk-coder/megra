@@ -7,22 +7,22 @@
 ;; At the last example, a little rhythm group emerged, if you remember.
 ;; Try to start them, so that a consistent rhythm emerges:
 
-(sink drums-sink ()
-  (graph drums ()
+(sink 'drums-sink ()
+  (graph 'drums ()
     (node 1 (grain "tutorial_samples" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
     (node 2 (grain "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
     (edge 1 2 :dur 410 :prob 100)
     (edge 2 1 :dur 410 :prob 100)))
 
-(sink bassline-sink () 
-  (graph bassline ()
+(sink 'bassline-sink () 
+  (graph 'bassline ()
     (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
     (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
     (edge 1 2 :dur 410 :prob 100)
     (edge 2 1 :dur 410 :prob 100)))
 
-(sink guitar-sink ()
-  (graph guitar ()
+(sink 'guitar-sink ()
+  (graph 'guitar ()
     (node 1 (grain "tutorial_samples" "git"
 		   :lvl 0.9
 		   :lp-dist 0.9
@@ -41,16 +41,16 @@
 ;; And, it can be achieved:
 
 ;; start the drums again:
-(sink drums-sink ()
-  (graph drums ()
+(sink 'drums-sink ()
+  (graph 'drums ()
     (node 1 (grain "tutorial_samples" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
     (node 2 (grain "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
     (edge 1 2 :dur 410 :prob 100)
     (edge 2 1 :dur 410 :prob 100)))
 
 ;; the solution is rather prosaic:
-(sink bassline-sink (:sync-to drums-sink) ;; <-- sync to ...
-  (graph bassline ()
+(sink 'bassline-sink (:sync-to 'drums-sink) ;; <-- sync to ...
+  (graph 'bassline ()
     (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
     (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
     (edge 1 2 :dur 410 :prob 100)
@@ -68,8 +68,8 @@
 ;; but we saw already that this is hard ... that's where shift-sync
 ;; comes into play:
 
-(sink guitar-sink (:sync-to drums-sink :shift 280) ;;<- sync, but wait for 200ms!
-  (graph guitar ()
+(sink 'guitar-sink (:sync-to 'drums-sink :shift 280) ;;<- sync, but wait for 200ms!
+  (graph 'guitar ()
     (node 1 (grain "tutorial_samples" "git"
 		   :lvl 0.5
 		   :lp-dist 0.9
@@ -88,8 +88,8 @@
 ;; you might as well use shift without sync,
 ;; to delay the dispatching by a certain time:
 
-(sink guitar-sink (:shift 3000) ;; <-  wait for three seconds ! 
-  (graph guitar ()
+(sink 'guitar-sink (:shift 3000) ;; <-  wait for three seconds ! 
+  (graph 'guitar ()
     (node 1 (grain "tutorial_samples" "git"
 		   :lvl 0.5
 		   :lp-dist 0.9
@@ -101,7 +101,7 @@
 ;; if you want to execute some random actions syncronized to the next
 ;; event of a certain sink, you can use the sync-progn macro ...
 
-(sync-progn guitar-sink ;; <- the sink to sync the action to ... 
+(sync-progn 'guitar-sink ;; <- the sink to sync the action to ... 
 	    (format t "hi!"))
 
 (stop)

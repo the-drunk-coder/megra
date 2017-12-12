@@ -393,14 +393,14 @@
 (defmacro chain (name (&key (unique t) (activate nil) (shift 0.0) (group nil)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors
-		       (gen-proc-list ',name (list ,@proc-body))))
+		       (gen-proc-list ,name (list ,@proc-body))))
 		(chain-from-list
-		 ',name
+		 ,name
 		 event-processors
 		 :unique ,unique
 		 :activate ,activate
 		 :shift ,shift
-		 :group ',group)))))
+		 :group ,group)))))
 
 ;; if no group is given, the current group will be used ... 
 (defun assign-chain-to-group (chain-name group)
