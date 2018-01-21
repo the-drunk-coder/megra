@@ -27,7 +27,7 @@
    (let ((copy (allocate-instance (class-of object))))
      (loop for slot in (class-slots (class-of object))
 	do (when (slot-boundp-using-class (class-of object) object slot)
-	     (setf (slot-value copy (slot-definition-name slot))	   		   
+	     (setf (slot-value copy (slot-definition-name slot))
 		   (slot-value object (slot-definition-name slot)))))
      copy))
 
@@ -260,6 +260,17 @@
       (progn
 	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
 	(setf (gethash chain-or-group-id *branch-directory*) nil))))
+
+(defun merg (chain-or-group-id)
+  (if (gethash chain-or-group-id *group-directory*)
+      (mapc #'merg (gethash chain-or-group-id *group-directory*))  
+      (progn
+	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
+	(setf (gethash chain-or-group-id *branch-directory*) nil))))
+
+(defun dq (chain-id)
+  (deactivate (car (reverse (gethash chain-id *branch-directory*))))
+  )
 
 (defun stop (&rest chains)  
   (if (<= (length chains) 0)
