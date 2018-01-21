@@ -1,3 +1,8 @@
+o = Server.local.options;
+o.numOutputBusChannels = 16;
+Server.local.options = o;
+Server.local.boot;
+
 // reverb buffer hardcoded to 1 !!
 
 // the typical filtered grain player, for two channels ...
@@ -57,11 +62,7 @@ SynthDef(\grain_ambi, {
 	var sample_hp = BHiPass.ar(sample, hp_freq, hp_q);
 	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
 	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
-
-	var ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16;
-	# ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16 = FaustHOAEncoder3.ar(sample_lp * EnvGen.ar(outenv, doneAction:2), 0, radius, azi, ele, 0);
-	Out.ar(0, FaustHOAConverter3.ar(ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16, input:1, output:2));
-
+	Out.ar(0, SimpleAmbiPan.ar(sample_lp * EnvGen.ar(outenv, doneAction:2), azi, ele));
 }).store;
 
 // the typical filtered grain player, for two channels, with convolution reverb
@@ -90,6 +91,7 @@ SynthDef(\grain_2ch_rev, {
 	Out.ar(0, Pan2.ar(sample_out *  EnvGen.ar(revenv, doneAction:2) , pos));
 }).store;
 
+
 // the typical filtered grain player, for two channels, with convolution reverb
 SynthDef(\grain_ambi_rev, {
 	|
@@ -115,9 +117,7 @@ SynthDef(\grain_ambi_rev, {
 	var sample_rev = PartConv.ar(sample_lp, 2048, 1, rev);
 	var sample_out = (sample_lp * (1.0 - rev)) + sample_rev;
 	var revenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 1.5, r]);
-	var ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16;
-	# ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16 = FaustHOAEncoder3.ar(sample_out *  EnvGen.ar(revenv, doneAction:2), 0, radius, azi, ele, 0);
-	Out.ar(0, FaustHOAConverter3.ar(ch_1, ch_2, ch_3, ch_4, ch_5, ch_6, ch_7, ch_8, ch_9, ch_10, ch_11, ch_12, ch_13, ch_14, ch_15, ch_16, input:1, output:2));
+	Out.ar(0, SimpleAmbiPan.ar(sample_out *  EnvGen.ar(revenv, doneAction:2), azi, ele));
 }).store;
 
 SynthDef(\sine_2ch, {| freq=1000, lvl=0.5, lp_freq=19000,
