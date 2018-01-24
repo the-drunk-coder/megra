@@ -344,19 +344,47 @@
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
-  :parameters ((sample-folder event-sample-folder)
-	       (sample-file event-sample-file)
-	       (sample-location event-sample-location)) 
+  :parameters ((sample-folder grain-sample-folder)
+	       (sample-file grain-sample-file)
+	       (sample-location grain-sample-location)) 
   :direct-parameters (sample-folder sample-file)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt timestamp))))
 
+(define-event
+  :long-name grain-event-nores
+  :short-name nores
+  :parent-events (level-event
+		  duration-event
+		  spatial-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder nores-sample-folder)
+	       (sample-file nores-sample-file)
+	       (sample-location nores-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-nores evt))
+	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores evt timestamp))))
+
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
-  (setf (event-sample-location g)
+  (setf (grain-sample-location g)
 	(concatenate 'string *sample-root*
-		     (event-sample-folder g) "/" (event-sample-file g) ".wav")))
+		     (grain-sample-folder g) "/" (grain-sample-file g) ".wav")))
+
+(defmethod initialize-instance :after ((g grain-event-nores) &key)
+  (setf (nores-sample-location g)
+	(concatenate 'string *sample-root*
+		     (nores-sample-folder g) "/" (nores-sample-file g) ".wav")))
 ;; end grain-event ...
 
 (define-event

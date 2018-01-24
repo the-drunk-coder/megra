@@ -269,8 +269,10 @@
 	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun dq (chain-id)
-  (deactivate (car (reverse (gethash chain-id *branch-directory*))))
-  )
+  (let* ((branches (gethash chain-id *branch-directory*))
+	 (last (car (reverse branches))))
+    (deactivate last)
+    (setf (gethash chain-id *branch-directory*) (delete last branches))))
 
 (defun stop (&rest chains)  
   (if (<= (length chains) 0)
