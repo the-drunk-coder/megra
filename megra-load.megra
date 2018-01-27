@@ -18,7 +18,7 @@
   (incudine:rt-start)
   (sleep 1)  
   ;; int midi io
-  (defvar *midiin* (midi-open-default :direction :input))
+  ;; (defvar *midiin* (midi-open-default :direction :input))
   (defvar *midiout* (midi-open-default :direction :output))
   ;; port to supercollider
   (defvar *oscout* (osc:open :host "127.0.0.1"
@@ -29,9 +29,9 @@
   (setf *out* (cm::new cm::incudine-stream))
   (setf *rts-out* *out*)
   ;; log level
-  (setf (incudine::logger-level) :error)
+  (setf (incudine::logger-level) :error))
   ;; start recieving midi 
-  (incudine::recv-start *midiin*))
+  ;;(incudine::recv-start *midiin*))
 
 ;; now everything should be ready to load the megra package ... 
 (load (concatenate 'string *megra-root* "/megra-package.lisp"))

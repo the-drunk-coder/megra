@@ -125,27 +125,25 @@
 (defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (unique t) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
-  (when branch
-    (loop for proc-id being the hash-keys of *processor-directory*
-       do (setf (gethash proc-id *prev-processor-directory*)
-		(clone proc-id proc-id :track nil :store nil))))
   `(funcall #'(lambda ()
-		(let* ((event-processors-raw
+		;; copy current state to make branching possible ...
+		(when ,branch
+		  (incudine::nrt-funcall  
+		   (loop for proc-id being the hash-keys of *processor-directory*
+		      do (setf (gethash proc-id *prev-processor-directory*)
+			       (clone proc-id proc-id :track nil :store nil)))))
+		(let* ((event-processors
 			;; replace symbols by instances, generate proper names, insert into proc directory
-		        (gen-proc-list ,name (list ,@proc-body)))
-		       ;; if there's a faulty proc somewhere, proceed with an empty
-		       ;; list ... dispatching will just continue with the old chain ... 
-		       (event-processors (if (member nil event-processors-raw)
-					     nil
-					     event-processors-raw))
-		       (old-chain (gethash ,name *chain-directory*)))		  
+		        (gen-proc-list ,name (list ,@proc-body)))		       
+		       (old-chain (gethash ,name *chain-directory*)))		  		  
+		  (incudine::msg error "PROC LiSt cok ~D" event-processors)
 		  ;; first, construct the chain ...
 		  (cond ((and ,branch old-chain)
 			 ;; if we're branching, move the current chain to the branch directory
 			 ;; and replace the one in the chain-directory by a copy ...
 			 (incudine::msg info "branching chain ~D" ,name)			 
 			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
-				;; build a chain from the previous states of the event processors ... 
+				;; build a chain from the previous states of the event processors ...				
 				(real-old-chain (chain-from-list ,name
 								 (mapcar #'(lambda (proc)									
 									     (gethash (name proc) *prev-processor-directory*))
@@ -225,6 +223,8 @@
 				      #'perform-dispatch
 				      chain				     
 				      it)))))))
+
+(nrt-funcall )
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
