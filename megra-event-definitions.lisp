@@ -375,6 +375,30 @@
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-nores evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores evt timestamp))))
 
+(define-event
+  :long-name grain-event-24db
+  :short-name grain-24db
+  :parent-events (level-event
+		  duration-event
+		  spatial-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder twofourdb-sample-folder)
+	       (sample-file twofourdb-sample-file)
+	       (sample-location twofourdb-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-24db evt))
+	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db evt timestamp))))
+
+
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (grain-sample-location g)
