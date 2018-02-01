@@ -409,6 +409,12 @@
   (setf (nores-sample-location g)
 	(concatenate 'string *sample-root*
 		     (nores-sample-folder g) "/" (nores-sample-file g) ".wav")))
+
+(defmethod initialize-instance :after ((g grain-event-24db) &key)
+  (setf (twofourdb-sample-location g)
+	(concatenate 'string *sample-root*
+		     (twofourdb-sample-folder g) "/" (twofourdb-sample-file g) ".wav")))
+
 ;; end grain-event ...
 
 (define-event

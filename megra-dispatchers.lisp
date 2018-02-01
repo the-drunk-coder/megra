@@ -125,7 +125,7 @@
   `(funcall #'(lambda ()
 		;; copy current state to make branching possible ...
 		(when ,branch
-		  (incudine::nrt-funcall  
+		  (incudine:nrt-funcall  
 		   (loop for proc-id being the hash-keys of *processor-directory*
 		      do (setf (gethash proc-id *prev-processor-directory*)
 			       (clone proc-id proc-id :track nil :store nil)))))
@@ -219,8 +219,6 @@
 				      #'perform-dispatch
 				      chain				     
 				      it)))))))
-
-(nrt-funcall )
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
