@@ -200,6 +200,104 @@
 			       "r" (coerce (* (event-release g) 0.001) 'float)
 			       "pos" (coerce (- (event-position g) 0.5) 'float))))))
 
+(defmethod handle-grain-event-sc-24db ((g grain-event-24db) timestamp &key)
+  (unless (gethash (twofourdb-sample-location g) *sc-buffer-directory*)
+    (register-sample (twofourdb-sample-location g)))
+  ;; might save a hashtable access here ... later ...
+  (let ((bufnum (gethash (twofourdb-sample-location g) *sc-buffer-directory*)))    
+    (if (> (event-reverb g) 0)     
+	(if (event-ambi-p g)
+	    (osc:simple-bundle cm::*oscout* timestamp  
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_ambi_rev_24db" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "azi" (coerce (* (event-azimuth g) 3.14159) 'float)
+			       "ele" (coerce (* (event-elevation g) (* 3.14159 0.5)) 'float)			       
+			       "rev" (coerce (event-reverb g) 'float))
+	    (osc:simple-bundle cm::*oscout* timestamp  
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_2ch_rev_24db" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)			       
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "pos" (coerce (- (event-position g) 0.5) 'float)
+			       "rev" (coerce (event-reverb g) 'float)))
+	(if (event-ambi-p g)
+	    (osc:simple-bundle cm::*oscout* timestamp
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_ambi_24db" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)			       
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "azi" (coerce (* (event-azimuth g) 3.14159) 'float)
+			       "ele" (coerce (* (event-elevation g) (* 3.14159 0.5)) 'float))
+	    (osc:simple-bundle cm::*oscout* timestamp
+			       "/s_new"	    
+			       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+			       "grain_2ch_24db" -1 0 1
+			       "bufnum" bufnum
+			       "lvl" (coerce (event-level g) 'float)
+			       "rate" (coerce (event-rate g) 'float)
+			       "start" (coerce (event-start g) 'float)
+			       "lp_freq" (coerce (event-lp-freq g) 'float)
+			       "lp_q" (coerce (event-lp-q g) 'float)			       
+			       "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+			       "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+			       "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+			       "pf_freq" (coerce (event-pf-freq g) 'float)
+			       "pf_q" (coerce (event-pf-q g) 'float)
+			       "pf_gain" (coerce (event-pf-gain g) 'float)
+			       "hp_freq" (coerce (event-hp-freq g) 'float)
+			       "a" (coerce (* (event-attack g) 0.001) 'float)
+			       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+			       "r" (coerce (* (event-release g) 0.001) 'float)
+			       "pos" (coerce (- (event-position g) 0.5) 'float))))))
+
+
 (defmethod handle-sine-event-sc ((s sine-event) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
