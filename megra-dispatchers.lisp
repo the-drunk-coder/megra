@@ -61,7 +61,7 @@
 	   (next-incu-time (+ incudine-time
 			      #[(- next-osc-time (incudine::timestamp)) s])))
       (incudine:aat next-incu-time
-		    #'perform-dispatch chain next-osc-time it))))
+		    #'perform-dispatch-sep-times chain next-osc-time it))))
 
 (defun perform-dispatch (chain incudine-time)
   ;; create anschluss when old instance has been deactivated (hopefully)
@@ -214,17 +214,16 @@
 				      (list chain))))		      
 		      (unless (or (is-active chain) (wait-for-sync chain))					        
 			(activate chain)
-			;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
-			;;	     #'perform-dispatch-sep-times
-			;;	     chain
-			;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
-			;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
-			(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
-				      #'perform-dispatch
-				      chain				     
-				      it)))))))
-
-(nrt-funcall )
+			(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
+				     #'perform-dispatch-sep-times
+				     chain
+				     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
+				     (+ (incudine:now) #[(chain-shift chain) ms]))
+			;;(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
+			;;	      #'perform-dispatch
+			;;	      chain				     
+			;;	      it)
+			))))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))

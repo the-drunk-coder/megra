@@ -42,12 +42,17 @@ Now install:
 - slime
 - quicklisp
 
+On macOS (using homebrew):
+- portaudio
+- portmidi
+- gsl
+
+
 Clone the following repositories (ideally in your quicklisp/local-projects folder):
 - incudine:       https://github.com/titola/incudine
 - common music:   https://github.com/ormf/cm
 - cm-incudine:    https://github.com/ormf/cm-incudine
 - fudi-incudine:  https://github.com/ormf/fudi-incudine
-- cm-fomus:       https://github.com/ormf/cm-fomus
 
 ## SETUP
 
@@ -59,7 +64,12 @@ https://github.com/titola/incudine/blob/master/INSTALL
 Update your quicklisp distributions (open a lisp file and
 evaluate '(ql:update-all-dists)'
 
-Now, in the file "megra-load.lisp" you'll find tow path, one points
+Then evaluate:
+- `(ql:quickload "quicklisp-slime-helper")` (practical)
+- `(ql:quickload "cm-incudine")`
+- `(ql:quickload "closer-mop")`
+
+Now, in the file "megra-load.lisp" you'll find two paths, one points
 to the folder containing the megra files, one to your samples (if
 you want to use them ...). Samples are organized in a tidal-like
 manner, in folders.
