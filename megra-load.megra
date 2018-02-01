@@ -4,10 +4,10 @@
 ;; --------- PATHS TO SET ------------- ;; 
 
 ;; path to megra package
-(defparameter *megra-root* "/home/nik/REPOSITORIES/megra")
+(defparameter *megra-root* "/Users/niklas.reppel/private_repositories/megra")
 
 ;; sample root folder ... note trailing "/" !
-(defparameter *sample-root* "/home/nik/SAMPLES/" )
+(defparameter *sample-root* "/Users/niklas.reppel/SAMPLES/" )
 
 ;; --------- END PATHS TO SET ------------- ;;
 
@@ -19,19 +19,22 @@
   (sleep 1)  
   ;; int midi io
   ;; (defvar *midiin* (midi-open-default :direction :input))
-  (defvar *midiout* (midi-open-default :direction :output))
+  ;;(defvar *midiout* (midi-open-default :direction :output))
   ;; port to supercollider
   (defvar *oscout* (osc:open :host "127.0.0.1"
 			     :port 57110 ;; <-- change this if you have scsynth running on another port
 			     :direction :output
 			     :latency 0))
   ;; misc cm-stuff ...
-  (setf *out* (cm::new cm::incudine-stream))
-  (setf *rts-out* *out*)
+  ;;(setf *out* (cm::new cm::incudine-stream))
+  ;;(setf *rts-out* *out*)
   ;; log level
   (setf (incudine::logger-level) :error))
   ;; start recieving midi 
   ;;(incudine::recv-start *midiin*))
+
+(incudine::set-sharp-square-bracket-syntax)
+(incudine::add-sharp-square-bracket-syntax)
 
 ;; now everything should be ready to load the megra package ... 
 (load (concatenate 'string *megra-root* "/megra-package.lisp"))

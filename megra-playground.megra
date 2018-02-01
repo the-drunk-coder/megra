@@ -21,6 +21,8 @@
 (sink 'sins (:sync-to nil :branch nil :shift 0)
   'some-other-sines)
 
+(clone)
+
 (pring 'some-other-sines t)
 
 (chain 's2 ()
