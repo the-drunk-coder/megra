@@ -104,11 +104,9 @@
     ;; handle events from current graph
     ;; again, secure this, so that the chain can be restarted
     ;; without having to clear everything ...
-    
     (handler-case (handle-events (pull-events chain) (incudine::rt-time-offset))
       (simple-error (e)
-	(incudine::msg error "cannot pull and handle events: ~D" e)))
-    
+	(incudine::msg error "cannot pull and handle events: ~D" e)))    
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...    
     (let* ((trans-time (transition-duration (car (pull-transition chain))))	   
@@ -118,7 +116,6 @@
 (defun handle-events (events osc-timestamp)
   (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
 
-(in-package :megra)
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
 ;; as of november 2017, i don't even rememeber what i ever meant by 
@@ -128,15 +125,14 @@
   `(funcall #'(lambda ()
 		;; copy current state to make branching possible ...
 		(when ,branch
-		  (incudine::nrt-funcall  
+		  (incudine:nrt-funcall  
 		   (loop for proc-id being the hash-keys of *processor-directory*
 		      do (setf (gethash proc-id *prev-processor-directory*)
 			       (clone proc-id proc-id :track nil :store nil)))))
 		(let* ((event-processors
 			;; replace symbols by instances, generate proper names, insert into proc directory
 		        (gen-proc-list ,name (list ,@proc-body)))		       
-		       (old-chain (gethash ,name *chain-directory*)))		  		  
-		  (incudine::msg error "PROC LiSt cok ~D" event-processors)
+		       (old-chain (gethash ,name *chain-directory*)))		  		  		  
 		  ;; first, construct the chain ...
 		  (cond ((and ,branch old-chain)
 			 ;; if we're branching, move the current chain to the branch directory
@@ -224,7 +220,7 @@
 			;;	      chain				     
 			;;	      it)
 			))))))
-
+ 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
 ;; even shorter, tidal style ... 

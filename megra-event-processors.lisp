@@ -372,7 +372,7 @@
 (defun gen-proc-list (ch-name proc-list)
   (let ((idx 0))
     (mapcar #'(lambda (proc)
-		(incf idx)
+		(incf idx)	        
 		(cond ((typep proc 'symbol)
 		       (gethash proc *processor-directory*))
 		      ;; check if proc is already present,
@@ -415,7 +415,7 @@
 						(activate nil)
 						(shift 0.0)
 						(branch nil)
-						(group nil))
+						(group nil))  
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
   (let ((topmost-proc (car event-processors))
