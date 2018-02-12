@@ -19,7 +19,7 @@
 ;; this sequence of messages 
 (defun prepare-ir ()
   ;; allocate and read buffer
-  (osc:message cm::*oscout* "/b_allocRead" "isii" 0 "/home/nik/SAMPLES/IR/ir1.wav" 0 -1)
+  (osc:message cm::*oscout* "/b_allocRead" "isii" 0 (concatenate 'string *megra-root* "SAMPLES/IR/ir1.wav") 0 -1)
   (sleep 0.5)
   ;; allocate buffer 
   (osc:message cm::*oscout* "/b_alloc" "iiii" *ir-spectral-bufnum* *chapel-buflength* 1 0)
