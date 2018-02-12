@@ -153,7 +153,8 @@ If BLOCK-SIZE is positive, set the new block size before starting."
 (defun incudine-load-megra ()
   "Load Megra package."
   (interactive)
-  (incudine-eval "(load \"/home/nik/REPOSITORIES/megra/megra-load.megra\")"))
+  (incudine-eval
+   (concat "(load \"" megra-root "/megra-load.megra\")")))
 
 (defun incudine-free-node (&optional id)
   "Stop to play a node of the graph.
