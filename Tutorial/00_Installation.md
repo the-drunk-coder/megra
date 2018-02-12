@@ -34,6 +34,7 @@ JACK and SBCL, but i've got no idea how they perform.
 Now install:
 - JACK
 - SuperCollider (> 3.7, higher recommended ... )
+- SC3-Plugins
 - git
 - sbcl (1.3.19 or higher have been tested ... )
 - emacs (25.2.x have been tested, currently the only interface)
@@ -66,14 +67,20 @@ Then evaluate:
 - `(ql:quickload "cm-incudine")`
 - `(ql:quickload "closer-mop")`
 
-Now, in the file "megra-load.lisp" you'll find two paths, one points
-to the folder containing the megra files, one to your samples (if
-you want to use them ...).
+Now, in the file "megra-load.lisp" you'll find two paths:
+
+- `*megra-root*` (points to megra repo)
+- `*sample-root*` (points to samples used for "grain*" events)
+
+Set them accordingly ... 
 
 Add the following lines to your .emacs:
 
-(push "<PATH-TO-MEGRA>" load-path)
+```
+(setq megra-root "<path-to-megra-repo>") ;; no trailing '/' !  
+(push megra-root load-path)
 (require 'incudine-megra)
+```
 
 ## Samples
 
