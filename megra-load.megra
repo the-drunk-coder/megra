@@ -7,7 +7,14 @@
 (defparameter *megra-root* "/home/nik/REPOSITORIES/megra")
 
 ;; sample root folder ... note trailing "/" !
-(defparameter *sample-root* "/home/nik/SAMPLES/" )
+(defparameter *sample-root* "/home/nik/SAMPLES/")
+
+;; sample type aka file extension - wav or flac !
+;; (currently not possible to mix ...)
+(defparameter *sample-type* "flac" )
+
+;; the impulse response to use for the reverb (no file extension)
+(defparameter *reverb-ir* "ir1" )
 
 ;; --------- END PATHS TO SET ------------- ;;
 

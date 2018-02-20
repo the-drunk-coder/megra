@@ -85,8 +85,14 @@ Add the following lines to your .emacs:
 ## Samples
 
 Samples (for the grain event) are organized in a tidal-like
-manner, in folders. In the samples folder, there should be a folder
-called "IR", and a file with your favourite impulse respones calles "ir1.wav"
-for the reverb (reverb won't work without ... ).
+manner, in folders. 
+In the file "megra-load.lisp" you can configure the sample root,
+the sample type (flac or wav) and the name of the impulse response
+needed for the reverb (without file extension).
+There aren't any samples in this repository except for the tutorial 
+samples.
+If you're already using tidal, you can simply set the `*sample-root*` 
+to your Dirt samples folder, and set the type to "wav".
+
 
 
