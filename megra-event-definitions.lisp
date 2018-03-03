@@ -398,22 +398,21 @@
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-24db evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db evt timestamp))))
 
-
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (grain-sample-location g)
 	(concatenate 'string *sample-root*
-		     (grain-sample-folder g) "/" (grain-sample-file g) ".wav")))
+		     (grain-sample-folder g) "/" (grain-sample-file g) "." cm::*sample-type* )))
 
 (defmethod initialize-instance :after ((g grain-event-nores) &key)
   (setf (nores-sample-location g)
 	(concatenate 'string *sample-root*
-		     (nores-sample-folder g) "/" (nores-sample-file g) ".wav")))
+		     (nores-sample-folder g) "/" (nores-sample-file g) "." cm::*sample-type*)))
 
 (defmethod initialize-instance :after ((g grain-event-24db) &key)
   (setf (twofourdb-sample-location g)
 	(concatenate 'string *sample-root*
-		     (twofourdb-sample-folder g) "/" (twofourdb-sample-file g) ".wav")))
+		     (twofourdb-sample-folder g) "/" (twofourdb-sample-file g) "." cm::*sample-type*)))
 
 ;; end grain-event ...
 
