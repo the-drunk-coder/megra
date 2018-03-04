@@ -8,12 +8,16 @@
   :parent-events (event))
 
 ;; those "abstract" events provide the building blocks
-;; for the events that will later on produce a sound 
+;; for the events that will later on produce a sound
+
+;; parameter format:
+;; (name accessor-name default minimum maximum)
+;; name and accessor name are mandatory, the rest optional ... 
 (define-event
   :long-name pitch-event
   :short-name pitch
   :parent-events (event)
-  :parameters ((pitch event-pitch 43)) 
+  :parameters ((pitch event-pitch 43 1 19000)) 
   :direct-parameters (pitch))
 
 (define-event
@@ -27,14 +31,14 @@
   :long-name duration-event
   :short-name dur
   :parent-events (event)
-  :parameters ((dur event-duration 512)) 
+  :parameters ((dur event-duration 512 10)) ;; minimum duration, but no max ...   
   :direct-parameters (dur))
 
 (define-event
   :long-name level-event
   :short-name lvl
   :parent-events (event)
-  :parameters ((lvl event-level 0.3)) 
+  :parameters ((lvl event-level 0.3 0.0 1.1)) 
   :direct-parameters (lvl))
 
 (define-event
@@ -142,7 +146,7 @@
   :long-name spatial-event
   :short-name pos
   :parent-events (event)
-  :parameters ((pos event-position 0.5)
+  :parameters ((pos event-position 0.5 -1.5 1.5)
 	       (azi event-azimuth 0.0)
 	       (ele event-elevation 0.0)
 	       (dst event-distance 2.0)
@@ -181,149 +185,150 @@
   :long-name attack-event
   :short-name atk
   :parent-events (event)
-  :parameters ((atk event-attack 5)) 
+  :parameters ((atk event-attack 5 1)) 
   :direct-parameters (atk))
 
 (define-event
   :long-name decay-event
   :short-name dec
   :parent-events (event)
-  :parameters ((dec event-decay 20)) 
+  :parameters ((dec event-decay 20 1)) 
   :direct-parameters (dec))
 
 (define-event
   :long-name sustain-event
   :short-name sus
   :parent-events (event)
-  :parameters ((sus event-sustain 50)) 
+  :parameters ((sus event-sustain 50 1)) 
   :direct-parameters (sus))
 
 (define-event
   :long-name release-event
   :short-name rel
   :parent-events (event)
-  :parameters ((rel event-release 5)) 
+  :parameters ((rel event-release 5 1)) 
   :direct-parameters (rel))
 
 (define-event
   :long-name pulsewidth-event
   :short-name pw
   :parent-events (event)
-  :parameters ((pw event-pulsewidth 0.5)) 
+  :parameters ((pw event-pulsewidth 0.5 0.01 0.09)) 
   :direct-parameters (pw))
 
 (define-event
   :long-name level-lfo-event
   :short-name lvl-lfo
   :parent-events (event)
-  :parameters ((lvl-lfo-speed event-level-lfo-speed 0.0)
-	       (lvl-lfo-depth event-level-lfo-depth 0.0)
-	       (lvl-lfo-phase event-level-lfo-phase 0.0)) 
+  :parameters ((lvl-lfo-speed event-level-lfo-speed 0.0 0.0 20000.0)
+	       (lvl-lfo-depth event-level-lfo-depth 0.0 0.0 1.0)
+	       (lvl-lfo-phase event-level-lfo-phase 0.0 0.0 1.0)) 
   :direct-parameters (lvl-lfo-speed))
 
 (define-event
   :long-name frequency-lfo-event
   :short-name freq-lfo
   :parent-events (event)
-  :parameters ((freq-lfo-speed event-freq-lfo-speed 0.0)
-	       (freq-lfo-depth event-freq-lfo-depth 0.0)
-	       (freq-lfo-phase event-freq-lfo-phase 0.0)) 
+  :parameters ((freq-lfo-speed event-freq-lfo-speed 0.0 0.0 20000.0)
+	       (freq-lfo-depth event-freq-lfo-depth 0.0 0.0 1.0)
+	       (freq-lfo-phase event-freq-lfo-phase 0.0 0.0 1.0)) 
   :direct-parameters (freq-lfo-speed))
 
 (define-event
   :long-name lowpass-frequency-lfo-event
   :short-name lp-freq-lfo
   :parent-events (event)
-  :parameters ((lp-freq-lfo-speed event-lp-freq-lfo-speed 0.0)
-	       (lp-freq-lfo-depth event-lp-freq-lfo-depth 0.0)
-	       (lp-freq-lfo-phase event-lp-freq-lfo-phase 0.0)) 
+  :parameters ((lp-freq-lfo-speed event-lp-freq-lfo-speed 0.0 0.0 20000.0)
+	       (lp-freq-lfo-depth event-lp-freq-lfo-depth 0.0 0.0 1.0)
+	       (lp-freq-lfo-phase event-lp-freq-lfo-phase 0.0 0.0 1.0)) 
   :direct-parameters (lp-freq-fo-speed))
 
 (define-event
   :long-name highpass-frequency-lfo-event
   :short-name hp-freq-lfo
   :parent-events (event)
-  :parameters ((hp-lfo-speed event-hp-lfo-speed 0.0)
-	       (hp-lfo-depth event-hp-lfo-depth 0.0)
-	       (hp-lfo-phase event-hp-lfo-phase 0.0)) 
+  :parameters ((hp-lfo-speed event-hp-lfo-speed 0.0 0.0 20000.0)
+	       (hp-lfo-depth event-hp-lfo-depth 0.0 0.0 1.0)
+	       (hp-lfo-phase event-hp-lfo-phase 0.0 0.0 1.0)) 
   :direct-parameters (hp-lfo-speed))
 
 (define-event
   :long-name peak-frequency-lfo-event
   :short-name peak-freq-lfo
   :parent-events (event)
-  :parameters ((peak-lfo-speed event-peak-lfo-speed 0.0)
-	       (peak-lfo-depth event-peak-lfo-depth 0.0)
-	       (peak-lfo-phase event-peak-lfo-phase 0.0)) 
+  :parameters ((peak-lfo-speed event-peak-lfo-speed 0.0 0.0 20000.0)
+	       (peak-lfo-depth event-peak-lfo-depth 0.0 0.0 1.0)
+	       (peak-lfo-phase event-peak-lfo-phase 0.0 0.0 1.0)) 
   :direct-parameters (peak-lfo-speed))
 
 (define-event
   :long-name peak-gain-lfo-event
   :short-name peak-gain-lfo
   :parent-events (event)
-  :parameters ((peak-gain-lfo-speed event-peak-gain-lfo-speed 0.0)
-	       (peak-gain-lfo-depth event-peak-gain-lfo-depth 0.0)
-	       (peak-gain-lfo-phase event-peak-gain-lfo-phase 0.0)) 
+  :parameters ((peak-gain-lfo-speed event-peak-gain-lfo-speed 0.0 0.0 20000.0)
+	       (peak-gain-lfo-depth event-peak-gain-lfo-depth 0.0 0.0 1.0)
+	       (peak-gain-lfo-phase event-peak-gain-lfo-phase 0.0 0.0 1.0)) 
   :direct-parameters (peak-gain-lfo-speed))
 
 (define-event
   :long-name mix-event
   :short-name mix
   :parent-events (event)
-  :parameters ((mix event-mix 0.2)) 
+  :parameters ((mix event-mix 0.2 0.0 1.0)) 
   :direct-parameters (mix))
 
 (define-event
   :long-name velocity-event
   :short-name vel
   :parent-events (event)
-  :parameters ((vel event-velocity 0.8)) 
+  :parameters ((vel event-velocity 0.8 0.0 1.0)) 
   :direct-parameters (vel))
 
 (define-event
   :long-name mod-index-event
   :short-name mod-idx
   :parent-events (event)
-  :parameters ((mod-idx event-mod-index 0.3)) 
+  :parameters ((mod-idx event-mod-index 0.3 0.0 0.6)) 
   :direct-parameters (mod-idx))
 
 (define-event
   :long-name start-event
   :short-name start
   :parent-events (event)
-  :parameters ((start event-start 0.0)) 
+  :parameters ((start event-start 0.0 0.0 1.0)) 
   :direct-parameters (start))
 
 (define-event
   :long-name reverb-event
   :short-name rev
   :parent-events (event)
-  :parameters ((rev event-reverb 0.0)) 
+  :parameters ((rev event-reverb 0.0 0.0 0.4)) 
   :direct-parameters (rev))
 
 (define-event
   :long-name filter-hp-event
   :short-name filter-hp
   :parent-events (event)
-  :parameters ((hp-freq event-hp-freq 10) (hp-q event-hp-q 0.4)) 
+  :parameters ((hp-freq event-hp-freq 10 5 19000)
+	       (hp-q event-hp-q 0.4 0.09 0.9)) 
   :direct-parameters (hp-freq))
 
 (define-event
   :long-name filter-lp-event
   :short-name filter-lp
   :parent-events (event)
-  :parameters ((lp-freq event-lp-freq 19000)
-	       (lp-q event-lp-q 0.1)
-	       (lp-dist event-lp-dist 0.0)) 
+  :parameters ((lp-freq event-lp-freq 19000 10 19000)
+	       (lp-q event-lp-q 0.1 0.07 0.9)
+	       (lp-dist event-lp-dist 0.0 0.0 1.0)) 
   :direct-parameters (lp-freq))
 
 (define-event
   :long-name filter-peak-event
   :short-name filter-peak
   :parent-events (event)
-  :parameters ((pf-freq event-pf-freq 1000)
-	       (pf-q event-pf-q 10)
-	       (pf-gain event-pf-gain 0.0)) 
+  :parameters ((pf-freq event-pf-freq 1000 10 19000)
+	       (pf-q event-pf-q 10 1 40)
+	       (pf-gain event-pf-gain 0.0 -10.0 10.0)) 
   :direct-parameters (pf-freq))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -420,7 +425,7 @@
   :long-name harm-event
   :short-name harm
   :parent-events (event)
-  :parameters ((harm event-harmonies 3)) 
+  :parameters ((harm event-harmonies 3 1 5)) 
   :direct-parameters (harm))
 
 (define-event
@@ -647,8 +652,8 @@
   :long-name frequency-range-event
   :short-name freq-range
   :parent-events (event)
-  :parameters ((freq-min event-freq-min 410)
-	       (freq-max event-freq-max 420))
+  :parameters ((freq-min event-freq-min 410 20 19000)
+	       (freq-max event-freq-max 420 20 19000))
   :direct-parameters (freq-min freq-max))
 
 ;; gendy-based event ... extremly cpu-intensive ... 
@@ -665,12 +670,12 @@
 		  spatial-event
 		  reverb-event
 		  )
-  :parameters ((adstr event-amp-distr 1)
-	       (ddstr event-dur-distr 1)
-	       (adstr-par event-amp-distr-param 1)
-	       (ddstr-par event-dur-distr-param 1)	       
-	       (a-scl event-amp-scale 0.01)
-	       (d-scl event-dur-scale 0.01)) 
+  :parameters ((adstr event-amp-distr 1 1 2)
+	       (ddstr event-dur-distr 1 1 2 )
+	       (adstr-par event-amp-distr-param 1 1 2)
+	       (ddstr-par event-dur-distr-param 1 1 2)	       
+	       (a-scl event-amp-scale 0.01 0.01 0.02)
+	       (d-scl event-dur-scale 0.01 0.01 0.02)) 
   :direct-parameters (freq-min freq-max)
   :handler
   (cond ((not (event-ambi-p evt))
@@ -733,7 +738,7 @@
   :long-name transition
   :short-name transition
   :parent-events (event)
-  :parameters ((dur transition-duration)) 
+  :parameters ((dur transition-duration 512 20)) 
   :direct-parameters (dur))
 
 
