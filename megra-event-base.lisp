@@ -2,9 +2,16 @@
 (defclass event ()
   ((source :accessor event-source)
    (tags :accessor event-tags :initarg :tags)
-   (backends :accessor event-backends :initarg :backends :initform `(,*default-dsp-backend*))
+   (backends :accessor event-backends
+	     :initarg :backends
+	     :initform `(,*default-dsp-backend*))
    (value-combine-function :accessor value-combine-function
-			   :initarg :combi-fun :initform #'replace-value)))
+			   :initarg :combi-fun
+			   :initform #'replace-value)))
+
+;; upper and lower limits for parameters. Refer to those when using
+;; "blind" modificators that don't set explicit limits ... 
+(defparameter *parameter-limits* (make-hash-table :test 'equal))
 
 ;; the default value combination function
 (defun replace-value (b a) a)
@@ -34,8 +41,10 @@
 	  (unless (member (slot-definition-name slot) *protected-slots*)
 	    (setf (slot-value b (slot-definition-name slot))
 		  (funcall (value-combine-function a)
-			   (eval-slot-value (slot-value b (slot-definition-name slot)))
-			   (eval-slot-value (slot-value a (slot-definition-name slot)))))))) b)
+			   (eval-slot-value
+			    (slot-value b (slot-definition-name slot)))
+			   (eval-slot-value
+			    (slot-value a (slot-definition-name slot)))))))) b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
   (loop for slot in (class-direct-slots (class-of a))
@@ -46,9 +55,9 @@
 
 ;; copied ... interleave two lists ...(a1 b1) (a2 b2) -> (a1 a2 b1 b2)
 (defun interleave (l1 l2)
-  (cond ((and (eql l1 nil) (eql l2 nil)) nil)             ;; rule #1 
-        ((eql l1 nil) (cons nil (interleave l2 l1)))      ;; rule #2, current value is nil
-        (t (cons (first l1) (interleave l2 (rest l1)))))) ;; rule #3 in all other cases
+  (cond ((and (eql l1 nil) (eql l2 nil)) nil)         ;; rule #1 
+        ((eql l1 nil) (cons nil (interleave l2 l1)))  ;; rule #2, current val is nil
+        (t (cons (first l1) (interleave l2 (rest l1)))))) ;; rule #3 all other cases
 
 ;; helper to create 
 (defun create-accessor (class-name accessor-name param-name)
@@ -68,7 +77,6 @@
       (mapcan #'get-param-definitions (sb-mop::class-direct-superclasses event-class))))
 
 ;; a overwrites b, b (or incomplete) is returned ...
-(in-package :megra)
 (defmethod combine-single-events ((a event) (b event) &key)
   (cond ((events-compatible a b) (overwrite-slots a b))
 	;; merge events into a new incomplete event
@@ -79,7 +87,6 @@
 	      (overwrite-slots a new-event)))))
 
 ;; combining events ... a has precedence
-(in-package :megra)
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
 	((eq mode 'zip) (mapc
@@ -126,6 +133,8 @@
 	    (format nil ":~a ~a " param-name param-value))	
 	(format nil "~a " value-string))))
 
+(mapcar (lambda (l) (nth 2 l)) '((1 2 4) (1 2 3) (1 2)))
+
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
@@ -153,11 +162,11 @@
 	 (parent-keyword-parameters (remove-if #'(lambda (x) (member (car x) direct-parameters)) 
 					       parent-parameters))
 	 (parameter-names (mapcar #'car parameters))
-	 (accessor-names (mapcar #'cadr parameters))	 
-	 (keyword-parameter-defaults (mapcar #'caddr keyword-parameters))
-	 (keyword-parameter-names (mapcar #'car keyword-parameters))	 
+	 (accessor-names (mapcar #'cadr parameters)) ;; second is a accessor name 	 
+	 (keyword-parameter-defaults (mapcar (lambda (l) (nth 2 l)) keyword-parameters)) ;; 3rd is default value	 
+	 (keyword-parameter-names (mapcar #'car keyword-parameters)) ;; first is name 
 	 (parent-parameter-names (mapcar #'car parent-parameters))
-	 (parent-keyword-parameter-defaults (mapcar #'caddr parent-keyword-parameters))
+	 (parent-keyword-parameter-defaults (mapcar (lambda (l) (nth 2 l)) parent-keyword-parameters)) ;; 3rd is default	 
 	 (parent-keyword-parameter-names (mapcar #'car parent-keyword-parameters))
 	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))
 	 (parent-keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
@@ -179,7 +188,9 @@
 				  slot-name
 				  :accessors (list accessor-name)
 				  :initargs (list slot-keyword)
-				  :initform slot-initform)))
+				  :initform slot-initform)
+	       ;; set parameter limits
+	       (setf (gethash slot-name *parameter-limits*) (list (nth 3 param) (nth 4 param)))))
        ;; define the constructor function
        (defun ,short-name (,@direct-parameters
 				 &key

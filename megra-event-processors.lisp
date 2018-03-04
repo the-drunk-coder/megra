@@ -360,6 +360,9 @@
 	  (setf (successor current) next)
 	  (setf (predecessor next) current)	  
 	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))
+    ;;(incudine::msg
+    ;;	   error
+    ;;	   "fails hjer ?? ~D ~D" current chain-name)
     (setf (chain-bound current) chain-name)))
 
 (defun gen-proc-name (ch-name proc idx)

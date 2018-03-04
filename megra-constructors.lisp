@@ -31,6 +31,30 @@
 		   (slot-value object (slot-definition-name slot)))))
      copy))
 
+;; clone and shake things up a little
+(defmethod clone-imprecise (object intensity)
+   (let ((copy (allocate-instance (class-of object))))
+     (loop for slot in (class-slots (class-of object))
+	do (when (slot-boundp-using-class (class-of object) object slot)
+	     (setf (slot-value copy (slot-definition-name slot))
+		   (let* ((slotname (slot-definition-name slot))
+			  (orig (slot-value object slotname)))
+		     ;;(format t "~D~%" slotname)
+		     (cond ((typep orig 'number) 
+			    (let ((newval (+ orig (* (* (- 20000 (random 40000)) intensity)
+						     (/ orig 20000))))
+				  (min (if (car (gethash slotname *parameter-limits*))
+					   (car (gethash slotname *parameter-limits*))
+					   SB-EXT:DOUBLE-FLOAT-NEGATIVE-INFINITY))
+				  (max (if (cadr (gethash slotname *parameter-limits*))
+					   (cadr (gethash slotname *parameter-limits*))
+					   SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY)))
+			      ;;(format t "~D new: ~D min: ~D max: ~D~%" slotname newval min max)
+			      (cond ((< newval min) min)
+				    ((> newval max) max)
+				    (t newval))))
+			   (t orig)))))) copy))
+
 ;; this macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
