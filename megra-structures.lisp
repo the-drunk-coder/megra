@@ -51,16 +51,23 @@
   ((id :accessor graph-id)
    (nodes :accessor graph-nodes)
    (edges :accessor graph-edges)
+   (max-id :accessor graph-max-id :initform 0)
    (highest-edge-order :accessor graph-highest-edge-order :initform 0)))
 
 (defmethod initialize-instance :after ((g graph) &key)
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
+
+
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (cons (graph-id g) (node-id n)))
   ;; set event source ids with format:
   ;; ((GRAPH-ID . NODE-ID) . EVENT-POS) 
+  ;; ----
+  ;; keep track of highest id (meaning that ids must be sortable ... )
+  (if (> (node-id n) (graph-max-id g))
+      (setf (graph-max-id g) (node-id n)))
   (if (node-content n)
       (labels ((identify (nodes count)
 		 (if nodes
@@ -73,7 +80,6 @@
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
-(in-package :megra)
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edge-source-list (if (typep (edge-source e) 'list)
 			      (edge-source e)
