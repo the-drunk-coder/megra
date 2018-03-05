@@ -23,10 +23,7 @@
 (sink 'sins (:sync-to nil :branch nil :shift 0)
   'some-other-sines)
 
-(grow 'some-other-sines :variance 0.3)
-
-
-(pring 'crepessu t)
+(pring 'crepes t)
 
 (chain 's2 ()
   (cc 80 (rev 0.1))
@@ -37,23 +34,50 @@
 
 (sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
-    (n 1 (grain "elec" "bd808" :dur 90 :rate 1.0
-		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
-		:lp-dist 0.5 :lvl 0.7))
-    (e 1 1 :d 1000 :p 100)
-    )
-)
+    (n 1 (grain-24db "elec" "bd808"
+		     :dur 90
+		     :rate 1.0
+		     :lp-q 0.4
+		     :lp-freq 900
+		     :lvl 0.7))
+    (n 2 (ctrl #'(lambda () (grow 'crepes
+			     :variance 0.3
+			     :durs '(2000 500 500 500 250 333))))
+       (grain-24db "elec" "bd808"
+		     :dur 90
+		     :rate 1.1
+		     :lp-q 0.4
+		     :lp-freq 900
+		     :lvl 0.7))
+    (e 1 1 :d 1000 :p 90)
+    (e 1 2 :d 1000 :p 10)
+    (e 2 2 :d 1000 :p 5)
+    (e 2 1 :d 1000 :p 95)
+    ))
 
-(sink 'dede (:sync-to nil :branch nil :shift 0)
+(sink 'dede (:sync-to 'rere :branch nil :shift 500)
   (g 'crepessu ()
-    (n 1 (nores "elec" "sncr78" :dur 90 :rate 1.0
+    (n 1 (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
 		:lp-freq 9500
 		:lp-dist 0.5 :lvl 0.7
 		:ambi-p nil
 		:azi 1.0
 		:ele 1.81
 		))
-    (e 1 1 :d 1000 :p 100)
+    (n 2 (ctrl #'(lambda () (grow 'crepessu
+			     :variance 0.2
+			     :durs '(2000 2000 500 500 500 250 333))))
+       (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
+		:lp-freq 9500
+		:lp-dist 0.5 :lvl 0.7
+		:ambi-p nil
+		:azi 1.0
+		:ele 1.81
+		))
+    (e 1 1 :d 1000 :p 90)
+    (e 1 2 :d 1000 :p 10)
+    (e 2 2 :d 1000 :p 5)
+    (e 2 1 :d 1000 :p 95)
     ))
 
 
