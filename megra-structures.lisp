@@ -1,3 +1,4 @@
+
 ;; the basic structure of music ...
 (defclass node ()
   ((global-id :accessor node-global-id)
@@ -58,8 +59,6 @@
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
-
-
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (cons (graph-id g) (node-id n)))
   ;; set event source ids with format:
@@ -79,6 +78,27 @@
 		       (identify (cdr nodes) (+ 1 count))))))
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
+
+(defmethod rebalance-edges ((g graph) &key)
+  ;; tbd
+    )
+
+(defmethod remove-node ((g graph) removed-id &key (rebalance t))
+  ;; remove node
+  (remhash removed-id (graph-nodes g))
+  ;; remove outgoing edges from that node ... 
+  (remhash (list removed-id) (gethash 1 (graph-edges g)))
+  ;; remove higher-order edges that contain the removed id
+  (loop for order being the hash-keys of (graph-edges g)
+     do (loop for src-seq being the hash-keys of (gethash order (graph-edges g))
+	   do (progn 
+		(when (member removed-id src-seq)
+		  (remhash src-seq (gethash order (graph-edges g))))
+		;; remove incoming edges ...
+		(when (get-edge g src-seq removed-id)
+		  (remove-edge g src-seq removed-id)))))
+  (if rebalance
+      (rebalance-edges g)))
 
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edge-source-list (if (typep (edge-source e) 'list)
@@ -103,6 +123,16 @@
 	;; edge-source ~D" edge-order (edge-source e))
 	(setf (gethash edge-source-list order-dict)
 	      (remove-duplicates (cons e edges) :test #'edge-equals))))))
+
+(defmethod remove-edge ((g graph) source destination &key)
+  (let* ((edge-source-list (if (typep source 'list)
+			      source
+			      (list source)))
+	 (edge-order (length edge-source-list))
+	 (order-dict (gethash edge-order (graph-edges g)))
+	 (source-edges (gethash edge-source-list order-dict)))
+    (setf (gethash edge-source-list order-dict)
+	  (remove (edge source destination :dur 0 :prob 0) source-edges :test #'edge-equals))))
 
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
