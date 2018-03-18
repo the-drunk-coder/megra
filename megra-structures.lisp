@@ -35,11 +35,17 @@
 ;; i could split transition print here, but i think it's ok like that for now ...
 ;; turn back to textual representation ...
 (defmethod print-edge ((e edge) &key)
-  (format nil "(edge ~d ~d :prob ~d :dur ~d)"
-	  (edge-source e)
-	  (edge-destination e)
-	  (edge-probability e)
-	  (transition-duration (car (edge-content e)))))
+  (if (typep (edge-source e) 'list)
+      (format nil "(edge '~D ~d :prob ~d :dur ~d)"
+	      (edge-source e)
+	      (edge-destination e)
+	      (edge-probability e)
+	      (transition-duration (car (edge-content e))))
+      (format nil "(edge ~D ~d :prob ~d :dur ~d)"
+	      (edge-source e)
+	      (edge-destination e)
+	      (edge-probability e)
+	      (transition-duration (car (edge-content e))))))
 
 ;; compare edges to remove duplicates
 (defmethod edge-equals ((a edge) (b edge) &key)
@@ -120,7 +126,7 @@
 		(when (member removed-id src-seq)
 		  (remhash src-seq (gethash order (graph-edges g))))
 		;; remove incoming edges ...
-		(when (get-edge g src-seq removed-id)
+		(when (get-edge g src-seq removed-id)		  
 		  (remove-edge g src-seq removed-id)))))
   (if rebalance
       (rebalance-edges g)))
@@ -153,11 +159,15 @@
   (let* ((edge-source-list (if (typep source 'list)
 			      source
 			      (list source)))
+	 (real-source (if (and (typep source 'list) (eql (length source) 1))
+			  (car source)
+			  source))
 	 (edge-order (length edge-source-list))
 	 (order-dict (gethash edge-order (graph-edges g)))
 	 (source-edges (gethash edge-source-list order-dict)))
+    (format t "~D ~D ~%" edge-source-list destination)
     (setf (gethash edge-source-list order-dict)
-	  (remove (edge source destination :dur 0 :prob 0) source-edges :test #'edge-equals))))
+	  (remove (edge real-source destination :dur 0 :prob 0) source-edges :test #'edge-equals))))
 
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
