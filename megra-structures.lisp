@@ -1,4 +1,3 @@
-
 ;; the basic structure of music ...
 (defclass node ()
   ((global-id :accessor node-global-id)
@@ -59,6 +58,8 @@
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
+(in-package :megra)
+
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (cons (graph-id g) (node-id n)))
   ;; set event source ids with format:
@@ -79,9 +80,33 @@
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
+;; idea: add exclusion list, so this method can be used for disencourage ??
 (defmethod rebalance-edges ((g graph) &key)
-  ;; tbd
-    )
+  (loop for order being the hash-keys of (graph-edges g)
+     do (labels ((sum-probs (edge-list)
+		   (loop for e in edge-list
+		      summing (edge-probablity e) into tprob
+		      finally (return tprob))))
+	  (loop for src-edges being the hash-values of (gethash order (graph-edges g))
+	     do (let* ((sprob (sum-probs src-edges))
+		       (pdiff (- 100 sprob)))
+		  (cond  ((> pdiff 0)
+			  ;; IMPORTANT !! CHECK if edge pro is at 0 !! 
+			  (loop while (> pdiff 0)
+			     do (progn
+				  (incf (edge-probablity
+					 (nth (random (length src-edges)) src-edges)))
+				  (decf pdiff))))
+			 ((< pdiff 0)
+			  (let ((indices (loop for i from 0 to (- (length src-edges) 1) collect i)))
+				(loop while (or (< pdiff 0) (eql 0 (length indices)))
+				   do (let ((chosen-idx (nth (random (length indices)) indices)))
+					(if (>= (edge-probablity (nth chosen-idx src-edges)) 1)
+					  (progn
+					    (decf (edge-probablity
+						   (nth chosen-idx src-edges)))
+					    (incf pdiff))
+					  (remove chosen-idx indices))))))))))))
 
 (defmethod remove-node ((g graph) removed-id &key (rebalance t))
   ;; remove node
