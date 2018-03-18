@@ -167,7 +167,9 @@
 	 (source-edges (gethash edge-source-list order-dict)))
     (format t "~D ~D ~%" edge-source-list destination)
     (setf (gethash edge-source-list order-dict)
-	  (remove (edge real-source destination :dur 0 :prob 0) source-edges :test #'edge-equals))))
+	  (remove (edge real-source destination :dur 0 :prob 0) source-edges :test #'edge-equals))
+    (when (not (gethash edge-source-list order-dict))
+        (remhash edge-source-list order-dict))))
 
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
