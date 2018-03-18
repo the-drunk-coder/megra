@@ -125,7 +125,7 @@
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
       ((choice-list (edge counter)
-	 (loop repeat (edge-probablity edge)
+	 (loop repeat (edge-probability edge)
 	    collect counter))
        (collect-choices (edges counter)
 	 (if edges
