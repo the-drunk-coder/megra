@@ -4,26 +4,39 @@
 (clear)
 
 (g 'some-other-sines ()
-    (n 1 (sine 700 :lvl .6 :dur 200))
-    (n 2 (sine 300 :lvl .6 :dur 200))
-    (n 3 (sine 800 :lvl .6 :dur 200))
-    (n 4 (sine 400 :lvl .6 :dur 200))
-    (e 1 2 :p 50 :d 300)
-    (e 1 1 :p 50 :d 300) 
-    (e '(1 1 1) 3 :p 100 :d 900)     
-    (e 2 1 :p 10 :d 300)
-    (e 2 3 :p 10 :d 200)
-    (e 2 2 :p 80 :d 300)
-    (e '(2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2) 1 :p 50 :d 600)
-    (e 3 1 :p 100 :d 300))
+  (n 1 (sine 300 :lvl .6 :dur 200))
+  (n 2 (sine 300 :lvl .6 :dur 200))
+  (n 3 (sine 800 :lvl .6 :dur 200))
+  (n 4 (sine 400 :lvl .6 :dur 200))
+  (e 1 2 :p 50 :d 300)
+  (e 1 1 :p 50 :d 300) 
+  (e '(1 1 1) 3 :p 100 :d 900)     
+  (e 2 1 :p 10 :d 300)
+  (e 2 3 :p 10 :d 200)
+  (e 2 2 :p 80 :d 300)
+  (e '(2 2 2 2) 3 :p 50 :d 600)
+  (e '(2 2 2 2) 1 :p 50 :d 600)
+  (e 3 1 :p 100 :d 300))
 
 (clear)
+
+
+
 
 (sink 'sins (:sync-to nil :branch nil :shift 0)
   'some-other-sines)
 
-(pring 'crepes t)
+(pring 'some-other-sines t)
+
+(rebalance-edges (source-graph (gethash 'some-other-sines *processor-directory*)))
+
+(remove-edge (source-graph (gethash 'some-other-sines *processor-directory*)) 1 2)
+
+(remove-node (source-graph (gethash 'some-other-sines *processor-directory*)) 1)
+
+
+
+(setf (source-graph (gethash 'some-other-sines *processor-directory*)) *lala*)
 
 (chain 's2 ()
   (cc 80 (rev 0.1))
@@ -112,10 +125,10 @@
 (sink 'drums-sink ()
   
   (graph 'drums ()
-    (node 1 (grain "02_instruments" "jazzy_bd" :rev 0.0
-		   :lvl 0.9 :rate 0.9 :lp-dist 0.9 :dur 100))
-    (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
-		   :dur 800 :rate 0.5 :lp-freq-lfo-speed 1.0
+    (node 1 (grain-24db "tutorial_samples" "jazzy_bd" :rev 0.0
+		   :lvl 0.9 :rate 0.9 :lp-q 0.2 :dur 100))
+    (node 2 (grain-24db "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
+		   :dur 800 :rate 0.5 :lp-q 0.2 :lp-freq-lfo-speed 1.0
 		   :lp-freq-lfo-depth 1.0 :lp-freq-lfo-phase 0.5 :lp-freq 9000
 		   :rev 0.0))
     (edge 1 2 :dur 900 :prob 100)
