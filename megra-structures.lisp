@@ -29,7 +29,7 @@
    ;; also be a path, the naming is a little inaccurate
    (source :accessor edge-source :initarg :src)   
    (destination :accessor edge-destination :initarg :dest)
-   (probability :accessor edge-probablity :initarg :prob)
+   (probability :accessor edge-probability :initarg :prob)
    (content :accessor edge-content :initarg :content)))
 
 ;; i could split transition print here, but i think it's ok like that for now ...
@@ -38,7 +38,7 @@
   (format nil "(edge ~d ~d :prob ~d :dur ~d)"
 	  (edge-source e)
 	  (edge-destination e)
-	  (edge-probablity e)
+	  (edge-probability e)
 	  (transition-duration (car (edge-content e)))))
 
 ;; compare edges to remove duplicates
@@ -85,7 +85,7 @@
   (loop for order being the hash-keys of (graph-edges g)
      do (labels ((sum-probs (edge-list)
 		   (loop for e in edge-list
-		      summing (edge-probablity e) into tprob
+		      summing (edge-probability e) into tprob
 		      finally (return tprob))))
 	  (loop for src-edges being the hash-values of (gethash order (graph-edges g))
 	     do (let* ((sprob (sum-probs src-edges))
@@ -94,16 +94,16 @@
 			  ;; IMPORTANT !! CHECK if edge pro is at 0 !! 
 			  (loop while (> pdiff 0)
 			     do (progn
-				  (incf (edge-probablity
+				  (incf (edge-probability
 					 (nth (random (length src-edges)) src-edges)))
 				  (decf pdiff))))
 			 ((< pdiff 0)
 			  (let ((indices (loop for i from 0 to (- (length src-edges) 1) collect i)))
 				(loop while (or (< pdiff 0) (eql 0 (length indices)))
 				   do (let ((chosen-idx (nth (random (length indices)) indices)))
-					(if (>= (edge-probablity (nth chosen-idx src-edges)) 1)
+					(if (>= (edge-probability (nth chosen-idx src-edges)) 1)
 					  (progn
-					    (decf (edge-probablity
+					    (decf (edge-probability
 						   (nth chosen-idx src-edges)))
 					    (incf pdiff))
 					  (remove chosen-idx indices))))))))))))
