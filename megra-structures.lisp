@@ -29,17 +29,23 @@
    ;; also be a path, the naming is a little inaccurate
    (source :accessor edge-source :initarg :src)   
    (destination :accessor edge-destination :initarg :dest)
-   (probability :accessor edge-probablity :initarg :prob)
+   (probability :accessor edge-probability :initarg :prob)
    (content :accessor edge-content :initarg :content)))
 
 ;; i could split transition print here, but i think it's ok like that for now ...
 ;; turn back to textual representation ...
 (defmethod print-edge ((e edge) &key)
-  (format nil "(edge ~d ~d :prob ~d :dur ~d)"
-	  (edge-source e)
-	  (edge-destination e)
-	  (edge-probablity e)
-	  (transition-duration (car (edge-content e)))))
+  (if (typep (edge-source e) 'list)
+      (format nil "(edge '~D ~d :prob ~d :dur ~d)"
+	      (edge-source e)
+	      (edge-destination e)
+	      (edge-probability e)
+	      (transition-duration (car (edge-content e))))
+      (format nil "(edge ~D ~d :prob ~d :dur ~d)"
+	      (edge-source e)
+	      (edge-destination e)
+	      (edge-probability e)
+	      (transition-duration (car (edge-content e))))))
 
 ;; compare edges to remove duplicates
 (defmethod edge-equals ((a edge) (b edge) &key)
@@ -51,16 +57,23 @@
   ((id :accessor graph-id)
    (nodes :accessor graph-nodes)
    (edges :accessor graph-edges)
+   (max-id :accessor graph-max-id :initform 0)
    (highest-edge-order :accessor graph-highest-edge-order :initform 0)))
 
 (defmethod initialize-instance :after ((g graph) &key)
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
+(in-package :megra)
+
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (cons (graph-id g) (node-id n)))
   ;; set event source ids with format:
   ;; ((GRAPH-ID . NODE-ID) . EVENT-POS) 
+  ;; ----
+  ;; keep track of highest id (meaning that ids must be sortable ... )
+  (if (> (node-id n) (graph-max-id g))
+      (setf (graph-max-id g) (node-id n)))
   (if (node-content n)
       (labels ((identify (nodes count)
 		 (if nodes
@@ -73,7 +86,51 @@
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
-(in-package :megra)
+;; idea: add exclusion list, so this method can be used for disencourage ??
+(defmethod rebalance-edges ((g graph) &key)
+  (loop for order being the hash-keys of (graph-edges g)
+     do (labels ((sum-probs (edge-list)
+		   (loop for e in edge-list
+		      summing (edge-probability e) into tprob
+		      finally (return tprob))))
+	  (loop for src-edges being the hash-values of (gethash order (graph-edges g))
+	     do (let* ((sprob (sum-probs src-edges))
+		       (pdiff (- 100 sprob)))
+		  (cond  ((> pdiff 0)
+			  ;; IMPORTANT !! CHECK if edge pro is at 0 !! 
+			  (loop while (> pdiff 0)
+			     do (progn
+				  (incf (edge-probability
+					 (nth (random (length src-edges)) src-edges)))
+				  (decf pdiff))))
+			 ((< pdiff 0)
+			  (let ((indices (loop for i from 0 to (- (length src-edges) 1) collect i)))
+				(loop while (or (< pdiff 0) (eql 0 (length indices)))
+				   do (let ((chosen-idx (nth (random (length indices)) indices)))
+					(if (>= (edge-probability (nth chosen-idx src-edges)) 1)
+					  (progn
+					    (decf (edge-probability
+						   (nth chosen-idx src-edges)))
+					    (incf pdiff))
+					  (remove chosen-idx indices))))))))))))
+
+(defmethod remove-node ((g graph) removed-id &key (rebalance t))
+  ;; remove node
+  (remhash removed-id (graph-nodes g))
+  ;; remove outgoing edges from that node ... 
+  (remhash (list removed-id) (gethash 1 (graph-edges g)))
+  ;; remove higher-order edges that contain the removed id
+  (loop for order being the hash-keys of (graph-edges g)
+     do (loop for src-seq being the hash-keys of (gethash order (graph-edges g))
+	   do (progn 
+		(when (member removed-id src-seq)
+		  (remhash src-seq (gethash order (graph-edges g))))
+		;; remove incoming edges ...
+		(when (get-edge g src-seq removed-id)		  
+		  (remove-edge g src-seq removed-id)))))
+  (if rebalance
+      (rebalance-edges g)))
+
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edge-source-list (if (typep (edge-source e) 'list)
 			      (edge-source e)
@@ -97,6 +154,22 @@
 	;; edge-source ~D" edge-order (edge-source e))
 	(setf (gethash edge-source-list order-dict)
 	      (remove-duplicates (cons e edges) :test #'edge-equals))))))
+
+(defmethod remove-edge ((g graph) source destination &key)
+  (let* ((edge-source-list (if (typep source 'list)
+			      source
+			      (list source)))
+	 (real-source (if (and (typep source 'list) (eql (length source) 1))
+			  (car source)
+			  source))
+	 (edge-order (length edge-source-list))
+	 (order-dict (gethash edge-order (graph-edges g)))
+	 (source-edges (gethash edge-source-list order-dict)))
+    (format t "~D ~D ~%" edge-source-list destination)
+    (setf (gethash edge-source-list order-dict)
+	  (remove (edge real-source destination :dur 0 :prob 0) source-edges :test #'edge-equals))
+    (when (not (gethash edge-source-list order-dict))
+        (remhash edge-source-list order-dict))))
 
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))

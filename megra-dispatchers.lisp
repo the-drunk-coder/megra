@@ -118,7 +118,7 @@
 
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
-;; as of november 2017, i don't even rememeber what i ever meant by 
+;; as of november 2017, i don't even rememeber what i ever meant by it ... 
 (defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (unique t) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
@@ -131,8 +131,8 @@
 			       (clone proc-id proc-id :track nil :store nil)))))
 		(let* ((event-processors
 			;; replace symbols by instances, generate proper names, insert into proc directory
-		        (gen-proc-list ,name (list ,@proc-body)))		       
-		       (old-chain (gethash ,name *chain-directory*)))		  		  		  
+			(gen-proc-list ,name (list ,@proc-body)))
+		       (old-chain (gethash ,name *chain-directory*)))
 		  ;; first, construct the chain ...
 		  (cond ((and ,branch old-chain)
 			 ;; if we're branching, move the current chain to the branch directory

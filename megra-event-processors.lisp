@@ -72,11 +72,14 @@
 			     #\tab
 			     (print-node
 			      (gethash key (graph-nodes (source-graph g))))))	  
-	  (let ((order-one-edges (gethash 1 (graph-edges (source-graph g)))))
-	      (loop for key being the hash-keys of order-one-edges
+	  (loop for order being the hash-keys of (graph-edges (source-graph g))
+	     do (let ((order-edges (gethash order (graph-edges (source-graph g)))))
+		  (loop for key being the hash-keys of order-edges
 		 append (mapcar
 			 #'(lambda (edge) (format nil "~C~a~%" #\tab (print-edge edge)))
-			 (gethash key order-one-edges))))))
+			 (gethash key order-edges)))))
+
+	  ))
 
 ;; initialize counter hash table ...
 (defmethod initialize-instance :after ((g graph-event-processor) &key)
@@ -125,7 +128,7 @@
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
       ((choice-list (edge counter)
-	 (loop repeat (edge-probablity edge)
+	 (loop repeat (edge-probability edge)
 	    collect counter))
        (collect-choices (edges counter)
 	 (if edges
@@ -360,6 +363,9 @@
 	  (setf (successor current) next)
 	  (setf (predecessor next) current)	  
 	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))
+    ;;(incudine::msg
+    ;;	   error
+    ;;	   "fails hjer ?? ~D ~D" current chain-name)
     (setf (chain-bound current) chain-name)))
 
 (defun gen-proc-name (ch-name proc idx)

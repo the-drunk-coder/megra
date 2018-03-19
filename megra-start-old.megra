@@ -1,12 +1,8 @@
- ;; sometimes ... 
-(ql:quickload "closer-mop")
+;; sometimes ... 
+;;(ql:update-all-dists)
 
-(require 'incudine)
-(in-package :)
-
-(incudine:portaudio-device-info)
-
-(incudine:rt-start)
+(require 'cm-incudine)
+(in-package :cm)
 
 ;; initialize -- seems like it has to be like this ...
 (progn

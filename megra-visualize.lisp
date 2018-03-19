@@ -25,12 +25,12 @@
 	  (edge-source e)
 	  (edge-destination e)
 	  ;;(transition-duration (car (edge-content e)))
-	  (coerce (/ (edge-probablity e) 100) 'float)
-	  (coerce (/ (edge-probablity e) 10) 'float)
+	  (coerce (/ (edge-probability e) 100) 'float)
+	  (coerce (/ (edge-probability e) 10) 'float)
 	  (cond 
-	    ((> (edge-probablity e) 90) 1)
-	    ((> (edge-probablity e) 40) 0.5)
-	    ((> (edge-probablity e) 1) 0.1)
+	    ((> (edge-probability e) 90) 1)
+	    ((> (edge-probability e) 40) 0.5)
+	    ((> (edge-probability e) 1) 0.1)
 	    (t 0))))
 
 (in-package :megra)
