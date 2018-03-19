@@ -96,3 +96,4 @@
 (load (concatenate 'string cm::*megra-root* "/megra-event-filters"))
 (load (concatenate 'string cm::*megra-root* "/megra-supercollider-interface"))
 (load (concatenate 'string cm::*megra-root* "/megra-visualize"))
+(load (concatenate 'string cm::*megra-root* "/megra-growth"))

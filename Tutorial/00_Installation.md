@@ -60,10 +60,12 @@ Clone the following repositories (ideally in your quicklisp/local-projects folde
 
 ## SETUP
 
-Follow these instructions how to setup incudine (the underlying library for
-sound and osc scheduling ... it's worth to have a look at!)
+Before you start, go to the incudine folder and copy the file
+`incudinerc-example` to `~/.incudinerc`.
 
-https://github.com/titola/incudine/blob/master/INSTALL
+Be sure to enable jackmidi if you are on linux. It's easier that way !
+Otherwise you might encounter errors that the `jackmidi` package is not
+available.
 
 Update your quicklisp distributions (open a lisp file and
 evaluate '(ql:update-all-dists)')

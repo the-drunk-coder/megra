@@ -3,20 +3,25 @@
 
 (clear)
 
-(g 'some-other-sines (:rand 100)
-    (n 1 (sine 'd4 :lvl .6 :dur 200))
-    (n 2 (sine 'es5 :lvl .6 :dur 200))
-    (n 3 (sine 'b4 :lvl .6 :dur 200))
-    (n 4 (sine 'cs5 :lvl .6 :dur 200))
-    (e 1 2 :p 50 :d 300)
-    (e 1 1 :p 50 :d 300) 
-    (e '(1 1 1) 3 :p 100 :d 900)     
-    (e 2 1 :p 10 :d 300)
-    (e 2 3 :p 10 :d 200)
-    (e 2 2 :p 80 :d 300)
-    (e '(2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2) 1 :p 50 :d 600)
-    (e 3 1 :p 100 :d 300))
+(g 'some-other-sines ()
+  (n 1 (sine 300 :lvl .6 :dur 200))
+  (n 2 (sine 300 :lvl .6 :dur 200))
+  (n 3 (sine 800 :lvl .6 :dur 200))
+  (n 4 (sine 400 :lvl .6 :dur 200))
+  (e 1 2 :p 50 :d 300)
+  (e 1 4 :p 50 :d 300)
+  (e 1 1 :p 50 :d 300) 
+  (e '(1 1 1) 3 :p 100 :d 900)     
+  (e 2 1 :p 10 :d 300)
+  (e 2 3 :p 10 :d 200)
+  (e 2 2 :p 80 :d 300)
+  (e '(2 2 2 2) 3 :p 50 :d 600)
+  (e '(2 2 2 2) 1 :p 50 :d 600)
+  (e 3 1 :p 100 :d 300)
+  (e 4 3 :p 100 :d 300)
+  )
+
+(clear)
 
 (sink 'sins (:sync-to nil :branch nil :shift 0)
   'some-other-sines)
@@ -24,6 +29,18 @@
 (clone)
 
 (pring 'some-other-sines t)
+
+(grow 'some-other-sines :variance 0.2 )
+
+(prune 'some-other-sines)
+
+(rebalance-edges (source-graph (gethash 'some-other-sines *processor-directory*)))
+
+(remove-edge (source-graph (gethash 'some-other-sines *processor-directory*)) '(3) 1)
+
+(remove-node (source-graph (gethash 'some-other-sines *processor-directory*)) 1 :rebalance t)
+
+(setf (source-graph (gethash 'some-other-sines *processor-directory*)) *lala*)
 
 (chain 's2 ()
   (cc 80 (rev 0.1))
@@ -34,19 +51,50 @@
 
 (sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
-    (n 1 (grain "elec" "bd808" :dur 90 :rate 1.0
-		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
-		:lp-dist 0.5 :lvl 0.7))
-    (e 1 1 :d 1000 :p 100)
-    )
-)
+    (n 1 (grain-24db "elec" "bd808"
+		     :dur 90
+		     :rate 1.0
+		     :lp-q 0.4
+		     :lp-freq 900
+		     :lvl 0.7))
+    (n 2 (ctrl #'(lambda () (grow 'crepes
+			     :variance 0.3
+			     :durs '(2000 500 500 500 250 333))))
+       (grain-24db "elec" "bd808"
+		     :dur 90
+		     :rate 1.1
+		     :lp-q 0.4
+		     :lp-freq 900
+		     :lvl 0.7))
+    (e 1 1 :d 1000 :p 90)
+    (e 1 2 :d 1000 :p 10)
+    (e 2 2 :d 1000 :p 5)
+    (e 2 1 :d 1000 :p 95)
+    ))
 
-(sink 'dede (:sync-to nil :branch nil :shift 0)
+(sink 'dede (:sync-to 'rere :branch nil :shift 500)
   (g 'crepessu ()
-    (n 1 (grain "elec" "sncr78" :dur 90 :rate 1.0
-		:lp-freq (env '(6000 100 3000) '(5 5 5) :repeat t)
-		:lp-dist 0.5 :lvl 0.7))
-    (e 1 1 :d 1000 :p 100)
+    (n 1 (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
+		:lp-freq 9500
+		:lp-dist 0.5 :lvl 0.7
+		:ambi-p nil
+		:azi 1.0
+		:ele 1.81
+		))
+    (n 2 (ctrl #'(lambda () (grow 'crepessu
+			     :variance 0.2
+			     :durs '(2000 2000 500 500 500 250 333))))
+       (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
+		:lp-freq 9500
+		:lp-dist 0.5 :lvl 0.7
+		:ambi-p nil
+		:azi 1.0
+		:ele 1.81
+		))
+    (e 1 1 :d 1000 :p 90)
+    (e 1 2 :d 1000 :p 10)
+    (e 2 2 :d 1000 :p 5)
+    (e 2 1 :d 1000 :p 95)
     ))
 
 
@@ -81,10 +129,10 @@
 (sink 'drums-sink ()
   
   (graph 'drums ()
-    (node 1 (grain "02_instruments" "jazzy_bd" :rev 0.0
-		   :lvl 0.9 :rate 0.9 :lp-dist 0.9 :dur 100))
-    (node 2 (grain "02_instruments" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
-		   :dur 800 :rate 0.5 :lp-freq-lfo-speed 1.0
+    (node 1 (grain-24db "tutorial_samples" "jazzy_bd" :rev 0.0
+		   :lvl 0.9 :rate 0.9 :lp-q 0.2 :dur 100))
+    (node 2 (grain-24db "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
+		   :dur 800 :rate 0.5 :lp-q 0.2 :lp-freq-lfo-speed 1.0
 		   :lp-freq-lfo-depth 1.0 :lp-freq-lfo-phase 0.5 :lp-freq 9000
 		   :rev 0.0))
     (edge 1 2 :dur 900 :prob 100)
@@ -424,20 +472,18 @@
 		 :ambi-p t))
 
 (graph 'ambi-test ()
-  (node 1 (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
+  (node 1 (grain "instr" "pizz_f4" :dur 128 :atk 1 :rel 30
 		 :lvl 0.9 :rate 1.0 :rev 0.0
-		 :azi #'(stream-oscillate-between 'glubsch 0.0 3.14 :cycle 50)
-		 :ele #'(oscillate-between 'wubsch 0.0 3.14 :cycle 60)
-		 :ambi t))
-  (edge 1 1 :prob 100
-	:dur #'()
-	))
+		 :azi (oscil 0.0 3.14)
+		 :ele (oscil 3.14 0)
+		 :ambi-p t))
+  (edge 1 1 :prob 100 :dur 128))
 
+(sink 'lb (:sync-to nil :branch nil :shift 0)
+  'ambi-test
+  )
 
-(dispatch 'd1 ()  
-  (oscillate-between 'osc-azi 'azi 0.0 3.14 :cycle 50)
-  (oscillate-between 'osc-ele 'ele 0.0 3.14 :cycle 20)
-  'ambi-test)
+(clear)
 
 (deactivate 'ambi-tap-512)
 

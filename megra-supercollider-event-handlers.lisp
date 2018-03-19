@@ -1,5 +1,4 @@
 ;; handler method for grain event, supercollider
-(in-package :megra)
 (defmethod handle-grain-event-sc ((g grain-event) timestamp &key)
   (unless (gethash (grain-sample-location g) *sc-buffer-directory*)
     (register-sample (grain-sample-location g)))
