@@ -64,8 +64,6 @@
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
-(in-package :megra)
-
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (cons (graph-id g) (node-id n)))
   ;; set event source ids with format:
@@ -157,19 +155,18 @@
 
 (defmethod remove-edge ((g graph) source destination &key)
   (let* ((edge-source-list (if (typep source 'list)
-			      source
-			      (list source)))
+			       source
+			       (list source)))
 	 (real-source (if (and (typep source 'list) (eql (length source) 1))
 			  (car source)
 			  source))
 	 (edge-order (length edge-source-list))
 	 (order-dict (gethash edge-order (graph-edges g)))
 	 (source-edges (gethash edge-source-list order-dict)))
-    (format t "~D ~D ~%" edge-source-list destination)
     (setf (gethash edge-source-list order-dict)
 	  (remove (edge real-source destination :dur 0 :prob 0) source-edges :test #'edge-equals))
     (when (not (gethash edge-source-list order-dict))
-        (remhash edge-source-list order-dict))))
+      (remhash edge-source-list order-dict))))
 
 (defmethod graph-size ((g graph))
   (hash-table-count (graph-nodes g)))
