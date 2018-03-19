@@ -28,9 +28,9 @@
 
 (pring 'some-other-sines t)
 
-(grow 'some-other-sines :variance 0.2)
+(grow 'some-other-sines :variance 0.14)
 
-(prune 'some-other-sines :exclude '(1) :durs '(200 400 600))
+(prune 'some-other-sines :exclude '(1 2) :durs '(200 400 600))
 
 (rebalance-edges (source-graph (gethash 'some-other-sines *processor-directory*)))
 

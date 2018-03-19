@@ -30,10 +30,12 @@
     ;; at zero, the new node would be only to the cloned node,
     ;; at far, the new node would be connected to far-away nodes ... 
     ;; THIS IS JUST FOR TESTING !! 
-    (insert-edge (source-graph g) (edge new-id source-id :dur new-dur :prob 50))
-    (insert-edge (source-graph g) (edge source-id new-id :dur new-dur :prob 20))
-    (insert-edge (source-graph g) (edge new-id dest-id :dur new-dur :prob 50))
-    (insert-edge (source-graph g) (edge dest-id new-id :dur new-dur :prob 20))))
+    (insert-edge (source-graph g) (edge new-id source-id :dur new-dur :prob (+ 5 (random 20))))
+    (insert-edge (source-graph g) (edge source-id new-id :dur new-dur :prob (+ 5(random 20))))
+    (insert-edge (source-graph g) (edge new-id dest-id :dur new-dur :prob (+ 5 (random 20))))
+    (insert-edge (source-graph g) (edge dest-id new-id :dur new-dur :prob (+ 5 (random 20))))
+    (rebalance-edges (source-graph g))
+    ))
 
 (defun remove-all (items seq)
   (let ((first-removed (remove (car items) seq)))
