@@ -5,7 +5,7 @@
 
 (g 'some-other-sines ()
   (n 1 (sine 300 :lvl .6 :dur 200))
-  (n 2 (sine 300 :lvl .6 :dur 200))
+  (n 2 (sine 200 :lvl .6 :dur 200))
   (n 3 (sine 800 :lvl .6 :dur 200))
   (n 4 (sine 400 :lvl .6 :dur 200))
   (e 1 2 :p 50 :d 300)
@@ -28,9 +28,9 @@
 
 (pring 'some-other-sines t)
 
-(grow 'some-other-sines :variance 0.2 )
+(grow 'some-other-sines :variance 0.2)
 
-(prune 'some-other-sines)
+(prune 'some-other-sines :exclude '(1) :durs '(200 400 600))
 
 (rebalance-edges (source-graph (gethash 'some-other-sines *processor-directory*)))
 
