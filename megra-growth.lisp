@@ -46,8 +46,8 @@
 (defmethod prune-graph ((g graph-event-processor) &key exclude durs)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (reduced-path (remove-all exclude path)))
-    (format t "~D~%" path)
-    (format t "~D~%" reduced-path)
+    ;; (format t "~D~%" path)
+    ;; (format t "~D~%" reduced-path)
     (when (> (length reduced-path) 3)
       (let* ((prune-path-idx (+ 1 (random (- (length reduced-path) 2))))
 	     (prune-idx (nth prune-path-idx reduced-path))
@@ -73,8 +73,10 @@
 	(remove-node (source-graph g) prune-idx)))))
     
 (defun grow (graph-id &key (variance 0) durs)
+  (incudine::msg info "growing graph ~D" graph-id) 
   (grow-graph (gethash graph-id *processor-directory*) :var variance :durs durs))
 
 (defun prune (graph-id &key exclude durs)
+  (incudine::msg info "pruning graph ~D" graph-id) 
   (prune-graph (gethash graph-id *processor-directory*) :exclude exclude :durs durs))
 
