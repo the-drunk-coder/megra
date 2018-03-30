@@ -722,7 +722,7 @@
 
 (define-event
   :long-name control-event
-  :short-name ctrl
+  :short-name control
   :parent-events (event)
   :parameters ((control-function event-control-function)) 
   :direct-parameters (control-function)
@@ -730,7 +730,14 @@
   ;; function to be called in the handler function ... 
   :create-accessors nil
   ;; just call the specified control function ... 
-  :handler (incudine:nrt-funcall (event-control-function evt)))
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+		(event-control-function evt)
+	      (simple-error (e) (incudine::msg error "something went wrong executing ctrl ~D" e)))))
+
+;; shorter ... 
+(defmacro ctrl (&body funs)
+  `(control #'(lambda () ,@funs)))
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 
