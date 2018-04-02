@@ -24,38 +24,94 @@
 ;; this is very similar to the copy-instance method for events,
 ;; there's just nothing evaluated ... 
 (defmethod clone-instance (object)
-   (let ((copy (allocate-instance (class-of object))))
-     (loop for slot in (class-slots (class-of object))
-	do (when (slot-boundp-using-class (class-of object) object slot)
-	     (setf (slot-value copy (slot-definition-name slot))
-		   (slot-value object (slot-definition-name slot)))))
-     copy))
+  (let ((copy (allocate-instance (class-of object))))
+    (loop for slot in (class-slots (class-of object))
+       do (when (slot-boundp-using-class (class-of object) object slot)
+	    (setf (slot-value copy (slot-definition-name slot))
+		  (slot-value object (slot-definition-name slot)))))
+    copy))
+
+(in-package :megra)
 
 ;; clone and shake things up a little
-(defmethod clone-imprecise (object intensity)
-   (let ((copy (allocate-instance (class-of object))))
-     (loop for slot in (class-slots (class-of object))
-	do (when (slot-boundp-using-class (class-of object) object slot)
-	     (setf (slot-value copy (slot-definition-name slot))
-		   (let* ((slotname (slot-definition-name slot))
-			  (orig (slot-value object slotname)))
-		     ;;(format t "~D~%" slotname)
-		     (cond ((typep orig 'number) 
-			    (let ((newval (+ orig (* (* (- 20000 (random 40000)) intensity)
-						     (/ orig 20000))))
-				  (min (if (car (gethash slotname *parameter-limits*))
-					   (car (gethash slotname *parameter-limits*))
-					   SB-EXT:DOUBLE-FLOAT-NEGATIVE-INFINITY))
-				  (max (if (cadr (gethash slotname *parameter-limits*))
-					   (cadr (gethash slotname *parameter-limits*))
-					   SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY)))
-			      ;;(format t "~D new: ~D min: ~D max: ~D~%" slotname newval min max)
-			      (cond ((< newval min) min)
-				    ((> newval max) max)
-				    (t newval))))
-			   (t orig)))))) copy))
+;; this one, in contrast to the "precise" one, doesn't work without some
+;; knowledge about the subject ...
+;; currently ignores edges ... 
+(defmethod clone-instance-imprecise (object intensity &key (recursive nil))
+  (format t "obj: ~D ~D ~%" object (class-of object))
+  (let ((copy (allocate-instance (class-of object))))
+    (loop for slot in (class-slots (class-of object))
+       do (when (slot-boundp-using-class (class-of object) object slot)
+	    (setf (slot-value copy (slot-definition-name slot))
+		  (let* ((slotname (slot-definition-name slot))
+			 (orig (slot-value object slotname)))
+		    (format t "sn ~D type ~D ~%" slotname (type-of orig))		    
+		    (cond ((member slotname '(test
+					      test-fun
+					      rehash-size
+					      rehash-threshold
+					      rehash-trigger
+					      id
+					      global-id
+					      successor
+					      predecessor
+					      edges
+					      max-id
+					      highest-edge-order
+					      backends
+					      color
+					      tags
+					      value-combine-function
+					      chain-bound
+					      name
+					      traced-path))
 
-;; this macro is basically just a wrapper for the (original) function,
+			   (format t "ign~%")
+			   orig)
+			  ((and (typep orig 'number))
+			   
+			   (let ((newval (+ orig (* (* (- 20000 (random 40000)) intensity)
+						    (/ orig 20000))))
+				 (min (if (car (gethash slotname *parameter-limits*))
+					  (car (gethash slotname *parameter-limits*))
+					  SB-EXT:DOUBLE-FLOAT-NEGATIVE-INFINITY))
+				 (max (if (cadr (gethash slotname *parameter-limits*))
+					  (cadr (gethash slotname *parameter-limits*))
+					  SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY)))
+			     (cond ((< newval min) min)
+				   ((> newval max) max)
+				   (t newval))))
+			  ;; avoid circular cloning and weed out stuff that cannot be
+			  ;; cloned for now ...
+			  ((and orig recursive (typep orig 'hash-table)		     		    
+				(not (member slotname '(edges))))
+			   (let ((new-table (make-hash-table :test 'eql)))
+			     (loop for key being the hash-keys of orig
+				do (setf (gethash key new-table)
+					 (clone-instance-imprecise (gethash key orig)
+								   intensity :recursive t)))
+
+			     new-table))
+			  ((and orig recursive (typep orig 'list))			  
+			   (mapcar #'(lambda (thing)
+				       (if (and (not (typep thing 'symbol))
+						(not (typep thing 'function))
+						(not (typep thing 'cons)))
+					   (clone-instance-imprecise thing intensity)
+					   thing
+					   ))
+
+				   orig))
+			  ((and orig recursive
+				(not (typep orig 'symbol))
+				(not (typep orig 'function))
+				(not (typep orig 'cons)))
+
+			   (clone-instance-imprecise orig intensity :recursive t))
+			  (t orig))))))
+    copy))
+
+;; This macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
 (defmacro graph (name (&key
@@ -67,40 +123,40 @@
 		       (rand 0))
 		 &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
-		      (setf (graph-id new-graph) ,name)    
-		      (mapc #'(lambda (obj)
-				(cond ((typep obj 'edge) (insert-edge new-graph obj))
-				      ((typep obj 'node) (insert-node new-graph obj))))
-			    (list ,@graphdata))		      
-		      ;; add random blind edges ...
-		      (if (> ,rand 0) (randomize-edges new-graph ,rand))  
-		      (if (gethash ,name *processor-directory*)
-			  ;; update existing instance
-			  (let ((cur-instance (gethash ,name *processor-directory*)))
-			    (setf (source-graph cur-instance) new-graph)
-			    (setf (affect-transition cur-instance) ,affect-transition)
-			    (setf (combine-mode cur-instance) ,combine-mode)
-			    (setf (combine-filter cur-instance) ,combine-filter)
-			    (setf (update-clones cur-instance) ,update-clones)
-			    (setf (copy-events cur-instance) (not ,perma))
-			    (when ,update-clones
-			      (mapc #'(lambda (proc-id)
-					(let ((my-clone (gethash proc-id *processor-directory*)))
-					  (setf (source-graph my-clone) (clone-instance new-graph))
-					  (setf (affect-transition my-clone) ,affect-transition)
-					  (setf (combine-mode my-clone) ,combine-mode)
-					  (setf (combine-filter my-clone) ,combine-filter)
-					  (setf (update-clones my-clone) ,update-clones)
-					  (setf (copy-events my-clone) (not ,perma))))
-				    (clones cur-instance)))
-			    cur-instance)			    
-			  (setf (gethash ,name *processor-directory*)
-				(make-instance 'graph-event-processor :name ,name
-					       :graph new-graph :copy-events (not ,perma)
-					       :current-node 1 :combine-mode ,combine-mode
-					       :affect-transition ,affect-transition
-					       :combine-filter ,combine-filter
-					       :update-clones ,update-clones)))))))
+			   (setf (graph-id new-graph) ,name)    
+			   (mapc #'(lambda (obj)
+				     (cond ((typep obj 'edge) (insert-edge new-graph obj))
+					   ((typep obj 'node) (insert-node new-graph obj))))
+				 (list ,@graphdata))		      
+			   ;; add random blind edges ...
+			   (if (> ,rand 0) (randomize-edges new-graph ,rand))  
+			   (if (gethash ,name *processor-directory*)
+			       ;; update existing instance
+			       (let ((cur-instance (gethash ,name *processor-directory*)))
+				 (setf (source-graph cur-instance) new-graph)
+				 (setf (affect-transition cur-instance) ,affect-transition)
+				 (setf (combine-mode cur-instance) ,combine-mode)
+				 (setf (combine-filter cur-instance) ,combine-filter)
+				 (setf (update-clones cur-instance) ,update-clones)
+				 (setf (copy-events cur-instance) (not ,perma))
+				 (when ,update-clones
+				   (mapc #'(lambda (proc-id)
+					     (let ((my-clone (gethash proc-id *processor-directory*)))
+					       (setf (source-graph my-clone) (clone-instance new-graph))
+					       (setf (affect-transition my-clone) ,affect-transition)
+					       (setf (combine-mode my-clone) ,combine-mode)
+					       (setf (combine-filter my-clone) ,combine-filter)
+					       (setf (update-clones my-clone) ,update-clones)
+					       (setf (copy-events my-clone) (not ,perma))))
+					 (clones cur-instance)))
+				 cur-instance)			    
+			       (setf (gethash ,name *processor-directory*)
+				     (make-instance 'graph-event-processor :name ,name
+						    :graph new-graph :copy-events (not ,perma)
+						    :current-node 1 :combine-mode ,combine-mode
+						    :affect-transition ,affect-transition
+						    :combine-filter ,combine-filter
+						    :update-clones ,update-clones)))))))
 
 ;;  shorthand for graph
 (setf (macro-function 'g) (macro-function 'graph))
@@ -109,8 +165,8 @@
 (defun graph-add (name new-content)
   (let ((current-graph (source-graph (gethash name *processor-directory*))))
     (mapc #'(lambda (obj)
-	    (cond ((typep obj 'edge) (insert-edge current-graph obj))
- 		  ((typep obj 'node) (insert-node current-graph obj))))
+	      (cond ((typep obj 'edge) (insert-edge current-graph obj))
+		    ((typep obj 'node) (insert-node current-graph obj))))
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
 
@@ -130,7 +186,7 @@
 					  src
 					  (list src)) dest)))
 		    (insert-edge g (edge src dest :prob 0)))))))
-   
+
 
 ;; only for single values (pitch, duration, level etc )
 (defmacro values->graph (name event-type values
@@ -139,28 +195,28 @@
 			   (affect-transition nil)
 			   (randomize 0))
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
-	(count 1))		      
-    (setf (graph-id new-graph) ,name)
-    (mapc #'(lambda (value)	      
-	      (insert-node new-graph (node count (,event-type value)))
-	      (if (> count 1)
-		  (insert-edge new-graph (edge (- count 1) count :prob 100)))
-	      (incf count)
-	      ) ,values)
-    ;; reverse last step
-    (decf count)
-    (if (eq ',type 'loop)
-	(insert-edge new-graph (edge count 1 :prob 100)))
-    ;; add random blind edges 
-    (if (> ,randomize 0) (randomize-edges new-graph ,randomize ))
-    (if (gethash ,name *processor-directory*)
-	(setf (source-graph (gethash ,name *processor-directory*)) new-graph)
-	(setf (gethash ,name *processor-directory*)
-	      (make-instance 'graph-event-processor :name ,name
-			     :graph new-graph :copy-events t
-			     :current-node 1 :combine-mode ,combine-mode
-			     :affect-transition ,affect-transition
-			     :combine-filter #'all-p)))))))
+			       (count 1))		      
+			   (setf (graph-id new-graph) ,name)
+			   (mapc #'(lambda (value)	      
+				     (insert-node new-graph (node count (,event-type value)))
+				     (if (> count 1)
+					 (insert-edge new-graph (edge (- count 1) count :prob 100)))
+				     (incf count)
+				     ) ,values)
+			   ;; reverse last step
+			   (decf count)
+			   (if (eq ',type 'loop)
+			       (insert-edge new-graph (edge count 1 :prob 100)))
+			   ;; add random blind edges 
+			   (if (> ,randomize 0) (randomize-edges new-graph ,randomize ))
+			   (if (gethash ,name *processor-directory*)
+			       (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
+			       (setf (gethash ,name *processor-directory*)
+				     (make-instance 'graph-event-processor :name ,name
+						    :graph new-graph :copy-events t
+						    :current-node 1 :combine-mode ,combine-mode
+						    :affect-transition ,affect-transition
+						    :combine-filter #'all-p)))))))
 
 ;; only for single values (pitch, duration, level etc )
 ;; takes a list of values and transition times and turns them into a graph
@@ -171,27 +227,27 @@
 		(let ((new-graph (make-instance 'graph))
 		      (count 1)
 		      (len (list-length ,values)))		      
-    (setf (graph-id new-graph) ,name)
-    (mapc #'(lambda (value transdur)	      
-	      (insert-node new-graph (node count (,event-type value)))
-	      (if (< count len)
-		  (insert-edge new-graph (edge count (+ count 1) :prob 100 :dur transdur)))
-	      (incf count)
-	      ) ,values ,transitions)
-    ;; reverse last step
-    (decf count)
-    (if (eq ',type 'loop)
-	(insert-edge new-graph (edge count 1 :prob 100 :dur (car (reverse ,transitions)))))
-    ;; add random blind edges ...
-    (if (> ,randomize 0) (randomize-edges new-graph ,randomize))  
-    (if (gethash ,name *processor-directory*)
-	(setf (source-graph (gethash ,name *processor-directory*)) new-graph)
-	(setf (gethash ,name *processor-directory*)
-	      (make-instance 'graph-event-processor :name ,name
-			     :graph new-graph :copy-events t
-			     :current-node 1 :combine-mode ,combine-mode
-			     :affect-transition ,affect-transition
-			     :combine-filter #'all-p)))))))
+		  (setf (graph-id new-graph) ,name)
+		  (mapc #'(lambda (value transdur)	      
+			    (insert-node new-graph (node count (,event-type value)))
+			    (if (< count len)
+				(insert-edge new-graph (edge count (+ count 1) :prob 100 :dur transdur)))
+			    (incf count)
+			    ) ,values ,transitions)
+		  ;; reverse last step
+		  (decf count)
+		  (if (eq ',type 'loop)
+		      (insert-edge new-graph (edge count 1 :prob 100 :dur (car (reverse ,transitions)))))
+		  ;; add random blind edges ...
+		  (if (> ,randomize 0) (randomize-edges new-graph ,randomize))  
+		  (if (gethash ,name *processor-directory*)
+		      (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
+		      (setf (gethash ,name *processor-directory*)
+			    (make-instance 'graph-event-processor :name ,name
+					   :graph new-graph :copy-events t
+					   :current-node 1 :combine-mode ,combine-mode
+					   :affect-transition ,affect-transition
+					   :combine-filter #'all-p)))))))
 
 ;; takes notes in the format '(pitch duration) ant turns them into a loop graph
 ;; which might be randomized
@@ -222,8 +278,8 @@
 
 ;; modifying ... always check if the modifier is already present !
 (defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
-				     (affect-transition nil) (keep-state t)
-				     (track-state t) (filter #'all-p) (store nil))
+					    (affect-transition nil) (keep-state t)
+					    (track-state t) (filter #'all-p) (store nil))
   (let ((new-inst (make-instance 'stream-brownian-motion :step-size step-size :mod-prop param
 				 :name name
 				 :upper ubound
@@ -244,7 +300,8 @@
 
 (defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
 									    (affect-transition nil)
-									    (keep-state t) (track-state t)
+									    (keep-state t)
+									    (track-state t)
 									    (filter #'all-p)
 									    (store nil))
   (let ((new-inst (make-instance 'stream-oscillate-between :mod-prop param :name name
@@ -270,20 +327,13 @@
   (incudine::flush-pending)
   (setf *processor-directory* (make-hash-table :test 'eql))
   (loop for chain being the hash-values of *chain-directory*
-       do (deactivate chain))       
+     do (deactivate chain))       
   (loop for branch being the hash-values of *branch-directory*
      do (mapc #'deactivate branch))       
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *group-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql))
   (setf *current-group* 'DEFAULT))
-
-(defun merg (chain-or-group-id)
-  (if (gethash chain-or-group-id *group-directory*)
-      (mapc #'merg (gethash chain-or-group-id *group-directory*))  
-      (progn
-	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
-	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun merg (chain-or-group-id)
   (if (gethash chain-or-group-id *group-directory*)
@@ -310,7 +360,7 @@
 			  (gethash id *group-directory*))
 		    ;; if it's a chain, stop the chain ...
 		    (deactivate (gethash id *chain-directory*))))
-		chains)))
+	    chains)))
 
 ;; convenience functions to set params in some object ...
 (defun pset (object param value)
@@ -349,7 +399,7 @@
 					      (coerce `(144 ,pad-id 96) 'jackmidi:data)))))))))))
     (when (gethash pad-id *midi-responders*)
       (incudine::remove-responder (gethash pad-id *midi-responders*)))
-	 (setf (gethash pad-id *midi-responders*) resp)))
+    (setf (gethash pad-id *midi-responders*) resp)))
 
 (defun clear-midi-responders ()
   (labels ((rem-resp (key responder)
@@ -365,7 +415,7 @@
 
 (defun graph->code (graph file)
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
-   (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
+    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
 
 (defun graph->svg (graph file &key (renderer 'circo))
   (with-open-file (out-stream file :direction :output :if-exists :supersede)
@@ -384,7 +434,6 @@
 	((eq renderer 'twopi)
 	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
 
-(in-package :megra)
 
 (defun clone (original-id clone-id &key (track t) (store t))
   (let ((original (gethash original-id *processor-directory*)))
@@ -402,13 +451,30 @@
 	    (setf (clones original) (append (clones original) (list clone-id)))))
 	clone))))
 
+(defun clone-imprecise (original-id clone-id &key (variance 0.1) (track t) (store t))
+  (let ((original (gethash original-id *processor-directory*)))
+    (when original
+      (let ((clone (clone-instance-imprecise original variance :recursive t)))
+	(when (typep original 'graph-event-processor)
+	  (setf (source-graph clone) (clone-instance-imprecise
+				      (source-graph original) variance :recursive t))
+	  (setf (graph-id (source-graph clone)) clone-id))	
+	(setf (name clone) clone-id)
+	(setf (chain-bound clone) nil)	
+	(when store
+	  (setf (gethash clone-id *processor-directory*) clone))
+	(when track
+	  (unless (member clone-id (clones original))
+	    (setf (clones original) (append (clones original) (list clone-id)))))
+	clone))))
+
 (defmacro sync-progn (ch &body funcs)
   `(funcall #'(lambda ()
 		(let ((chain (gethash ,ch *chain-directory*)))
 		  (when chain		    
 		    (setf (synced-progns chain)
-			      (append (synced-progns chain)
-				      (list (lambda () ,@funcs)))))))))
+			  (append (synced-progns chain)
+				  (list (lambda () ,@funcs)))))))))
 
 ;; set the default group
 (defun group (groupname)
