@@ -9,7 +9,7 @@
    (chain-bound :accessor chain-bound :initform nil)   
    (name :accessor name :initarg :name)
    (clones :accessor clones :initform nil)
-   (update-close :accessor update-clones :initarg :update-clones :initform nil)))
+   (update-clones :accessor update-clones :initarg :update-clones :initform nil)))
 
 (defmethod pull-events ((e event-processor) &key)
   (if (successor e)
@@ -122,7 +122,6 @@
 	       (equal (nthcdr ldiff path) pattern))))
 
 ;; get the transition and set next current node ...
-(in-package :megra)
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
       ((choice-list (edge counter)
@@ -321,7 +320,8 @@
    (anschluss-kette :accessor anschluss-kette :initform nil) 
    (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
-   (shift :accessor chain-shift :initform 0.0 :initarg :shift)))
+   (shift :accessor chain-shift :initform 0.0 :initarg :shift)
+   (group :accessor chain-group :initform nil :initarg :group)))
 
 (in-package :megra)
 (defun activate (chain)
@@ -407,13 +407,21 @@
 		 :group ,group)))))
 
 ;; if no group is given, the current group will be used ... 
-(defun assign-chain-to-group (chain-name group)
+(defun assign-chain-to-group (chain chain-name group)
   ;; if no groupname is given, use current group ... 
   (let* ((groupname (if group group *current-group*))
 	 (group-list (gethash groupname *group-directory*)))
-    (if (not (member chain-name group-list))
-	(setf (gethash groupname *group-directory*)
+    (when (not (member chain-name group-list))
+      (setf (chain-group chain) group)
+      (setf (gethash groupname *group-directory*)
 	      (append group-list (list chain-name))))))
+
+(defmethod collect-chain ((c processor-chain) &key)
+  (labels ((append-next (proc-list proc)	     
+	     (if (successor proc)
+		 (append-next (append proc-list (list proc))  (successor proc))
+		 (append proc-list (list proc)))))
+    (append-next '() (topmost-processor c))))
 
 (defun chain-from-list (name event-processors &key (unique t)
 						(activate nil)
@@ -423,7 +431,8 @@
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
   (let ((topmost-proc (car event-processors))
-	(old-chain (gethash name *chain-directory*)))		        
+	;;(old-chain (gethash name *chain-directory*))
+	)		        
     (if (chain-bound topmost-proc)
 	(let ((new-chain (make-instance
 			  'processor-chain
@@ -431,7 +440,7 @@
 			  :is-active activate
 			  :shift shift)))	  	  
 	  ;; assign chain to a group
-	  (assign-chain-to-group name group)
+	  (assign-chain-to-group new-chain name group)
 	  ;; handle branching ...
 	  (if branch
 	      (setf (gethash name *branch-directory*)

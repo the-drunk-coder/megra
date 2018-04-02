@@ -21,7 +21,7 @@
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (loop for object in (node-content picked-node)
-	     collect (clone-imprecise object var)))
+	     collect (clone-instance-imprecise object var)))
     ;; insert the new node
     (insert-node (source-graph g) new-node)
     ;; now, what to do about the edges ??
@@ -34,8 +34,7 @@
     (insert-edge (source-graph g) (edge source-id new-id :dur new-dur :prob (+ 5(random 20))))
     (insert-edge (source-graph g) (edge new-id dest-id :dur new-dur :prob (+ 5 (random 20))))
     (insert-edge (source-graph g) (edge dest-id new-id :dur new-dur :prob (+ 5 (random 20))))
-    (rebalance-edges (source-graph g))
-    ))
+    (rebalance-edges (source-graph g))))
 
 (defun remove-all (items seq)
   (let ((first-removed (remove (car items) seq)))
@@ -67,8 +66,7 @@
 						(list (car path))
 						(cadr path))))))))
 	      (insert-edge (source-graph g) (edge source-id dest-id :dur new-dur :prob 0))
-	      (rebalance-edges (source-graph g))
-	      ))
+	      (rebalance-edges (source-graph g))))
 	;; finally, remove the node to be pruned !
 	(remove-node (source-graph g) prune-idx)))))
     
@@ -79,4 +77,34 @@
 (defun prune (graph-id &key exclude durs)
   (incudine::msg info "pruning graph ~D" graph-id) 
   (prune-graph (gethash graph-id *processor-directory*) :exclude exclude :durs durs))
+
+(defun branch (chain-id &key (shift 0) (variance 0.1) sync-to)
+  (incudine::msg info "branching chain ~D" chain-id)			 
+  ;; get the old chain ... 
+  (let* ((current-chain (gethash chain-id *chain-directory*))
+	 (current-procs (collect-chain current-chain))
+	 (shift-diff (max 0 (- shift (chain-shift current-chain))))
+	 ;; in contrast to the dispatcher branch method,
+	 ;; here the new chain is pushed to the branch stack ... 
+	 (new-chain (chain-from-list chain-id
+				     (if (> variance 0.0)
+					 (mapcar #'(lambda (proc)
+						     (clone-imprecise
+						      (name proc)
+						      (gensym (symbol-name (name proc)))
+						      :variance variance :track nil))
+						 current-procs)
+					 (mapcar #'(lambda (proc)  
+						 (clone
+						  (name proc)
+						  (gensym (symbol-name (name proc)))
+						   :track nil))
+						 current-procs))				     
+				     :activate nil
+				     :shift shift-diff
+				     :group (chain-group current-chain)
+				     :branch t)))
+    ;;(incudine::msg error "start branch" )
+    (inner-dispatch (car new-chain) sync-to)  
+    ))
 

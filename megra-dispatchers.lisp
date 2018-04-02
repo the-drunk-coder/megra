@@ -116,6 +116,36 @@
 (defun handle-events (events osc-timestamp)
   (mapc #'(lambda (event) (handle-event event (+ osc-timestamp *global-osc-delay*))) events))
 
+(defun inner-dispatch (chain-or-id sync-to)
+  (let ((chain (if (typep chain-or-id 'symbol)
+		   (gethash chain-or-id *chain-directory*)
+		   chain-or-id))
+	(chain-to-sync-to (gethash sync-to *chain-directory*)))
+      ;; now, if we want to sync the current chain to :sync-to,
+      ;; and :sync-to denotes a chain that is actually present,
+      (if chain-to-sync-to
+	  ;; when the current chain is NOT yet synced to chain-to-sync-to ...		      
+	  (unless (wait-for-sync chain)
+	    (deactivate chain)
+	    (setf (wait-for-sync chain) t)
+	    ;;(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" name sync-to name sync-to)
+	    (setf (synced-chains chain-to-sync-to)
+		  (append (synced-chains chain-to-sync-to)
+			  (list chain))))		      
+	  (unless (or (is-active chain) (wait-for-sync chain))
+	    (incudine::msg error "start chain")
+	    (activate chain)
+	    ;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
+	    ;;	     #'perform-dispatch-sep-times
+	    ;;	     chain
+	    ;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
+	    ;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
+	    (incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
+			  #'perform-dispatch
+			  chain				     
+			  it)))))
+
+
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
 ;; as of november 2017, i don't even rememeber what i ever meant by it ... 
@@ -195,30 +225,7 @@
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)
 		;; if we've reached this point, we should have a valid chain, or left the function ...
-		(let ((chain (gethash ,name *chain-directory*))
-		      (chain-to-sync-to (gethash ,sync-to *chain-directory*)))
-		  ;; now, if we want to sync the current chain to :sync-to,
-		  ;; and :sync-to denotes a chain that is actually present,
-		  (if chain-to-sync-to
-		      ;; when the current chain is NOT yet synced to chain-to-sync-to ...		      
-		      (unless (wait-for-sync chain)
-			(deactivate chain)
-			(setf (wait-for-sync chain) t)
-			(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" ,name ,sync-to ,name ,sync-to)
-			(setf (synced-chains chain-to-sync-to)
-			      (append (synced-chains chain-to-sync-to)
-				      (list chain))))		      
-		      (unless (or (is-active chain) (wait-for-sync chain))					        
-			(activate chain)
-			;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
-			;;	     #'perform-dispatch-sep-times
-			;;	     chain
-			;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
-			;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
-			(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
-				      #'perform-dispatch
-				      chain				     
-				      it)))))))
+		(inner-dispatch ,name ,sync-to))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
