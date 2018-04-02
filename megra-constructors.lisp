@@ -1,3 +1,5 @@
+(in-package :megra)
+
 ;; this file once contained all the language functions, serving as the interface to the user,
 ;; but lateron i found it clearer to put the functions directly next to their backend stuff ...
 ;; (unless those that are directly provided by, say, event definition ...)
@@ -15,7 +17,8 @@
 (setf (macro-function 'n-c) (macro-function 'node-col))
 
 (defun edge (src dest &key prob (dur 512))
-  (make-instance 'edge :src src :dest dest :prob prob :content `(,(make-instance 'transition :dur dur))))
+  (make-instance 'edge :src src :dest dest :prob prob
+		 :content `(,(make-instance 'transition :dur dur))))
 
 ;; shorthand for edge
 (defun e (src dest &key p (d 512))
@@ -31,21 +34,20 @@
 		  (slot-value object (slot-definition-name slot)))))
     copy))
 
-(in-package :megra)
-
 ;; clone and shake things up a little
 ;; this one, in contrast to the "precise" one, doesn't work without some
 ;; knowledge about the subject ...
 ;; currently ignores edges ... 
 (defmethod clone-instance-imprecise (object intensity &key (recursive nil))
-  (format t "obj: ~D ~D ~%" object (class-of object))
+  ;;(format t "obj: ~D ~D ~%" object (class-of object))
   (let ((copy (allocate-instance (class-of object))))
     (loop for slot in (class-slots (class-of object))
        do (when (slot-boundp-using-class (class-of object) object slot)
 	    (setf (slot-value copy (slot-definition-name slot))
 		  (let* ((slotname (slot-definition-name slot))
 			 (orig (slot-value object slotname)))
-		    (format t "sn ~D type ~D ~%" slotname (type-of orig))		    
+		    ;;(format t "sn ~D type ~D ~%" slotname (type-of orig))
+		    ;; some things should be copied over precisely in any case ...
 		    (cond ((member slotname '(test
 					      test-fun
 					      rehash-size
@@ -64,12 +66,17 @@
 					      value-combine-function
 					      chain-bound
 					      name
-					      traced-path))
-
-			   (format t "ign~%")
+					      traced-path
+					      trace-length
+					      path
+					      node-steps
+					      current-node
+					      copy-events
+					      combine-mode
+					      combine-filter))
+			   ;;(format t "ign~%")
 			   orig)
-			  ((and (typep orig 'number))
-			   
+			  ((and (typep orig 'number))			   
 			   (let ((newval (+ orig (* (* (- 20000 (random 40000)) intensity)
 						    (/ orig 20000))))
 				 (min (if (car (gethash slotname *parameter-limits*))
@@ -90,7 +97,6 @@
 				do (setf (gethash key new-table)
 					 (clone-instance-imprecise (gethash key orig)
 								   intensity :recursive t)))
-
 			     new-table))
 			  ((and orig recursive (typep orig 'list))			  
 			   (mapcar #'(lambda (thing)
@@ -98,15 +104,12 @@
 						(not (typep thing 'function))
 						(not (typep thing 'cons)))
 					   (clone-instance-imprecise thing intensity)
-					   thing
-					   ))
-
+					   thing))
 				   orig))
 			  ((and orig recursive
 				(not (typep orig 'symbol))
 				(not (typep orig 'function))
 				(not (typep orig 'cons)))
-
 			   (clone-instance-imprecise orig intensity :recursive t))
 			  (t orig))))))
     copy))
@@ -141,8 +144,10 @@
 				 (setf (copy-events cur-instance) (not ,perma))
 				 (when ,update-clones
 				   (mapc #'(lambda (proc-id)
-					     (let ((my-clone (gethash proc-id *processor-directory*)))
-					       (setf (source-graph my-clone) (clone-instance new-graph))
+					     (let ((my-clone
+						    (gethash proc-id *processor-directory*)))
+					       (setf (source-graph my-clone)
+						     (clone-instance new-graph))
 					       (setf (affect-transition my-clone) ,affect-transition)
 					       (setf (combine-mode my-clone) ,combine-mode)
 					       (setf (combine-filter my-clone) ,combine-filter)
@@ -170,12 +175,6 @@
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
 
-;; tbd
-;;(defun grow (&key content (node-id nil)   ))
-
-;; tbd
-;;(defun prune (&key nc (nid nil)  ))
-
 (defmethod randomize-edges ((g graph) chance )
   (loop for src being the hash-keys of (graph-nodes g)
      do (loop for dest being the hash-keys of (graph-nodes g)
@@ -184,9 +183,9 @@
 			 (not
 			  (get-edge g (if (typep src 'sequence)
 					  src
-					  (list src)) dest)))
+					  (list src))
+				    dest)))
 		    (insert-edge g (edge src dest :prob 0)))))))
-
 
 ;; only for single values (pitch, duration, level etc )
 (defmacro values->graph (name event-type values
@@ -222,7 +221,10 @@
 ;; takes a list of values and transition times and turns them into a graph
 ;; filled with single-value events like (pitch ..) or (lvl ..)
 (defmacro values->transitions->graph (name event-type values transitions
-				      &key (type 'loop) (randomize 0) (combine-mode 'append) (affect-transition nil))
+				      &key (type 'loop)
+					(randomize 0)
+					(combine-mode 'append)
+					(affect-transition nil))
   `(funcall #'(lambda ()
 		(let ((new-graph (make-instance 'graph))
 		      (count 1)
@@ -231,13 +233,15 @@
 		  (mapc #'(lambda (value transdur)	      
 			    (insert-node new-graph (node count (,event-type value)))
 			    (if (< count len)
-				(insert-edge new-graph (edge count (+ count 1) :prob 100 :dur transdur)))
+				(insert-edge new-graph (edge count (+ count 1)
+							     :prob 100 :dur transdur)))
 			    (incf count)
 			    ) ,values ,transitions)
 		  ;; reverse last step
 		  (decf count)
 		  (if (eq ',type 'loop)
-		      (insert-edge new-graph (edge count 1 :prob 100 :dur (car (reverse ,transitions)))))
+		      (insert-edge new-graph (edge count 1
+						   :prob 100 :dur (car (reverse ,transitions)))))
 		  ;; add random blind edges ...
 		  (if (> ,randomize 0) (randomize-edges new-graph ,randomize))  
 		  (if (gethash ,name *processor-directory*)
@@ -257,7 +261,8 @@
 	(len (list-length notes)))		      
     (setf (graph-id new-graph) name)
     (mapc #'(lambda (note)	      
-	      (insert-node new-graph (node count (mid (car note) :lvl level :dur (- (cadr note) 10))))
+	      (insert-node new-graph (node count
+					   (mid (car note) :lvl level :dur (- (cadr note) 10))))
 	      (if (< count len)
 		  (insert-edge new-graph (edge count (+ count 1) :prob 100 :dur (cadr note))))
 	      (incf count)) notes)
