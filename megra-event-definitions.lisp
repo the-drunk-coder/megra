@@ -443,7 +443,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-buzz-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-buzz-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-buzz-event-sc evt timestamp))))
 
 (define-event
   :long-name square-adsr-event
@@ -494,7 +495,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-saw-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-saw-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-saw-event-sc evt timestamp))))
 
 (define-event
   :long-name square-event
@@ -511,7 +513,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-square-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-square-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-square-event-sc evt timestamp))))
 
 
 (define-event
@@ -528,7 +531,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-sine-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-sine-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-sine-event-sc evt timestamp))))
 
 (define-event
   :long-name triangle-event
@@ -733,11 +737,95 @@
   :handler (incudine:nrt-funcall
 	    (handler-case 
 		(event-control-function evt)
-	      (simple-error (e) (incudine::msg error "something went wrong executing ctrl ~D" e)))))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing ctrl ~D" e)))))
 
 ;; shorter ... 
 (defmacro ctrl (&body funs)
   `(control #'(lambda () ,@funs)))
+
+(define-event
+  :long-name growth-event
+  :short-name growth
+  :parent-events (event)
+  :parameters ((graph-id event-growth-graph-id)
+	       (variance event-growth-variance)
+	       (replicate event-growth-replicate 10)
+	       (shrink-replicate event-shrink-replicate 20)
+	       (durs event-growth-durs '()))
+  :direct-parameters (graph-id variance)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-growth-graph-id evt) 'self)
+				       (caar (event-source evt))
+				       (event-growth-graph-id evt))))
+		  (grow resolved-id
+			:variance (event-growth-variance evt)
+			:growth-replication (event-growth-replicate evt)
+			:shrink-replication (event-shrink-replicate evt)
+			:durs (event-growth-durs evt)))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing growth ~D" e)))))
+
+(define-event
+  :long-name shrink-event
+  :short-name shrink
+  :parent-events (event)
+  :parameters ((graph-id event-shrink-graph-id)
+	       (exclude event-shrink-exclude '())	       	       
+	       (durs event-shrink-durs '()))
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-shrink-graph-id evt) 'self)
+				       (caar (event-source evt))
+				       (event-shrink-graph-id evt))))
+		  (prune resolved-id
+			 :exclude (event-growth-durs evt)
+			 :durs (event-shrink-durs evt)))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing shrink ~D" e)))))
+
+(define-event
+  :long-name stack-push-event
+  :short-name stack-push
+  :parent-events (event)
+  :parameters ((chain-id event-stack-push-chain-id 'self)
+	       (variance event-stack-push-variance 0.001)
+	       (shift event-stack-push-shift 0))
+  :direct-parameters (chain-id variance)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
+				       (let ((graph-id (caar (event-source evt))))
+					 (chain-bound
+					  (gethash graph-id *processor-directory*)))
+				       (event-stack-push-chain-id evt))))
+		  (branch resolved-id
+			  :variance (event-stack-push-variance evt)
+			  :shift (event-stack-push-variance evt)))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing stack-push ~D" e)))))
+
+(define-event
+  :long-name stack-pop-event
+  :short-name stack-pop
+  :parent-events (event)
+  :parameters ((chain-id event-stack-pop-chain-id))
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
+				       (let ((graph-id (caar (event-source evt))))
+					 (chain-bound
+					  (gethash graph-id *processor-directory*)))
+				       (event-stack-push-chain-id evt))))
+		  (dq resolved-id))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing stack-pop ~D" e)))))
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 

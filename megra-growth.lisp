@@ -30,10 +30,14 @@
     ;; at zero, the new node would be only to the cloned node,
     ;; at far, the new node would be connected to far-away nodes ... 
     ;; THIS IS JUST FOR TESTING !! 
-    (insert-edge (source-graph g) (edge new-id source-id :dur new-dur :prob (+ 5 (random 20))))
-    (insert-edge (source-graph g) (edge source-id new-id :dur new-dur :prob (+ 5(random 20))))
-    (insert-edge (source-graph g) (edge new-id dest-id :dur new-dur :prob (+ 5 (random 20))))
-    (insert-edge (source-graph g) (edge dest-id new-id :dur new-dur :prob (+ 5 (random 20))))
+    (insert-edge (source-graph g)
+		 (edge new-id source-id :dur new-dur :prob (+ 5 (random 20))))
+    (insert-edge (source-graph g)
+		 (edge source-id new-id :dur new-dur :prob (+ 5(random 20))))
+    (insert-edge (source-graph g)
+		 (edge new-id dest-id :dur new-dur :prob (+ 5 (random 20))))
+    (insert-edge (source-graph g)
+		 (edge dest-id new-id :dur new-dur :prob (+ 5 (random 20))))
     (rebalance-edges (source-graph g))))
 
 (defun remove-all (items seq)
@@ -65,18 +69,24 @@
 				      (get-edge (source-graph g)
 						(list (car path))
 						(cadr path))))))))
-	      (insert-edge (source-graph g) (edge source-id dest-id :dur new-dur :prob 0))
+	      (insert-edge (source-graph g)
+			   (edge source-id dest-id :dur new-dur :prob 0))
 	      (rebalance-edges (source-graph g))))
 	;; finally, remove the node to be pruned !
 	(remove-node (source-graph g) prune-idx)))))
-    
-(defun grow (graph-id &key (variance 0) durs)
+
+
+(defun grow (graph-id &key (variance 0)
+			(growth-replication 10)
+			(shrink-replication 20)
+			durs)
   (incudine::msg info "growing graph ~D" graph-id) 
   (grow-graph (gethash graph-id *processor-directory*) :var variance :durs durs))
 
 (defun prune (graph-id &key exclude durs)
   (incudine::msg info "pruning graph ~D" graph-id) 
-  (prune-graph (gethash graph-id *processor-directory*) :exclude exclude :durs durs))
+  (prune-graph (gethash graph-id *processor-directory*)
+	       :exclude exclude :durs durs))
 
 (defun branch (chain-id &key (shift 0) (variance 0.1) sync-to)
   (incudine::msg info "branching chain ~D" chain-id)			 
@@ -91,20 +101,21 @@
 					 (mapcar #'(lambda (proc)
 						     (clone-imprecise
 						      (name proc)
-						      (gensym (symbol-name (name proc)))
-						      :variance variance :track nil))
+						      (gensym (symbol-name
+							       (name proc)))
+						      :variance variance
+						      :track nil))
 						 current-procs)
 					 (mapcar #'(lambda (proc)  
 						 (clone
 						  (name proc)
 						  (gensym (symbol-name (name proc)))
 						   :track nil))
-						 current-procs))				     
+						 current-procs))
 				     :activate nil
 				     :shift shift-diff
 				     :group (chain-group current-chain)
 				     :branch t)))
     ;;(incudine::msg error "start branch" )
-    (inner-dispatch (car new-chain) sync-to)  
-    ))
+    (inner-dispatch (car new-chain) sync-to)))
 
