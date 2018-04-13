@@ -258,7 +258,6 @@
 (eval (create-accessor 'chance-combine 'combi-chance 'combi-chance))
 
 ;; make state-tracking switchable ???
-(in-package :megra)
 (defmethod apply-self ((c chance-combine) events &key)
   (mapcar #'(lambda (event)	    
 	    (let ((chance-val (random 100)))

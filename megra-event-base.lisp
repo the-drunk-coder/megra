@@ -134,8 +134,6 @@
 	    (format nil ":~a ~a " param-name param-value))	
 	(format nil "~a " value-string))))
 
-(mapcar (lambda (l) (nth 2 l)) '((1 2 4) (1 2 3) (1 2)))
-
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
