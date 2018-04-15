@@ -63,7 +63,7 @@
 (defmethod initialize-instance :after ((g graph) &key)
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
-
+(in-package :megra)
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (list (graph-id g) (node-id n)))
   ;; set event source ids with format:
@@ -73,14 +73,15 @@
   (if (> (node-id n) (graph-max-id g))
       (setf (graph-max-id g) (node-id n)))
   (if (node-content n)
-      (labels ((identify (nodes count)
-		 (if nodes
+      (labels ((identify (events count)
+		 (if events
 		     (progn
-		       (setf (event-source (car nodes))
-			     (append (node-global-id n) (list count)))
-		       (setf (event-tags (car nodes))
-			     (append (event-tags (car nodes)) (list (node-color n))))
-		       (identify (cdr nodes) (+ 1 count))))))
+		       (setf (event-source (car events))
+			     (append (node-global-id n) (list count)) )
+		       (setf (event-tags (car events))
+			     (append (event-tags (car events))
+				     (list (node-color n))))
+		       (identify (cdr events) (+ 1 count))))))
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
