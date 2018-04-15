@@ -21,7 +21,7 @@
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (loop for object in (node-content picked-node)
-	     collect (clone-instance-imprecise object var)))
+	     collect (deepcopy object :imprecision var)))
     ;; insert the new node
     (insert-node (source-graph g) new-node)
     ;; now, what to do about the edges ??
@@ -96,22 +96,15 @@
 	 (shift-diff (max 0 (- shift (chain-shift current-chain))))
 	 ;; in contrast to the dispatcher branch method,
 	 ;; here the new chain is pushed to the branch stack ... 
-	 (new-chain (chain-from-list chain-id
-				     (if (> variance 0.0)
-					 (mapcar #'(lambda (proc)
-						     (clone-imprecise
-						      (name proc)
-						      (gensym (symbol-name
-							       (name proc)))
-						      :variance variance
-						      :track nil))
-						 current-procs)
-					 (mapcar #'(lambda (proc)  
+	 (new-chain (chain-from-list chain-id				     
+				     (mapcar #'(lambda (proc)
 						 (clone
 						  (name proc)
-						  (gensym (symbol-name (name proc)))
-						   :track nil))
-						 current-procs))
+						  (gensym (symbol-name
+							   (name proc)))
+						  :variance variance
+						  :track nil))
+					     current-procs)				     
 				     :activate nil
 				     :shift shift-diff
 				     :group (chain-group current-chain)

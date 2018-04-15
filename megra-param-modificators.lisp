@@ -34,7 +34,6 @@
 (defun oscil (lower upper &key (cycle 128))
   (make-instance 'param-oscillate-between :lower lower :upper upper :cycle cycle))
 
-(in-package :megra)
 (defclass generic-fade ()
   ((from :accessor pmod-from :initarg :from)
    (to :accessor pmod-to :initarg :to)   
@@ -43,8 +42,6 @@
    (current-value :accessor pmod-current-value :initarg :start-value)))
 
 (defclass param-fade (generic-fade param-mod-object) ())
-
-(in-package :megra)
 
 ;; so far only sinusoidal fades are supported ... 
 (defmethod evaluate ((p param-fade))

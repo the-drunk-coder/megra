@@ -1,42 +1,30 @@
 (in-package :megra)
 ;; define some test graph structures
 
+;; DONE unify graph/source/event global ids as lists, not conses ...
+;; DONE update names of deepcopies (like, graphs etc ...)
+;; fix cloning of whole chains ??
+;; DONE 'self for automated branching of branches containing growth nodes (growth, shrink)
+;; DONE ? 'self for automated branching stacking (needs chain id ... )
+;; probability for growth replication ...
+;; DONE more sophisticated cloning ...
+;; DONE branching graphs - correct naming (currently clones inherit the same name ... )
 
-(graph 'b-test ()
-       
-  (node 1 (ctrl #'(lambda ()
-		    (incudine::msg info "hi")
-		    (grow 'b-test :variance 0.1 :durs '(1024))
-		    )
-		     )
-	     (grain "elec" "909_bd" :dur 128
-		    :lvl 1.0 :rate 0.8 :start 0.01 :atk 1 :rel 7
-		    :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5)
-	     
-	     )
-       (edge 1 1 :prob 100 :dur 1024)
+(defparameter *gr* )
 
-       )
+(defparameter *gr-c* (deepcopy *gr* :imprecision 0.6))
 
-
-(sink 's1 (:branch nil :shift 0)
-  ;;(cc 100 (lvl 0.7))
-  ;;(cc 20 (atk 100) :f #'snare-p) ;; ht
-  ;;(cc 20 (atk 100)) ;; ht
-  ;;(cc (env '(60 90 40 20) '(128 64 256 64)) (lvl 0.0) :f #'snare-p) 
-  ;;(cc 80 (dur 0.25 :combi-fun #'*) :f #'snare-p )
-  ;;(cc 70 (dur 4 :combi-fun #'*) :f 'transition-p :at t)
-  ;;(cc 100 (dur 2 :combi-fun #'*) :f 'transition-p :at t)
-  ;;(cc 50 (rev 0.1) :f #'snare-p )
-  ;;(cc 40 (rate 2.3 :combi-fun #'*))
-  ;;(stream-oscillate-between 'w1-sn-rate-osc 'rate 2.4 1.3 :cycle 500
-  ;;:filter #'snare-p)
-  'b-test)
-
-(clear)
-
-
-
+(graph 'b-test ()      
+  (node 1 nil
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
+  (node 2 (shrink :graph-id 'self :exclude '(1 2))
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
+  (edge 1 2 :prob 100 :dur 256)
+  (edge 2 1 :prob 100 :dur 256))
 
 (g 'some-more-other-sines ()
     (n 1 (sine 100 :lvl .6 :dur 200))
@@ -52,6 +40,15 @@
     (e '(2 2 2 2 2) 1 :p 50 :d 600)   
     (e 3 1 :p 100 :d 300))
 
+(clone 'some-more-other-sines 'ccalone)
+
+(pring 'ccalone t)
+
+(defparameter *ccl* (source-graph (gethash 'ccalone *processor-directory*)))
+
+(node-global-id (gethash 2 (graph-nodes *ccl*)))
+
+(event-source (car (pull-events (gethash 'ccalone *processor-directory*))))
 
 (g 'some-other-sines ()
     (n 1 (sine 50 :lvl .6 :dur 200))
@@ -84,17 +81,12 @@
 (format t "~D ~D~%" (slot-value *ctrl* 'control-function) (slot-value *ctrl-cl* 'control-function))
 
 (clone-imprecise 'some-other-sines 'some-other-clone :variance 0.2)
+
+;; not sure if this actually creates a copy of a graph ??
+;; might work when branching from sink, because it clones the
+;; individual processors ... 
 (clone 'some-other-sines 'some-other-precise-clone)
 
-(format t "~D ~D~%"
-	(get-edge (source-graph (gethash 'some-other-precise-clone *processor-directory*)) '(1) 1)
-	(get-edge (source-graph (gethash 'some-other-sines *processor-directory*)) '(1) 1)
-	)
-
-(format t "~D ~D~%"
-	(graph-nodes (source-graph (gethash 'some-other-precise-clone *processor-directory*)))
-	(graph-nodes (source-graph (gethash 'some-other-sines *processor-directory*)))
-	)
 	
 	
 (pring 'some-other-clone t)

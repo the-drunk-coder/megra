@@ -160,7 +160,8 @@
 		      do (setf (gethash proc-id *prev-processor-directory*)
 			       (clone proc-id proc-id :track nil :store nil)))))
 		(let* ((event-processors
-			;; replace symbols by instances, generate proper names, insert into proc directory
+			;; replace symbols by instances,
+			;; generate proper names, insert into proc directory
 			(gen-proc-list ,name (list ,@proc-body)))
 		       (old-chain (gethash ,name *chain-directory*)))
 		  ;; first, construct the chain ...

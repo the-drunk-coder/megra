@@ -24,95 +24,154 @@
 (defun e (src dest &key p (d 512))
   (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
 
-;; this is very similar to the copy-instance method for events,
-;; there's just nothing evaluated ... 
-(defmethod clone-instance (object)
+;; dummy 
+(defun add-imprecision (orig
+			imprecision
+			&key
+			  (min SB-EXT:DOUBLE-FLOAT-NEGATIVE-INFINITY)
+			  (max SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY))
+  (let ((newval (+ orig (* (* (- 20000 (random 40000)) imprecision)
+			   (/ orig 20000)))))
+    (cond ((< newval min) min)
+	  ((> newval max) max)
+	  (t newval))))
+
+(defun deepcopy-list (list &key
+			     (imprecision 0.0)
+			     exclude-keywords
+			     precise-keywords)
+  (mapcar #'(lambda (thing)	      
+	      (deepcopy thing
+			:imprecision imprecision
+			:exclude-keywords exclude-keywords
+			:precise-keywords precise-keywords)) list))
+
+(defun deepcopy-hash-table (orig &key (imprecision 0.0) exclude-keywords precise-keywords)
+  (let ((new-table (make-hash-table :test (hash-table-test orig))))
+    (loop for key being the hash-keys of orig
+       do (setf (gethash key new-table)
+		(deepcopy (gethash key orig)
+			  :imprecision imprecision
+			  :exclude-keywords exclude-keywords
+			  :precise-keywords precise-keywords)))
+    new-table))
+
+(defmethod deepcopy-generic-object (object
+				    &key (imprecision 0.0)
+				      exclude-keywords
+				      precise-keywords)
   (let ((copy (allocate-instance (class-of object))))
     (loop for slot in (class-slots (class-of object))
        do (when (slot-boundp-using-class (class-of object) object slot)
 	    (setf (slot-value copy (slot-definition-name slot))
-		  (slot-value object (slot-definition-name slot)))))
+		  (cond
+		    ((member (slot-definition-name slot) exclude-keywords) 
+		     (slot-value object (slot-definition-name slot)))
+		    ((member (slot-definition-name slot) precise-keywords) 
+		     (deepcopy
+		      (slot-value object (slot-definition-name slot))
+		      :imprecision 0.0
+		      :exclude-keywords exclude-keywords
+		      :precise-keywords precise-keywords
+		      :object-name (slot-definition-name slot)))
+		    (t (deepcopy
+			(slot-value object (slot-definition-name slot))
+			:imprecision imprecision
+			:exclude-keywords exclude-keywords
+			:precise-keywords precise-keywords
+			:object-name (slot-definition-name slot)))))))
     copy))
 
-;; clone and shake things up a little
-;; this one, in contrast to the "precise" one, doesn't work without some
-;; knowledge about the subject ...
-;; currently ignores edges ... 
-(defmethod clone-instance-imprecise (object intensity &key (recursive nil))
-  ;;(format t "obj: ~D ~D ~%" object (class-of object))
-  (let ((copy (allocate-instance (class-of object))))
-    (loop for slot in (class-slots (class-of object))
-       do (when (slot-boundp-using-class (class-of object) object slot)
-	    (setf (slot-value copy (slot-definition-name slot))
-		  (let* ((slotname (slot-definition-name slot))
-			 (orig (slot-value object slotname)))
-		    ;;(format t "sn ~D type ~D ~%" slotname (type-of orig))
-		    ;; some things should be copied over precisely in any case ...
-		    (cond ((member slotname '(test
-					      test-fun
-					      rehash-size
-					      rehash-threshold
-					      rehash-trigger
-					      id
-					      global-id
-					      successor
-					      predecessor
-					      edges
-					      max-id
-					      highest-edge-order
-					      backends
-					      color
-					      tags
-					      value-combine-function
-					      chain-bound
-					      name
-					      traced-path
-					      trace-length
-					      path
-					      node-steps
-					      current-node
-					      copy-events
-					      combine-mode
-					      combine-filter))
-			   ;;(format t "ign~%")
-			   orig)
-			  ((and (typep orig 'number))			   
-			   (let ((newval (+ orig (* (* (- 20000 (random 40000)) intensity)
-						    (/ orig 20000))))
-				 (min (if (car (gethash slotname *parameter-limits*))
-					  (car (gethash slotname *parameter-limits*))
-					  SB-EXT:DOUBLE-FLOAT-NEGATIVE-INFINITY))
-				 (max (if (cadr (gethash slotname *parameter-limits*))
-					  (cadr (gethash slotname *parameter-limits*))
-					  SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY)))
-			     (cond ((< newval min) min)
-				   ((> newval max) max)
-				   (t newval))))
-			  ;; avoid circular cloning and weed out stuff that cannot be
-			  ;; cloned for now ...
-			  ((and orig recursive (typep orig 'hash-table)		     		    
-				(not (member slotname '(edges))))
-			   (let ((new-table (make-hash-table :test 'eql)))
-			     (loop for key being the hash-keys of orig
-				do (setf (gethash key new-table)
-					 (clone-instance-imprecise (gethash key orig)
-								   intensity :recursive t)))
-			     new-table))
-			  ((and orig recursive (typep orig 'list))			  
-			   (mapcar #'(lambda (thing)
-				       (if (and (not (typep thing 'symbol))
-						(not (typep thing 'function))
-						(not (typep thing 'cons)))
-					   (clone-instance-imprecise thing intensity)
-					   thing))
-				   orig))
-			  ((and orig recursive
-				(not (typep orig 'symbol))
-				(not (typep orig 'function))
-				(not (typep orig 'cons)))
-			   (clone-instance-imprecise orig intensity :recursive t))
-			  (t orig))))))
-    copy))
+(defmethod deepcopy-object ((o standard-object)
+			    &key (imprecision 0.0)
+			      exclude-keywords
+			      precise-keywords)
+  (deepcopy-generic-object o
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords precise-keywords))
+
+
+(defmethod deepcopy-object ((n node) &key (imprecision 0.0)
+				       exclude-keywords precise-keywords)
+  (deepcopy-generic-object n
+			   :imprecision imprecision
+			   :exclude-keywords (append
+					      exclude-keywords '(global-id id))
+			   :precise-keywords precise-keywords))
+
+(defmethod deepcopy-object ((e edge) &key (imprecision 0.0)
+				       exclude-keywords precise-keywords)
+  (deepcopy-generic-object e
+			   :imprecision imprecision
+			   :exclude-keywords (append exclude-keywords
+						     '(source destination))
+			   :precise-keywords (append precise-keywords
+						     '(probability))))
+
+(defmethod deepcopy-object ((tr transition)
+			    &key (imprecision 0.0)
+			      exclude-keywords
+			      precise-keywords)
+  (deepcopy-generic-object tr
+			   :imprecision imprecision
+			   :exclude-keywords  exclude-keywords
+			   :precise-keywords (append precise-keywords
+						     '(dur))))
+
+(defmethod deepcopy-object ((g graph) &key (imprecision 0.0)
+					exclude-keywords
+					precise-keywords)
+  (deepcopy-generic-object g
+			   :imprecision imprecision
+			   :exclude-keywords (append
+					      exclude-keywords
+					      '(id
+						max-id
+						highest-edge-order
+						event-source))
+			   :precise-keywords precise-keywords))
+
+(defmethod deepcopy-object ((e event-processor) &key (imprecision 0.0)
+						  exclude-keywords
+						  precise-keywords)
+  (deepcopy-generic-object e
+			   :imprecision imprecision
+			   :exclude-keywords (append
+					      exclude-keywords
+					      '(successor predecessor))
+			   :precise-keywords precise-keywords))
+
+
+(defmethod deepcopy (object &key (imprecision 0.0)
+			      exclude-keywords
+			      precise-keywords
+			      object-name)
+  (cond
+    ((typep object 'number)
+     (if (> imprecision 0.0)
+	 (add-imprecision object imprecision object-name)
+	 object))
+    ((or (typep object 'symbol) (typep object 'function))
+     object)
+    ((typep object 'list)
+     (deepcopy-list object
+		    :imprecision imprecision
+		    :exclude-keywords exclude-keywords
+		    :precise-keywords precise-keywords))
+    ((typep object 'hash-table)
+     (deepcopy-hash-table object
+			  :imprecision imprecision
+			  :exclude-keywords exclude-keywords
+			  :precise-keywords precise-keywords))
+    ((typep object 'string)
+     (copy-seq object))
+    ((typep object 'standard-object) 
+     (deepcopy-object object
+		      :imprecision imprecision
+		      :exclude-keywords exclude-keywords
+		      :precise-keywords precise-keywords))))
+
 
 ;; This macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
@@ -126,42 +185,42 @@
 		       (rand 0))
 		 &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
-			   (setf (graph-id new-graph) ,name)    
-			   (mapc #'(lambda (obj)
-				     (cond ((typep obj 'edge) (insert-edge new-graph obj))
-					   ((typep obj 'node) (insert-node new-graph obj))))
-				 (list ,@graphdata))		      
-			   ;; add random blind edges ...
-			   (if (> ,rand 0) (randomize-edges new-graph ,rand))  
-			   (if (gethash ,name *processor-directory*)
-			       ;; update existing instance
-			       (let ((cur-instance (gethash ,name *processor-directory*)))
-				 (setf (source-graph cur-instance) new-graph)
-				 (setf (affect-transition cur-instance) ,affect-transition)
-				 (setf (combine-mode cur-instance) ,combine-mode)
-				 (setf (combine-filter cur-instance) ,combine-filter)
-				 (setf (update-clones cur-instance) ,update-clones)
-				 (setf (copy-events cur-instance) (not ,perma))
-				 (when ,update-clones
-				   (mapc #'(lambda (proc-id)
-					     (let ((my-clone
-						    (gethash proc-id *processor-directory*)))
-					       (setf (source-graph my-clone)
-						     (clone-instance new-graph))
-					       (setf (affect-transition my-clone) ,affect-transition)
-					       (setf (combine-mode my-clone) ,combine-mode)
-					       (setf (combine-filter my-clone) ,combine-filter)
-					       (setf (update-clones my-clone) ,update-clones)
-					       (setf (copy-events my-clone) (not ,perma))))
-					 (clones cur-instance)))
-				 cur-instance)			    
-			       (setf (gethash ,name *processor-directory*)
-				     (make-instance 'graph-event-processor :name ,name
-						    :graph new-graph :copy-events (not ,perma)
-						    :current-node 1 :combine-mode ,combine-mode
-						    :affect-transition ,affect-transition
-						    :combine-filter ,combine-filter
-						    :update-clones ,update-clones)))))))
+		      (setf (graph-id new-graph) ,name)    
+		      (mapc #'(lambda (obj)
+				(cond ((typep obj 'edge) (insert-edge new-graph obj))
+				      ((typep obj 'node) (insert-node new-graph obj))))
+			    (list ,@graphdata))		      
+		      ;; add random blind edges ...
+		      (if (> ,rand 0) (randomize-edges new-graph ,rand))  
+		      (if (gethash ,name *processor-directory*)
+			  ;; update existing instance
+			  (let ((cur-instance (gethash ,name *processor-directory*)))
+			    (setf (source-graph cur-instance) new-graph)
+			    (setf (affect-transition cur-instance) ,affect-transition)
+			    (setf (combine-mode cur-instance) ,combine-mode)
+			    (setf (combine-filter cur-instance) ,combine-filter)
+			    (setf (update-clones cur-instance) ,update-clones)
+			    (setf (copy-events cur-instance) (not ,perma))
+			    (when ,update-clones
+			      (mapc #'(lambda (proc-id)
+					(let ((my-clone
+					       (gethash proc-id *processor-directory*)))
+					  (setf (source-graph my-clone)
+						(deepcopy new-graph))
+					  (setf (affect-transition my-clone) ,affect-transition)
+					  (setf (combine-mode my-clone) ,combine-mode)
+					  (setf (combine-filter my-clone) ,combine-filter)
+					  (setf (update-clones my-clone) ,update-clones)
+					  (setf (copy-events my-clone) (not ,perma))))
+				    (clones cur-instance)))
+			    cur-instance)			    
+			  (setf (gethash ,name *processor-directory*)
+				(make-instance 'graph-event-processor :name ,name
+					       :graph new-graph :copy-events (not ,perma)
+					       :current-node 1 :combine-mode ,combine-mode
+					       :affect-transition ,affect-transition
+					       :combine-filter ,combine-filter
+					       :update-clones ,update-clones)))))))
 
 ;;  shorthand for graph
 (setf (macro-function 'g) (macro-function 'graph))
@@ -440,30 +499,17 @@
 	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
 
 
-(defun clone (original-id clone-id &key (track t) (store t))
-  (let ((original (gethash original-id *processor-directory*)))
-    (when original
-      (let ((clone (clone-instance original)))
-	(when (typep original 'graph-event-processor)
-	  (setf (source-graph clone) (clone-instance (source-graph original)))
-	  (setf (graph-id (source-graph clone)) clone-id))	
-	(setf (name clone) clone-id)
-	(setf (chain-bound clone) nil)	
-	(when store
-	  (setf (gethash clone-id *processor-directory*) clone))
-	(when track
-	  (unless (member clone-id (clones original))
-	    (setf (clones original) (append (clones original) (list clone-id)))))
-	clone))))
+(defmethod update-graph-name ((g graph) new-name &key)
+  (setf (graph-id g) new-name)
+  (loop for n being the hash-values of (graph-nodes g)
+       do (setf (node-global-id n) (list new-name (node-id n)))))
 
-(defun clone-imprecise (original-id clone-id &key (variance 0.1) (track t) (store t))
+(defun clone (original-id clone-id &key (variance 0.0) (track t) (store t))
   (let ((original (gethash original-id *processor-directory*)))
     (when original
-      (let ((clone (clone-instance-imprecise original variance :recursive t)))
+      (let ((clone (deepcopy original :imprecision variance)))
 	(when (typep original 'graph-event-processor)
-	  (setf (source-graph clone) (clone-instance-imprecise
-				      (source-graph original) variance :recursive t))
-	  (setf (graph-id (source-graph clone)) clone-id))	
+	  (update-graph-name (source-graph clone) clone-id))	
 	(setf (name clone) clone-id)
 	(setf (chain-bound clone) nil)	
 	(when store

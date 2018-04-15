@@ -745,6 +745,12 @@
 (defmacro ctrl (&body funs)
   `(control #'(lambda () ,@funs)))
 
+
+(defun resolve-id (evt)
+  (if (eql (event-shrink-graph-id evt) 'self)
+      (car (event-source evt))
+      (event-shrink-graph-id evt)))
+
 (define-event
   :long-name growth-event
   :short-name growth
@@ -757,9 +763,7 @@
   :direct-parameters (graph-id variance)
   :handler (incudine:nrt-funcall
 	    (handler-case 
-	        (let ((resolved-id (if (eql (event-growth-graph-id evt) 'self)
-				       (caar (event-source evt))
-				       (event-growth-graph-id evt))))
+	        (let ((resolved-id (resolve-id evt)))
 		  (grow resolved-id
 			:variance (event-growth-variance evt)
 			:growth-replication (event-growth-replicate evt)
@@ -778,9 +782,7 @@
 	       (durs event-shrink-durs '()))
   :handler (incudine:nrt-funcall
 	    (handler-case 
-	        (let ((resolved-id (if (eql (event-shrink-graph-id evt) 'self)
-				       (caar (event-source evt))
-				       (event-shrink-graph-id evt))))
+	        (let ((resolved-id (resolve-id evt)))
 		  (prune resolved-id
 			 :exclude (event-growth-durs evt)
 			 :durs (event-shrink-durs evt)))
@@ -799,7 +801,7 @@
   :handler (incudine:nrt-funcall
 	    (handler-case 
 	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
-				       (let ((graph-id (caar (event-source evt))))
+				       (let ((graph-id (car (event-source evt))))
 					 (chain-bound
 					  (gethash graph-id *processor-directory*)))
 				       (event-stack-push-chain-id evt))))
@@ -818,7 +820,7 @@
   :handler (incudine:nrt-funcall
 	    (handler-case 
 	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
-				       (let ((graph-id (caar (event-source evt))))
+				       (let ((graph-id (car (event-source evt))))
 					 (chain-bound
 					  (gethash graph-id *processor-directory*)))
 				       (event-stack-push-chain-id evt))))
