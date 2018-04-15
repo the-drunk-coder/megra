@@ -28,12 +28,21 @@
 (defun add-imprecision (orig
 			imprecision
 			&key
+			  object-name
 			  (min SB-EXT:DOUBLE-FLOAT-NEGATIVE-INFINITY)
 			  (max SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY))
-  (let ((newval (+ orig (* (* (- 20000 (random 40000)) imprecision)
-			   (/ orig 20000)))))
-    (cond ((< newval min) min)
-	  ((> newval max) max)
+  (let* ((newval (+ orig (* (* (- 20000 (random 40000)) imprecision)
+			    (/ orig 20000))))
+	 (limits (gethash object-name *parameter-limits*) )
+	 (min-res (if (and limits (car limits))
+		      (car limits)
+		      min))
+	 (max-res (if (and limits (cdr limits))
+		      (cdr limits)
+		      max)))
+    (format t "hi ~D" newval)
+    (cond ((< newval min-res) min-res)
+	  ((> newval max-res) max-res)
 	  (t newval))))
 
 (defun deepcopy-list (list &key
@@ -150,7 +159,7 @@
   (cond
     ((typep object 'number)
      (if (> imprecision 0.0)
-	 (add-imprecision object imprecision object-name)
+	 (add-imprecision object imprecision :object-name object-name)
 	 object))
     ((or (typep object 'symbol) (typep object 'function))
      object)
