@@ -498,11 +498,12 @@
 	((eq renderer 'twopi)
 	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
 
-
 (defmethod update-graph-name ((g graph) new-name &key)
   (setf (graph-id g) new-name)
   (loop for n being the hash-values of (graph-nodes g)
-       do (setf (node-global-id n) (list new-name (node-id n)))))
+     do (progn (setf (node-global-id n) (list new-name (node-id n)))
+	       (loop for ev in (node-content n)
+		    do (setf (nth 0 (event-source ev)) new-name)))))
 
 (defun clone (original-id clone-id &key (variance 0.0) (track t) (store t))
   (let ((original (gethash original-id *processor-directory*)))
