@@ -53,11 +53,12 @@
    (combine-mode :accessor combine-mode :initarg :combine-mode)
    (combine-filter :accessor combine-filter :initarg :combine-filter)
    (affect-transition :accessor affect-transition :initarg :affect-transition)
-   (path) ;; path is a predefined path
+   (path) ;; path is a predefined path - an idea i never picked up again ..
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
-   (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
+   (trace-length :accessor trace-length :initarg :trace-length
+		 :initform *global-trace-length*)))
 
 ;; turn back to textual representation ...
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))

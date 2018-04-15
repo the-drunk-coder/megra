@@ -65,9 +65,9 @@
   (setf (graph-edges g) (make-hash-table :test 'eql)))
 
 (defmethod insert-node ((g graph) (n node) &key)
-  (setf (node-global-id n) (cons (graph-id g) (node-id n)))
+  (setf (node-global-id n) (list (graph-id g) (node-id n)))
   ;; set event source ids with format:
-  ;; ((GRAPH-ID . NODE-ID) . EVENT-POS) 
+  ;; ((GRAPH-ID NODE-ID EVENT-POS) 
   ;; ----
   ;; keep track of highest id (meaning that ids must be sortable ... )
   (if (> (node-id n) (graph-max-id g))
@@ -77,9 +77,9 @@
 		 (if nodes
 		     (progn
 		       (setf (event-source (car nodes))
-			     (cons (node-global-id n) count))
+			     (append (node-global-id n) (list count)))
 		       (setf (event-tags (car nodes))
-			     (cons (node-color n) (event-tags (car nodes))))
+			     (append (event-tags (car nodes)) (list (node-color n))))
 		       (identify (cdr nodes) (+ 1 count))))))
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))

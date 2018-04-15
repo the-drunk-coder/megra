@@ -147,32 +147,46 @@
 			  (create-accessors t)
 			  (handler nil))
   (let* ((class-name (intern (format nil "~A" long-name)))
-	 (keyword-parameters  (remove-if #'(lambda (x) (member (car x) direct-parameters)) parameters))
+	 (keyword-parameters  (remove-if #'
+			       (lambda (x)
+				 (member (car x) direct-parameters)) parameters))
 	 ;; get parameter definitions from parent classes ...
 	 (parent-parameters (mapcan #'(lambda (cl)
 					(get-param-definitions (find-class cl)))
 				    parent-events))
 	 (direct-parameter-defs (nconc (remove-if-not #'
 					(lambda (x)
-					  (member (car x) direct-parameters)) parameters)
+					  (member (car x) direct-parameters))
+					parameters)
 				       (remove-if-not #'
 					(lambda (x)
-					  (member (car x) direct-parameters)) parent-parameters))) 
-	 (parent-keyword-parameters (remove-if #'(lambda (x) (member (car x) direct-parameters)) 
+					  (member (car x) direct-parameters))
+					parent-parameters))) 
+	 (parent-keyword-parameters (remove-if #'(lambda (x)
+						   (member (car x)
+							   direct-parameters)) 
 					       parent-parameters))
 	 (parameter-names (mapcar #'car parameters))
-	 (accessor-names (mapcar #'cadr parameters)) ;; second is a accessor name 	 
-	 (keyword-parameter-defaults (mapcar (lambda (l) (nth 2 l)) keyword-parameters)) ;; 3rd is default value	 
-	 (keyword-parameter-names (mapcar #'car keyword-parameters)) ;; first is name 
+	 (accessor-names (mapcar #'cadr parameters)) ;; second is a accessor name 
+	 (keyword-parameter-defaults
+	  (mapcar (lambda (l) (nth 2 l)) keyword-parameters)) ;; 3rd is default value    
+	 (keyword-parameter-names
+	  (mapcar #'car keyword-parameters)) ;; first is name 
 	 (parent-parameter-names (mapcar #'car parent-parameters))
-	 (parent-keyword-parameter-defaults (mapcar (lambda (l) (nth 2 l)) parent-keyword-parameters)) ;; 3rd is default	 
+	 (parent-keyword-parameter-defaults
+	  (mapcar (lambda (l) (nth 2 l))
+		  parent-keyword-parameters)) ;; 3rd is default	 
 	 (parent-keyword-parameter-names (mapcar #'car parent-keyword-parameters))
-	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))
-	 (parent-keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
-				  parent-parameter-names))
+	 (keywords
+	  (mapcar #'(lambda (x)
+		      (intern (format nil "~A" x) "KEYWORD")) parameter-names))
+	 (parent-keywords
+	  (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
+		  parent-parameter-names))
 	 (keyword-pairs (interleave keywords parameter-names))
 	 (parent-keyword-pairs (interleave parent-keywords parent-parameter-names))
-	 (class-name-list (make-list (length parameter-names) :initial-element class-name)))
+	 (class-name-list (make-list (length parameter-names)
+				     :initial-element class-name)))
     `(progn
        ;; define the base class
        (defclass ,class-name ,parent-events ())
@@ -189,7 +203,8 @@
 				  :initargs (list slot-keyword)
 				  :initform slot-initform)
 	       ;; set parameter limits
-	       (setf (gethash slot-name *parameter-limits*) (list (nth 3 param) (nth 4 param)))))
+	       (setf (gethash slot-name *parameter-limits*)
+		     (list (nth 3 param) (nth 4 param)))))
        ;; define the constructor function
        (defun ,short-name (,@direct-parameters
 				 &key
@@ -212,7 +227,8 @@
        ;; re-define the getters so that the value is calculated if
        ;; it's a modifier object or function instead of a plain value ...
        (if ,create-accessors
-	   (progn ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)))
+	   (progn ,@(mapcar #'create-accessor
+			    class-name-list accessor-names parameter-names)))
        ;; produce event handler method ...
        (defmethod handle-event ((evt ,class-name) timestamp &key)
 	 (handler-case ,handler
@@ -222,7 +238,8 @@
 	 (string-downcase (format nil "(~a ~{~a~}~{~a~}~{~a~}~a~a)"
 		 ',short-name
 		 (mapcar #'(lambda (par-name direct-accs-name)
-			     (print-param par-name (funcall direct-accs-name evt) nil))
+			     (print-param par-name
+					  (funcall direct-accs-name evt) nil))
 			 ',(mapcar #'car direct-parameter-defs)
 			 ',(mapcar #'cadr direct-parameter-defs))
 		 (mapcar #'(lambda (par-name accs-name)
@@ -279,3 +296,4 @@
 			,(intern "TAGS" "KEYWORD") tags
 			,(intern "COMBI-FUN" "KEYWORD") combi-fun
 			,@keyword-pairs)))))
+
