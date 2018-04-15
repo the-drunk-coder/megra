@@ -21,7 +21,7 @@
   (setf (incudine::logger-level) :error)
   (incudine::recv-start *midiin*))
 
-;;(setf (incudine::logger-level) :info)
+(setf (incudine::logger-level) :info)
 
 ;;(incudine:rt-stop)
 ;;(incudine::block-size)

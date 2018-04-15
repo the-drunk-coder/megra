@@ -1,6 +1,8 @@
 (in-package :megra)
 ;; define some test graph structures
 
+;; add-imprecision when cloning ??
+
 ;; DONE unify graph/source/event global ids as lists, not conses ...
 ;; DONE update names of deepcopies (like, graphs etc ...)
 ;; fix cloning of whole chains ??
@@ -14,17 +16,28 @@
 
 (defparameter *gr-c* (deepcopy *gr* :imprecision 0.6))
 
-(graph 'b-test ()      
-  (node 1 nil
+(growth 'self 0.4)
+(shrink :graph-id 'self :exclude '(1 2))
+
+(grow 'b-test :variance 0.4)
+
+(graph 'b-test ()
+  (node 1 
 	(grain "field" "maine_train" :dur 128
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
-	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
-  (node 2 (shrink :graph-id 'self :exclude '(1 2))
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
+  (node 2 
 	(grain "field" "maine_train" :dur 128
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
-	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
   (edge 1 2 :prob 100 :dur 256)
   (edge 2 1 :prob 100 :dur 256))
+
+(sink 'bl ()
+  'b-test
+  )
+
+(clear)
 
 (g 'some-more-other-sines ()
     (n 1 (sine 100 :lvl .6 :dur 200))
