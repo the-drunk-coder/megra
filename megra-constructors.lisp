@@ -24,8 +24,6 @@
 (defun e (src dest &key p (d 512))
   (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
 
-
-(cadr '(0.0 4.0))
 ;; dummy 
 (defun add-imprecision (orig
 			imprecision
