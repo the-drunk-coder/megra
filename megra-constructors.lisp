@@ -24,6 +24,8 @@
 (defun e (src dest &key p (d 512))
   (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
 
+
+(cadr '(0.0 4.0))
 ;; dummy 
 (defun add-imprecision (orig
 			imprecision
@@ -33,14 +35,14 @@
 			  (max SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY))
   (let* ((newval (+ orig (* (* (- 20000 (random 40000)) imprecision)
 			    (/ orig 20000))))
-	 (limits (gethash object-name *parameter-limits*) )
+	 (limits (gethash object-name *parameter-limits*))
 	 (min-res (if (and limits (car limits))
 		      (car limits)
 		      min))
-	 (max-res (if (and limits (cdr limits))
-		      (cdr limits)
+	 (max-res (if (and limits (cadr limits))
+		      (cadr limits)
 		      max)))
-    (format t "hi ~D" newval)
+    ;;(format t "hi ~D ~D ~%" object-name newval)
     (cond ((< newval min-res) min-res)
 	  ((> newval max-res) max-res)
 	  (t newval))))
