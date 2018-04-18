@@ -48,7 +48,8 @@
 
 (defmethod prune-graph ((g graph-event-processor) &key exclude durs)
   (let* ((path (traced-path g)) ;; get the trace ...
-	 (reduced-path (remove-all exclude path)))
+	 (exclude-with-current (append exclude (list (current-node g))))
+	 (reduced-path (remove-all exclude-with-current path)))
     ;; (format t "~D~%" path)
     ;; (format t "~D~%" reduced-path)
     (when (> (length reduced-path) 3)
@@ -57,6 +58,7 @@
 	     (source-id (nth (- prune-path-idx 1) reduced-path))
 	     (dest-id (nth (+ prune-path-idx 1) reduced-path))
 	     (old-edge (get-edge (source-graph g) (list source-id) prune-idx)))
+	(incudine::msg info "removing node: ~D" prune-idx)
 	(if old-edge
 	    (let ((new-dur (transition-duration (car (edge-content old-edge))))
 		  (new-prob (edge-probability old-edge)))
