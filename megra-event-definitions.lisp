@@ -768,7 +768,7 @@
 			:durs (event-growth-durs evt)))
 	      (simple-error (e)
 		(incudine::msg
-		 error "something went wrong executing growth ~D" e)))))
+		 error "something went wrong executing growth:~% ~D" e)))))
 
 (define-event
   :long-name shrink-event
@@ -777,17 +777,18 @@
   :parameters ((graph-id event-shrink-graph-id)
 	       (exclude event-shrink-exclude '())	       	       
 	       (durs event-shrink-durs '()))
+  :direct-parameters (graph-id)
   :handler (incudine:nrt-funcall
 	    (handler-case 
 	        (let ((resolved-id (if (eql (event-shrink-graph-id evt) 'self)
 				       (car (event-source evt))
 				       (event-shrink-graph-id evt))))
 		  (prune resolved-id
-			 :exclude (event-growth-durs evt)
+			 :exclude (event-shrink-exclude evt)
 			 :durs (event-shrink-durs evt)))
 	      (simple-error (e)
 		(incudine::msg
-		 error "something went wrong executing shrink ~D" e)))))
+		 error "something went wrong executing shrink:~% ~D" e)))))
 
 (define-event
   :long-name stack-push-event
@@ -816,7 +817,7 @@
   :short-name stack-pop
   :parent-events (event)
   :parameters ((chain-id event-stack-pop-chain-id))
-  :handler (incudine:nrt-funcall
+  :handler ;;(incudine:nrt-funcall
 	    (handler-case 
 	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
 				       (let ((graph-id (car (event-source evt))))
@@ -826,7 +827,9 @@
 		  (dq resolved-id))
 	      (simple-error (e)
 		(incudine::msg
-		 error "something went wrong executing stack-pop ~D" e)))))
+		 error "something went wrong executing stack-pop ~D" e)))
+	    ;;)
+  )
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 

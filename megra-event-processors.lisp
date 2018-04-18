@@ -139,7 +139,7 @@
 	 (graph-highest-edge-order (source-graph g)) downto 1
        ;; iterate over the edge orders ...
        if (gethash order (graph-edges (source-graph g)))
-       do (let ((edges-for-order (gethash order (graph-edges (source-graph g)))))	    
+       do (let ((edges-for-order (gethash order (graph-edges (source-graph g))))) 
 	    ;;(incudine::msg info "edge order: ~D" order)
 	    (loop for pattern being the hash-keys of edges-for-order
 	       ;; now, not only single nodes but also paths can serve as "source"
@@ -323,13 +323,11 @@
    (shift :accessor chain-shift :initform 0.0 :initarg :shift)
    (group :accessor chain-group :initform nil :initarg :group)))
 
-(in-package :megra)
 (defun activate (chain)
   (incudine::msg info "activating ~D" chain)
   (setf (is-active chain) t))
 
 ;; deactivate ... if it's a modifying event processor, delete it ...
-(in-package :megra)
 (defun deactivate (chain)
   (incudine::msg info "deactivating ~D" chain)
   (setf (is-active chain) nil))

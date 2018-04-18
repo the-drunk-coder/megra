@@ -1,41 +1,52 @@
 (in-package :megra)
 ;; define some test graph structures
 
-;; add-imprecision when cloning ??
 
+;; growth - provide possible values for certain params ??
+;; shrink - handle deleted nodes ...
+;; graph-update that keeps "grown" nodes ---
+;; probability for growth replication (return nil on deepcopy, clear list from nils ...)
+
+;; DONE add-imprecision when cloning ??
 ;; DONE unify graph/source/event global ids as lists, not conses ...
 ;; DONE update names of deepcopies (like, graphs etc ...)
-;; fix cloning of whole chains ??
+;; fix cloning of whole chains - obsolete ??
 ;; DONE 'self for automated branching of branches containing growth nodes (growth, shrink)
 ;; DONE ? 'self for automated branching stacking (needs chain id ... )
-;; probability for growth replication ...
 ;; DONE more sophisticated cloning ...
 ;; DONE branching graphs - correct naming (currently clones inherit the same name ... )
 
-(defparameter *gr* )
-
-(defparameter *gr-c* (deepcopy *gr* :imprecision 0.6))
-
-(growth 'self 0.4)
-(shrink :graph-id 'self :exclude '(1 2))
-
-(grow 'b-test :variance 0.4)
-
 (graph 'b-test ()
   (node 1 
+	(growth 'self 0.01)
 	(grain "field" "maine_train" :dur 128
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
 	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
   (node 2 
+	(shrink 'self :exclude '(1 2 3))
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
+  (node 3
+	(shrink 'self :exclude '(1 2 3))
 	(grain "field" "maine_train" :dur 128
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
 	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
   (edge 1 2 :prob 100 :dur 256)
-  (edge 2 1 :prob 100 :dur 256))
+  (edge 2 3 :prob 100 :dur 256)
+  (edge 3 1 :prob 100 :dur 256)
+  )
 
 (sink 'bl ()
-  'b-test
-  )
+  'b-test)
+
+(clear)y
+
+(pull-events (gethash 'b-test *processor-directory*))
+
+(pull-transition (gethash 'b-test *processor-directory*))
+
+(current-node (gethash 'b-test *processor-directory*))
 
 (clear)
 
