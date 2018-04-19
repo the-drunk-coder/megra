@@ -63,7 +63,7 @@
 (defmethod initialize-instance :after ((g graph) &key)
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-edges g) (make-hash-table :test 'eql)))
-(in-package :megra)
+
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (list (graph-id g) (node-id n)))
   ;; set event source ids with format:
