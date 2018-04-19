@@ -151,6 +151,45 @@
 					      '(successor predecessor))
 			   :precise-keywords precise-keywords))
 
+(defmethod deepcopy-object ((g graph-event-processor) &key (imprecision 0.0)
+							exclude-keywords
+							precise-keywords)
+  (deepcopy-generic-object g
+			   :imprecision imprecision
+			   :exclude-keywords (append
+					      exclude-keywords
+					      '(successor predecessor))
+			   :precise-keywords (append precise-keywords
+						     '(current-node
+						       node-steps
+						       traced-path
+						       trace-length)
+						     )))
+
+(defmethod deepcopy-object ((e shrink-event) &key (imprecision 0.0)
+					       exclude-keywords
+					       precise-keywords)
+  (deepcopy-generic-object e
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords (append precise-keywords
+						     '(exclude durs))))
+
+(defmethod deepcopy-object ((e growth-event) &key (imprecision 0.0)
+					       exclude-keywords
+					       precise-keywords)
+  (deepcopy-generic-object e
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords (append precise-keywords
+						     '(replicate
+						       shrink-replicate
+						       durs
+						       variance
+						       ))))
+
+
+
 
 (defmethod deepcopy (object &key (imprecision 0.0)
 			      exclude-keywords

@@ -1,7 +1,6 @@
 (in-package :megra)
 ;; define some test graph structures
 
-
 ;; growth - provide possible values for certain params ??
 ;; shrink - handle deleted nodes ...
 ;; graph-update that keeps "grown" nodes ---
@@ -37,10 +36,12 @@
   (edge 3 1 :prob 100 :dur 256)
   )
 
+(branch 'bl :variance 0.4)
+
 (sink 'bl ()
   'b-test)
 
-(clear)y
+(clear)
 
 (pull-events (gethash 'b-test *processor-directory*))
 
