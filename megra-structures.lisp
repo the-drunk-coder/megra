@@ -92,7 +92,8 @@
 		   (loop for e in edge-list
 		      summing (edge-probability e) into tprob
 		      finally (return tprob))))
-	  (loop for src-edges being the hash-values of (gethash order (graph-edges g))
+	  (loop for src-edges being the hash-values of
+	       (gethash order (graph-edges g))
 	     do (let* ((sprob (sum-probs src-edges))
 		       (pdiff (- 100 sprob)))
 		  (cond  ((> pdiff 0)
@@ -130,6 +131,12 @@
   (if rebalance
       (rebalance-edges g)))
 
+;; fetch the first inbound edge of a node ... 
+(defmethod get-first-inbound-edge-source ((g graph) node-id &key (order 1))
+  (loop for src-seq being the hash-keys of (gethash order (graph-edges g))
+     when (get-edge g src-seq node-id)
+	  return src-seq))
+  
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edge-source-list (if (typep (edge-source e) 'list)
 			      (edge-source e)

@@ -1,6 +1,7 @@
 (in-package :megra)
 ;; define some test graph structures
 
+;; more controllable imprecision/functors ?
 ;; growth - provide possible values for certain params ??
 ;; shrink - handle deleted nodes ...
 ;; graph-update that keeps "grown" nodes ---
@@ -22,24 +23,51 @@
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
 	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
   (node 2 
-	(shrink 'self :exclude '(1 2 3))
+	(shrink 'self :exclude '(1 2 3 4 5 6 7))
 	(grain "field" "maine_train" :dur 128
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
 	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
   (node 3
-	(shrink 'self :exclude '(1 2 3))
+	(shrink 'self :exclude '(1 2 3 4 5 6 7))
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
+  (node 4
+	(shrink 'self :exclude '(1 2 3 4 5 6 7))
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
+  (node 5
+	(shrink 'self :exclude '(1 2 3 4 5 6 7))
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
+  (node 6
+	(shrink 'self :exclude '(1 2 3 4 5 6 7))
+	(grain "field" "maine_train" :dur 128
+	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
+  (node 7
+	(shrink 'self :exclude '(1 2 3 4 5 6 7))
 	(grain "field" "maine_train" :dur 128
 	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
 	       :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5))
   (edge 1 2 :prob 100 :dur 256)
   (edge 2 3 :prob 100 :dur 256)
-  (edge 3 1 :prob 100 :dur 256)
+  (edge 3 4 :prob 100 :dur 256)
+  (edge 4 5 :prob 100 :dur 256)
+  (edge 5 6 :prob 100 :dur 256)
+  (edge 6 7 :prob 100 :dur 256)
+  (edge 7 1 :prob 100 :dur 256)
   )
 
-(branch 'bl :variance 0.4)
+
+(branch 'bl :variance 0.8)
 
 (sink 'bl ()
   'b-test)
+
+(current-node (topmost-processor (car (gethash 'bl *branch-directory*)) ))
 
 (clear)
 

@@ -6,7 +6,8 @@
 (defmethod grow-graph ((g graph-event-processor) &key (var 0) durs)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (source-id (car path))
-	 (dest-id (car (reverse path)))
+	 (reverse-path (reverse path))
+	 (dest-id (car reverse-path))
 	 (node-id (nth (random (length path)) path)) ;; pick a node id 
 	 (picked-node (gethash node-id (graph-nodes (source-graph g))))	 
 	 (new-id (+ (graph-max-id (source-graph g)) 1))
@@ -16,8 +17,9 @@
 		      (transition-duration
 		       (car (edge-content
 			     (get-edge (source-graph g)
-				       (list (car path))
-				       (cadr path))))))))
+				       (list (cadr reverse-path))
+				       (car reverse-path))))))))
+    (incudine::msg info "picked: ~D~%" (node-id picked-node))
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (loop for object in (node-content picked-node)
@@ -50,33 +52,34 @@
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (exclude-with-current (append exclude (list (current-node g))))
 	 (reduced-path (remove-all exclude-with-current path)))
-    ;; (format t "~D~%" path)
-    ;; (format t "~D~%" reduced-path)
-    (when (> (length reduced-path) 3)
-      (let* ((prune-path-idx (+ 1 (random (- (length reduced-path) 2))))
-	     (prune-idx (nth prune-path-idx reduced-path))
-	     (source-id (nth (- prune-path-idx 1) reduced-path))
-	     (dest-id (nth (+ prune-path-idx 1) reduced-path))
-	     (old-edge (get-edge (source-graph g) (list source-id) prune-idx)))
-	(incudine::msg info "removing node: ~D" prune-idx)
-	(if old-edge
-	    (let ((new-dur (transition-duration (car (edge-content old-edge))))
-		  (new-prob (edge-probability old-edge)))
-	      (insert-edge (source-graph g)
-			   (edge source-id dest-id :dur new-dur :prob new-prob)))
-	    (let ((new-dur (if durs
-			       (nth (random (length durs)) durs)
-			       (transition-duration
-				(car (edge-content
-				      (get-edge (source-graph g)
-						(list (car path))
-						(cadr path))))))))
-	      (insert-edge (source-graph g)
-			   (edge source-id dest-id :dur new-dur :prob 0))
-	      (rebalance-edges (source-graph g))))
+    ;;(format t "~D~%" path)
+    ;;(format t "~D~%" reduced-path)
+    (when reduced-path
+      (let* ((prune-id (car (last reduced-path))) ;; node id to remove ..
+	     (prune-idx-in-path (position prune-id path :from-end t))
+	     (source-id (if (eql prune-idx-in-path 0)
+			    (get-first-inbound-edge-source
+			     (source-graph g) prune-id)
+			    (nth (- prune-idx-in-path 1) path)))
+	     (dest-id (nth (+ prune-idx-in-path 1) path))
+	     ;; old edge must exist, otherwise the path couldn't have
+	     ;; happened like this ...
+	     (old-edge (get-edge (source-graph g) (list source-id) prune-id))
+	     (new-edge (get-edge (source-graph g) (list source-id) dest-id)))
+	(incudine::msg info "removing node: ~D" prune-id)
+	;; only when this edge doesn't exist ...
+	(when (and (not new-edge) (not (eql source-id dest-id)))
+	  (let ((new-dur (if durs
+			     (nth (random (length durs)) durs)
+			     (transition-duration (car (edge-content
+							old-edge)))))
+		(new-prob (edge-probability old-edge)))
+	    (insert-edge (source-graph g)
+			 (edge source-id dest-id :dur new-dur :prob new-prob))))
 	;; finally, remove the node to be pruned !
-	(remove-node (source-graph g) prune-idx)))))
-
+	(setf (traced-path g) (remove prune-id (traced-path g)))
+	(remove-node (source-graph g) prune-id)
+	))))
 
 (defun grow (graph-id &key (variance 0)
 			(growth-replication 10)
