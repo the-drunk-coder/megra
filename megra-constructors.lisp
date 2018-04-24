@@ -45,17 +45,22 @@
 	  ((> newval max-res) max-res)
 	  (t newval))))
 
+(remove nil '(1 2 nil 4))
+
 (defun deepcopy-list (list &key
 			     (imprecision 0.0)
 			     exclude-keywords
 			     precise-keywords)
-  (mapcar #'(lambda (thing)	      
-	      (deepcopy thing
-			:imprecision imprecision
-			:exclude-keywords exclude-keywords
-			:precise-keywords precise-keywords)) list))
+  (remove nil ;; in case an element wasn't copied ...
+	  (mapcar #'(lambda (thing)	      
+		      (deepcopy thing
+				:imprecision imprecision
+				:exclude-keywords exclude-keywords
+				:precise-keywords precise-keywords)) list)))
 
-(defun deepcopy-hash-table (orig &key (imprecision 0.0) exclude-keywords precise-keywords)
+(defun deepcopy-hash-table (orig &key (imprecision 0.0)
+				   exclude-keywords
+				   precise-keywords)
   (let ((new-table (make-hash-table :test (hash-table-test orig))))
     (loop for key being the hash-keys of orig
        do (setf (gethash key new-table)
@@ -178,15 +183,17 @@
 (defmethod deepcopy-object ((e growth-event) &key (imprecision 0.0)
 					       exclude-keywords
 					       precise-keywords)
-  (deepcopy-generic-object e
-			   :imprecision imprecision
-			   :exclude-keywords exclude-keywords
-			   :precise-keywords (append precise-keywords
-						     '(replicate
-						       shrink-replicate
-						       durs
-						       variance
-						       ))))
+    (let ((chance (random 100)))
+      (when (< chance (event-growth-replicate e))
+	(deepcopy-generic-object e
+				 :imprecision imprecision
+				 :exclude-keywords exclude-keywords
+				 :precise-keywords (append precise-keywords
+							   '(replicate
+							     shrink-replicate
+							     durs
+							     variance
+							     ))))))
 
 
 
@@ -446,6 +453,23 @@
   (setf *group-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql))
   (setf *current-group* 'DEFAULT))
+
+(defun del (&rest chains)
+  (if (<= (length chains) 0)
+      (clear)
+      (mapc #'(lambda (id)
+		;; if it's a group, stop the group
+		(if (gethash id *group-directory*)
+		    (mapc #'(lambda (chain)
+			      (stop chain)
+			      (remhash chain *chain-directory*))
+			  (gethash id *group-directory*))
+		    ;; if it's a chain, stop the chain ...
+		    (progn
+		      (stop id)
+		      (remhash id *chain-directory*)
+		      (remhash id *branch-directory*))))
+	    chains)))
 
 (defun merg (chain-or-group-id)
   (if (gethash chain-or-group-id *group-directory*)
