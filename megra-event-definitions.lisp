@@ -817,7 +817,7 @@
   :short-name stack-pop
   :parent-events (event)
   :parameters ((chain-id event-stack-pop-chain-id))
-  :handler ;;(incudine:nrt-funcall
+  :handler (incudine:nrt-funcall
 	    (handler-case 
 	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
 				       (let ((graph-id (car (event-source evt))))
@@ -827,9 +827,7 @@
 		  (dq resolved-id))
 	      (simple-error (e)
 		(incudine::msg
-		 error "something went wrong executing stack-pop ~D" e)))
-	    ;;)
-  )
+		 error "something went wrong executing stack-pop ~D" e)))))
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 

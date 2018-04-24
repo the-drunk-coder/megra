@@ -22,8 +22,7 @@
     (incudine::msg info "picked: ~D~%" (node-id picked-node))
     ;; inject new content, with some variation 
     (setf (node-content new-node)
-	  (loop for object in (node-content picked-node)
-	     collect (deepcopy object :imprecision var)))
+	  (deepcopy-list (node-content picked-node) :imprecision var))
     ;; insert the new node
     (insert-node (source-graph g) new-node)
     ;; now, what to do about the edges ??
