@@ -3,7 +3,7 @@
 ;; idea:
 ;; pick node from path
 ;; this is, of course, only one possbility to grow a graph ... 
-(defmethod grow-graph ((g graph-event-processor) &key (var 0) durs)
+(defmethod grow-graph ((g graph-event-processor) &key (var 0) durs functors)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (source-id (car path))
 	 (reverse-path (reverse path))
@@ -22,7 +22,9 @@
     (incudine::msg info "picked: ~D~%" (node-id picked-node))
     ;; inject new content, with some variation 
     (setf (node-content new-node)
-	  (deepcopy-list (node-content picked-node) :imprecision var))
+	  (deepcopy-list (node-content picked-node)
+			 :imprecision var
+			 :functors functors))
     ;; insert the new node
     (insert-node (source-graph g) new-node)
     ;; now, what to do about the edges ??
@@ -83,16 +85,20 @@
 (defun grow (graph-id &key (variance 0)
 			(growth-replication 10)
 			(shrink-replication 20)
-			durs)
+			durs
+			functors)
   (incudine::msg info "growing graph ~D" graph-id) 
-  (grow-graph (gethash graph-id *processor-directory*) :var variance :durs durs))
+  (grow-graph (gethash graph-id *processor-directory*)
+	      :var variance
+	      :durs durs
+	      :functors functors))
 
 (defun prune (graph-id &key exclude durs)
   (incudine::msg info "pruning graph ~D" graph-id) 
   (prune-graph (gethash graph-id *processor-directory*)
 	       :exclude exclude :durs durs))
 
-(defun branch (chain-id &key (shift 0) (variance 0.1) sync-to)
+(defun branch (chain-id &key (shift 0) (variance 0.1) sync-to functors)
   (incudine::msg info "branching chain ~D" chain-id)			 
   ;; get the old chain ... 
   (let* ((current-chain (gethash chain-id *chain-directory*))
@@ -107,6 +113,7 @@
 						  (gensym (symbol-name
 							   (name proc)))
 						  :variance variance
+						  :functors functors
 						  :track nil))
 					     current-procs)				     
 				     :activate nil
