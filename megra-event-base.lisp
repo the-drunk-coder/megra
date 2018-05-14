@@ -297,3 +297,35 @@
 			,(intern "COMBI-FUN" "KEYWORD") combi-fun
 			,@keyword-pairs)))))
 
+;; helper functions for abstract sampling events ...
+(defun keyword-match-score (keywords string)
+  (if keywords
+      (let ((matches (mapcar #'(lambda (keyword)
+				 (search (symbol-name keyword)
+					 (string-upcase string)))
+			     keywords)))    
+	(float (/ (length (remove nil matches)) (length keywords))))
+      1.0))
+
+(defun get-matching-sample-name (categ keywords)
+  (let ((best-match "")
+	(best-score 0.0))
+    (loop for path in
+	 ;; shuffle list, so that we won't get the same thing everytime no keywords are provided
+	 (shuffle-list (cl-fad::list-directory (concatenate 'string cm::*sample-root*
+					      (string-downcase (symbol-name categ)))))
+       do (let ((cur-score (keyword-match-score keywords (pathname-name path))))
+	    (when (eql cur-score 1.0)
+	      (setf best-match (pathname-name path))
+	      (return))
+	    (when (> cur-score best-score)
+	      (setf best-score cur-score)
+	      (setf best-match (pathname-name path)))))	      
+    best-match))
+
+(defmacro define-category-sampling-event (categ)
+  `(defun ,categ (&rest keywords)   
+     (grain (string-downcase (symbol-name ',categ))
+	    (get-matching-sample-name ',categ keywords) :dur 512
+	    :lvl 0.4 :rate 1.0 :start 0.00 :atk 1 :rel 7
+	    :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5)))
