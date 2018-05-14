@@ -7,12 +7,34 @@
        after a short while ...
        short break)
 
-;; more controllable imprecision/functors ? FUNCTORS !!!
+(bd)
+
+(ql:quickload 'cl-fad)
+
+(remove nil '(nil 2 3))
+
+(symbol-name 'hi)
+
+(s 'hi ()
+  (g 'bl ()
+    (n 1 (bd))
+    (n 2 (sn))
+    (e 1 2 :p 100)
+    (e 2 1 :p 100)
+    
+    ))
+
+(pring 'bl t)
+
+(stop)
+
+
 ;; growth - provide possible values for certain params ??
 ;; shrink - handle deleted nodes ...
 ;; graph-update that keeps "grown" nodes ---
-;; probability for growth replication (return nil on deepcopy, clear list from nils ...)
 
+;; DONE - more controllable imprecision/functors ? FUNCTORS !!!
+;; DONE probability for growth replication (return nil on deepcopy, clear list from nils ...)
 ;; DONE add-imprecision when cloning ??
 ;; DONE unify graph/source/event global ids as lists, not conses ...
 ;; DONE update names of deepcopies (like, graphs etc ...)

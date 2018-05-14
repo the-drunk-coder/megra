@@ -1,7 +1,8 @@
 (require 'closer-mop)
+(require 'cl-fad)
 
 (defpackage "MEGRA"
- (:use "COMMON-LISP" "CM" "SB-MOP")
+ (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD")
  (:export "graph"
 	  "brownian-motion"
 	  "dispatch"

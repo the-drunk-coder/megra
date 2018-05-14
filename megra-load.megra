@@ -4,10 +4,10 @@
 ;; --------- PATHS TO SET ------------- ;; 
 
 ;; path to megra package
-(defparameter *megra-root* "/home/nik/REPOSITORIES/megra")
+(defparameter *megra-root* "/home/nik/private/repos/megra")
 
 ;; sample root folder ... note trailing "/" !
-(defparameter *sample-root* "/home/nik/SAMPLES/")
+(defparameter *sample-root* "/home/nik/private/repos/music-needs-texture/")
 
 ;; sample type aka file extension - wav or flac !
 ;; (currently not possible to mix ...)
