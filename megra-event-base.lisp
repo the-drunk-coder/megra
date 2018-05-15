@@ -311,9 +311,10 @@
   (let ((best-match "")
 	(best-score 0.0))
     (loop for path in
-	 ;; shuffle list, so that we won't get the same thing everytime no keywords are provided
+       ;; shuffle list, so that we won't get the same thing
+       ;; everytime no keywords are provided
 	 (shuffle-list (cl-fad::list-directory (concatenate 'string cm::*sample-root*
-					      (string-downcase (symbol-name categ)))))
+							    (string-downcase categ))))
        do (let ((cur-score (keyword-match-score keywords (pathname-name path))))
 	    (when (eql cur-score 1.0)
 	      (setf best-match (pathname-name path))
@@ -323,9 +324,11 @@
 	      (setf best-match (pathname-name path)))))	      
     best-match))
 
-(defmacro define-category-sampling-event (categ)
-  `(defun ,categ (&rest keywords)   
-     (grain (string-downcase (symbol-name ',categ))
-	    (get-matching-sample-name ',categ keywords) :dur 512
+(defmacro define-category-sampling-event (name dur)
+  `(defun ,(read-from-string name) (&rest keywords)
+     (grain (string-downcase ,name)
+	    (get-matching-sample-name ,name keywords) :dur ,dur
 	    :lvl 0.4 :rate 1.0 :start 0.00 :atk 1 :rel 7
-	    :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5)))
+	    :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5 :tags '(,name))))
+
+
