@@ -8,21 +8,23 @@
        after a short while ...
        short break)
 
-(grow 'bl :durs '(128))
+(grow 'bl :durs '(256))
 
 (s 'hi ()
   (cc 50 (dur 256))
   (cc 20 (rate (oscil 0.9 1.4) :combi-fun #'*) :f #'snare-p)
+  (cc 100 (start (oscil 0.0 1.0)) :f #'utter-p)
   (g 'bl ()
     (n 1 (bd '|909|))
     (n 2 (sn 'cr78))
+    (n 3 (utter 'kinski))
     (e 1 2 :p 100)
-    (e 2 1 :p 100)))
-
-(pring 'bl t)
+    (e 2 3 :p 100)
+    (e 3 1 :p 100)))
 
 (clear)
 
+(grain )
 
 ;; growth - provide possible values for certain params ??
 ;; shrink - handle deleted nodes ...
