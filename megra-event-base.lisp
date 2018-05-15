@@ -324,11 +324,3 @@
 	      (setf best-match (pathname-name path)))))	      
     best-match))
 
-(defmacro define-category-sampling-event (name dur)
-  `(defun ,(read-from-string name) (&rest keywords)
-     (grain (string-downcase ,name)
-	    (get-matching-sample-name ,name keywords) :dur ,dur
-	    :lvl 0.4 :rate 1.0 :start 0.00 :atk 1 :rel 7
-	    :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5 :tags '(,name))))
-
-
