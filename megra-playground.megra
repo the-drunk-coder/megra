@@ -1,4 +1,5 @@
 (in-package :megra)
+
 ;; define some test graph structures
 
 ;; tell a story ! 
@@ -7,26 +8,20 @@
        after a short while ...
        short break)
 
-(bd)
-
-(ql:quickload 'cl-fad)
-
-(remove nil '(nil 2 3))
-
-(symbol-name 'hi)
+(grow 'bl :durs '(128))
 
 (s 'hi ()
+  (cc 50 (dur 256))
+  (cc 20 (rate (oscil 0.9 1.4) :combi-fun #'*) :f #'snare-p)
   (g 'bl ()
-    (n 1 (bd))
-    (n 2 (sn))
+    (n 1 (bd '|909|))
+    (n 2 (sn 'cr78))
     (e 1 2 :p 100)
-    (e 2 1 :p 100)
-    
-    ))
+    (e 2 1 :p 100)))
 
 (pring 'bl t)
 
-(stop)
+(clear)
 
 
 ;; growth - provide possible values for certain params ??

@@ -1,8 +1,9 @@
 (require 'closer-mop)
 (require 'cl-fad)
+(require 'cl-libsndfile)
 
 (defpackage "MEGRA"
- (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD")
+ (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD" "CL-LIBSNDFILE")
  (:export "graph"
 	  "brownian-motion"
 	  "dispatch"
@@ -98,3 +99,4 @@
 (load (concatenate 'string cm::*megra-root* "/megra-supercollider-interface"))
 (load (concatenate 'string cm::*megra-root* "/megra-visualize"))
 (load (concatenate 'string cm::*megra-root* "/megra-growth"))
+(load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))

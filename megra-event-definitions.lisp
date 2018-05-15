@@ -839,10 +839,3 @@
   :direct-parameters (dur))
 
 
-;; make stuff easier, a little tidal-style if you want ... 
-(define-category-sampling-event elec)
-(define-category-sampling-event bd)
-(define-category-sampling-event sn)
-
-
-
