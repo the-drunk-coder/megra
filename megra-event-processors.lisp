@@ -60,6 +60,83 @@
    (trace-length :accessor trace-length :initarg :trace-length
 		 :initform *global-trace-length*)))
 
+;; This macro is basically just a wrapper for the (original) function,
+;; so that i can mix keyword arguments and an arbitrary number of
+;; ensuing graph elements ... 
+(defmacro graph (name (&key
+		       (perma nil) ;; what's this ???
+		       (combine-mode ''append)
+		       (affect-transition nil)
+		       (combine-filter #'all-p)
+		       (update-clones t) ;; what's this ???
+		       (rand 0))
+		 &body graphdata)
+  `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
+		      (setf (graph-id new-graph) ,name)    
+		      (mapc #'(lambda (obj)
+				(cond ((typep obj 'edge) (insert-edge new-graph obj))
+				      ((typep obj 'node) (insert-node new-graph obj))))
+			    (list ,@graphdata))		      
+		      ;; add random blind edges ...
+		      (if (> ,rand 0) (randomize-edges new-graph ,rand))  
+		      (if (gethash ,name *processor-directory*)
+			  ;; update existing instance
+			  (let ((cur-instance (gethash ,name *processor-directory*)))
+			    (setf (source-graph cur-instance) new-graph)
+			    (setf (affect-transition cur-instance) ,affect-transition)
+			    (setf (combine-mode cur-instance) ,combine-mode)
+			    (setf (combine-filter cur-instance) ,combine-filter)
+			    (setf (update-clones cur-instance) ,update-clones)
+			    (setf (copy-events cur-instance) (not ,perma))
+			    (when ,update-clones
+			      (mapc #'(lambda (proc-id)
+					(let ((my-clone
+					       (gethash proc-id *processor-directory*)))
+					  (setf (source-graph my-clone)
+						(deepcopy new-graph))
+					  (setf (affect-transition my-clone) ,affect-transition)
+					  (setf (combine-mode my-clone) ,combine-mode)
+					  (setf (combine-filter my-clone) ,combine-filter)
+					  (setf (update-clones my-clone) ,update-clones)
+					  (setf (copy-events my-clone) (not ,perma))))
+				    (clones cur-instance)))
+			    cur-instance)			    
+			  (setf (gethash ,name *processor-directory*)
+				(make-instance 'graph-event-processor :name ,name
+					       :graph new-graph :copy-events (not ,perma)
+					       :current-node 1 :combine-mode ,combine-mode
+					       :affect-transition ,affect-transition
+					       :combine-filter ,combine-filter
+					       :update-clones ,update-clones)))))))
+
+;;  shorthand for graph
+(setf (macro-function 'g) (macro-function 'graph))
+
+;; replace the content (or parts of the content) of a graph ...
+(defun graph-add (name new-content)
+  (let ((current-graph (source-graph (gethash name *processor-directory*))))
+    (mapc #'(lambda (obj)
+	      (cond ((typep obj 'edge) (insert-edge current-graph obj))
+		    ((typep obj 'node) (insert-node current-graph obj))))
+	  new-content)
+    (setf (source-graph (gethash name *processor-directory*)) current-graph)))
+
+;; clone a graph event processor ... 
+(defun clone (original-id clone-id &key (variance 0.0) (track t) (store t) functors)
+  (let ((original (gethash original-id *processor-directory*)))
+    (when original
+      (let ((clone (deepcopy original :imprecision variance :functors functors)))
+	(when (typep original 'graph-event-processor)
+	  (update-graph-name (source-graph clone) clone-id))	
+	(setf (name clone) clone-id)
+	(setf (chain-bound clone) nil)	
+	(when store
+	  (setf (gethash clone-id *processor-directory*) clone))
+	(when track
+	  (unless (member clone-id (clones original))
+	    (setf (clones original) (append (clones original) (list clone-id)))))
+	clone))))
+
 ;; turn back to textual representation ...
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
   (format out-stream "(graph '~a (:perma ~a :combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
@@ -79,6 +156,32 @@
 			 append (mapcar
 				 #'(lambda (edge) (format nil "~C~a~%" #\tab (print-edge edge)))
 				 (gethash key order-edges)))))))
+
+;; output helpers ... 
+;; should i find a better name for this function ??
+(defun pring (graph &optional stream)
+  (format stream "~a" (print-graph (gethash graph *processor-directory*))))
+
+(defun graph->code (graph file)
+  (with-open-file (out-stream file :direction :output :if-exists :supersede)
+    (format out-stream "~a" (print-graph (gethash graph *processor-directory*)))))
+
+(defun graph->svg (graph file &key (renderer 'circo))
+  (with-open-file (out-stream file :direction :output :if-exists :supersede)
+    (graph->dot (source-graph (gethash graph *processor-directory*)) :output out-stream))
+  (cond ((eq renderer 'dot)
+	 (sb-ext:run-program "/usr/bin/dot" (list "-T" "svg" "-O" file "-Gnslimit" "-Gnslimit1")))
+	((eq renderer 'neato)
+	 (sb-ext:run-program "/usr/bin/neato" (list "-T" "svg" "-O"
+						    file
+						    "-Goverlap=scalexy -Gnodesep=0.6 -Gstart=0.5" )))
+	((eq renderer 'circo)
+	 (sb-ext:run-program "/usr/bin/circo" (list "-T" "svg" "-O" file)))
+	((eq renderer 'sfdp)
+	 (sb-ext:run-program "/usr/bin/sfdp" (list "-T" "svg" "-O" file
+						   "-Goverlap=scalexy -Gnodesep=0.6 -Gstart=0.5")))
+	((eq renderer 'twopi)
+	 (sb-ext:run-program "/usr/bin/twopi" (list "-T" "svg" "-O" file "-Goverlap=scalexy")))))
 
 ;; initialize counter hash table ...
 (defmethod initialize-instance :after ((g graph-event-processor) &key)
@@ -249,6 +352,30 @@
 	(filter-events o events))
   events)
 
+(defun stream-oscillate-between (name param upper-boundary lower-boundary &key cycle type
+									    (affect-transition nil)
+									    (keep-state t)
+									    (track-state t)
+									    (filter #'all-p)
+									    (store nil))
+  (let ((new-inst (make-instance 'stream-oscillate-between :mod-prop param :name name
+				 :cycle cycle
+				 :upper upper-boundary
+				 :lower lower-boundary
+				 :track-state track-state
+				 :affect-transition affect-transition
+				 :event-filter filter))
+	(old-inst (gethash name *processor-directory*)))
+    ;; if a current instance is replaced ...
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst))
+      (when keep-state
+	(setf (pmod-step new-inst) (pmod-step (gethash name *processor-directory*)))
+	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
+    (when store
+      (setf (gethash name *processor-directory*) new-inst))
+    new-inst))
+
 (defclass chance-combine (modifying-event-processor)
   ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
    (combi-chance :accessor combi-chance :initarg :combi-chance)
@@ -311,6 +438,29 @@
 	      (setf (slot-value event (modified-property b)) new-value)))
 	(filter-events b events))
   events)
+
+;; modifying ... always check if the modifier is already present !
+(defun stream-brownian-motion (name param &key step-size wrap limit ubound lbound
+					    (affect-transition nil) (keep-state t)
+					    (track-state t) (filter #'all-p) (store nil))
+  (let ((new-inst (make-instance 'stream-brownian-motion :step-size step-size :mod-prop param
+				 :name name
+				 :upper ubound
+				 :lower lbound
+				 :is-bounded limit
+				 :is-wrapped wrap
+				 :track-state track-state
+				 :affect-transition affect-transition
+				 :event-filter filter))
+	(old-inst (gethash name *processor-directory*)))    
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst))
+      (when keep-state
+	(setf (lastval new-inst) (lastval (gethash name *processor-directory*)))))
+    (when store
+      (setf (gethash name *processor-directory*) new-inst))
+    new-inst))
+
 
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)

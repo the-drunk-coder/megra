@@ -24,7 +24,7 @@
 
 (clear)
 
-(grain )
+
 
 ;; growth - provide possible values for certain params ??
 ;; shrink - handle deleted nodes ...
