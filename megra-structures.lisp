@@ -191,13 +191,53 @@
 				  (gethash (length source) (graph-edges g)))))
       (find-destination current-edges destination))))
 
+;; helper function to add random edges to a graph ... 
+(defmethod randomize-edges ((g graph) chance)
+  (loop for src being the hash-keys of (graph-nodes g)
+     do (loop for dest being the hash-keys of (graph-nodes g)
+	   do (let ((randval (random 100)))
+		(if (and (< randval chance)
+			 (not
+			  (get-edge g (if (typep src 'sequence)
+					  src
+					  (list src))
+				    dest)))
+		    (insert-edge g (edge src dest :prob 0)))))))
+
+(defmethod update-graph-name ((g graph) new-name &key)
+  (setf (graph-id g) new-name)
+  (loop for n being the hash-values of (graph-nodes g)
+     do (progn (setf (node-global-id n) (list new-name (node-id n)))
+	       (loop for ev in (node-content n)
+		    do (setf (nth 0 (event-source ev)) new-name)))))
+
 ;; regarding probability modification:
 ;; an event is pumped through the chain and each
 ;; processor knows the source of the event, as it is stored
 ;; in the event.
 ;; so we can modify the edge that led to that event,
 
+;; functions and macros that serve as shorthands ... 
+(defun node (id &rest content)
+  (make-instance 'node :id id :content content :color 'white))
 
+;; shorthand for node 
+(defun n (id &rest content)
+  (make-instance 'node :id id :content content :color 'white))
+
+(defmacro node-col (id (&key (col ''white)) &body content)
+  `(make-instance 'node :id ,id :content (list ,@content) :color ,col))
+
+;; shorthand for node-col
+(setf (macro-function 'n-c) (macro-function 'node-col))
+
+(defun edge (src dest &key prob (dur 512))
+  (make-instance 'edge :src src :dest dest :prob prob
+		 :content `(,(make-instance 'transition :dur dur))))
+
+;; shorthand for edge
+(defun e (src dest &key p (d 512))
+  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
 
 
 
