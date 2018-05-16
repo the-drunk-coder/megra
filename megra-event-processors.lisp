@@ -121,6 +121,12 @@
 	  new-content)
     (setf (source-graph (gethash name *processor-directory*)) current-graph)))
 
+(defun graph-add-direct (graph new-content)  
+  (mapc #'(lambda (obj)
+	    (cond ((typep obj 'edge) (insert-edge graph obj))
+		  ((typep obj 'node) (insert-node graph obj))))
+	new-content))
+
 ;; clone a graph event processor ... 
 (defun clone (original-id clone-id &key (variance 0.0) (track t) (store t) functors)
   (let ((original (gethash original-id *processor-directory*)))

@@ -95,3 +95,77 @@
 			     :current-node 1 :combine-mode 'append
 			     :combine-filter #'all-p)))))
 
+;; nucleus, one node, with one repeating edge ... 
+(defun nuc (name event &key (overlap 0) gap reset)  
+  (let* ((graph-proc (if (gethash name *processor-directory*)
+			 (gethash name *processor-directory*)
+			 (make-instance 'graph-event-processor :name name
+					:graph nil :copy-events t
+					:current-node 1 :combine-mode 'append
+					:combine-filter #'all-p)))
+	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
+			   (make-instance 'graph))
+			  (t (source-graph graph-proc)))))
+    (setf (graph-id src-graph) name)
+    (graph-add-direct src-graph (list (node 1 event)))
+    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ... 
+      (let ((dur (cond ((typep gap 'param-mod-object) gap)
+		       (gap (- gap (* gap overlap)))
+		       (t (if (typep (event-duration event) 'param-mod-object)
+			      (event-duration event)
+			      (- (event-duration event)
+				 (* (event-duration event) overlap)))))))
+	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100)))))
+    (setf (source-graph graph-proc) src-graph)
+    (setf (gethash name *processor-directory*) graph-proc)))
+
+;; a cycle ... 
+(defun cyc (name events gap &key (overlap 0) (rnd 0) (rep 0) max-rep reset)
+  (let* ((graph-proc (if (gethash name *processor-directory*)
+			  (gethash name *processor-directory*)
+			  (make-instance 'graph-event-processor :name name
+					:graph nil :copy-events t
+					:current-node 1 :combine-mode 'append
+					:combine-filter #'all-p)))
+	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
+			   (make-instance 'graph))
+			  (t (source-graph graph-proc))))
+	 (dur (cond ((typep gap 'param-mod-object) gap)
+		    (gap (- gap (* gap overlap)))))
+	 (count 1)
+	 (len (length events)))
+    (setf (graph-id src-graph) name)
+    (mapc #'(lambda (event)	      
+	      (insert-node src-graph (node count event))
+	      (when (or reset (not (source-graph graph-proc)))
+		;; either it's new or reset ... 		
+		(when (< count len)
+		  (insert-edge src-graph (edge count (+ count 1) :prob 100 :dur dur))
+		  )
+		
+		(when (> rep 0)
+		  (when (< (random 100) rep)
+		    (insert-edge src-graph (edge count count :prob 100 :dur dur))
+		    (when max-rep
+		      (insert-edge src-graph
+				   (edge (make-list max-rep :initial-element count)
+					 (if (< count len)
+					     (+ count 1)
+					     1)
+					 :dur dur :prob 100))))))
+	      (incf count)
+	      ) events)
+    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...     
+      (insert-edge src-graph (edge count 1 :prob 100 :dur dur)))
+    (rebalance-edges src-graph)
+    ;; randomize if necessary ... 
+    (if (> rnd 0) (randomize-edges src-graph rnd))
+    
+    (setf (source-graph graph-proc) src-graph)
+    (setf (gethash name *processor-directory*) graph-proc)))
+
+
+
+;; star
+;; tstar
+;; bstar

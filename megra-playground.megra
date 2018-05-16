@@ -8,7 +8,7 @@
        after a short while ...
        short break)
 
-(grow 'bl :durs '(256))
+(grow 'bl :durs '(128))
 
 (s 'hi ()
   (cc 50 (dur 256))
@@ -24,6 +24,31 @@
 
 (clear)
 
+
+
+(pring 'ki t)
+
+(grow 'ho :durs '(512) :variance 0.4)
+
+(dq 'hi)
+
+(branch 'ho :variance 0.4 :functors '(((rate) (* 2.3)) ((lvl) (* 1.5))) :shift 256)
+
+;; todo : reset flag ... if set, only replace nodes (leaving grown nodes intact)
+(s 'hi ()
+  (cc 100 (start (oscil 0.01 0.9)))
+  (nuc 'ki (utter 'kinski) :gap (oscil 256 1024) :reset t))
+
+(typep (oscil 256 1024) 'param-mod-object)
+
+(pring 'ho)
+
+(discourage 'ho)
+(s 'ho ()
+  (cyc 'ho (l (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
+
+(s 'hhasd (:sync-to 'ho :shift 256)  
+  (cyc 'hh (e- (elec 'accent 'hat)) 512))
 
 
 ;; growth - provide possible values for certain params ??

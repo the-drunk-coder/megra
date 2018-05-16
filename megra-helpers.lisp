@@ -70,3 +70,5 @@
 ;; set the default group
 (defun group (groupname)
   (setf *current-group* groupname))
+
+(defmacro e- (&body li) `(funcall #'(lambda () (list ,@li))))
