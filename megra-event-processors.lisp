@@ -382,6 +382,25 @@
       (setf (gethash name *processor-directory*) new-inst))
     new-inst))
 
+;; shorthand 
+(defun s-oscb (param upper-boundary lower-boundary &key (cyc 128) 
+						     (at nil)
+						     (keep-state t)
+						     (track-state t)
+						     (f #'all-p)
+						     (store nil)
+						     (id nil))  
+  (let ((s-osc-name (if id
+			id
+			(gensym))))
+    (stream-oscillate-between s-osc-name upper-boundary lower-boundary
+			      :cycle cyc
+			      :affect-transition at
+			      :keep-state keep-state
+			      :track-state track-state
+			      :filter f
+			      :store store)))
+
 (defclass chance-combine (modifying-event-processor)
   ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
    (combi-chance :accessor combi-chance :initarg :combi-chance)
@@ -425,7 +444,7 @@
   (let ((cc-name (if id
 		     id
 		     (gensym))))
-    (incudine::msg info "~D" cc-name)
+    ;;(incudine::msg info "~D" cc-name)
     (chance-combine cc-name chance event :affect-transition at :filter f)))
 
 ;; a random walk on whatever parameter ...
@@ -467,6 +486,30 @@
       (setf (gethash name *processor-directory*) new-inst))
     new-inst))
 
+;; shorthand
+(defun s-brow (param lower upper &key (step 0.01)
+					(wrap t)
+					(limit nil) 
+					(at nil)
+					(keep-state t)
+					(track-state t)
+					(f #'all-p)
+					(store nil)
+					(id nil))
+  (let ((s-brow-name (if id
+			 id
+			 (gensym))))
+    (stream-brownian-motion s-brow-name param
+			    :step-size step
+			    :wrap wrap
+			    :limit limit
+			    :ubound upper
+			    :lbound lower
+			    :affect-transition at
+			    :filter f
+			    :track-state track-state
+			    :keep-state keep-state
+			    :store store)))
 
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
