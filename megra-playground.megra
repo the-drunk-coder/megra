@@ -10,23 +10,47 @@
 
 (grow 'bl :durs '(128))
 
+
+
 (s 'hi ()
-  (cc 50 (dur 256))
-  (cc 20 (rate (oscil 0.9 1.4) :combi-fun #'*) :f #'snare-p)
-  (cc 100 (start (oscil 0.0 1.0)) :f #'utter-p)
+  ;;(cc 50 (dur 256))
+  ;;(cc 20 (rate (oscil 0.9 1.4) :combi-fun #'*) :f #'snare-p)
+  ;;(cc 100 (start (oscil 0.0 1.0)) :f #'utter-p)
+  ;;(s-oscb 'lp-freq 30 10002)
   (g 'bl ()
     (n 1 (bd '|909|))
-    (n 2 (sn 'cr78))
-    (n 3 (utter 'kinski))
+    (n 2 (sn 'cr78 :rev 0.1) (bd '|909|))
+    (n 3 (utter 'kinski) (bd '|909|))
     (e 1 2 :p 100)
     (e 2 3 :p 100)
     (e 3 1 :p 100)))
 
 (clear)
 
+(defun foo (&rest args)
+  (let* ((rest (copy-seq args)) ;; must not modify "args"
+	 ;;(a (find-keyword-and-remove-from-rest :a rest :default 1))
+	 ;;(b (find-keyword-and-remove-from-rest :b rest :default 2)))
+	 )
+    (print rest))
+  )
 
 
-(pring 'ki t)
+
+
+(delete :a *alla*)
+
+(remove 2 '(1 2 2 3))
+
+(nth 1 '(1 2 3))
+
+(loop for a in *alla* if (typep a 'keyword) collect a)
+
+(defparameter *alla* '(:a 1 :b 2 4 3 4 2 :d 4))
+
+(print (purge-all-keywords '(:a :b :d) *alla*))
+
+(find-keyword-val :a *alla*)
 
 (grow 'ho :durs '(512) :variance 0.4)
 
@@ -45,7 +69,7 @@
 
 (discourage 'ho)
 (s 'ho ()
-  (cyc 'ho (l (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
+   (cyc 'ho (l (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
 
 (s 'hhasd (:sync-to 'ho :shift 256)  
   (cyc 'hh (e- (elec 'accent 'hat)) 512))

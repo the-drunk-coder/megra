@@ -1,13 +1,69 @@
 (in-package :megra)
 
+;; some helpers
+(defun remove-nth (n list)
+  (nconc (subseq list 0 n) (nthcdr (1+ n) list)))
+
+(defun find-keyword-val (keyword seq &key default)
+  (if (and
+       (member keyword seq)
+       (cadr (member keyword seq))
+       (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
+      (let* ((pos (position keyword seq))
+	     (val (nth (+ pos 1) seq)))
+	val)
+      default))
+
+(defun purge-keyword (keyword seq)
+  (remove keyword (remove-nth (+ 1 (position keyword seq)) seq)))
+
+(defun purge-all-keywords (keywords seq)
+  (let ((accum seq))
+    (mapcar #'(lambda (kw) (setf accum (purge-keyword kw accum))) keywords)
+    accum))
+
 (defmacro define-category-sampling-event (name dur)
   `(progn
-     (defun ,(read-from-string name) (&rest keywords)
-       (grain (string-downcase ,name)
-	      (get-matching-sample-name ,name keywords) :dur ,dur
-	      :lvl 0.4 :rate 1.0 :start 0.00 :atk 1 :rel 7
-	      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :pos 0.5
-	      :tags '(,(read-from-string name))))
+     (defun ,(read-from-string name) (&rest rest)
+       (let* ((args (copy-seq rest))
+	      (lvl (find-keyword-val :lvl args :default 0.4))
+	      (dur (find-keyword-val :dur args :default ,dur))
+	      (dst (find-keyword-val :dst args :default 2.0))
+	      (azi (find-keyword-val :azi args :default 0.0))
+	      (pos (find-keyword-val :pos args :default 0.5))
+	      (ele (find-keyword-val :ele args :default 0.0))
+	      (ambi-p (find-keyword-val :ambi-p args :default nil))
+	      (start (find-keyword-val :start args :default 0.0))
+	      (rate (find-keyword-val :rate args :default 1.0))
+	      (atk (find-keyword-val :atk args :default 1))
+	      (rel (find-keyword-val :rel args :default 7))
+	      (hp-freq (find-keyword-val :hp-freq args :default 10))
+	      (hp-q (find-keyword-val :hp-q args :default 0.4))
+	      (lp-q (find-keyword-val :lp-q args :default 0.1))
+	      (lp-freq (find-keyword-val :lp-freq args :default 5000))
+	      (lp-dist (find-keyword-val :lp-dist args :default 1.0))
+	      (lp-freq-lfo-depth (find-keyword-val :lp-freq-lfo-depth args :default 0.0))
+	      (lp-freq-lfo-speed (find-keyword-val :lp-freq-lfo-speed args :default 0.0))
+	      (lp-freq-lfo-phase (find-keyword-val :lp-freq-lfo-phase args :default 0.0))
+	      (pf-q (find-keyword-val :pf-q args :default 10))
+	      (pf-freq (find-keyword-val :pf-freq args :default 1000))
+	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
+	      (rev (find-keyword-val :rev args :default 0.0))
+	      (tags (find-keyword-val :tags args :default '(,(read-from-string name))))
+	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
+	      (search-keywords (purge-all-keywords param-keywords rest)))
+	 (grain (string-downcase ,name)
+		(get-matching-sample-name ,name search-keywords)
+		:dur dur
+		:lvl lvl :rate rate :start start :atk atk :rel rel
+		:lp-dist lp-dist :lp-freq lp-freq :rev rev :pos pos
+		:tags tags :ambi-p ambi-p :dst dst
+		:hp-q hp-q :lp-q lp-q :pf-q hp-q
+		:azi azi :ele ele :lp-freq-lfo-depth lp-freq-lfo-depth
+		:lp-freq-lfo-speed lp-freq-lfo-speed
+		:lp-freq-lfo-phase lp-freq-lfo-phase
+		:pf-freq pf-freq :pf-gain pf-gain)))       
      (defun ,(read-from-string (concatenate 'string name "-p")) (event)
        (member ',(read-from-string name) (event-tags event)))))
 
