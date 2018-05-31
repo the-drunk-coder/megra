@@ -393,13 +393,14 @@
   (let ((s-osc-name (if id
 			id
 			(gensym))))
-    (stream-oscillate-between s-osc-name upper-boundary lower-boundary
+    (stream-oscillate-between s-osc-name param upper-boundary lower-boundary
 			      :cycle cyc
 			      :affect-transition at
 			      :keep-state keep-state
 			      :track-state track-state
 			      :filter f
-			      :store store)))
+			      :store store
+			      )))
 
 (defclass chance-combine (modifying-event-processor)
   ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
