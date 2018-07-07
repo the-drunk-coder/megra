@@ -21,10 +21,15 @@
 (s 'hat (:sync-to 'hi :shift 256)
     (nuc 'hats (hats 'accent) :gap 512))
 
+(grow 'bass2 :variance 0.9 :method 'loop)
 
+(pring 'bass2 t)
+(graph->svg 'bass2 "bass2")
 
-(s 'bass-2 (:sync-to 'hi-2 :shift 0)
-    (nuc 'bass2 (sine 60) :gap 512))
+(discourage 'bass2)
+
+(s 'bass-2 ()
+    (nuc 'bass2 (tri 100 :dur 128) :gap 512 :reset t))
 
 (s 'hi-2 ()
   (cc (fade 60 30) (lvl 0.0) :f #'utter-p)
@@ -79,7 +84,7 @@
 
 (typep (oscil 256 1024) 'param-mod-object)
 
-(pring 'ho)
+(pring 'hats t)
 
 (discourage 'ho)
 (s 'ho ()
