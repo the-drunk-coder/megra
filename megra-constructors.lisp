@@ -143,7 +143,8 @@
 	      (when (or reset (not (source-graph graph-proc)))
 		;; either it's new or reset ... 		
 		(when (< count len)
-		  (insert-edge src-graph (edge count (+ count 1) :prob 100 :dur dur)))		
+		  (insert-edge src-graph
+			       (edge count (+ count 1) :prob 100 :dur dur)))
 		(when (> rep 0)
 		  (when (< (random 100) rep)
 		    (insert-edge src-graph (edge count count :prob 100 :dur dur))
@@ -154,9 +155,9 @@
 					     (+ count 1)
 					     1)
 					 :dur dur :prob 100))))))
-	      (incf count)
-	      ) events)
-    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...     
+	      (incf count))
+	  events)
+    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...
       (insert-edge src-graph (edge count 1 :prob 100 :dur dur)))
     (rebalance-edges src-graph)
     ;; randomize if necessary ... 
