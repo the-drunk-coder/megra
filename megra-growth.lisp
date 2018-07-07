@@ -51,7 +51,8 @@
 ;;(defmethod grow-graph-complete ((g graph-event-processor) &key (var 0) durs functors))
 
 ;; Grow graph in a fashion that becomes a number of interlocking three-event loops ... 
-(defmethod grow-graph-triloop ((g graph-event-processor) &key (var 0) durs functors)
+(defmethod grow-graph-triloop ((g graph-event-processor) &key (var 0)
+							   durs functors rnd)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (reverse-path (reverse path))
 	 (source-id (car reverse-path))	 
@@ -84,7 +85,8 @@
     (rebalance-edges (source-graph g))))
 
 ;; Grow graph in a fashion that becomes a number of interlocking three-event loops ... 
-(defmethod grow-graph-quadloop ((g graph-event-processor) &key (var 0) durs functors)
+(defmethod grow-graph-quadloop ((g graph-event-processor) &key (var 0)
+							    durs functors rnd)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (reverse-path (reverse path))
 	 (source-id (car reverse-path))	 
@@ -120,7 +122,8 @@
     (rebalance-edges (source-graph g))))
 
 
-(defmethod grow-graph-loop ((g graph-event-processor) &key (var 0) durs functors)
+(defmethod grow-graph-loop ((g graph-event-processor) &key (var 0)
+							durs functors rnd)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (reverse-path (reverse path))
 	 (dest-id (car reverse-path))	 
@@ -194,31 +197,36 @@
 	))))
 
 (defun grow (graph-id &key (variance 0)
-			(growth-replication 10)
-			(shrink-replication 20)
+			;;(growth-replication 10)
+			;;(shrink-replication 20)
 			durs
 			functors
-			(method 'old))
+			(method 'old)
+			(rnd 0))
   (incudine::msg info "growing graph ~D" graph-id) 
   (cond ((eql method 'triloop)
 	 (grow-graph-triloop (gethash graph-id *processor-directory*)
 		     :var variance
 		     :durs durs
-		     :functors functors))
+		     :functors functors
+		     :rnd rnd))
 	((eql method 'quadloop)
 	 (grow-graph-quadloop (gethash graph-id *processor-directory*)
 		     :var variance
 		     :durs durs
-		     :functors functors))
+		     :functors functors
+		     :rnd rnd))
 	((eql method 'loop)
 	 (grow-graph-loop (gethash graph-id *processor-directory*)
 		     :var variance
 		     :durs durs
-		     :functors functors))
+		     :functors functors
+		     :rnd rnd))
 	(t (grow-graph (gethash graph-id *processor-directory*)
 		     :var variance
 		     :durs durs
-		     :functors functors))))
+		     :functors functors
+		     :rnd rnd))))
 
 (defun prune (graph-id &key exclude durs)
   (incudine::msg info "pruning graph ~D" graph-id) 
