@@ -116,10 +116,9 @@
 			      (event-duration event)
 			      (- (event-duration event)
 				 (* (event-duration event) overlap)))))))
-	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100)))))
-    
-    (setf (source-graph graph-proc) src-graph)
-    (setf (current-node graph-proc) 1)
+	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100))))
+      (setf (current-node graph-proc) 1))    
+    (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
 
 ;; a cycle ... 
@@ -158,12 +157,12 @@
 	      (incf count))
 	  events)
     (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...
-      (insert-edge src-graph (edge count 1 :prob 100 :dur dur)))
+      (insert-edge src-graph (edge (- count 1) 1 :prob 100 :dur dur))
+      (setf (current-node graph-proc) 1))
     (rebalance-edges src-graph)
     ;; randomize if necessary ... 
     (if (> rnd 0) (randomize-edges src-graph rnd))
-    (setf (source-graph graph-proc) src-graph)
-    (setf (current-node graph-proc) 1)
+    (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
 
 
