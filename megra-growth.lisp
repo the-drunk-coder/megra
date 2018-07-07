@@ -66,7 +66,7 @@
 			     (get-edge (source-graph g)
 				       (list (cadr reverse-path))
 				       (car reverse-path))))))))
-    (incudine::msg info "picked: ~D~%" (node-id picked-node))
+    ;;(incudine::msg info "picked: ~D~%" (node-id picked-node))
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (deepcopy-list (node-content picked-node)
@@ -80,7 +80,41 @@
 		 (edge source-id new-id :dur new-dur :prob 100))
     (remove-edge (source-graph g) source-id dest-id)
     (rebalance-edges (source-graph g))))
-		     
+
+
+(defmethod grow-graph-loop ((g graph-event-processor) &key (var 0) durs functors)
+  (let* ((path (traced-path g)) ;; get the trace ...
+	 (reverse-path (reverse path))
+	 (dest-id (car reverse-path))	 
+	 (source-id (cadr reverse-path))
+	 (node-id (nth (random (length path)) path)) ;; pick a node id 
+	 (picked-node (gethash node-id (graph-nodes (source-graph g))))	 
+	 (new-id (+ (graph-max-id (source-graph g)) 1))
+	 (new-node (make-instance 'node :id new-id :content nil :color 'white))
+	 (new-dur (if durs
+		      (nth (random (length durs)) durs)
+		      (transition-duration
+		       (car (edge-content
+			     (get-edge (source-graph g)
+				       (list (cadr reverse-path))
+				       (car reverse-path))))))))
+    ;;(incudine::msg info "source: ~D~%" source-id)
+    ;;(incudine::msg info "dest: ~D~%" dest-id)
+    ;;(incudine::msg info "revpath: ~D~%" reverse-path)
+    ;; inject new content, with some variation 
+    (setf (node-content new-node)
+	  (deepcopy-list (node-content picked-node)
+			 :imprecision var
+			 :functors functors))
+    ;; insert the new node
+    (insert-node (source-graph g) new-node)
+    (insert-edge (source-graph g)
+		 (edge new-id dest-id :dur new-dur :prob 100))
+    (insert-edge (source-graph g)
+		 (edge source-id new-id :dur new-dur :prob 100))
+    (remove-edge (source-graph g) source-id dest-id)
+    (rebalance-edges (source-graph g))))
+
 (defun remove-all (items seq)
   (let ((first-removed (remove (car items) seq)))
     (if (and (cdr items) first-removed)
@@ -128,6 +162,11 @@
 			(method 'old))
   (incudine::msg info "growing graph ~D" graph-id) 
   (cond ((eql method 'triloop)
+	 (grow-graph-triloop (gethash graph-id *processor-directory*)
+		     :var variance
+		     :durs durs
+		     :functors functors))
+	((eql method 'loop)
 	 (grow-graph-loop (gethash graph-id *processor-directory*)
 		     :var variance
 		     :durs durs
