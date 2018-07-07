@@ -3,7 +3,7 @@
 ;; idea:
 ;; pick node from path
 ;; this is, of course, only one possbility to grow a graph ... 
-(defmethod grow-graph ((g graph-event-processor) &key (var 0) durs functors)
+(defmethod grow-graph ((g graph-event-processor) &key (var 0) durs functors rnd)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (source-id (car path))
 	 (reverse-path (reverse path))
@@ -41,6 +41,7 @@
 		 (edge new-id dest-id :dur new-dur :prob (+ 5 (random 20))))
     (insert-edge (source-graph g)
 		 (edge dest-id new-id :dur new-dur :prob (+ 5 (random 20))))
+    (when (> rnd 0) (randomize-edges (source-graph g) rnd))
     (rebalance-edges (source-graph g))))
 
 ;; grow graph in a fashion that becomes a tournament graph ... 
@@ -79,6 +80,7 @@
     (insert-edge (source-graph g)
 		 (edge source-id new-id :dur new-dur :prob 100))
     (remove-edge (source-graph g) source-id dest-id)
+    (when (> rnd 0) (randomize-edges (source-graph g) rnd))
     (rebalance-edges (source-graph g))))
 
 ;; Grow graph in a fashion that becomes a number of interlocking three-event loops ... 
@@ -114,6 +116,7 @@
     (insert-edge (source-graph g)
 		 (edge source-id new-id :dur new-dur :prob 100))
     (remove-edge (source-graph g) source-id dest-id)
+    (when (> rnd 0) (randomize-edges (source-graph g) rnd))
     (rebalance-edges (source-graph g))))
 
 
@@ -148,6 +151,7 @@
     (insert-edge (source-graph g)
 		 (edge source-id new-id :dur new-dur :prob 100))
     (remove-edge (source-graph g) source-id dest-id)
+    (when (> rnd 0) (randomize-edges (source-graph g) rnd))
     (rebalance-edges (source-graph g))))
 
 (defun remove-all (items seq)
