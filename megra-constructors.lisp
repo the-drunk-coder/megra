@@ -84,7 +84,8 @@
     ;; reverse last step
     (decf count)
     (if (eq type 'loop)
-	(insert-edge new-graph (edge count 1 :prob 100 :dur (cadr (car (reverse notes))))))
+	(insert-edge new-graph (edge count 1 :prob 100
+				     :dur (cadr (car (reverse notes))))))
     ;; add random blind edges ...
     (if (> randomize 0) (randomize-edges new-graph randomize))
     (if (gethash name *processor-directory*)
@@ -116,7 +117,9 @@
 			      (- (event-duration event)
 				 (* (event-duration event) overlap)))))))
 	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100)))))
+    
     (setf (source-graph graph-proc) src-graph)
+    (setf (current-node graph-proc) 1)
     (setf (gethash name *processor-directory*) graph-proc)))
 
 ;; a cycle ... 
@@ -158,8 +161,8 @@
     (rebalance-edges src-graph)
     ;; randomize if necessary ... 
     (if (> rnd 0) (randomize-edges src-graph rnd))
-    
     (setf (source-graph graph-proc) src-graph)
+    (setf (current-node graph-proc) 1)
     (setf (gethash name *processor-directory*) graph-proc)))
 
 
