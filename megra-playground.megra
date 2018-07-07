@@ -18,13 +18,14 @@
 
 (clear)
 
-(s 'hat (:sync-to 'hi :shift 256)
+(s 'hat (:sync-to 'bass-2 :shift 256)
     (nuc 'hats (hats 'accent) :gap 512))
 
-(grow 'bass2 :variance 0.9 :method 'loop)
+(grow 'hats :variance 0.3 :method 'loop)
 
 (pring 'bass2 t)
-(graph->svg 'bass2 "bass2")
+
+(graph->svg 'hats "hats2")
 
 (discourage 'bass2)
 
