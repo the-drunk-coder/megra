@@ -19,18 +19,18 @@
 (clear)
 
 (s 'hat (:sync-to 'bass-2 :shift 256)
-    (nuc 'hats (hats 'accent) :gap 512))
+    (nuc 'hats (hats 'accent) :gap 512 :reset t))
 
-(grow 'hats :variance 0.3 :method 'loop)
+(grow 'bass2 :variance 0.3 :method 'quadloop)
 
 (pring 'bass2 t)
 
-(graph->svg 'hats "hats2")
+(graph->svg 'bass2 "bass2" :renderer 'neato)
 
 (discourage 'bass2)
 
 (s 'bass-2 ()
-    (nuc 'bass2 (tri 100 :dur 128) :gap 512 :reset t))
+    (nuc 'bass2 (tri 100 :dur 128) :gap 512))
 
 (s 'hi-2 ()
   (cc (fade 60 30) (lvl 0.0) :f #'utter-p)
