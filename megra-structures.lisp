@@ -56,13 +56,13 @@
 (defclass graph ()
   ((id :accessor graph-id)
    (nodes :accessor graph-nodes)
-   (edges :accessor graph-edges)
+   (outgoing-edges :accessor graph-outgoing-edges)
    (max-id :accessor graph-max-id :initform 0)
    (highest-edge-order :accessor graph-highest-edge-order :initform 0)))
 
 (defmethod initialize-instance :after ((g graph) &key)
   (setf (graph-nodes g) (make-hash-table :test 'eql))
-  (setf (graph-edges g) (make-hash-table :test 'eql)))
+  (setf (graph-outgoing-edges g) (make-hash-table :test 'eql)))
 
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (list (graph-id g) (node-id n)))
@@ -87,13 +87,13 @@
 
 ;; idea: add exclusion list, so this method can be used for disencourage ??
 (defmethod rebalance-edges ((g graph) &key)
-  (loop for order being the hash-keys of (graph-edges g)
+  (loop for order being the hash-keys of (graph-outgoing-edges g)
      do (labels ((sum-probs (edge-list)
 		   (loop for e in edge-list
 		      summing (edge-probability e) into tprob
 		      finally (return tprob))))
 	  (loop for src-edges being the hash-values of
-	       (gethash order (graph-edges g))
+	       (gethash order (graph-outgoing-edges g))
 	     do (let* ((sprob (sum-probs src-edges))
 		       (pdiff (- 100 sprob)))
 		  (cond  ((> pdiff 0)
@@ -118,22 +118,33 @@
   ;; remove node
   (remhash removed-id (graph-nodes g))
   ;; remove outgoing edges from that node ... 
-  (remhash (list removed-id) (gethash 1 (graph-edges g)))
+  (remhash (list removed-id) (gethash 1 (graph-outgoing-edges g)))
   ;; remove higher-order edges that contain the removed id
-  (loop for order being the hash-keys of (graph-edges g)
-     do (loop for src-seq being the hash-keys of (gethash order (graph-edges g))
+  (loop for order being the hash-keys of (graph-outgoing-edges g)
+     do (loop for src-seq being the hash-keys of (gethash order (graph-outgoing-edges g))
 	   do (progn 
 		(when (member removed-id src-seq)
-		  (remhash src-seq (gethash order (graph-edges g))))
+		  (remhash src-seq (gethash order (graph-outgoing-edges g))))
 		;; remove incoming edges ...
-		(when (get-edge g src-seq removed-id)		  
+		(when (get-edge g src-seq removed-id)
+		  ;; each node must have one incoming and one outgoing edge ...
+		  ;; check that condition here !
+		  ;; if node has one incoming edge, but no outgoing edge,
+		  ;; connect back to the predecessor
+		  ;; if node has one outgoing edge, but no incoming,
+		  ;; connect from successor
+		  ;; if node is orphan,
+		  ;; remove ... 
+		  (unless (gethash src-seq (gethash 1 (graph-outgoing-edges g)))
+
+		    )
 		  (remove-edge g src-seq removed-id)))))
   (if rebalance
       (rebalance-edges g)))
 
 ;; fetch the first inbound edge of a node ... 
 (defmethod get-first-inbound-edge-source ((g graph) node-id &key (order 1))
-  (loop for src-seq being the hash-keys of (gethash order (graph-edges g))
+  (loop for src-seq being the hash-keys of (gethash order (graph-outgoing-edges g))
      when (get-edge g src-seq node-id)
 	  return src-seq))
   
@@ -149,12 +160,12 @@
 	      (cons (cons (graph-id g) 'E) (cons (edge-source e)
 						 (edge-destination e)))))
     (let ((edge-order (length edge-source-list)))
-      (unless (gethash edge-order (graph-edges g))
+      (unless (gethash edge-order (graph-outgoing-edges g))
 	(when (> edge-order (graph-highest-edge-order g))
 	  (setf (graph-highest-edge-order g) edge-order))
-	(setf (gethash edge-order (graph-edges g))
+	(setf (gethash edge-order (graph-outgoing-edges g))
 	      (make-hash-table :test 'equal)))
-      (let* ((order-dict (gethash edge-order (graph-edges g)))
+      (let* ((order-dict (gethash edge-order (graph-outgoing-edges g)))
 	     (edges (gethash edge-source-list order-dict)))
 	;; (incudine::msg info "add edge, order ~D
 	;; edge-source ~D" edge-order (edge-source e))
@@ -169,7 +180,7 @@
 			  (car source)
 			  source))
 	 (edge-order (length edge-source-list))
-	 (order-dict (gethash edge-order (graph-edges g)))
+	 (order-dict (gethash edge-order (graph-outgoing-edges g)))
 	 (source-edges (gethash edge-source-list order-dict)))
     (setf (gethash edge-source-list order-dict)
 	  (remove (edge real-source destination :dur 0 :prob 0) source-edges :test #'edge-equals))
@@ -188,7 +199,7 @@
 		     (car edges)
 		     (find-destination (cdr edges) destination)))))
     (let ((current-edges (gethash source
-				  (gethash (length source) (graph-edges g)))))
+				  (gethash (length source) (graph-outgoing-edges g)))))
       (find-destination current-edges destination))))
 
 ;; helper function to add random edges to a graph ... 

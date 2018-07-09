@@ -38,7 +38,7 @@
   (format output "digraph{~%")
   (loop for val being the hash-values of (graph-nodes g)
      do (node->dot val :output output))
-  (loop for val being the hash-values of (gethash 1 (graph-edges g))
+  (loop for val being the hash-values of (gethash 1 (graph-outgoing-edges g))
      do (mapc #'(lambda (edge) (edge->dot edge :output output)) val))
   (format output "~%}"))
 

@@ -19,18 +19,29 @@
 (clear)
 
 (s 'hat (:sync-to 'bass-2 :shift 256)
-    (nuc 'hats (hats 'accent) :gap 512 :reset t))
+    (nuc 'hats (hats 'accent) :gap 512))
 
-(grow 'bass2 :variance 0.3 :method 'quadloop)
+(grow 'bass2 :variance 0.32 :method 'triloop)
+
+(prune 'bass2)
+
+(edge-destination (car (gethash '(20)
+	 (gethash 1
+		  (graph-edges
+		   (source-graph (gethash 'bass2 *processor-directory*))))))
+)
+
+(current-node (gethash 'bass2 *processor-directory*))
 
 (pring 'bass2 t)
 
-(graph->svg 'bass2 "bass2" :renderer 'neato)
+(graph->svg 'bass2 "bass2post" :renderer 'neato)
 
-(discourage 'bass2)
+(encourage 'bass2)
 
 (s 'bass-2 ()
-    (nuc 'bass2 (tri 100 :dur 128) :gap 512))
+  (cc 100 (lvl 0.3))
+  (nuc 'bass2 (tri 100 :dur 70 :rel 60) :gap 100))
 
 (s 'hi-2 ()
   (cc (fade 60 30) (lvl 0.0) :f #'utter-p)
