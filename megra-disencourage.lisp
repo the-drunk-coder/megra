@@ -20,7 +20,7 @@
 	       (discouraged-edges (shuffle-list
 				   (remove encouraged-edge
 					   ;; get edges for order 1 ... 
-					   (gethash edge-source (gethash 1 (graph-edges (source-graph g)))))))
+					   (gethash edge-source (gethash 1 (graph-outgoing-edges (source-graph g)))))))
 	       (discourage-points prob-mod))
 	  ;;(format t "encourage ~a ~a" src dest)
 	  ;; the edge to encourage
@@ -55,7 +55,7 @@
 					   dest))
 	       (encouraged-edges (shuffle-list
 				  (remove discouraged-edge
-					  (gethash edge-source (gethash 1 (graph-edges (source-graph g)))))))
+					  (gethash edge-source (gethash 1 (graph-outgoing-edges (source-graph g)))))))
 	       (encourage-points prob-mod))
 	  ;;(format t "discourage ~a ~a" src dest)
 	  ;; the edge to discourage

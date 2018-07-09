@@ -156,8 +156,8 @@
 			     #\tab
 			     (print-node
 			      (gethash key (graph-nodes (source-graph g))))))	  
-	  (loop for order being the hash-keys of (graph-edges (source-graph g))
-	     append (let ((order-edges (gethash order (graph-edges (source-graph g)))))
+	  (loop for order being the hash-keys of (graph-outgoing-edges (source-graph g))
+	     append (let ((order-edges (gethash order (graph-outgoing-edges (source-graph g)))))
 		      (loop for key being the hash-keys of order-edges
 			 append (mapcar
 				 #'(lambda (edge) (format nil "~C~a~%" #\tab (print-edge edge)))
@@ -247,8 +247,8 @@
     (loop named order-loop for order from
 	 (graph-highest-edge-order (source-graph g)) downto 1
        ;; iterate over the edge orders ...
-       if (gethash order (graph-edges (source-graph g)))
-       do (let ((edges-for-order (gethash order (graph-edges (source-graph g))))) 
+       if (gethash order (graph-outgoing-edges (source-graph g)))
+       do (let ((edges-for-order (gethash order (graph-outgoing-edges (source-graph g))))) 
 	    ;;(incudine::msg info "edge order: ~D" order)
 	    (loop for pattern being the hash-keys of edges-for-order
 	       ;; now, not only single nodes but also paths can serve as "source"
