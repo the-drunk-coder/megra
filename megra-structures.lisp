@@ -116,31 +116,88 @@
 					    (incf pdiff))
 					  (remove chosen-idx indices))))))))))))
 
-(defmethod remove-node ((g graph) removed-id &key (rebalance t))
-  ;; remove node
-  (remhash removed-id (graph-nodes g))
-  ;; remove outgoing edges from that node ... 
-  (remhash (list removed-id) (gethash 1 (graph-outgoing-edges g)))
+(in-package :megra)
+;; return lists of all nodes that have been "touched",
+;; make new connections between lists if necessary ... 
+;; parent and child isn't totally precise here as
+;; the graphs aren't hierachical, but i didn't find
+;; more intuitive names ... 
+(defmethod collect-parent-ids-and-durations ((g graph) removed-id &key order)
+  (let ((edges (gethash removed-id (gethash order (graph-incoming-edges g)))))
+    (mapcar #'(lambda (edge) (list (edge-source edge)
+			      (transition-duration (car (edge-content edge)))))
+	    edges)))
+
+(defmethod collect-child-ids-and-durations ((g graph) removed-id &key order)
+  (let ((edges (gethash removed-id (gethash order (graph-outgoing-edges g)))))
+    (mapcar #'(lambda (edge) (list (edge-destination edge)
+			      (transition-duration (car (edge-content edge)))))
+	    edges)))
+
+(defmethod remove-edges-containing-id ((g graph) id)
   ;; remove higher-order edges that contain the removed id
   (loop for order being the hash-keys of (graph-outgoing-edges g)
-     do (loop for src-seq being the hash-keys of (gethash order (graph-outgoing-edges g))
-	   do (progn 
-		(when (member removed-id src-seq)
-		  (remhash src-seq (gethash order (graph-outgoing-edges g))))
-		;; remove incoming edges ...
-		(when (get-edge g src-seq removed-id)
-		  ;; each node must have one incoming and one outgoing edge ...
-		  ;; check that condition here !
-		  ;; if node has one incoming edge, but no outgoing edge,
-		  ;; connect back to the predecessor
-		  ;; if node has one outgoing edge, but no incoming,
-		  ;; connect from successor
-		  ;; if node is orphan,
-		  ;; remove ... 
-		  (unless (gethash src-seq (gethash 1 (graph-outgoing-edges g)))
+     do (loop for src-seq being the hash-keys of
+	     (gethash order (graph-outgoing-edges g))
+	   do (when (member id src-seq)
+		  ;; damn, that doesn't remove the edges in the incoming table ! 
+		  (remove-edge g src-seq id)))))
 
-		    )
-		  (remove-edge g src-seq removed-id)))))
+(defmethod has-incoming-1st-order ((g graph) id &key)
+  (< 0 (length (gethash id (gethash 1 (graph-incoming-edges g))))))
+
+(defmethod has-outgoing-1st-order ((g graph) id &key)
+  (< 0 (length (gethash id (gethash 1 (graph-outgoing-edges g))))))
+
+(defmethod remove-node ((g graph) removed-id &key (rebalance t))
+  (loop for order being the hash-keys of (graph-outgoing-edges g)
+     do (if (eql order 1)
+	    (let ((involved-parents (collect-parent-ids-and-durations
+				     g
+				     removed-id
+				     :order order))
+		  (involved-children (collect-child-ids-and-durations
+				      g
+				      (list removed-id)
+				      :order order)))
+	      (incudine::msg error "par ~D~%" involved-parents)
+	      (incudine::msg error "chi ~D~%" involved-children)
+	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
+		    involved-parents)
+	      (mapc #'(lambda (ch) (remove-edge g removed-id (car ch)))
+		    involved-children)
+	      ;; now, check if all of the involved nodes are still valid, that is,
+	      ;; if they still have one incoming- and one outgoing
+	      ;; first order edge ...
+	      (incudine::msg error "rem inc o1")
+	      (loop for node in involved-parents
+		 do (unless (has-outgoing-1st-order g (car node))
+		      (insert-edge g (edge (car node)
+					   (car (nth
+						 (random (length involved-children))
+						involved-children))
+					   :prob 100 :dur (cadr node)))))
+	      (incudine::msg error "rem outgoing o1")
+	      (loop for node in involved-children
+		 do (unless (has-incoming-1st-order g (car node))
+		      (insert-edge g (edge (nth (random (length involved-parents))
+						involved-parents)
+					   (car node)
+					   :prob 100 :dur (cadr node))))))
+	    ;; there are only incoming higher-order edges ...
+	    (let ((involved-parents (collect-parent-ids-and-durations
+				     g
+				     removed-id
+				    :order order)))
+	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
+		    involved-parents))))
+  ;; now, check if there's any higher order edge that contains
+  ;; the removed node, and remove it ...
+  (incudine::msg error "rem cont hoe")
+  (remove-edges-containing-id g removed-id)
+  ;; remove node from registrer ...
+  (remhash removed-id (graph-nodes g))
+  ;; if specified, rebalance edges ... 
   (if rebalance
       (rebalance-edges g)))
 
