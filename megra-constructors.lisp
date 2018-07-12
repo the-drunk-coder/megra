@@ -77,9 +77,13 @@
     (setf (graph-id new-graph) name)
     (mapc #'(lambda (note)	      
 	      (insert-node new-graph (node count
-					   (mid (car note) :lvl level :dur (- (cadr note) 10))))
+					   (mid (car note)
+						:lvl level
+						:dur (- (cadr note) 10))))
 	      (if (< count len)
-		  (insert-edge new-graph (edge count (+ count 1) :prob 100 :dur (cadr note))))
+		  (insert-edge new-graph (edge count (+ count 1)
+					       :prob 100
+					       :dur (cadr note))))
 	      (incf count)) notes)
     ;; reverse last step
     (decf count)
@@ -108,7 +112,14 @@
 			   (make-instance 'graph))
 			  (t (source-graph graph-proc)))))
     (setf (graph-id src-graph) name)
-    (graph-add-direct src-graph (list (node 1 event)))
+    (incudine::msg error "~D~%" (typep event 'list ))
+    (graph-add-direct src-graph (list 
+				 (make-instance 'node
+						:id 1 
+						:content (if (typep event 'list)
+							     event
+							     (list event))
+						:color 'white)))
     (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ... 
       (let ((dur (cond ((typep gap 'param-mod-object) gap)
 		       (gap (- gap (* gap overlap)))
