@@ -116,7 +116,6 @@
 					    (incf pdiff))
 					  (remove chosen-idx indices))))))))))))
 
-(in-package :megra)
 ;; return lists of all nodes that have been "touched",
 ;; make new connections between lists if necessary ... 
 ;; parent and child isn't totally precise here as

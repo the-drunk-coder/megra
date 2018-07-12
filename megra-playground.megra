@@ -14,9 +14,14 @@
 
 (clear)
 
+(combine-single-events (lvl 0.3) (ctrl (incudine::msg error "hi")))
+
 (s 'hat (:sync-to 'bass-2 :shift 100)
   (cc 40 (lvl 0.0))
-  (nuc 'hats (hats 'accent :rate 1.3) :gap 200 :reset t))
+  (nuc 'hats (list (hats 'accent :rate 1.3 :rev 0.001)
+		   (popctrl 'self 0.4 :pgrow 4 :pprune 2
+			    :durs '(50 100 100 200) :exclude '(1)))
+       :gap 200 :reset t))
 
 (prune 'bass2)
 
@@ -26,15 +31,22 @@
 (clear)
 (stop)
 
-(grow 'bass2 :variance 0.9 :method 'triloop)
+(grow 'bass2 :variance 0.9 :method 'old)
 
 (prune 'bass2)
 
-(graph->svg 'bass2 "bass2post" :renderer 'neato)
+(graph->svg 'hats "bass2post" :renderer 'neato)
+
+(handle-event (popctrl 'self 0.4 :pgrow 100 :exclude '(1)) 1 )
 
 (s 'bass-2 ()
   (cc 100 (lvl 0.3))
-  (nuc 'bass2 (tri 100 :dur 70 :rel 60) :gap 100))
+  (nuc 'bass2 (list 
+	       ;;(tri 200 :dur 70 :rel 60)
+	       ;;(ctrl (incudine::msg error "hi"))
+	       (tri 100 :dur 70 :rel 60)
+	       (popctrl 'self 0.4 :pgrow 5 :pprune 4 :exclude '(1)))
+       :gap 100 :reset t))
 
 (s 'hi-2 ()
   (cc (fade 60 30) (lvl 0.0) :f #'utter-p)
