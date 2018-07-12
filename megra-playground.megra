@@ -8,50 +8,29 @@
        after a short while ...
        short break)
 
-(grow 'hats :durs '(256) :variance 0.9)
+(grow 'hats :durs '(50 100 200 200 100 100) :variance 0.1 :method 'triloop)
 
 (grow 'bl :durs '(512) :variance 0.1)
 
-(prune 'bl)
-
-(grow 'basas :durs '(128) :variance 0.2 :functors '(((pitch) (* 1.2))))
-
 (clear)
 
-(s 'hat (:sync-to 'bass-2 :shift 256)
-    (nuc 'hats (hats 'accent) :gap 512))
-
-(grow 'bass2 :variance 0.9 :method 'old)
-
-(collect-child-ids-and-durations (source-graph
-				  (gethash 'bass2 *processor-directory*))
-				 1 :order 1)
-
-(collect-incoming-1st-order-ids (source-graph (gethash 'bass2 *processor-directory*)) 2)
-
-(gethash '(2) (gethash 1 (graph-outgoing-edges (source-graph (gethash 'bass2 *processor-directory*)))))
-
-(gethash 12 (gethash 1 (graph-incoming-edges (source-graph (gethash 'bass2 *processor-directory*)))))
-
-(format t "~D~%"(get-edge (source-graph (gethash 'bass2 *processor-directory*)) '(12) 2))
-
-(get-first-inbound-edge-source (source-graph (gethash 'bass2 *processor-directory*)) 2)
-
-(remove-node (source-graph (gethash 'bass2 *processor-directory*)) 2)
-
-(remove-edge (source-graph (gethash 'bass2 *processor-directory*)) '(12) 2)
+(s 'hat (:sync-to 'bass-2 :shift 100)
+  (cc 40 (lvl 0.0))
+  (nuc 'hats (hats 'accent :rate 1.3) :gap 200 :reset t))
 
 (prune 'bass2)
 
 (pring 'bass2 t)
 
-(graph->svg 'bass2 "bass2post" :renderer 'neato)
-
-(remove-node )
-
 (discourage 'bass2)
 (clear)
 (stop)
+
+(grow 'bass2 :variance 0.9 :method 'triloop)
+
+(prune 'bass2)
+
+(graph->svg 'bass2 "bass2post" :renderer 'neato)
 
 (s 'bass-2 ()
   (cc 100 (lvl 0.3))
