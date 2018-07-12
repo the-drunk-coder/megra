@@ -160,8 +160,8 @@
 				      g
 				      (list removed-id)
 				      :order order)))
-	      (incudine::msg error "par ~D~%" involved-parents)
-	      (incudine::msg error "chi ~D~%" involved-children)
+	      ;;(incudine::msg error "par ~D~%" involved-parents)
+	      ;;(incudine::msg error "chi ~D~%" involved-children)
 	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
 		    involved-parents)
 	      (mapc #'(lambda (ch) (remove-edge g removed-id (car ch)))
@@ -169,7 +169,7 @@
 	      ;; now, check if all of the involved nodes are still valid, that is,
 	      ;; if they still have one incoming- and one outgoing
 	      ;; first order edge ...
-	      (incudine::msg error "rem inc o1")
+	      ;;(incudine::msg error "rem inc o1")
 	      (loop for node in involved-parents
 		 do (unless (has-outgoing-1st-order g (car node))
 		      (insert-edge g (edge (car node)
@@ -177,7 +177,7 @@
 						 (random (length involved-children))
 						involved-children))
 					   :prob 100 :dur (cadr node)))))
-	      (incudine::msg error "rem outgoing o1")
+	      ;;(incudine::msg error "rem outgoing o1")
 	      (loop for node in involved-children
 		 do (unless (has-incoming-1st-order g (car node))
 		      (insert-edge g (edge (car (nth
@@ -194,7 +194,7 @@
 		    involved-parents))))
   ;; now, check if there's any higher order edge that contains
   ;; the removed node, and remove it ...
-  (incudine::msg error "rem cont hoe")
+  ;;(incudine::msg error "rem cont hoe")
   (remove-edges-containing-id g removed-id)
   ;; remove node from registrer ...
   (remhash removed-id (graph-nodes g))
