@@ -747,14 +747,47 @@
 
 
 (define-event
+  :long-name population-control-event
+  :short-name popctrl
+  :parent-events (event)
+  :parameters ((graph-id event-popctrl-graph-id)
+	       (variance event-popctrl-variance)	       
+	       (durs event-popctrl-durs '())
+	       (exclude event-popctrl-exclude '())
+	       (method event-popctrl-method 'triloop)
+	       (pgrow event-popctrl-grow-probability 50)
+	       (pprune event-popctrl-prune-probability 50))
+  :direct-parameters (graph-id variance)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-popctrl-graph-id evt) 'self)
+				       (car (event-source evt))
+				       (event-popctrl-graph-id evt))))
+		  (when (< (random 100) (event-popctrl-grow-probability evt))
+		    (incudine::msg error "i'm growing !!")
+		    (grow resolved-id
+			:variance (event-popctrl-variance evt)
+			:durs (event-popctrl-durs evt)
+			:method (event-popctrl-method evt)))
+		  (when (< (random 100) (event-popctrl-prune-probability evt))
+		    (incudine::msg error "i'm shrinking !!")
+		    (prune resolved-id
+			 :exclude (event-popctrl-exclude evt)
+			 :durs (event-popctrl-durs evt))))	      
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing growth:~% ~D" e)))))
+
+(define-event
   :long-name growth-event
   :short-name growth
   :parent-events (event)
   :parameters ((graph-id event-growth-graph-id)
 	       (variance event-growth-variance)
-	       (replicate event-growth-replicate 10)
-	       (shrink-replicate event-shrink-replicate 20)
-	       (durs event-growth-durs '()))
+	       ;;(replicate event-growth-replicate 10)
+	       ;;(shrink-replicate event-shrink-replicate 20)
+	       (durs event-growth-durs '())
+	       (method event-growth-method 'triloop))
   :direct-parameters (graph-id variance)
   :handler (incudine:nrt-funcall
 	    (handler-case 
@@ -765,7 +798,8 @@
 			:variance (event-growth-variance evt)
 			:growth-replication (event-growth-replicate evt)
 			:shrink-replication (event-shrink-replicate evt)
-			:durs (event-growth-durs evt)))
+			:durs (event-growth-durs evt)
+			:method method))
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing growth:~% ~D" e)))))
@@ -775,7 +809,7 @@
   :short-name shrink
   :parent-events (event)
   :parameters ((graph-id event-shrink-graph-id)
-	       (exclude event-shrink-exclude '())	       	       
+	       (exclude event-shrink-exclude '())
 	       (durs event-shrink-durs '()))
   :direct-parameters (graph-id)
   :handler (incudine:nrt-funcall
