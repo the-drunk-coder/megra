@@ -180,8 +180,9 @@
 	      (incudine::msg error "rem outgoing o1")
 	      (loop for node in involved-children
 		 do (unless (has-incoming-1st-order g (car node))
-		      (insert-edge g (edge (nth (random (length involved-parents))
-						involved-parents)
+		      (insert-edge g (edge (car (nth
+						 (random (length involved-parents))
+						involved-parents))
 					   (car node)
 					   :prob 100 :dur (cadr node))))))
 	    ;; there are only incoming higher-order edges ...
