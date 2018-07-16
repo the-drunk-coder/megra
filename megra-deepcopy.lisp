@@ -197,19 +197,19 @@
 (defmethod deepcopy-object ((e population-control-event) &key (imprecision 0.0)
 							   exclude-keywords
 							   precise-keywords
-							   functors)
-    (let ((chance (random 100)))
-      (when (< chance (event-growth-replicate e))
-	(deepcopy-generic-object e
-				 :imprecision imprecision
-				 :exclude-keywords exclude-keywords
-				 :precise-keywords (append precise-keywords
-							   '(pgrow
-							     pprune
-							     exclude
-							     durs
-							     variance))
-				 :functors functors))))
+							   functors)      
+  (deepcopy-generic-object e
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords (append precise-keywords
+						     '(pgrow
+						       pprune
+						       exclude
+						       durs
+						       variance
+						       phoedge
+						       hoedge-max))
+				 :functors functors))
 
 (defmethod deepcopy (object &key (imprecision 0.0)
 			      exclude-keywords

@@ -78,9 +78,12 @@
 
 ;; a overwrites b, b (or incomplete) is returned ...
 (defmethod combine-single-events ((a event) (b event) &key)
-    (cond ((typep b 'control-event) b) ;; let control events untouched ... 
-	  ((events-compatible a b) (overwrite-slots a b))	  
-	  ;; merge events into a new incomplete event
+  (cond ((typep b 'control-event) b) ;; let control events untouched ...
+	((typep b 'population-control-event) b)
+	((typep b 'growth-event) b)
+	((typep b 'shrink-event) b)
+	((events-compatible a b) (overwrite-slots a b))	  
+	;; merge events into a new incomplete event
 	  (t (let ((new-event (make-instance 'incomplete-event)))
 	      (copy-slots-to-class a new-event)
 	      (copy-slots-to-class b new-event)

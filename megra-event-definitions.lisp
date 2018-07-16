@@ -745,7 +745,6 @@
 (defmacro ctrl (&body funs)
   `(control #'(lambda () ,@funs)))
 
-
 (define-event
   :long-name population-control-event
   :short-name popctrl
@@ -755,8 +754,10 @@
 	       (durs event-popctrl-durs '())
 	       (exclude event-popctrl-exclude '())
 	       (method event-popctrl-method 'triloop)
-	       (pgrow event-popctrl-grow-probability 50)
-	       (pprune event-popctrl-prune-probability 50))
+	       (pgrow event-popctrl-grow-probability 10)
+	       (pprune event-popctrl-prune-probability 10)
+	       (phoedge event-popctrl-higher-order-probability 10)
+	       (hoedge-max event-popctrl-higher-order-max-order 4))
   :direct-parameters (graph-id variance)
   :handler (incudine:nrt-funcall
 	    (handler-case 
@@ -764,16 +765,22 @@
 				       (car (event-source evt))
 				       (event-popctrl-graph-id evt))))
 		  (when (< (random 100) (event-popctrl-grow-probability evt))
-		    (incudine::msg error "i'm growing !!")
-		    (grow resolved-id
+		    (let ((order (if
+				  (< (random 100)
+				     (event-popctrl-higher-order-probability evt))
+				  (+ 2 (random
+					(- (event-popctrl-higher-order-max-order
+					    evt) 2)))
+				  nil)))
+		      (grow resolved-id
 			:variance (event-popctrl-variance evt)
 			:durs (event-popctrl-durs evt)
-			:method (event-popctrl-method evt)))
+			:method (event-popctrl-method evt)
+			:higher-order order)))		  
 		  (when (< (random 100) (event-popctrl-prune-probability evt))
-		    (incudine::msg error "i'm shrinking !!")
 		    (prune resolved-id
-			 :exclude (event-popctrl-exclude evt)
-			 :durs (event-popctrl-durs evt))))	      
+			   :exclude (event-popctrl-exclude evt)
+			   :durs (event-popctrl-durs evt))))	      
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing growth:~% ~D" e)))))
