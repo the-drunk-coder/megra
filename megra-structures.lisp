@@ -87,34 +87,77 @@
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
+(in-package :megra)
+(defun sum-probs (edge-list)
+  (loop for e in edge-list
+     summing (edge-probability e) into tprob
+     finally (return tprob)))
+
+;; rebalance the probabilies for a node (or higher-order source)
+(defmethod rebalance-node ((g graph) node-id &key)
+  (let* ((node-id-list (if (typep node-id 'list)
+			    node-id
+			    (list node-id)))
+	 (order (length node-id-list))
+	 (edge-list (gethash node-id-list (gethash order (graph-outgoing-edges g))))
+	 (sprob (sum-probs edge-list))
+	 (pdiff (- 100 sprob))
+	 (num-edges (length edge-list)))    
+    (cond ((> pdiff 0)	   
+	   ;; IMPORTANT !! CHECK if edge pro is at 0 !! 
+	   (loop while (> pdiff 0)
+	      do (progn
+		   (incf (edge-probability
+			  (nth (random num-edges)
+			       edge-list)))
+		   (decf pdiff))))
+	  ((< pdiff 0)	   
+	   (let ((indices (loop for i from 0 to
+			       (- num-edges 1) collect i)))
+	     (loop while (or (< pdiff 0)
+			     (eql 0 (length indices)))
+		do (let ((chosen-idx
+			  (nth (random (length indices)) indices)))
+		     (if (>= (edge-probability
+			      (nth chosen-idx edge-list)) 1)
+			 (progn
+			   (decf (edge-probability
+				  (nth chosen-idx edge-list)))
+			   (incf pdiff))
+			 (remove chosen-idx indices)))))))))
+
+(defmethod rebalance-nodes ((g graph) node-ids &key)
+  (mapc #'(lambda (id) (rebalance-node g id)) node-ids))
+
 ;; idea: add exclusion list, so this method can be used for disencourage ??
 (defmethod rebalance-edges ((g graph) &key)
   (loop for order being the hash-keys of (graph-outgoing-edges g)
-     do (labels ((sum-probs (edge-list)
-		   (loop for e in edge-list
-		      summing (edge-probability e) into tprob
-		      finally (return tprob))))
-	  (loop for src-edges being the hash-values of
-	       (gethash order (graph-outgoing-edges g))
-	     do (let* ((sprob (sum-probs src-edges))
-		       (pdiff (- 100 sprob)))
-		  (cond  ((> pdiff 0)
-			  ;; IMPORTANT !! CHECK if edge pro is at 0 !! 
-			  (loop while (> pdiff 0)
-			     do (progn
-				  (incf (edge-probability
-					 (nth (random (length src-edges)) src-edges)))
-				  (decf pdiff))))
-			 ((< pdiff 0)
-			  (let ((indices (loop for i from 0 to (- (length src-edges) 1) collect i)))
-				(loop while (or (< pdiff 0) (eql 0 (length indices)))
-				   do (let ((chosen-idx (nth (random (length indices)) indices)))
-					(if (>= (edge-probability (nth chosen-idx src-edges)) 1)
-					  (progn
-					    (decf (edge-probability
-						   (nth chosen-idx src-edges)))
-					    (incf pdiff))
-					  (remove chosen-idx indices))))))))))))
+     do (loop for src-edges being the hash-values of
+	     (gethash order (graph-outgoing-edges g))
+	   do (let* ((sprob (sum-probs src-edges))
+		     (pdiff (- 100 sprob)))
+		(cond ((> pdiff 0)
+		       ;; IMPORTANT !! CHECK if edge pro is at 0 !! 
+		       (loop while (> pdiff 0)
+			  do (progn
+			       (incf (edge-probability
+				      (nth (random (length src-edges))
+					   src-edges)))
+			       (decf pdiff))))
+		      ((< pdiff 0)
+		       (let ((indices (loop for i from 0 to
+					   (- (length src-edges) 1) collect i)))
+			 (loop while (or (< pdiff 0)
+					 (eql 0 (length indices)))
+			    do (let ((chosen-idx
+				      (nth (random (length indices)) indices)))
+				 (if (>= (edge-probability
+					  (nth chosen-idx src-edges)) 1)
+				     (progn
+				       (decf (edge-probability
+					      (nth chosen-idx src-edges)))
+				       (incf pdiff))
+				     (remove chosen-idx indices)))))))))))
 
 ;; return lists of all nodes that have been "touched",
 ;; make new connections between lists if necessary ... 
@@ -123,15 +166,21 @@
 ;; more intuitive names ... 
 (defmethod collect-parent-ids-and-durations ((g graph) removed-id &key order)
   (let ((edges (gethash removed-id (gethash order (graph-incoming-edges g)))))
-    (mapcar #'(lambda (edge) (list (edge-source edge)
-			      (transition-duration (car (edge-content edge)))))
-	    edges)))
+    (remove nil
+	    (mapcar #'(lambda (edge)
+			(unless (eql (edge-source edge) removed-id)
+			  (list (edge-source edge)
+				(transition-duration (car (edge-content edge))))))
+		    edges))))
 
 (defmethod collect-child-ids-and-durations ((g graph) removed-id &key order)
   (let ((edges (gethash removed-id (gethash order (graph-outgoing-edges g)))))
-    (mapcar #'(lambda (edge) (list (edge-destination edge)
-			      (transition-duration (car (edge-content edge)))))
-	    edges)))
+    (remove nil
+	    (mapcar #'(lambda (edge)		        
+			(unless (eql (edge-destination edge) (car removed-id))
+			  (list (edge-destination edge)
+				(transition-duration (car (edge-content edge))))))
+		    edges))))
 
 (defmethod remove-edges-containing-id ((g graph) id)
   ;; remove higher-order edges that contain the removed id
@@ -139,8 +188,12 @@
      do (loop for src-seq being the hash-keys of
 	     (gethash order (graph-outgoing-edges g))
 	   do (when (member id src-seq)
-		  ;; damn, that doesn't remove the edges in the incoming table ! 
-		  (remove-edge g src-seq id)))))
+		(let ((edge-dests
+		       (loop for edge in
+			    (gethash src-seq
+				     (gethash order (graph-outgoing-edges g)))
+				     collect (edge-destination edge))))
+		  (mapc #'(lambda (dest) (remove-edge g src-seq dest)) edge-dests))))))
 
 (defmethod has-incoming-1st-order ((g graph) id &key)
   (< 0 (length (gethash id (gethash 1 (graph-incoming-edges g))))))
@@ -148,7 +201,7 @@
 (defmethod has-outgoing-1st-order ((g graph) id &key)
   (< 0 (length (gethash id (gethash 1 (graph-outgoing-edges g))))))
 
-(defmethod remove-node ((g graph) removed-id &key (rebalance t))
+(defmethod remove-node ((g graph) removed-id &key (rebalance nil))
   (loop for order being the hash-keys of (graph-outgoing-edges g)
      do (if (eql order 1)
 	    (let ((involved-parents (collect-parent-ids-and-durations
@@ -159,8 +212,8 @@
 				      g
 				      (list removed-id)
 				      :order order)))
-	      ;;(incudine::msg error "par ~D~%" involved-parents)
-	      ;;(incudine::msg error "chi ~D~%" involved-children)
+	      (incudine::msg error "par ~D~%" involved-parents)
+	      (incudine::msg error "chi ~D~%" involved-children)
 	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
 		    involved-parents)
 	      (mapc #'(lambda (ch) (remove-edge g removed-id (car ch)))
@@ -275,7 +328,8 @@
 		     (car edges)
 		     (find-destination (cdr edges) destination)))))
     (let ((current-edges (gethash source
-				  (gethash (length source) (graph-outgoing-edges g)))))
+				  (gethash (length source)
+					   (graph-outgoing-edges g)))))
       (find-destination current-edges destination))))
 
 ;; helper function to add random edges to a graph ... 
