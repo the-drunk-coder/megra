@@ -79,10 +79,11 @@
 		 (if events
 		     (progn
 		       (setf (event-source (car events))
-			     (append (node-global-id n) (list count)) )
+			     (append (node-global-id n) (list count)))
 		       (setf (event-tags (car events))
-			     (append (event-tags (car events))
-				     (list (node-color n))))
+			     (remove-duplicates
+			      (append (event-tags (car events))
+				      (list (node-color n)))))
 		       (identify (cdr events) (+ 1 count))))))
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
@@ -201,6 +202,16 @@
 (defmethod has-outgoing-1st-order ((g graph) id &key)
   (< 0 (length (gethash id (gethash 1 (graph-outgoing-edges g))))))
 
+
+;; try to find node with a different id than itself .. .
+(defun pick-node (node connection-duration-list)
+  (let ((other-nodes (loop for nc in connection-duration-list
+			unless (eql (car nc) node)
+			collect (car nc))))
+    (if other-nodes
+	(nth (random (length other-nodes)) other-nodes)
+	node)))
+
 (defmethod remove-node ((g graph) removed-id &key (rebalance nil))
   (loop for order being the hash-keys of (graph-outgoing-edges g)
      do (if (eql order 1)
@@ -225,16 +236,12 @@
 	      (loop for node in involved-parents
 		 do (unless (has-outgoing-1st-order g (car node))
 		      (insert-edge g (edge (car node)
-					   (car (nth
-						 (random (length involved-children))
-						involved-children))
+					   (pick-node (car node) involved-parents)
 					   :prob 100 :dur (cadr node)))))
 	      ;;(incudine::msg error "rem outgoing o1")
 	      (loop for node in involved-children
 		 do (unless (has-incoming-1st-order g (car node))
-		      (insert-edge g (edge (car (nth
-						 (random (length involved-parents))
-						involved-parents))
+		      (insert-edge g (edge (pick-node (car node) involved-children)
 					   (car node)
 					   :prob 100 :dur (cadr node))))))
 	    ;; there are only incoming higher-order edges ...
@@ -286,8 +293,7 @@
 	     (outgoing-edges (gethash edge-source-list order-dict-outgoing))
 	     (order-dict-incoming (gethash edge-order (graph-incoming-edges g)))
 	     (incoming-edges (gethash edge-dest order-dict-incoming)))
-	;; (incudine::msg info "add edge, order ~D
-	;; edge-source ~D" edge-order (edge-source e))
+	(incudine::msg error "add edge, order ~D  edge-source ~D" edge-order (edge-source e))
 	(setf (gethash edge-source-list order-dict-outgoing)
 	      (remove-duplicates (cons e outgoing-edges) :test #'edge-equals))
 	(setf (gethash edge-dest order-dict-incoming)
