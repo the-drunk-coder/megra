@@ -34,7 +34,7 @@
 (defparameter *eval-on-copy* nil)
 
 ;; make int a little bit longer, because the first one or two elements will be dropped
-(defparameter *global-trace-length* 9)
+(defparameter *global-trace-length* 10)
 
 (defvar *encourage-percentage* 5)
 ;; what might be the justification for this split ?

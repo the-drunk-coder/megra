@@ -1,5 +1,13 @@
 (in-package :megra)
 
+(defun pad-path (path)
+  (let ((pathlength (length path)))
+    (if (< pathlength *global-trace-length*)	
+	(loop repeat (- *global-trace-length* pathlength )
+	   do (push (car path) path))
+	path)))
+
+
 (defmethod post-growth-op ((g graph)
 			   path
 			   new-id
@@ -23,7 +31,7 @@
 						   functors
 						   rnd
 						   higher-order)
-  (let* ((path (traced-path g)) ;; get the trace ...
+  (let* ((path (pad-path (traced-path g))) ;; get the trace ...
 	 (source-id (car path))
 	 (reverse-path (reverse path))
 	 (dest-id (car reverse-path))
@@ -79,7 +87,7 @@
 							   functors
 							   rnd
 							   higher-order)
-  (let* ((path (traced-path g)) ;; get the trace ...
+  (let* ((path (pad-path (traced-path g))) ;; get the trace ...
 	 (reverse-path (reverse path))
 	 (source-id (car reverse-path))	 
 	 (dest-id (cadr reverse-path))
@@ -121,9 +129,9 @@
 							    functors
 							    rnd
 							    higher-order)
-  (let* ((path (traced-path g)) ;; get the trace ...
+  (let* ((path (pad-path (traced-path g))) ;; get the trace ...
 	 (reverse-path (reverse path))
-	 (source-id (car reverse-path))	 
+	 (source-id (car reverse-path))
 	 (dest-id (caddr reverse-path))
 	 (node-id (nth (random (length path)) path)) ;; pick a node id 
 	 (picked-node (gethash node-id (graph-nodes (source-graph g))))	 
@@ -164,7 +172,7 @@
 							functors
 							rnd
 							higher-order)
-  (let* ((path (traced-path g)) ;; get the trace ...
+  (let* ((path (pad-path (traced-path g))) ;; get the trace ...
 	 (reverse-path (reverse path))
 	 (dest-id (car reverse-path))	 
 	 (source-id (cadr reverse-path))
@@ -222,16 +230,15 @@
         (remove-all (cdr items) first-removed)
 	first-removed)))
 
-(defmethod prune-graph ((g graph-event-processor) &key exclude durs)
+(defmethod prune-graph ((g graph-event-processor) &key exclude)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (exclude-with-current (append exclude (list (current-node g))))
 	 (reduced-path (remove-all exclude-with-current path)))
     (when reduced-path
       (let* ((prune-id (car (last reduced-path)))) ;; node id to remove ..	 
 	(incudine::msg error "pruning ~D ~%"  prune-id)
-	(setf (traced-path g) (remove prune-id (traced-path g)))
-	
-	(remove-node (source-graph g) prune-id)))))
+	(setf (traced-path g) (remove prune-id (traced-path g)))	
+	(remove-node (source-graph g) prune-id :rebalance t)))))
 
 (defun grow (graph-id &key (variance 0)		        
 			durs
@@ -268,10 +275,10 @@
 		     :rnd rnd
 		     :higher-order higher-order))))
 
-(defun prune (graph-id &key exclude durs)
+(defun prune (graph-id &key exclude)
   (incudine::msg info "pruning graph ~D" graph-id) 
   (prune-graph (gethash graph-id *processor-directory*)
-	       :exclude exclude :durs durs))
+	       :exclude exclude))
 
 (defun branch (chain-id &key (shift 0) (variance 0.1) sync-to functors)
   (incudine::msg info "branching chain ~D" chain-id)			 
