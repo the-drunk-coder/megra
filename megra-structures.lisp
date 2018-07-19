@@ -223,8 +223,8 @@
 				      g
 				      (list removed-id)
 				      :order order)))
-	      (incudine::msg error "par ~D~%" involved-parents)
-	      (incudine::msg error "chi ~D~%" involved-children)
+	      (incudine::msg error "par ~D" involved-parents)
+	      (incudine::msg error "chi ~D" involved-children)
 	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
 		    involved-parents)
 	      (mapc #'(lambda (ch) (remove-edge g removed-id (car ch)))
@@ -236,12 +236,12 @@
 	      (loop for node in involved-parents
 		 do (unless (has-outgoing-1st-order g (car node))
 		      (insert-edge g (edge (car node)
-					   (pick-node (car node) involved-parents)
+					   (pick-node (car node) involved-children)
 					   :prob 100 :dur (cadr node)))))
 	      ;;(incudine::msg error "rem outgoing o1")
 	      (loop for node in involved-children
 		 do (unless (has-incoming-1st-order g (car node))
-		      (insert-edge g (edge (pick-node (car node) involved-children)
+		      (insert-edge g (edge (pick-node (car node) involved-parents)
 					   (car node)
 					   :prob 100 :dur (cadr node))))))
 	    ;; there are only incoming higher-order edges ...
