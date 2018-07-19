@@ -3,10 +3,9 @@
 (defun pad-path (path)
   (let ((pathlength (length path)))
     (if (< pathlength *global-trace-length*)	
-	(loop repeat (- *global-trace-length* pathlength )
-	   do (push (car path) path))
-	path)))
-
+	(loop repeat (- *global-trace-length* pathlength)
+	   do (push (car path) path))))
+  path)
 
 (defmethod post-growth-op ((g graph)
 			   path
