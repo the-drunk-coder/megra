@@ -111,8 +111,7 @@
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
 			  (t (source-graph graph-proc)))))
-    (setf (graph-id src-graph) name)
-    (incudine::msg error "~D~%" (typep event 'list ))
+    (setf (graph-id src-graph) name)   
     (graph-add-direct src-graph (list 
 				 (make-instance 'node
 						:id 1 

@@ -293,7 +293,7 @@
 	     (outgoing-edges (gethash edge-source-list order-dict-outgoing))
 	     (order-dict-incoming (gethash edge-order (graph-incoming-edges g)))
 	     (incoming-edges (gethash edge-dest order-dict-incoming)))
-	(incudine::msg error "add edge, order ~D  edge-source ~D" edge-order (edge-source e))
+	(incudine::msg error "add edge, src ~D  dest ~D" (edge-source e) (edge-destination e))
 	(setf (gethash edge-source-list order-dict-outgoing)
 	      (remove-duplicates (cons e outgoing-edges) :test #'edge-equals))
 	(setf (gethash edge-dest order-dict-incoming)

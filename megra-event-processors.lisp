@@ -211,12 +211,13 @@
 			       (t val)))		       
 		       (slot-value object (slot-definition-name slot)))))) copy))
 
+(in-package :megra)
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
   ;; append to trace
   (when (> (trace-length g) 0)
-    (setf (traced-path g) (nconc (traced-path g) (list (current-node g))))
+    (setf (traced-path g) (append (traced-path g) (list (current-node g))))
     (when (> (list-length (traced-path g)) (trace-length g))
       (setf (traced-path g)
 	    (delete (car (traced-path g)) (traced-path g) :count 1))))
@@ -326,7 +327,6 @@
       (gethash (event-source e) (lastval m))
       (slot-value e (modified-property m))))
 
-(in-package :megra)
 (defmethod filter-events ((m modifying-event-processor) events
 			  &key (check-mod-prop t))
   (labels ((current-filter-p (event)
