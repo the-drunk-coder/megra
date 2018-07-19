@@ -758,7 +758,7 @@
 	       (pprune event-popctrl-prune-probability 10)
 	       (phoedge event-popctrl-higher-order-probability 10)
 	       (hoedge-max event-popctrl-higher-order-max-order 4))
-  :direct-parameters (graph-id variance)
+  :direct-parameters (graph-id variance pgrow pprune method)
   :handler (incudine:nrt-funcall
 	    (handler-case 
 	        (let ((resolved-id (if (eql (event-popctrl-graph-id evt) 'self)
@@ -779,8 +779,7 @@
 			:higher-order order)))		  
 		  (when (< (random 100) (event-popctrl-prune-probability evt))
 		    (prune resolved-id
-			   :exclude (event-popctrl-exclude evt)
-			   :durs (event-popctrl-durs evt))))	      
+			   :exclude (event-popctrl-exclude evt))))	      
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing growth:~% ~D" e)))))
