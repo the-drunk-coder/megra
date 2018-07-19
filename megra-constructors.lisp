@@ -129,7 +129,7 @@
 				 (* (event-duration event) overlap)))))))
 	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100)))
 	(setf (current-node graph-proc) 1)
-	(setf (traced-path graph-proc) '(1)))    
+	(setf (traced-path graph-proc) '(1))))   
     (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
 
