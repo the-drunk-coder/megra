@@ -211,7 +211,6 @@
 			       (t val)))		       
 		       (slot-value object (slot-definition-name slot)))))) copy))
 
-(in-package :megra)
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
 (defmethod current-events ((g graph-event-processor) &key)
@@ -511,6 +510,21 @@
 			    :track-state track-state
 			    :keep-state keep-state
 			    :store store)))
+
+(defclass freeze-growth (modifying-event-processor)
+  ((act :accessor freeze-growth-act :initarg :act)))
+
+(defun freeze (act)
+  (make-instance 'freeze-growth :act act :name (gensym)))
+
+;; make state-tracking switchable ??? 
+(defmethod apply-self ((f freeze-growth) events &key)
+  (if (freeze-growth-act f)
+      (remove-if #'(lambda (event) (or (typep event 'growth-event)
+			      (typep event 'shrink-event)
+			      (typep event 'population-control-event)))
+		 events)
+      events))
 
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
