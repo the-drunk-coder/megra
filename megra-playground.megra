@@ -1,5 +1,20 @@
 (in-package :megra)
 
+(pring 'bass4 t)
+(graph->svg 'bass4 "bass2postel" :renderer 'neato)
+
+(stop)
+
+(clear)
+
+(s 'bass-2 ()
+  (cc 100 (lvl 0.3))
+  (nuc 'bass4 (list 	       	       
+	       (tri 100 :dur 70 :rel 60)
+	       (popctrl 'self 0.4 20 20 'quadloop :durs '(100 200)))       
+       :gap 100 :reset nil))
+
+
 ;; define some test graph structures
 
 ;; tell a story ! 
@@ -7,46 +22,81 @@
        after a while ... started playing intense/slowly/... <- probs 
        after a short while ...
        short break)
-
-(grow 'hats :durs '(50 100 200 200 100 100) :variance 0.1 :method 'triloop)
-
-(grow 'bl :durs '(512) :variance 0.1)
-
 (clear)
 
-(combine-single-events (lvl 0.3) (ctrl (incudine::msg error "hi")))
+(graph 'bassline ()
+  (node 1 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (node 2 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (node 3 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (node 4 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (node 5 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (node 6 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (node 7 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+  (edge 1 3 :dur 1000 :prob 100)
+  (edge 3 1 :dur 1000 :prob 100)
+  (edge 2 3 :dur 1000 :prob 100)
+  (edge 3 2 :dur 1000 :prob 100)
+  (edge 3 4 :dur 1000 :prob 100)
+  (edge 4 3 :dur 1000 :prob 100)
+  (edge 4 5 :dur 1000 :prob 100)
+  (edge 5 4 :dur 1000 :prob 100)
+  (edge 5 6 :dur 1000 :prob 100)
+  (edge 6 5 :dur 1000 :prob 100)
+  (edge 5 7 :dur 1000 :prob 100)
+  (edge 7 5 :dur 1000 :prob 100))
+
+(has-incoming-1st-order (source-graph (gethash 'bassline *processor-directory*)) 3)
+(has-outgoing-1st-order (source-graph (gethash 'bassline *processor-directory*)) '(3))
+
+(remove-node (source-graph (gethash 'bassline *processor-directory*)) 4)
 
 (s 'hat (:sync-to 'bass-2 :shift 100)
   (cc 40 (lvl 0.0))
   (nuc 'hats (list (hats 'accent :rate 1.3 :rev 0.001)
-		   (popctrl 'self 0.4 :pgrow 4 :pprune 2
-			    :durs '(50 100 100 200) :exclude '(1)))
+		   (popctrl 'self 0.2 2
+			   2
+			   'quadloop
+			    :durs '(100 200 200 200 200)
+			  
+			    ))
        :gap 200 :reset t))
+
+
+
+
+
+;; doesn't work for higher order ! 
+(collect-child-ids-and-durations
+ (source-graph (gethash 'bass2 *processor-directory*)) '(3) :order 1)
 
 (prune 'bass2)
 
-(pring 'bass2 t)
 
-(discourage 'bass2)
+
+
+
+;; discourage -- avoid modifying unique edges ... 
+;; avoid creating self-referential nodes when removing !
+
+
+;; freeze method to supress further growth !
+;; check behaviour when CHI = NIL !!
+
+(grow 'bass4 :durs '(100 200 200 100 100) :variance 0.2 :method 'quadloop)
+
+(discourage 'bass4)
+
+(prune 'bass4)
+
 (clear)
 (stop)
 
-(grow 'bass2 :variance 0.9 :method 'old)
 
-(prune 'bass2)
 
-(graph->svg 'hats "bass2post" :renderer 'neato)
 
-(handle-event (popctrl 'self 0.4 :pgrow 100 :exclude '(1)) 1 )
-
-(s 'bass-2 ()
-  (cc 100 (lvl 0.3))
-  (nuc 'bass2 (list 
-	       ;;(tri 200 :dur 70 :rel 60)
-	       ;;(ctrl (incudine::msg error "hi"))
-	       (tri 100 :dur 70 :rel 60)
-	       (popctrl 'self 0.4 :pgrow 5 :pprune 4 :exclude '(1)))
-       :gap 100 :reset t))
+(s 'bd (:sync-to 'bass-2)
+  (cc 100 (lvl 0.2))
+  (nuc 'bnuc (bd) :gap 400 :reset t))
 
 (s 'hi-2 ()
   (cc (fade 60 30) (lvl 0.0) :f #'utter-p)
@@ -56,41 +106,11 @@
   (g 'bl-2 ()
     (n 1 (bd '|909|))
     (n 2 (sn 'cr78 :rev 0.1) (bd '|909|))
-    (n 3 (utter 'kinski) (bd '|909|))
+    (n 3 (utter 'myman) (bd '|909|))
     (e 1 2 :p 100)
+    (e 1 3 :p 100)
     (e 2 3 :p 100)
     (e 3 1 :p 100)))
-
-(del bass-2)
-
-(defun foo (&rest args)
-  (let* ((rest (copy-seq args)) ;; must not modify "args"
-	 ;;(a (find-keyword-and-remove-from-rest :a rest :default 1))
-	 ;;(b (find-keyword-and-remove-from-rest :b rest :default 2)))
-	 )
-    (print rest))
-  )
-
-
-
-
-(delete :a *alla*)
-
-(remove 2 '(1 2 2 3))
-
-(nth 1 '(1 2 3))
-
-(loop for a in *alla* if (typep a 'keyword) collect a)
-
-(defparameter *alla* '(:a 1 :b 2 4 3 4 2 :d 4))
-
-(print (purge-all-keywords '(:a :b :d) *alla*))
-
-(find-keyword-val :a *alla*)
-
-(grow 'ho :durs '(512) :variance 0.4)
-
-(dq 'hi)
 
 (branch 'ho :variance 0.4 :functors '(((rate) (* 2.3)) ((lvl) (* 1.5))) :shift 256)
 
@@ -98,11 +118,6 @@
 (s 'hi ()
   (cc 100 (start (oscil 0.01 0.9)))
   (nuc 'ki (utter 'kinski) :gap (oscil 256 1024) :reset t))
-
-(typep (oscil 256 1024) 'param-mod-object)
-
-(pring 'hats t)
-
 (discourage 'ho)
 (s 'ho ()
    (cyc 'ho (l (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
@@ -168,18 +183,6 @@
 
 (stop 'bl)
 
-(current-node (topmost-processor (car (gethash 'bl *branch-directory*)) ))
-
-(clear)
-
-(pull-events (gethash 'b-test *processor-directory*))
-
-(pull-transition (gethash 'b-test *processor-directory*))
-
-(current-node (gethash 'b-test *processor-directory*))
-
-(clear)
-
 (g 'some-more-other-sines ()
     (n 1 (sine 100 :lvl .6 :dur 200))
     (n 2 (sine 200 :lvl .6 :dur 200))
@@ -221,8 +224,7 @@
     (e 3 1 :p 100 :d 300))
 
 (sink 's2 ()  
-  'some-other-sines
-  )
+  'some-other-sines)
 
 (pring)
 
@@ -233,25 +235,11 @@
 (sink 's3 ()
   'some-clone)
 
-(clear)
-
-(current-node (gethash 'some-clone *processor-directory*))
-
-(defparameter *ctrl* (ctrl (grow 'some-other-sines :variance 0.2)))
-
-(defparameter *ctrl-cl* (clone-instance-imprecise *ctrl* 0.2 :recursive t))
-
-(format t "~D ~D~%" (slot-value *ctrl* 'control-function) (slot-value *ctrl-cl* 'control-function))
-
-(clone-imprecise 'some-other-sines 'some-other-clone :variance 0.2)
-
 ;; not sure if this actually creates a copy of a graph ??
 ;; might work when branching from sink, because it clones the
 ;; individual processors ... 
 (clone 'some-other-sines 'some-other-precise-clone)
 
-	
-	
 (pring 'some-other-clone t)
 (pring 'some-other-sines t)
 
@@ -312,34 +300,15 @@
 
 (group 'blba)
 
-(gethash 'blba *group-directory*)
-(gethash 'DEFAULT *group-directory*)
-
 (stop 'DEFAULT)
-
-
-(clear)
 
 (sink 'blub (:shift 0 :group 'a)
   'some-other-sines)
 
-(current-events (gethash 'some-other-sines *processor-directory*))
-
-
-(macroexpand-1 '(sync-progn 's2
-  (sink 's1 (:sync-to nil :branch nil :shift 0 :group 'a ))))
-
 (sync-progn 'blub
   (sink 's2 (:sync-to nil :branch nil :shift 0 :group 'a )))
 
-(gethash 'blub *sync-progn*)
-
-(setf *s)
-
-(clear)
-
-(sink 'drums-sink ()
-  
+(sink 'drums-sink ()  
   (graph 'drums ()
     (node 1 (grain-24db "tutorial_samples" "jazzy_bd" :rev 0.0
 		   :lvl 0.9 :rate 0.9 :lp-q 0.2 :dur 100))
@@ -348,44 +317,26 @@
 		   :lp-freq-lfo-depth 1.0 :lp-freq-lfo-phase 0.5 :lp-freq 9000
 		   :rev 0.0))
     (edge 1 2 :dur 900 :prob 100)
-    (edge 2 1 :dur 900 :prob 100))
-  )
+    (edge 2 1 :dur 900 :prob 100)))
 
 (merg 's2)
-
-(gethash 'drums-sink *branch-directory*)
-
-(clear)
 
 (stop 'drums-sink-clone)
 (stop 'drums-sink)
 
 (clone 'drums 'drums-dl)
-
 (clone 'drums 'drums-dl-2 :track nil)
 
 (sink 'drums-sink-clone (:shift 0)
   (cc 0 (lvl 0.0))
-  'drums-dl
-
-  )
-
+  'drums-dl)
 
 (sink 'drums-sink-clone-2 (:shift 0)
   (cc 0 (lvl 0.0))
-  'drums-dl-2
-
-  )
-
-(clear)
+  'drums-dl-2)
 
 ;; the solution is rather prosaic:
-(sink 'bassline-sink (:sync-to 'drums-sink) ;; <-- sync to ...
-  (graph 'bassline ()
-    (node 1 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-    (node 2 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-    (edge 1 2 :dur 1000 :prob 100)
-    (edge 2 1 :dur 1000 :prob 100)))
+(sink 'bassline-sink (:sync-to 'drums-sink))
 
 (sink 'guitar-sink (:sync-to 'drums-sink :shift 100) ;;<- sync, but wait for 200ms!
   (graph 'guitar ()
@@ -399,8 +350,6 @@
 
 (clear)
 (stop)
-
-(incudine::flush-pending)
 
 (g 'some-sines ()
     (n 1 (tri 'd1 :lvl .6 :lp-freq 1000 :lp-dist 1.0 :dur 200))
@@ -418,10 +367,7 @@
 
 (sink 's1 (:sync-to 's2)
   (cc 0 (rev 0.1))
-  'some-sines
-  )
-
-(clear)
+  'some-sines)
 
 (sink 's2 (:branch t)
   (g 'some-other-sines ()
@@ -438,8 +384,6 @@
     (e '(2 2 2 2 2) 1 :p 50 :d 600)   
     (e 3 1 :p 100 :d 300)))
 
-(gethash 's2 *branch-directory*)
-
 (sink 's2 (:branch t)
   (g 'other-sines ()
     (n 1 (sine 'd6 :lvl .6 :dur 200))
@@ -455,15 +399,6 @@
     (e '(2 2 2 2 2) 1 :p 50 :d 600)   
     (e 3 1 :p 100 :d 300)))
 
-
-(clear)
-
-(stop)
-
-(stop)
-
-(clear)
-
 (sink 's1 ()
   (g 'uno-midi ()
     (n 1 (mid #'(lambda () (+ 20 (random 60))) :lvl .8 :dur 200))
@@ -471,14 +406,10 @@
     (e 1 2 :p 100 :d #'(lambda () (+ 10 (random 900))))
     (e 2 1 :p 100 :d 400)))
 
-(clear)
-
 (sink 's2 () 
   (g 'dos-midi ()
     (n 1 (mid 44 :lvl (fade 0.0 1.0 :steps 10) :dur 200))    
-    (e 1 1 :p 100 :d 256)
-    ))
-
+    (e 1 1 :p 100 :d 256)))
 
 (sink 's2 () 
   (g 'dos-midi ()
@@ -486,19 +417,6 @@
 	      (env '(0.0 1.0 1.0 0.0 0.0 0.5 0.5 0.0) '(10 10 10 10 10 10 10)) :dur 200))    
     (e 1 1 :p 100 :d 256)
     ))
-
-(defparameter *env* (env '(0.0 1.0 1.0 0.0 0.0 0.5 0.5 0.0) '(10 10 10 10 10 10 10)))
-
- 
-
-(pmod-current-from *env*)
-(pmod-current-to *env*) 
-
-(pmod-last-steps *env*)
-
-(evaluate *env*)
-
-(clear)
 
 (sink 's1 ()
   (g 'dos-midi-0 ()
@@ -522,10 +440,8 @@
     (e 3 2 :p 50 :d 256)
     (e 3 1 :p 50 :d 256)
     (e '(3 2 3) 1 :p 90 :d 256)
-    (e '(3 2 3) 2 :p 10 :d 256))
-  )
+    (e '(3 2 3) 2 :p 10 :d 256)))
 
-(stop 's1)
 
 ;; dispatch the graph to make it sound 
 ;; the empty parentheses are the space for additional options
@@ -555,6 +471,7 @@
 (pring 'dur-gen-2)
 
 (stop 'd1)
+
 ;; BUG: first dispatch d1, then d2, then d1 again
 ;; expected: second dispatch has no effect, as pitch-generator
 ;; is already bound ...
@@ -590,12 +507,6 @@
 
 (clear)
 
-(detach (gethash 'lvl-gen *processor-directory*))
-
-(chain-bound (gethash 'dur-gen-2 *processor-directory*))
-
-(clone 'dur-gen 'dur-gen-2)
-
 (dispatch 'd2 ()
   (g 'dur-gen-2 (:combine-mode 'zip :affect-transition t)
     (n 1 (dur 64))
@@ -615,16 +526,6 @@
     (edge 3 1 :prob 60 :dur 1024)
     (edge 3 2 :prob 40 :dur 512))) 
 
-
-
-
-(clear)
-;; deactivate to make it stop
-(deactivate 'uno-midi)
-
-;; use clear to stop and clear all currently playing objects 
-(clear)
-
 ;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi ()
        (node 1 (mid 59 :lvl .8 :dur 1500))
@@ -640,7 +541,6 @@
        (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
        (edge 1 2 :prob 100 :dur 400)
        (edge 2 1 :prob 100 :dur 400))
-
 
 (dispatch 'd1 ()
   'dos-midi)
@@ -679,10 +579,6 @@
 
 (deactivate 'the-grain)
 
-(event-backends (grain "02_instruments" "pizz_f4" :dur 128 :atk 1 :rel 30
-		 :lvl 0.9 :rate 1.0 :rev 0.0		 
-		 :ambi-p t))
-
 (graph 'ambi-test ()
   (node 1 (grain "instr" "pizz_f4" :dur 128 :atk 1 :rel 30
 		 :lvl 0.9 :rate 1.0 :rev 0.0
@@ -692,8 +588,7 @@
   (edge 1 1 :prob 100 :dur 128))
 
 (sink 'lb (:sync-to nil :branch nil :shift 0)
-  'ambi-test
-  )
+  'ambi-test)
 
 (clear)
 
@@ -719,11 +614,9 @@
 		      :lvl 1.0 :rate 1.1 :start 0.01 :rel 7
 		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5 :tags '(fru)))
 
-(print-event (pitch 23) )
+(print-event (pitch 23))
 
 (clear)
-
-(free-all-samples)
 
 (defun is-snare-p (event)
   (member 'snare (event-tags event)))
@@ -1205,7 +1098,6 @@
 ;; total crash ?? how to reproduce ?  -- reversing order of graphs while playing ?
 ;; check -- stream modifiers on pmod events ... should be resolved while
 ;;   copying, but it's not always the casem as it seems ... 
-;; simplify startup 
 ;; akita interface
 ;; graphviz visualizer -> multiple graphs in one svg
 ;; the uniqueness rule for graphs is not really helpful, imagine if you want
@@ -1238,6 +1130,13 @@
 
 
 ;; DONE:
+;; simplify startup 
+;; avoid duplication of tags - done !
+;; growth error !!! dest id can be NIL when path too short ... 
+;; fix reset - done 
+;; re-introduce rebalancing! - done
+;; pruning 1 directly after first grow ... - should be fixed
+;;   results: ERROR: Argument is neither a positive integer nor a positive float: 0
 ;; adding random edges as feature of graph ... 
 ;; clean up auto-named stream mods
 ;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
