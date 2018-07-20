@@ -97,8 +97,8 @@
 ;; rebalance the probabilies for a node (or higher-order source)
 (defmethod rebalance-node ((g graph) node-id &key)
   (let* ((node-id-list (if (typep node-id 'list)
-			    node-id
-			    (list node-id)))
+			   node-id
+			   (list node-id)))
 	 (order (length node-id-list))
 	 (edge-list (gethash node-id-list (gethash order (graph-outgoing-edges g))))
 	 (sprob (sum-probs edge-list))
@@ -193,7 +193,7 @@
 		       (loop for edge in
 			    (gethash src-seq
 				     (gethash order (graph-outgoing-edges g)))
-				     collect (edge-destination edge))))
+			  collect (edge-destination edge))))
 		  (mapc #'(lambda (dest) (remove-edge g src-seq dest)) edge-dests))))))
 
 (defmethod has-incoming-1st-order ((g graph) id &key)
@@ -212,6 +212,11 @@
 	(nth (random (length other-nodes)) other-nodes)
 	node)))
 
+
+
+;; to be done (to keep graph connected!): when
+;; no parent or child need "treatment", add one connection
+;; between the two ...
 (defmethod remove-node ((g graph) removed-id &key (rebalance nil))
   (loop for order being the hash-keys of (graph-outgoing-edges g)
      do (if (eql order 1)
@@ -232,23 +237,23 @@
 	      ;; now, check if all of the involved nodes are still valid, that is,
 	      ;; if they still have one incoming- and one outgoing
 	      ;; first order edge ...
-	      ;;(incudine::msg error "rem inc o1")
-	      (loop for node in involved-parents
-		 do (unless (has-outgoing-1st-order g (car node))
-		      (insert-edge g (edge (car node)
-					   (pick-node (car node) involved-children)
-					   :prob 100 :dur (cadr node)))))
-	      ;;(incudine::msg error "rem outgoing o1")
-	      (loop for node in involved-children
-		 do (unless (has-incoming-1st-order g (car node))
-		      (insert-edge g (edge (pick-node (car node) involved-parents)
-					   (car node)
-					   :prob 100 :dur (cadr node))))))
+	      ;;
+
+	      (loop for parent in involved-parents
+		 do (loop for child in involved-children
+		       do (progn
+			    (insert-edge g (edge (car parent)
+						 (car child)
+						 :prob 100 :dur (cadr parent)))
+			    ;;(insert-edge g (edge (car child)
+			    ;;			 (car parent)
+			    ;;			 :prob 100 :dur (cadr child)))
+			    ))))
 	    ;; there are only incoming higher-order edges ...
 	    (let ((involved-parents (collect-parent-ids-and-durations
 				     g
 				     removed-id
-				    :order order)))
+				     :order order)))
 	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
 		    involved-parents))))
   ;; now, check if there's any higher order edge that contains
@@ -264,7 +269,7 @@
 ;; fetch the first inbound edge of a node ... 
 (defmethod get-first-inbound-edge-source ((g graph) node-id &key (order 1))
   (edge-source (car (gethash node-id  (gethash order (graph-incoming-edges g))))))
-  
+
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edge-source-list (if (typep (edge-source e) 'list)
 			      (edge-source e)
@@ -356,7 +361,7 @@
   (loop for n being the hash-values of (graph-nodes g)
      do (progn (setf (node-global-id n) (list new-name (node-id n)))
 	       (loop for ev in (node-content n)
-		    do (setf (nth 0 (event-source ev)) new-name)))))
+		  do (setf (nth 0 (event-source ev)) new-name)))))
 
 ;; regarding probability modification:
 ;; an event is pumped through the chain and each
