@@ -101,7 +101,7 @@
 			     (get-edge (source-graph g)
 				       (list (cadr reverse-path))
 				       (car reverse-path))))))))
-    (incudine::msg error "new-id: ~D ~%" new-id)
+    ;;(incudine::msg error "new-id: ~D ~%" new-id)
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (deepcopy-list (node-content picked-node)
@@ -143,7 +143,7 @@
 			     (get-edge (source-graph g)
 				       (list (cadr reverse-path))
 				       (car reverse-path))))))))
-        (incudine::msg error "new-id: ~D ~%" new-id)
+    ;;(incudine::msg error "new-id: ~D ~%" new-id)
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (deepcopy-list (node-content picked-node)
@@ -235,7 +235,7 @@
 	 (reduced-path (remove-all exclude-with-current path)))
     (when reduced-path
       (let* ((prune-id (car (last reduced-path)))) ;; node id to remove ..	 
-	(incudine::msg error "pruning ~D ~%"  prune-id)
+	;;(incudine::msg error "pruning ~D ~%"  prune-id)
 	(setf (traced-path g) (remove prune-id (traced-path g)))	
 	(remove-node (source-graph g) prune-id :rebalance t)))))
 
@@ -275,7 +275,7 @@
 		     :higher-order higher-order))))
 
 (defun prune (graph-id &key exclude)
-  (incudine::msg info "pruning graph ~D" graph-id) 
+  ;;(incudine::msg info "pruning graph ~D" graph-id) 
   (prune-graph (gethash graph-id *processor-directory*)
 	       :exclude exclude))
 
