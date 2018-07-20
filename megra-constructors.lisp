@@ -110,16 +110,16 @@
 					:combine-filter #'all-p)))
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
-			  (t (source-graph graph-proc)))))
-    (setf (graph-id src-graph) name)   
-    (graph-add-direct src-graph (list 
-				 (make-instance 'node
-						:id 1 
-						:content (if (typep event 'list)
-							     event
-							     (list event))
-						:color 'white)))
+			  (t (source-graph graph-proc)))))   
     (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...
+      (setf (graph-id src-graph) name)   
+      (graph-add-direct src-graph (list 
+				   (make-instance 'node
+						  :id 1 
+						  :content (if (typep event 'list)
+							       event
+							       (list event))
+						  :color 'white)))
       (let ((dur (cond ((typep gap 'param-mod-object) gap)
 		       (gap (- gap (* gap overlap)))
 		       (t (if (typep (event-duration event) 'param-mod-object)
@@ -128,7 +128,8 @@
 				 (* (event-duration event) overlap)))))))
 	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100)))
 	(setf (current-node graph-proc) 1)
-	(setf (traced-path graph-proc) '(1))))   
+	(setf (traced-path graph-proc) '(1)))
+      )   
     (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
 
