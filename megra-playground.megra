@@ -8,11 +8,16 @@
 (clear)
 
 (s 'bass-2 ()
+  (freeze t)
+  (cc 50 (lvl 0.0) :f #'bd-p)
+  (cc 50 (lvl 0.0) :f #'sn-p)
   (cc 100 (lvl 0.3))
   (nuc 'bass4 (list 	       	       
-	       (tri 100 :dur 70 :rel 60)
-	       (popctrl 'self 0.4 20 20 'quadloop :durs '(100 200)))       
-       :gap 100 :reset nil))
+	       (tri 100 :dur 70 :rel 60 :rev 0.02)
+	       (bd '|909| :lp-dist 1.0)
+	       (sn 'fat)
+	       (popctrl 'self 0.5 20 19 'loop :durs '(100 200)))       
+       :gap 100 :reset t))
 
 
 ;; define some test graph structures
