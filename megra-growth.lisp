@@ -245,7 +245,7 @@
 			(method 'old)
 			(rnd 0)
 			higher-order)
-  (incudine::msg info "growing graph ~D" graph-id) 
+  ;;(incudine::msg info "growing graph ~D" graph-id) 
   (cond ((eql method 'triloop)
 	 (grow-graph-triloop (gethash graph-id *processor-directory*)
 		     :var variance

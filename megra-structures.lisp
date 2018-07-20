@@ -202,21 +202,6 @@
 (defmethod has-outgoing-1st-order ((g graph) id &key)
   (< 0 (length (gethash id (gethash 1 (graph-outgoing-edges g))))))
 
-
-;; try to find node with a different id than itself .. .
-(defun pick-node (node connection-duration-list)
-  (let ((other-nodes (loop for nc in connection-duration-list
-			unless (eql (car nc) node)
-			collect (car nc))))
-    (if other-nodes
-	(nth (random (length other-nodes)) other-nodes)
-	node)))
-
-
-
-;; to be done (to keep graph connected!): when
-;; no parent or child need "treatment", add one connection
-;; between the two ...
 (defmethod remove-node ((g graph) removed-id &key (rebalance nil))
   (loop for order being the hash-keys of (graph-outgoing-edges g)
      do (if (eql order 1)
@@ -228,27 +213,22 @@
 				      g
 				      (list removed-id)
 				      :order order)))
-	      (incudine::msg error "par ~D" involved-parents)
-	      (incudine::msg error "chi ~D" involved-children)
+	      ;;(incudine::msg error "par ~D" involved-parents)
+	      ;;(incudine::msg error "chi ~D" involved-children)
 	      (mapc #'(lambda (par) (remove-edge g (car par) removed-id))
 		    involved-parents)
 	      (mapc #'(lambda (ch) (remove-edge g removed-id (car ch)))
 		    involved-children)
-	      ;; now, check if all of the involved nodes are still valid, that is,
-	      ;; if they still have one incoming- and one outgoing
-	      ;; first order edge ...
-	      ;;
-
+	      ;; make a connection from every parent to every child,
+	      ;; to keep graph connected
+	      ;; (before, it was possible to go from any parent to any child
+	      ;; via the removed node, so we want to keep that trait ...)
 	      (loop for parent in involved-parents
 		 do (loop for child in involved-children
 		       do (progn
 			    (insert-edge g (edge (car parent)
 						 (car child)
-						 :prob 100 :dur (cadr parent)))
-			    ;;(insert-edge g (edge (car child)
-			    ;;			 (car parent)
-			    ;;			 :prob 100 :dur (cadr child)))
-			    ))))
+						 :prob 100 :dur (cadr parent)))))))
 	    ;; there are only incoming higher-order edges ...
 	    (let ((involved-parents (collect-parent-ids-and-durations
 				     g
@@ -298,7 +278,7 @@
 	     (outgoing-edges (gethash edge-source-list order-dict-outgoing))
 	     (order-dict-incoming (gethash edge-order (graph-incoming-edges g)))
 	     (incoming-edges (gethash edge-dest order-dict-incoming)))
-	(incudine::msg error "add edge, src ~D  dest ~D" (edge-source e) (edge-destination e))
+	;;(incudine::msg error "add edge, src ~D  dest ~D" (edge-source e) (edge-destination e))
 	(setf (gethash edge-source-list order-dict-outgoing)
 	      (remove-duplicates (cons e outgoing-edges) :test #'edge-equals))
 	(setf (gethash edge-dest order-dict-incoming)
