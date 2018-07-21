@@ -12,12 +12,11 @@
   (cc 50 (lvl 0.0) :f #'bd-p)
   (cc 50 (lvl 0.0) :f #'sn-p)
   (cc 100 (lvl 0.3))
+  (popctrl 0.5 20 12 'old :durs '(100 200))
   (nuc 'bass4 (list 	       	       
 	       (tri 100 :dur 70 :rel 60 :rev 0.02)
 	       (bd '|909| :lp-dist 1.0)
-	       (sn 'fat)
-	       (popctrl 'self 0.5 20 19 'loop :durs '(100 200)))       
-       :gap 100 :reset t))
+	       (sn 'fat)) :gap 100 :reset nil))
 
 
 ;; define some test graph structures

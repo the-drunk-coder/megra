@@ -510,12 +510,16 @@
 			    :track-state track-state
 			    :keep-state keep-state
 			    :store store)))
-
+(in-package :megra)
 (defclass freeze-growth (modifying-event-processor)
   ((act :accessor freeze-growth-act :initarg :act)))
 
 (defun freeze (act)
-  (make-instance 'freeze-growth :act act :name (gensym)))
+  (make-instance 'freeze-growth :act act
+		 :name (gensym)
+		 :mod-prop nil		 
+		 :affect-transition nil
+		 :event-filter nil) )
 
 ;; make state-tracking switchable ??? 
 (defmethod apply-self ((f freeze-growth) events &key)
@@ -525,6 +529,56 @@
 			      (typep event 'population-control-event)))
 		 events)
       events))
+
+(defclass population-control (modifying-event-processor)
+  ((variance :accessor population-control-var :initarg :variance)
+   (pgrowth :accessor population-control-pgrowth :initarg :pgrowth)
+   (pprune :accessor population-control-pprune :initarg :pprune)
+   (method :accessor population-control-method :initarg :method)
+   (durs :accessor population-control-durs :initarg :durs)
+   (phoe :accessor population-control-higher-order-probability :initarg :phoe)
+   (hoe-max :accessor population-control-higher-order-max-order :initarg :hoe-max)
+   (exclude :accessor population-control-exclude :initarg :exclude)))
+
+(defun popctrl (variance pgrowth pprune method
+		&key durs (hoe 4) (hoe-max 4) exclude)
+  (make-instance 'population-control
+		 :name (gensym)
+		 :mod-prop nil		 
+		 :affect-transition nil
+		 :event-filter nil
+		 :variance variance
+		 :pgrowth pgrowth
+		 :pprune pprune
+		 :method method
+		 :durs durs
+		 :phoe hoe
+		 :hoe-max hoe-max
+		 :exclude exclude))
+
+(defmethod apply-self ((g population-control) events &key)
+  (let ((ev-src (car (event-source (car events)))))
+    (when (< (random 100) (population-control-pgrowth g))
+      (let ((order (if (< (random 100)
+			  (population-control-higher-order-probability g))
+		       (+ 2 (random
+			     (- (population-control-higher-order-max-order g) 2)))
+		       nil)))
+	;; append growth event
+	(push (growth
+	       ev-src
+	       (population-control-var g)
+	       :durs (population-control-durs g)
+	       :method (population-control-method g)
+	       :higher-order order)
+	      events)))		  
+    (when (< (random 100) (population-control-pprune g))
+      ;; append prune event
+      (push (shrink
+	     ev-src					 
+	     :exclude (population-control-exclude g))	    
+	    events))
+    events))
 
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)

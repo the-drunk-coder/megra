@@ -747,7 +747,7 @@
 
 (define-event
   :long-name population-control-event
-  :short-name popctrl
+  :short-name popctrl-ev
   :parent-events (event)
   :parameters ((graph-id event-popctrl-graph-id)
 	       (variance event-popctrl-variance)	       
@@ -789,11 +789,10 @@
   :short-name growth
   :parent-events (event)
   :parameters ((graph-id event-growth-graph-id)
-	       (variance event-growth-variance)
-	       ;;(replicate event-growth-replicate 10)
-	       ;;(shrink-replicate event-shrink-replicate 20)
+	       (variance event-growth-variance)	       
 	       (durs event-growth-durs '())
-	       (method event-growth-method 'triloop))
+	       (method event-growth-method 'triloop)
+	       (higher-order event-growth-higher-order 4))
   :direct-parameters (graph-id variance)
   :handler (incudine:nrt-funcall
 	    (handler-case 
@@ -801,11 +800,10 @@
 				       (car (event-source evt))
 				       (event-growth-graph-id evt))))
 		  (grow resolved-id
-			:variance (event-growth-variance evt)
-			:growth-replication (event-growth-replicate evt)
-			:shrink-replication (event-shrink-replicate evt)
+			:variance (event-growth-variance evt)		        
 			:durs (event-growth-durs evt)
-			:method method))
+			:method (event-growth-method evt)
+			:higher-order (event-growth-higher-order evt)))
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing growth:~% ~D" e)))))
@@ -815,8 +813,7 @@
   :short-name shrink
   :parent-events (event)
   :parameters ((graph-id event-shrink-graph-id)
-	       (exclude event-shrink-exclude '())
-	       (durs event-shrink-durs '()))
+	       (exclude event-shrink-exclude '()))
   :direct-parameters (graph-id)
   :handler (incudine:nrt-funcall
 	    (handler-case 
@@ -824,8 +821,7 @@
 				       (car (event-source evt))
 				       (event-shrink-graph-id evt))))
 		  (prune resolved-id
-			 :exclude (event-shrink-exclude evt)
-			 :durs (event-shrink-durs evt)))
+			 :exclude (event-shrink-exclude evt)))
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing shrink:~% ~D" e)))))
