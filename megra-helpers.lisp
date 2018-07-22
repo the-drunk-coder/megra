@@ -4,8 +4,8 @@
   (setf *processor-directory* (make-hash-table :test 'eql))
   (loop for chain being the hash-values of *chain-directory*
      do (deactivate chain))       
-  (loop for branch being the hash-values of *branch-directory*
-     do (mapc #'deactivate branch))       
+  ;;(loop for branch being the hash-values of *branch-directory*
+  ;;   do (mapc #'deactivate branch))       
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *group-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql))
@@ -15,6 +15,7 @@
   (if (<= (length chains) 0)
       (clear)
       (mapc #'(lambda (id)
+		(merg id)
 		;; if it's a group, stop the group
 		(if (gethash id *group-directory*)
 		    (mapc #'(lambda (chain)
@@ -32,13 +33,14 @@
   (if (gethash chain-or-group-id *group-directory*)
       (mapc #'merg (gethash chain-or-group-id *group-directory*))  
       (progn
-	(mapc #'deactivate (gethash chain-or-group-id *branch-directory*))
+	(mapc #'(lambda (id) (deactivate (gethash id *chain-directory*)))
+	      (gethash chain-or-group-id *branch-directory*))
 	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
 (defun dq (chain-id)
   (let* ((branches (gethash chain-id *branch-directory*))
 	 (last (car (reverse branches))))
-    (deactivate last)
+    (deactivate (gethash last *chain-directory*))
     (setf (gethash chain-id *branch-directory*) (delete last branches))))
 
 (defun stop (&rest chains)  
@@ -46,6 +48,7 @@
       (loop for chain being the hash-values of *chain-directory*
 	 do (deactivate chain))
       (mapc #'(lambda (id)
+		(merg id)
 		;; if it's a group, stop the group
 		(if (gethash id *group-directory*)
 		    (mapc #'(lambda (chain)

@@ -1,23 +1,25 @@
 (in-package :megra)
 
 (pring 'bass4 t)
-(graph->svg 'bass4 "bass2postel" :renderer 'neato)
+
+(graph->svg 'bass4 "bass2postel" :renderer 'circo)
 
 (stop)
 
 (clear)
 
 (s 'bass-2 ()
-  (freeze t)
-  (cc 50 (lvl 0.0) :f #'bd-p)
-  (cc 50 (lvl 0.0) :f #'sn-p)
-  (cc 100 (lvl 0.3))
-  (popctrl 0.5 20 12 'old :durs '(100 200))
-  (nuc 'bass4 (list 	       	       
-	       (tri 100 :dur 70 :rel 60 :rev 0.02)
-	       (bd '|909| :lp-dist 1.0)
-	       (sn 'fat)) :gap 100 :reset nil))
+  (freeze nil)  
+  (popctrl 0.9 11 11 'old)
+  (nuc 'bass4 
+       (tri 200 :dur 70 :rel 60 :lp-dist 1.0)
+	       :gap 400 :reset nil))
 
+
+(dq 'bass-2)
+
+(branch 'bass-2 :variance 0.1 :sync-to 'bass-2
+	:functors '(((pitch) (* 5))) )
 
 ;; define some test graph structures
 

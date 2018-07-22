@@ -689,6 +689,9 @@
 		 (append proc-list (list proc)))))
     (append-next '() (topmost-processor c))))
 
+;; to change - push branch to regular chain directory,
+;; just store the name in branch list.
+;; that should allow for independent growth of branches ! 
 (defun chain-from-list (name event-processors &key (unique t)
 						(activate nil)
 						(shift 0.0)
@@ -696,22 +699,20 @@
 						(group nil))  
   (connect event-processors nil name unique)
   ;; assume the chaining went well 
-  (let ((topmost-proc (car event-processors))
-	;;(old-chain (gethash name *chain-directory*))
-	)		        
+  (let ((topmost-proc (car event-processors)))
     (if (chain-bound topmost-proc)
 	(let ((new-chain (make-instance
 			  'processor-chain
 			  :topmost topmost-proc
 			  :is-active activate
-			  :shift shift)))	  	  
+			  :shift shift)))	  
 	  ;; assign chain to a group
 	  (assign-chain-to-group new-chain name group)
-	  ;; handle branching ...
+	  ;; handle branching ...	  
 	  (if branch
-	      (setf (gethash name *branch-directory*)
-		    (append (gethash name *branch-directory*) (list new-chain)))
-	      (setf (gethash name *chain-directory*) new-chain)))
+	      (setf (gethash branch *branch-directory*)
+		    (append (gethash branch *branch-directory*) (list name))))
+	  (setf (gethash name *chain-directory*) new-chain))
 	(incudine::msg error "chain-building went wrong, seemingly ..."))))
 
 

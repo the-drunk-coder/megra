@@ -285,9 +285,10 @@
   (let* ((current-chain (gethash chain-id *chain-directory*))
 	 (current-procs (collect-chain current-chain))
 	 (shift-diff (max 0 (- shift (chain-shift current-chain))))
+	 (new-chain-id (gensym (symbol-name chain-id)))
 	 ;; in contrast to the dispatcher branch method,
 	 ;; here the new chain is pushed to the branch stack ... 
-	 (new-chain (chain-from-list chain-id				     
+	 (new-chain (chain-from-list new-chain-id
 				     (mapcar #'(lambda (proc)
 						 (clone
 						  (name proc)
@@ -300,7 +301,7 @@
 				     :activate nil
 				     :shift shift-diff
 				     :group (chain-group current-chain)
-				     :branch t)))
+				     :branch chain-id)))    
     ;;(incudine::msg error "start branch" )
-    (inner-dispatch (car new-chain) sync-to)))
+    (inner-dispatch new-chain sync-to)))
 
