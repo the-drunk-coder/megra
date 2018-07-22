@@ -510,7 +510,7 @@
 			    :track-state track-state
 			    :keep-state keep-state
 			    :store store)))
-(in-package :megra)
+
 (defclass freeze-growth (modifying-event-processor)
   ((act :accessor freeze-growth-act :initarg :act)))
 
@@ -579,6 +579,54 @@
 	     :exclude (population-control-exclude g))	    
 	    events))
     events))
+(in-package :megra)
+
+(defclass parameter-limiter (modifying-event-processor)
+  ((upper :accessor limiter-upper-limit :initarg :upper)
+   (lower :accessor limiter-lower-limit :initarg :lower)))
+
+(defun lim (param lower upper &key (f #'all-p))
+  (make-instance 'parameter-limiter
+		 :name (gensym)
+		 :mod-prop param		 
+		 :affect-transition nil
+		 :event-filter f
+		 :upper upper
+		 :lower lower))
+
+(defmethod apply-self ((p parameter-limiter) events &key)
+  (mapc #'(lambda (event)	    
+	    (let* ((current-value (get-current-value p event)))	      
+	      (setf (slot-value event (modified-property p))
+		    (cond ((< current-value (limiter-lower-limit p)) (limiter-lower-limit p))
+			  ((> current-value (limiter-upper-limit p)) (limiter-upper-limit p))
+			  (t current-value)))))
+	(filter-events p events))
+  events)
+
+(defclass parameter-wrapper (modifying-event-processor)
+  ((upper :accessor wrapper-upper-limit :initarg :upper)
+   (lower :accessor wrapper-lower-limit :initarg :lower)))
+
+(defun wrap (param lower upper &key (f #'all-p))
+  (make-instance 'paramter-wrapper
+		 :name (gensym)
+		 :mod-prop param		 
+		 :affect-transition nil
+		 :event-filter f
+		 :upper upper
+		 :lower lower))
+
+(defmethod apply-self ((w parameter-wrapper) events &key)
+  (mapc #'(lambda (event)	    
+	    (let* ((current-value (get-current-value w event)))	      
+	      (setf (slot-value event (modified-property w))
+		    (cond ((< current-value (wrapper-lower-limit w)) (wrapper-upper-limit w))
+			  ((> current-value (wrapper-upper-limit w)) (wrapper-lower-limit w))
+			  (t current-value)))))
+	(filter-events w events))
+  events)
+
 
 (defclass processor-chain (event-processor)
   ((topmost-processor :accessor topmost-processor :initarg :topmost)
