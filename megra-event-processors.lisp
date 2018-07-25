@@ -609,7 +609,7 @@
    (lower :accessor wrapper-lower-limit :initarg :lower)))
 
 (defun wrap (param lower upper &key (f #'all-p))
-  (make-instance 'paramter-wrapper
+  (make-instance 'parameter-wrapper
 		 :name (gensym)
 		 :mod-prop param		 
 		 :affect-transition nil
@@ -641,11 +641,13 @@
 
 (defun activate (chain)
   (incudine::msg info "activating ~D" chain)
+  (setf (wait-for-sync chain) nil)
   (setf (is-active chain) t))
 
 ;; deactivate ... if it's a modifying event processor, delete it ...
 (defun deactivate (chain)
   (incudine::msg info "deactivating ~D" chain)
+  (setf (wait-for-sync chain) nil)
   (setf (is-active chain) nil))
 
 (defmethod pull-events ((p processor-chain) &key)
