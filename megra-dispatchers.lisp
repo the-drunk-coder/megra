@@ -22,8 +22,7 @@
 	 ;; don't check if it's active, as only deactivated procs
 	 ;; are added to sync list
 	 do (let ((sync-shift (chain-shift synced-chain)))	        
-	      (activate synced-chain)
-	      (setf (wait-for-sync synced-chain) nil)
+	      (activate synced-chain)	      
 	      (setf (chain-shift synced-chain) 0)
 	      ;; secure this to ensure smooth operation in case of
 	      ;; forgotten graphs ... 	        
@@ -123,7 +122,7 @@
 	(chain-to-sync-to (gethash sync-to *chain-directory*)))
       ;; now, if we want to sync the current chain to :sync-to,
       ;; and :sync-to denotes a chain that is actually present,
-      (if chain-to-sync-to
+      (if (and chain-to-sync-to (is-active chain-to-sync-to))
 	  ;; when the current chain is NOT yet synced to chain-to-sync-to ...		      
 	  (unless (wait-for-sync chain)
 	    (deactivate chain)
@@ -144,7 +143,6 @@
 			  #'perform-dispatch
 			  chain				     
 			  it)))))
-
 
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 

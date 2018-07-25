@@ -44,7 +44,7 @@
 
 (in-package :megra)
 
-;; main storage for event processors (a processor can be used without
+;; main storage for emvent processors (a processor can be used without
 ;; being kept here, but at least historically it has been practical
 ;; to keep track of certain things)
 (defparameter *processor-directory* (make-hash-table :test 'eql))
