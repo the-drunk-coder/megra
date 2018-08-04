@@ -209,6 +209,7 @@
 			 (cond ((typep val 'param-mod-object) (evaluate val))
 			       ((typep val 'function) (funcall val))
 			       (t val)))		       
+
 		       (slot-value object (slot-definition-name slot)))))) copy))
 
 ;; get the current events as a copy, so that the originals won't change
@@ -220,6 +221,8 @@
     (when (> (list-length (traced-path g)) (trace-length g))
       (setf (traced-path g)
 	    (delete (car (traced-path g)) (traced-path g) :count 1))))
+  (incf (node-age (gethash (current-node g)
+			   (graph-nodes (source-graph g)))))
   (if (copy-events g)
       (mapcar #'copy-instance
 	      (node-content (gethash (current-node g)
@@ -318,7 +321,7 @@
 		event))
 	events))
 
-(defmethod apply-self :after ((m modifying-event-processor) events &key)
+(Defmethod apply-self :after ((m modifying-event-processor) events &key)
   (setf (pmod-step m) (1+ (pmod-step m))))
 	   
 (defmethod get-current-value ((m modifying-event-processor) (e event) &key)
@@ -530,19 +533,21 @@
 		 events)
       events))
 
-(defclass population-control (modifying-event-processor)
+(defclass generic-population-control ()
   ((variance :accessor population-control-var :initarg :variance)
-   (pgrowth :accessor population-control-pgrowth :initarg :pgrowth)
-   (pprune :accessor population-control-pprune :initarg :pprune)
    (method :accessor population-control-method :initarg :method)
    (durs :accessor population-control-durs :initarg :durs)
    (phoe :accessor population-control-higher-order-probability :initarg :phoe)
    (hoe-max :accessor population-control-higher-order-max-order :initarg :hoe-max)
    (exclude :accessor population-control-exclude :initarg :exclude)))
 
-(defun popctrl (variance pgrowth pprune method
+(defclass probability-population-control (modifying-event-processor generic-population-control)
+  ((pgrowth :accessor population-control-pgrowth :initarg :pgrowth)
+   (pprune :accessor population-control-pprune :initarg :pprune)))
+
+(defun probctrl (variance pgrowth pprune method
 		&key durs (hoe 4) (hoe-max 4) exclude)
-  (make-instance 'population-control
+  (make-instance 'probability-population-control
 		 :name (gensym)
 		 :mod-prop nil		 
 		 :affect-transition nil
@@ -556,7 +561,7 @@
 		 :hoe-max hoe-max
 		 :exclude exclude))
 
-(defmethod apply-self ((g population-control) events &key)
+(defmethod apply-self ((g probability-population-control) events &key)
   (let ((ev-src (car (event-source (car events)))))
     (when (< (random 100) (population-control-pgrowth g))
       (let ((order (if (< (random 100)
@@ -579,7 +584,123 @@
 	     :exclude (population-control-exclude g))	    
 	    events))
     events))
+
+;;;;;;;;;;;;;;;; Simple Artifical Life Model ;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :megra)
+(defclass lifemodel-control (modifying-event-processor generic-population-control)
+  ((growth-cycle :accessor lmc-growth-cycle :initarg :growth-cycle)
+   (lifecycle-count :accessor lmc-lifecycle-count :initform 0)
+   (apoptosis :accessor lmc-apoptosis :initarg :apoptosis :initform t)
+   (node-lifespan :accessor lmc-node-lifespan :initarg :node-lifespan :initform *average-node-lifespan*)
+   (node-lifespan-var :accessor lmc-node-lifespan-var :initarg :node-lifespan-var :initform *node-lifespan-variance*)
+   (autophagia :accessor lmc-autophagia :initarg :autophagia :initform t)
+   (local-resources :accessor lmc-local-resources :initarg :local-resources :initform *default-local-resources*)
+   (local-cost :accessor lmc-local-Cost :initarg :local-cost-modifier :initform *growth-cost*)
+   (local-apoptosis-regain :accessor lmc-local-apoptosis-regain :initarg :apoptosis-regain :initform *apoptosis-regain*)
+   (local-autophagia-regain :accessor lmc-local-autophagia-regain :initarg :autophagia-regain :initform *autophage-regain*)))
+
+(defmethod apply-self ((l lifemodel-control) events &key)
+  (incf (lmc-lifecycle-count l))
+  ;; growth point reached
+  (let* ((src (car (event-source (car events))))
+	 (cur-proc (gethash src *processor-directory*))
+	 (cur-node-id (current-node cur-proc))
+	 (cur-node (gethash cur-node-id (graph-nodes (source-graph cur-proc))))
+	 (eaten-node 0)) ;; node "eaten" by autophagia ...	 
+    ;; growth or no growth ?
+    (when (>= (lmc-lifecycle-count l) (lmc-growth-cycle l))
+      (setf (lmc-lifecycle-count l) 0) ;; reset growth cycle
+      (if (> (+ (lmc-local-resources l) *global-resources*) (lmc-local-cost l))
+	  ;; first case: enough resoures available
+	  (let ((order (if (< (random 100)
+			      (population-control-higher-order-probability l))
+			   (+ 2 (random
+				 (- (population-control-higher-order-max-order l) 2)))
+			   nil)))
+	    ;; append growth event	    
+	    (push (growth
+	 	   src
+		   (population-control-var l)
+		   :durs (population-control-durs l)
+		   :method (population-control-method l)
+		   :higher-order order)
+		  events)
+	    ;; decrease resources
+	    (if (>= (lmc-local-resources l) (lmc-local-cost l))
+		(setf (lmc-local-resources l) (- (lmc-local-resources l)
+						 (lmc-local-cost l)))
+		(if (>= *global-resources* (lmc-local-cost l))
+		    (setf *global-resources* (- *global-resources* (lmc-local-cost l)))
+		    ;; otherwise, split ...
+		    (let ((tmp-cost (lmc-local-cost l)))
+		      (setf tmp-cost (- tmp-cost (lmc-local-resources l)))
+		      (setf (lmc-local-resources l) 0.0)
+		      (setf *global-resources* (- *global-resources* tmp-cost)))))
+	    (incudine::msg error "GROW at ~D - local: ~D global: ~D"
+			   src
+			   (lmc-local-resources l)
+			   *global-resources*))
+	  ;; else: autophagia if specified ...
+	  (when (and (lmc-autophagia l)
+		     (>= (graph-size (source-graph cur-proc)) 1))	    
+	    ;; send prune/shrink
+	    (let ((rnd-node (random-node-id (source-graph cur-proc))))
+	      (push (shrink src :node-id rnd-node ) events)
+	      (setf eaten-node rnd-node))	    
+	    ;; add regain to local	    
+	    (setf (lmc-local-resources l)
+		  (+ (lmc-local-resources l)
+		     (lmc-local-autophagia-regain l)))	    
+	    (incudine::msg error "AUTO at ~D - local: ~D global: ~D - ~D is eating itself up!"
+			   src
+			   (lmc-local-resources l)
+			   *global-resources*
+			   src))))
+    ;; handle apoptosis:
+    ;; check if current node is old enough (regarding eventual variance)
+    ;; delete if old
+    ;; add regain ...    
+    (when (> (node-age cur-node)
+	     (lmc-node-lifespan l)) ;; to do - introduce lifespan variance !
+      (unless (eql cur-node-id eaten-node)
+	(push (shrink src :node-id cur-node-id) events)
+	(setf (lmc-local-resources l)
+	    (+ (lmc-local-resources l)
+	       (lmc-local-apoptosis-regain l))))      
+      (incudine::msg error
+		     "APOP at ~D - local: ~D global: ~D - node ~D your time has come !"
+		     src		     		     
+		     (lmc-local-resources l)
+		     *global-resources*
+		     cur-node-id)))
+  events)
+
+
+(defun lmctrl (variance method growth-cycle
+	       &key (autophagia t)
+		 (apoptosis t)
+		 durs
+		 (hoe 4)
+		 (hoe-max 4)
+		 (lifespan 20)
+		 exclude)
+  (make-instance 'lifemodel-control
+		 :name (gensym)
+		 :growth-cycle growth-cycle
+		 :mod-prop nil		 
+		 :affect-transition nil
+		 :event-filter nil
+		 :variance variance		 
+		 :method method
+		 :durs durs
+		 :phoe hoe
+		 :node-lifespan lifespan
+		 :hoe-max hoe-max
+		 :exclude exclude
+		 :autophagia autophagia
+		 :apoptosis apoptosis))
+  
+
 
 (defclass parameter-limiter (modifying-event-processor)
   ((upper :accessor limiter-upper-limit :initarg :upper)

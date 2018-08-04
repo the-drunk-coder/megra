@@ -97,7 +97,7 @@
   (deepcopy-generic-object n
 			   :imprecision imprecision
 			   :exclude-keywords (append
-					      exclude-keywords '(global-id id))
+					      exclude-keywords '(global-id id age))
 			   :precise-keywords precise-keywords
 			   :functors functors))
 

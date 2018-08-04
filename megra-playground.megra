@@ -8,12 +8,36 @@
 
 (clear)
 
+(pring 'bass4 t)
+
+(event-source (growth 'bass4 0.3))
+
+(pull-events (gethash 'bass-2 *chain-directory*))
+
+(handle-events  0)
+
+(current-transition (gethash 'bass-2 *chain-directory*))
+
+(setf (current-node (gethash 'bass4 *processor-directory*)) 3)
+
+(prune 'bass4 :node-id 1)
+
+(remove-node  1 :rebalance t)
+
+(random-node-id (source-graph (gethash 'bass4 *processor-directory*)))
+
 (s 'bass-2 ()
-  (freeze nil)  
-  (popctrl 0.9 11 11 'old)
+  (cc 50 (lvl 0.0) :f #'bd-p)
+  (cc 80 (lvl 0.0) :f #'sn-p)
+  (lim 'lvl 0.3 0.4)
+  (lmctrl 0.1 'loop 15 :lifespan 18)
+  ;;(probctrl 0.7 11 10 'triloop)
   (nuc 'bass4 
-       (tri 200 :dur 70 :rel 60 :lp-dist 1.0)
-	       :gap 400 :reset nil))
+       (list
+	(bd '|909| :lp-dist 1.0)
+	(sn '|78| :rev 0.01)
+	(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500))
+       :gap 100 :reset t))
 
 
 (dq 'bass-2)
