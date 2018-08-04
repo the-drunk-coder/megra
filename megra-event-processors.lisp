@@ -636,7 +636,7 @@
 		      (setf tmp-cost (- tmp-cost (lmc-local-resources l)))
 		      (setf (lmc-local-resources l) 0.0)
 		      (setf *global-resources* (- *global-resources* tmp-cost)))))
-	    (incudine::msg error "GROW at ~D - local: ~D global: ~D"
+	    (incudine::msg info "GROW at ~D - local: ~D global: ~D"
 			   src
 			   (lmc-local-resources l)
 			   *global-resources*))
@@ -651,7 +651,7 @@
 	    (setf (lmc-local-resources l)
 		  (+ (lmc-local-resources l)
 		     (lmc-local-autophagia-regain l)))	    
-	    (incudine::msg error "AUTO at ~D - local: ~D global: ~D - ~D is eating itself up!"
+	    (incudine::msg info "AUTO at ~D - local: ~D global: ~D - ~D is starving!"
 			   src
 			   (lmc-local-resources l)
 			   *global-resources*
@@ -667,7 +667,7 @@
 	(setf (lmc-local-resources l)
 	    (+ (lmc-local-resources l)
 	       (lmc-local-apoptosis-regain l))))      
-      (incudine::msg error
+      (incudine::msg info
 		     "APOP at ~D - local: ~D global: ~D - node ~D your time has come !"
 		     src		     		     
 		     (lmc-local-resources l)
