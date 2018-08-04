@@ -813,7 +813,8 @@
   :short-name shrink
   :parent-events (event)
   :parameters ((graph-id event-shrink-graph-id)
-	       (exclude event-shrink-exclude '()))
+	       (exclude event-shrink-exclude '())
+	       (node-id event-shrink-node-id nil))
   :direct-parameters (graph-id)
   :handler (incudine:nrt-funcall
 	    (handler-case 
@@ -821,7 +822,8 @@
 				       (car (event-source evt))
 				       (event-shrink-graph-id evt))))
 		  (prune resolved-id
-			 :exclude (event-shrink-exclude evt)))
+			 :exclude (event-shrink-exclude evt)
+			 :node-id (event-shrink-node-id evt)))
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing shrink:~% ~D" e)))))

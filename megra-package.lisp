@@ -91,6 +91,7 @@
 (load (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers"))
 (load (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers"))
 (load (concatenate 'string cm::*megra-root* "/megra-structures"))
+(load (concatenate 'string cm::*megra-root* "/megra-growth-parameters"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-processors"))
 (load (concatenate 'string cm::*megra-root* "/megra-disencourage"))
 (load (concatenate 'string cm::*megra-root* "/megra-dispatchers"))

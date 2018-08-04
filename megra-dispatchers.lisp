@@ -105,11 +105,11 @@
     ;; without having to clear everything ...
     (handler-case (handle-events (pull-events chain) (incudine::rt-time-offset))
       (simple-error (e)
-	(incudine::msg error "cannot pull and handle events: ~D" e)))    
+	(incudine::msg error "cannot pull and handle events: ~D" e)))
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...    
     (let* ((trans-time (transition-duration (car (pull-transition chain))))	   
-	   (next-incu-time (+ incudine-time #[trans-time ms])))
+	   (next-incu-time (+ incudine-time #[trans-time ms])))      
       (incudine:aat next-incu-time #'perform-dispatch chain it))))
 
 (defun handle-events (events osc-timestamp)

@@ -228,16 +228,24 @@
     (if (and (cdr items) first-removed)
         (remove-all (cdr items) first-removed)
 	first-removed)))
-
-(defmethod prune-graph ((g graph-event-processor) &key exclude)
+()
+(in-package :megra)
+(defmethod prune-graph ((g graph-event-processor) &key exclude node-id)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (exclude-with-current (append exclude (list (current-node g))))
-	 (reduced-path (remove-all exclude-with-current path)))
-    (when reduced-path
-      (let* ((prune-id (car (last reduced-path)))) ;; node id to remove ..	 
-	;;(incudine::msg error "pruning ~D ~%"  prune-id)
-	(setf (traced-path g) (remove prune-id (traced-path g)))	
-	(remove-node (source-graph g) prune-id :rebalance t)))))
+	 (reduced-path (remove-all exclude-with-current path))
+	 (prune-id (if node-id
+		       node-id
+		       (car (last reduced-path))))
+	 (replacement-id (random-node-id (source-graph g))))          
+    ;;(incudine::msg error "pruning ~D"  prune-id)    
+    (setf (traced-path g) (remove prune-id (traced-path g)))
+    (when prune-id ;; otherwise the graph can't be pruned further ... 
+      (when (eql (current-node g) prune-id)
+      ;;(incudine::msg error "current node pruned, replace with ~D"  last-id)
+	(setf (current-node g) replacement-id))
+      (remove-node (source-graph g) prune-id :rebalance t))))
+
 
 (defun grow (graph-id &key (variance 0)		        
 			durs
@@ -274,10 +282,10 @@
 		     :rnd rnd
 		     :higher-order higher-order))))
 
-(defun prune (graph-id &key exclude)
-  ;;(incudine::msg info "pruning graph ~D" graph-id) 
+(defun prune (graph-id &key exclude node-id)
   (prune-graph (gethash graph-id *processor-directory*)
-	       :exclude exclude))
+	       :exclude exclude
+	       :node-id node-id))
 
 (defun branch (chain-id &key (shift 0) (variance 0.1) sync-to functors)
   (incudine::msg info "branching chain ~D" chain-id)			 

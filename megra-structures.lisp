@@ -3,8 +3,9 @@
   ((global-id :accessor node-global-id)
    (id :accessor node-id :initarg :id)
    (content :accessor node-content :initarg :content)
-   (color :accessor node-color :initarg :color :initform 'white)))
-
+   (color :accessor node-color :initarg :color :initform 'white)
+   (age :accessor node-age :initarg :age :initform 0))) ;; how many times has this node been evaluated ?
+   
 (defmethod add-event ((n node) (e event) &key)
   (setf (event-source e) (node-global-id n))  
   (cons e (node-content n)))
@@ -65,6 +66,10 @@
   (setf (graph-nodes g) (make-hash-table :test 'eql))
   (setf (graph-outgoing-edges g) (make-hash-table :test 'eql))
   (setf (graph-incoming-edges g) (make-hash-table :test 'eql)))
+
+(defmethod random-node-id ((g graph) &key)
+  (alexandria::hash-table-keys (graph-nodes g)))
+  
 
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (list (graph-id g) (node-id n)))
