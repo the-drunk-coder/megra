@@ -22,7 +22,9 @@
 
 (prune 'bass4 :node-id 1)
 
-(remove-node  1 :rebalance t)
+(remove-node 1 :rebalance t)
+
+(global-resources 30)
 
 (random-node-id (source-graph (gethash 'bass4 *processor-directory*)))
 
@@ -30,7 +32,7 @@
   (cc 50 (lvl 0.0) :f #'bd-p)
   (cc 80 (lvl 0.0) :f #'sn-p)
   (lim 'lvl 0.3 0.4)
-  (lmctrl 0.1 'loop 15 :lifespan 18)
+  (lmctrl 0.4 'loop 15 :lifespan 18)
   ;;(probctrl 0.7 11 10 'triloop)
   (nuc 'bass4 
        (list
@@ -39,6 +41,15 @@
 	(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500))
        :gap 100 :reset t))
 
+(s 'hat (:sync-to 'bass-2)
+  (lim 'lvl 0.3 0.4)
+  (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
+  (nuc 'hh (hats 'accent) :gap 100))
+
+(s 'bb (:sync-to 'bass-2)
+  (lim 'lvl 0.3 0.4)
+  (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
+  (nuc 'bell (risset 2000 :atk 40 :sus 300 :rel 400 :rev 0.0) :gap 400))
 
 (dq 'bass-2)
 

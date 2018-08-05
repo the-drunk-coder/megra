@@ -661,7 +661,8 @@
     ;; delete if old
     ;; add regain ...    
     (when (> (node-age cur-node)
-	     (lmc-node-lifespan l)) ;; to do - introduce lifespan variance !
+	     (add-var (lmc-node-lifespan l)
+		      (lmc-node-lifespan-var l)))
       (unless (eql cur-node-id eaten-node)
 	(push (shrink src :node-id cur-node-id) events)
 	(setf (lmc-local-resources l)
@@ -675,6 +676,11 @@
 		     cur-node-id)))
   events)
 
+(defun add-var (orig var)
+  (floor (+ orig (* (* (- 20000 (random 40000)) var)
+	     (/ orig 20000)))))
+
+(< 20 (add-var 20 0.1))
 
 (defun lmctrl (variance method growth-cycle
 	       &key (autophagia t)
