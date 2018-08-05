@@ -228,8 +228,7 @@
     (if (and (cdr items) first-removed)
         (remove-all (cdr items) first-removed)
 	first-removed)))
-()
-(in-package :megra)
+
 (defmethod prune-graph ((g graph-event-processor) &key exclude node-id)
   (let* ((path (traced-path g)) ;; get the trace ...
 	 (exclude-with-current (append exclude (list (current-node g))))
@@ -245,7 +244,6 @@
       ;;(incudine::msg error "current node pruned, replace with ~D"  last-id)
 	(setf (current-node g) replacement-id))
       (remove-node (source-graph g) prune-id :rebalance t))))
-
 
 (defun grow (graph-id &key (variance 0)		        
 			durs
