@@ -254,7 +254,10 @@
 			 ',parent-keyword-parameter-names
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
-		 (print-combi-fun (value-combine-function evt))))))))
+		 (print-combi-fun (value-combine-function evt)))))
+       ;; define event predicate for filters
+       (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-" (symbol-name 'p))) (event)
+	 (typep event ',class-name )))))
 ;; end event definition macro ...
 
 ;; another macro if you want to make an event available under a different

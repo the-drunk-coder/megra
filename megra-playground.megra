@@ -8,11 +8,13 @@
 
 (clear)
 
+(typep (saw 100) 'saw-event)
+
 (pring 'bass4 t)
 
 (event-source (growth 'bass4 0.3))
 
-x(pull-events (gethash 'bass-2 *chain-directory*))
+(pull-events (gethash 'bass-2 *chain-directory*))
 
 (handle-events  0)
 
@@ -26,17 +28,16 @@ x(pull-events (gethash 'bass-2 *chain-directory*))
 
 (global-resources 30)
 
-(chain 'bass-2 ()
-  (exh 100 sn)
-  (cc 80 (lvl 0.0) :f #'sn-p)
-  (lim 'lvl 0.3 0.4)
-  (lmctrl 0.4 'loop 15 :lifespan 18)
-  ;;(probctrl 0.7 11 10 'triloop)
+(s 'bass-2 ()
+  (inh 50 sn)
+  (inh 50 bd)
+  ;;(lmctrl 0.4 'loop 15 :lifespan 18)
+  (probctrl 0.1 11 10 'triloop)
   (nuc 'bass4 
        (list
-	(bd '|909| :lp-dist 1.0)
-	(sn '|78| :rev 0.01)
-	(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500))
+	(bd '|909| :lp-dist 0.0 :lvp 0.3)
+	(sn '|78| :rev 0.01 :lvl 0.3)
+	(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3))
        :gap 100 :reset t))
 
 (s 'hat (:sync-to 'bass-2)
