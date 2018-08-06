@@ -536,6 +536,10 @@
 (defclass inhibit-events (modifying-event-processor)
   ((prob :accessor inhibit-events-prob :initarg :prob)))
 
+;; make inhibit accessible to live modifications
+;; the create-accessor only works within a macro ... pretty hacky, all in all ... 
+(eval (create-accessor 'inhibit-events 'inhibit-events-prob 'prob))
+
 (defmacro inh (prob filter)
   (let ((filter-name (intern (concatenate 'string (symbol-name filter) "-" (symbol-name 'p)))))
     `(funcall (lambda () (make-instance 'inhibit-events 
@@ -554,6 +558,10 @@
 
 (defclass exhibit-events (modifying-event-processor)
   ((prob :accessor exhibit-events-prob :initarg :prob)))
+
+;; make inhibit accessible to live modifications
+;; the create-accessor only works within a macro ... pretty hacky, all in all ... 
+(eval (create-accessor 'exhibit-events 'exhibit-events-prob 'prob))
 
 (defmacro exh (prob filter)
   (let ((filter-name (intern (concatenate 'string (symbol-name filter) "-" (symbol-name 'p)))))
