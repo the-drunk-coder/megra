@@ -12,7 +12,7 @@
 
 (event-source (growth 'bass4 0.3))
 
-(pull-events (gethash 'bass-2 *chain-directory*))
+x(pull-events (gethash 'bass-2 *chain-directory*))
 
 (handle-events  0)
 
@@ -26,10 +26,8 @@
 
 (global-resources 30)
 
-(random-node-id (source-graph (gethash 'bass4 *processor-directory*)))
-
-(s 'bass-2 ()
-  (cc 50 (lvl 0.0) :f #'bd-p)
+(chain 'bass-2 ()
+  (exh 100 sn)
   (cc 80 (lvl 0.0) :f #'sn-p)
   (lim 'lvl 0.3 0.4)
   (lmctrl 0.4 'loop 15 :lifespan 18)
