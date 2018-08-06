@@ -38,7 +38,7 @@
   :long-name level-event
   :short-name lvl
   :parent-events (event)
-  :parameters ((lvl event-level 0.3 0.0 1.1)) 
+  :parameters ((lvl event-level 0.3 0.2 0.35)) 
   :direct-parameters (lvl))
 
 (define-event
