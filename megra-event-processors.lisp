@@ -533,6 +533,43 @@
 		 events)
       events))
 
+(defclass inhibit-events (modifying-event-processor)
+  ((prob :accessor inhibit-events-prob :initarg :prob)))
+
+(defmacro inh (prob filter)
+  (let ((filter-name (intern (concatenate 'string (symbol-name filter) "-" (symbol-name 'p)))))
+    `(funcall (lambda () (make-instance 'inhibit-events 
+				   :prob ,prob
+				   :name (gensym)
+				   :mod-prop nil		 
+				   :affect-transition nil
+				   :event-filter #',filter-name)))))
+
+;; make state-tracking switchable ??? 
+(defmethod apply-self ((i inhibit-events) events &key) 
+  (if (< (random 100) (inhibit-events-prob i))
+      (remove-if (event-filter i) events)
+      events))
+
+
+(defclass exhibit-events (modifying-event-processor)
+  ((prob :accessor exhibit-events-prob :initarg :prob)))
+
+(defmacro exh (prob filter)
+  (let ((filter-name (intern (concatenate 'string (symbol-name filter) "-" (symbol-name 'p)))))
+    `(funcall (lambda () (make-instance 'exhibit-events 
+				   :prob ,prob
+				   :name (gensym)
+				   :mod-prop nil		 
+				   :affect-transition nil
+				   :event-filter #',filter-name)))))
+
+;; make state-tracking switchable ??? 
+(defmethod apply-self ((e exhibit-events) events &key) 
+  (if (< (random 100) (exhibit-events-prob e))
+      (remove-if-not (event-filter e) events)
+      events))
+
 (defclass generic-population-control ()
   ((variance :accessor population-control-var :initarg :variance)
    (method :accessor population-control-method :initarg :method)
