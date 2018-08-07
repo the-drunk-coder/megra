@@ -69,7 +69,10 @@
 
 (defmethod random-node-id ((g graph) &key)
   (alexandria::hash-table-keys (graph-nodes g)))
-  
+
+(defmethod reset-node-age ((g graph) &key)
+  (loop for node being the hash-values of (graph-nodes g)
+       do (setf (node-age node) 0)))
 
 (defmethod insert-node ((g graph) (n node) &key)
   (setf (node-global-id n) (list (graph-id g) (node-id n)))

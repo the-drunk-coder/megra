@@ -651,7 +651,7 @@
 	 (cur-proc (gethash src *processor-directory*))
 	 (cur-node-id (current-node cur-proc))
 	 (cur-node (gethash cur-node-id (graph-nodes (source-graph cur-proc))))
-	 (eaten-node 0)) ;; node "eaten" by autophagia ...	 
+	 (eaten-node 0)) ;; node "eaten" by autophagia ...	     
     ;; growth or no growth ?
     (when (>= (lmc-lifecycle-count l) (lmc-growth-cycle l))
       (setf (lmc-lifecycle-count l) 0) ;; reset growth cycle
@@ -687,7 +687,7 @@
 			   *global-resources*))
 	  ;; else: autophagia if specified ...
 	  (when (and (lmc-autophagia l)
-		     (>= (graph-size (source-graph cur-proc)) 1))	    
+		     (> (graph-size (source-graph cur-proc)) 1))	    
 	    ;; send prune/shrink
 	    (let ((rnd-node (random-node-id (source-graph cur-proc))))
 	      (push (shrink src :node-id rnd-node ) events)
@@ -704,15 +704,18 @@
     ;; handle apoptosis:
     ;; check if current node is old enough (regarding eventual variance)
     ;; delete if old
-    ;; add regain ...    
-    (when (> (node-age cur-node)
-	     (add-var (lmc-node-lifespan l)
-		      (lmc-node-lifespan-var l)))
+    ;; add regain ...
+    
+    (when (and (or (and *dont-let-die* (> (graph-size (source-graph cur-proc)) 1))
+		   (not *dont-let-die*))	       
+	       (> (node-age cur-node)
+		  (add-var (lmc-node-lifespan l)
+			   (lmc-node-lifespan-var l))))
       (unless (eql cur-node-id eaten-node)
 	(push (shrink src :node-id cur-node-id) events)
 	(setf (lmc-local-resources l)
-	    (+ (lmc-local-resources l)
-	       (lmc-local-apoptosis-regain l))))      
+	      (+ (lmc-local-resources l)
+		 (lmc-local-apoptosis-regain l))))      
       (incudine::msg info
 		     "APOP at ~D - local: ~D global: ~D - node ~D your time has come !"
 		     src		     		     
