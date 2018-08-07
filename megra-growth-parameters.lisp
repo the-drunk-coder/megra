@@ -6,7 +6,8 @@
 (defparameter *apoptosis-regain* 0.5) ;; generic regain through planned expiration
 (defparameter *default-local-resources* 8) ;; again just guessing
 (defparameter *average-node-lifespan* 15) ;; a node survives this many steps on average
-(defparameter *node-lifespan-variance* 0.1) 
+(defparameter *node-lifespan-variance* 0.1)
+(defparameter *dont-let-die* t) ;; always keep at least one node ...  
 
 (defun global-resources (res)
   (setf *global-resources* res))

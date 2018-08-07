@@ -239,9 +239,10 @@
 	 (replacement-id (random-node-id (source-graph g))))          
     ;;(incudine::msg error "pruning ~D"  prune-id)    
     (setf (traced-path g) (remove prune-id (traced-path g)))
-    (when prune-id ;; otherwise the graph can't be pruned further ... 
+    (when prune-id
+      ;; otherwise the graph can't be pruned further ... 
       (when (eql (current-node g) prune-id)
-      ;;(incudine::msg error "current node pruned, replace with ~D"  last-id)
+	;;(incudine::msg error "current node pruned, replace with ~D"  last-id)
 	(setf (current-node g) replacement-id))
       (remove-node (source-graph g) prune-id :rebalance t))))
 

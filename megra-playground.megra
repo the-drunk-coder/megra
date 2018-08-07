@@ -8,7 +8,7 @@
 
 (clear)
 
-(typep (saw 100) 'saw-event)
+(saw-p (saw 100))
 
 (pring 'bass4 t)
 
@@ -27,12 +27,18 @@
 (remove-node 1 :rebalance t)
 
 (global-resources 30)
+(clear)
+(inh (fade 100 0) saw)
 
+(current-node (gethash 'bass4 *processor-directory*))
+(pring 'bass4 t)
 (s 'bass-2 ()
-  (inh 50 sn)
-  (inh 50 bd)
-  ;;(lmctrl 0.4 'loop 15 :lifespan 18)
-  (probctrl 0.1 11 10 'triloop)
+  ;;(exh 30 sn)
+  (inh 90 sn)
+  (inh 40 bd)
+  ;;(inh (fade 100 0) saw)
+  (lmctrl 0.4 'loop 15 :lifespan 18)
+  ;;(probctrl 0.1 11 10 'triloop)
   (nuc 'bass4 
        (list
 	(bd '|909| :lp-dist 0.0 :lvp 0.3)
@@ -41,9 +47,8 @@
        :gap 100 :reset t))
 
 (s 'hat (:sync-to 'bass-2)
-  (lim 'lvl 0.3 0.4)
   (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
-  (nuc 'hh (hats 'accent) :gap 100))
+  (nuc 'hh (hats 'accent) :gap 100 :reset t))
 
 (s 'bb (:sync-to 'bass-2)
   (lim 'lvl 0.3 0.4)
