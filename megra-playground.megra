@@ -26,39 +26,43 @@
 
 (remove-node 1 :rebalance t)
 
-(global-resources 30)
+(global-resources 140)
+
 (clear)
+
 (inh (fade 100 0) saw)
 
 (current-node (gethash 'bass4 *processor-directory*))
 (pring 'bass4 t)
+
 (s 'bass-2 ()
   ;;(exh 30 sn)
   (inh 90 sn)
-  (inh 40 bd)
+  (inh 30 bd)
   ;;(inh (fade 100 0) saw)
-  (lmctrl 0.4 'loop 15 :lifespan 18)
-  ;;(probctrl 0.1 11 10 'triloop)
-  (nuc 'bass4 
+  (lmctrl t 0.4 'triloop 
+   (nuc 'bass4 
        (list
-	(bd '|909| :lp-dist 0.0 :lvp 0.3)
+	(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
 	(sn '|78| :rev 0.01 :lvl 0.3)
 	(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3))
-       :gap 100 :reset t))
+       :gap 100 :reset t)))
+
 
 (s 'hat (:sync-to 'bass-2)
   (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
   (nuc 'hh (hats 'accent) :gap 100 :reset t))
 
-(s 'bb (:sync-to 'bass-2)
-  (lim 'lvl 0.3 0.4)
-  (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
-  (nuc 'bell (risset 2000 :atk 40 :sus 300 :rel 400 :rev 0.0) :gap 400))
+(s 'bb (:sync-to 'bass-2)  
+  (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(100 200 200 100))
+  (nuc 'bell (risset 2000 :atk (oscil 4 100) :lvl 0.1 :sus 300 :rel 400 :rev 0.1) :gap 400 :reset t))
 
 (dq 'bass-2)
 
-(branch 'bass-2 :variance 0.1 :sync-to 'bass-2
-	:functors '(((pitch) (* 5))) )
+(branch 'bb :variance 0.1 :sync-to 'bass-2
+	:functors '(((pitch) (* 2))) )
+
+(merg 'bb)
 
 ;; define some test graph structures
 
