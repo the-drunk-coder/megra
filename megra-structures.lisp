@@ -358,8 +358,10 @@
 ;; so we can modify the edge that led to that event,
 
 ;; functions and macros that serve as shorthands ... 
+
+
 (defun node (id &rest content)
-  (make-instance 'node :id id :content content :color 'white))
+  (make-instance 'node :id id :content (alexandria::flatten content) :color 'white))
 
 ;; shorthand for node 
 (defun n (id &rest content)
