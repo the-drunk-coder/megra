@@ -8,50 +8,34 @@
 
 (clear)
 
-(saw-p (saw 100))
-
-(pring 'bass4 t)
-
-(event-source (growth 'bass4 0.3))
+(current-node (gethash 'bass4 *processor-directory*))
 
 (pull-events (gethash 'bass-2 *chain-directory*))
 
-(handle-events  0)
-
-(current-transition (gethash 'bass-2 *chain-directory*))
-
-(setf (current-node (gethash 'bass4 *processor-directory*)) 3)
-
-(prune 'bass4 :node-id 1)
-
-(remove-node 1 :rebalance t)
-
-(global-resources 140)
-
-(clear)
-
-(inh (fade 100 0) saw)
-
-(current-node (gethash 'bass4 *processor-directory*))
-(pring 'bass4 t)
+(traced-path (gethash 'bass4 *processor-directory*))
 
 (s 'bass-2 ()
   ;;(exh 30 sn)
-  (inh 90 sn)
-  (inh 30 bd)
+  ;;(inh 90 sn)
+  ;;(inh 30 bd)
   ;;(inh (fade 100 0) saw)
-  (lmctrl t 0.4 'triloop 
+  (lifemodel t 0.4 'triloop 2 :lifespan 3
    (nuc 'bass4 
        (list
-	(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
-	(sn '|78| :rev 0.01 :lvl 0.3)
-	(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3))
-       :gap 100 :reset t)))
+	;;(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
+	(perc 'paint)
+	;;(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3)
+	)
+       :gap 400 :reset nil)
+   )
+  )
 
 
 (s 'hat (:sync-to 'bass-2)
   (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
-  (nuc 'hh (hats 'accent) :gap 100 :reset t))
+  )
+
+(nuc 'hh (hats 'accent) :gap 100 :reset t)
 
 (s 'bb (:sync-to 'bass-2)  
   (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(100 200 200 100))

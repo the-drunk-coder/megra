@@ -236,50 +236,56 @@
 	 (prune-id (if node-id
 		       node-id
 		       (car (last reduced-path))))
-	 (replacement-id (random-node-id (source-graph g))))          
-    ;;(incudine::msg error "pruning ~D"  prune-id)    
+	 (replacement-id (random-node-id (source-graph g) (current-node g))))
+    ;;(if replacement-id
+    ;;	(incudine::msg error "pruning ~D replace ~D"  prune-id replacement-id)
+    ;;	(incudine::msg error "pruning ~D"  prune-id))
     (setf (traced-path g) (remove prune-id (traced-path g)))
     (when prune-id
       ;; otherwise the graph can't be pruned further ... 
       (when (eql (current-node g) prune-id)
+	(unless (traced-path g)
+	  (setf (traced-path g) (list replacement-id)))
 	;;(incudine::msg error "current node pruned, replace with ~D"  last-id)
 	(setf (current-node g) replacement-id))
       (remove-node (source-graph g) prune-id :rebalance t))))
 
-(defun grow (graph-id &key (variance 0)		        
-			durs
-			functors
-			(method 'old)
-			(rnd 0)
-			higher-order)
-  ;;(incudine::msg info "growing graph ~D" graph-id) 
-  (cond ((eql method 'triloop)
-	 (grow-graph-triloop (gethash graph-id *processor-directory*)
-		     :var variance
-		     :durs durs
-		     :functors functors
-		     :rnd rnd
-		     :higher-order higher-order))
-	((eql method 'quadloop)
-	 (grow-graph-quadloop (gethash graph-id *processor-directory*)
-		     :var variance
-		     :durs durs
-		     :functors functors
-		     :rnd rnd
-		     :higher-order higher-order))
-	((eql method 'loop)
-	 (grow-graph-loop (gethash graph-id *processor-directory*)
-		     :var variance
-		     :durs durs
-		     :functors functors
-		     :rnd rnd
-		     :higher-order higher-order))
-	(t (grow-graph (gethash graph-id *processor-directory*)
-		     :var variance
-		     :durs durs
-		     :functors functors
-		     :rnd rnd
-		     :higher-order higher-order))))
+(defun grow (graph-or-id &key (variance 0)		        
+			   durs
+			   functors
+			   (method 'old)
+			   (rnd 0)
+			   higher-order)
+  (let ((resolved-graph (if (typep graph-or-id 'symbol)
+			    (gethash graph-or-id *processor-directory*)
+			    graph-or-id)))
+    (cond ((eql method 'triloop)
+	   (grow-graph-triloop resolved-graph
+	    :var variance
+	    :durs durs
+	    :functors functors
+	    :rnd rnd
+	    :higher-order higher-order))
+	  ((eql method 'quadloop)
+	   (grow-graph-quadloop resolved-graph
+				:var variance
+				:durs durs
+				:functors functors
+				:rnd rnd
+				:higher-order higher-order))
+	  ((eql method 'loop)
+	   (grow-graph-loop resolved-graph
+			    :var variance
+			    :durs durs
+			    :functors functors
+			    :rnd rnd
+			    :higher-order higher-order))
+	  (t (grow-graph resolved-graph
+			 :var variance
+			 :durs durs
+			 :functors functors
+			 :rnd rnd
+			 :higher-order higher-order)))))
 
 (defun prune (graph-id &key exclude node-id)
   (prune-graph (gethash graph-id *processor-directory*)
