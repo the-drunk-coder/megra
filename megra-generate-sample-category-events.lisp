@@ -4,16 +4,6 @@
 (defun remove-nth (n list)
   (nconc (subseq list 0 n) (nthcdr (1+ n) list)))
 
-(defun find-keyword-val (keyword seq &key default)
-  (if (and
-       (member keyword seq)
-       (cadr (member keyword seq))
-       (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
-      (let* ((pos (position keyword seq))
-	     (val (nth (+ pos 1) seq)))
-	val)
-      default))
-
 (defun purge-keyword (keyword seq)
   (remove keyword (remove-nth (+ 1 (position keyword seq)) seq)))
 
