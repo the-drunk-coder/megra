@@ -185,7 +185,7 @@
 		   (symbol-name proc-name)
 		   "-"
 		   (symbol-name (gensym)))))
-    (update-graph-name (source-graph (wrapper-wrapped-processor clone)) proc-name)
+    (update-graph-name (source-graph (wrapper-wrapped-processor clone)) (name (wrapper-wrapped-processor clone)))
     ;; store reference in global processor directory
     (setf (gethash (name (wrapper-wrapped-processor clone)) *processor-directory*)
 	  (wrapper-wrapped-processor clone))
