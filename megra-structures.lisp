@@ -68,7 +68,7 @@
   (setf (graph-incoming-edges g) (make-hash-table :test 'eql)))
 
 (defmethod random-node-id ((g graph) exclude-node &key)
-  (if exclude-current
+  (if exclude-node
       (alexandria::random-elt
        (remove exclude-node (alexandria::hash-table-keys (graph-nodes g))))
       (alexandria::random-elt (alexandria::hash-table-keys (graph-nodes g)))))
