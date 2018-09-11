@@ -292,8 +292,6 @@
 	       :exclude exclude
 	       :node-id node-id))
 
-
-
 (defun branch (chain-id &key (shift 0) (variance 0.1) sync-to functors)
   (incudine::msg info "branching chain ~D" chain-id)			 
   ;; get the old chain ... 
