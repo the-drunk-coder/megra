@@ -99,7 +99,6 @@
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))
 
-(in-package :megra)
 (defun sum-probs (edge-list)
   (loop for e in edge-list
      summing (edge-probability e) into tprob
@@ -362,7 +361,6 @@
 
 ;; functions and macros that serve as shorthands ... 
 
-
 (defun node (id &rest content)
   (make-instance 'node :id id :content (alexandria::flatten content) :color 'white))
 
@@ -383,6 +381,7 @@
 ;; shorthand for edge
 (defun e (src dest &key p (d 512))
   (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
+
 
 
 
