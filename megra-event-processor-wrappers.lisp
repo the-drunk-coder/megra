@@ -35,10 +35,16 @@
   ((pgrowth :accessor population-control-pgrowth :initarg :pgrowth)
    (pprune :accessor population-control-pprune :initarg :pprune)))
 
+(length '(1 nil 3))
+
+(member nil '(1 nil 3))
+
+(cadr (member 1 '(1 nil 3)))
+
 (defun find-keyword-val (keyword seq &key default)
   (if (and
        (member keyword seq)
-       (cadr (member keyword seq))
+       (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
        (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
       (let* ((pos (position keyword seq))
 	     (val (nth (+ pos 1) seq)))
