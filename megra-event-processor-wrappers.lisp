@@ -169,9 +169,11 @@
     ;; check if current node is old enough (regarding eventual variance)
     ;; delete if old
     ;; add regain ... 
-    (when (and (or (and *dont-let-die* (> (graph-size (source-graph (wrapper-wrapped-processor l))) 1))
-		   (not *dont-let-die*))	       
-	       (> (node-age cur-node)
+    (when (and
+	   (lmc-apoptosis l)
+	   (or (and *dont-let-die* (> (graph-size (source-graph (wrapper-wrapped-processor l))) 1))
+	       (not *dont-let-die*))	       
+	   (> (node-age cur-node)
 		  (add-var (lmc-node-lifespan l)
 			   (lmc-node-lifespan-var l))))
       (unless (eql cur-node-id eaten-node)

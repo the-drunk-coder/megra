@@ -136,9 +136,11 @@
 					      '(id
 						max-id
 						highest-edge-order
-						event-source))
+						source))
 			   :precise-keywords precise-keywords
 			   :functors functors))
+
+
 
 (defmethod deepcopy-object ((e event-processor) &key (imprecision 0.0)
 						  exclude-keywords
@@ -149,6 +151,18 @@
 			   :exclude-keywords (append
 					      exclude-keywords
 					      '(successor predecessor))
+			   :precise-keywords precise-keywords
+			   :functors functors))
+
+(defmethod deepcopy-object ((e event) &key (imprecision 0.0)
+					exclude-keywords
+					precise-keywords
+					functors)
+  (deepcopy-generic-object e
+			   :imprecision imprecision
+			   :exclude-keywords (append
+					      exclude-keywords
+					      '(source))
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
@@ -171,6 +185,7 @@
 		   (symbol-name proc-name)
 		   "-"
 		   (symbol-name (gensym)))))
+    (update-graph-name (source-graph (wrapper-wrapped-processor clone)) proc-name)
     ;; store reference in global processor directory
     (setf (gethash (name (wrapper-wrapped-processor clone)) *processor-directory*)
 	  (wrapper-wrapped-processor clone))
