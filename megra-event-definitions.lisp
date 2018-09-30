@@ -358,6 +358,49 @@
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt timestamp))))
 
 (define-event
+  :long-name grain-event-4ch
+  :short-name grain-4ch
+  :parent-events (level-event
+		  duration-event
+		  spatial-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder grain-4ch-sample-folder)
+	       (sample-file grain-4ch-sample-file)
+	       (sample-location grain-4ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-4ch evt timestamp))
+
+
+(define-event
+  :long-name grain-event-8ch
+  :short-name grain-8ch
+  :parent-events (level-event
+		  duration-event
+		  spatial-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder grain-8ch-sample-folder)
+	       (sample-file grain-8ch-sample-file)
+	       (sample-location grain-8ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-8ch evt timestamp))
+
+(define-event
   :long-name grain-event-nores
   :short-name nores
   :parent-events (level-event
@@ -408,6 +451,18 @@
   (setf (grain-sample-location g)
 	(concatenate 'string *sample-root*
 		     (grain-sample-folder g) "/" (grain-sample-file g) "." cm::*sample-type* )))
+
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-4ch) &key)
+  (setf (grain-4ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-4ch-sample-folder g) "/" (grain-4ch-sample-file g) "." cm::*sample-type* )))
+
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-8ch) &key)
+  (setf (grain-8ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-8ch-sample-folder g) "/" (grain-8ch-sample-file g) "." cm::*sample-type* )))
 
 (defmethod initialize-instance :after ((g grain-event-nores) &key)
   (setf (nores-sample-location g)
