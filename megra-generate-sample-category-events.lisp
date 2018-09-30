@@ -49,13 +49,101 @@
 		:lvl lvl :rate rate :start start :atk atk :rel rel
 		:lp-dist lp-dist :lp-freq lp-freq :rev rev :pos pos
 		:tags tags :ambi-p ambi-p :dst dst
-		:hp-q hp-q :lp-q lp-q :pf-q hp-q
+		:hp-freq hp-freq :hp-q hp-q :lp-q lp-q :pf-q pf-q
 		:azi azi :ele ele :lp-freq-lfo-depth lp-freq-lfo-depth
 		:lp-freq-lfo-speed lp-freq-lfo-speed
 		:lp-freq-lfo-phase lp-freq-lfo-phase
-		:pf-freq pf-freq :pf-gain pf-gain)))       
+		:pf-freq pf-freq :pf-gain pf-gain
+		:combi-fun combi-fun)))       
      (defun ,(read-from-string (concatenate 'string name "-p")) (event)
        (member ',(read-from-string name) (event-tags event)))))
+
+(defmacro define-category-sampling-event-4ch (name dur)
+  (let ((name-proc (concatenate 'string name "-4ch")))
+    `(progn
+     (defun ,(read-from-string name-proc) (&rest rest)
+       (let* ((args (copy-seq rest))
+	      (lvl (find-keyword-val :lvl args :default 0.4))
+	      (dur (find-keyword-val :dur args :default ,dur))
+	      (pos (find-keyword-val :pos args :default 0.5))
+	      (start (find-keyword-val :start args :default 0.0))
+	      (rate (find-keyword-val :rate args :default 1.0))
+	      (atk (find-keyword-val :atk args :default 1))
+	      (rel (find-keyword-val :rel args :default 7))
+	      (hp-freq (find-keyword-val :hp-freq args :default 10))
+	      (hp-q (find-keyword-val :hp-q args :default 0.4))
+	      (lp-q (find-keyword-val :lp-q args :default 0.1))
+	      (lp-freq (find-keyword-val :lp-freq args :default 5000))
+	      (lp-dist (find-keyword-val :lp-dist args :default 1.0))
+	      (lp-freq-lfo-depth (find-keyword-val :lp-freq-lfo-depth args :default 0.0))
+	      (lp-freq-lfo-speed (find-keyword-val :lp-freq-lfo-speed args :default 0.0))
+	      (lp-freq-lfo-phase (find-keyword-val :lp-freq-lfo-phase args :default 0.0))
+	      (pf-q (find-keyword-val :pf-q args :default 10))
+	      (pf-freq (find-keyword-val :pf-freq args :default 1000))
+	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
+	      (rev (find-keyword-val :rev args :default 0.0))
+	      (tags (find-keyword-val :tags args :default '(,(read-from-string name-proc))))
+	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
+	      (search-keywords (purge-all-keywords param-keywords rest)))
+	 (grain-4ch (string-downcase ,name)
+		    (get-matching-sample-name ,name search-keywords)
+		    :dur dur
+		    :lvl lvl :rate rate :start start :atk atk :rel rel
+		    :lp-dist lp-dist :lp-freq lp-freq :rev rev :pos pos
+		    :tags tags
+		    :hp-freq hp-freq
+		    :hp-q hp-q :lp-q lp-q :pf-q pf-q
+		    :lp-freq-lfo-depth lp-freq-lfo-depth
+		    :lp-freq-lfo-speed lp-freq-lfo-speed
+		    :lp-freq-lfo-phase lp-freq-lfo-phase
+		    :pf-freq pf-freq :pf-gain pf-gain
+		    :combi-fun combi-fun)))       
+     (defun ,(read-from-string (concatenate 'string name-proc "-p")) (event)
+       (member ',(read-from-string name) (event-tags event))))))
+
+(defmacro define-category-sampling-event-8ch (name dur)
+  (let ((name-proc (concatenate 'string name "-8ch")))
+    `(progn
+     (defun ,(read-from-string name-proc) (&rest rest)
+       (let* ((args (copy-seq rest))
+	      (lvl (find-keyword-val :lvl args :default 0.4))
+	      (dur (find-keyword-val :dur args :default ,dur))
+	      (pos (find-keyword-val :pos args :default 0.5))
+	      (start (find-keyword-val :start args :default 0.0))
+	      (rate (find-keyword-val :rate args :default 1.0))
+	      (atk (find-keyword-val :atk args :default 1))
+	      (rel (find-keyword-val :rel args :default 7))
+	      (hp-freq (find-keyword-val :hp-freq args :default 10))
+	      (hp-q (find-keyword-val :hp-q args :default 0.4))
+	      (lp-q (find-keyword-val :lp-q args :default 0.1))
+	      (lp-freq (find-keyword-val :lp-freq args :default 5000))
+	      (lp-dist (find-keyword-val :lp-dist args :default 1.0))
+	      (lp-freq-lfo-depth (find-keyword-val :lp-freq-lfo-depth args :default 0.0))
+	      (lp-freq-lfo-speed (find-keyword-val :lp-freq-lfo-speed args :default 0.0))
+	      (lp-freq-lfo-phase (find-keyword-val :lp-freq-lfo-phase args :default 0.0))
+	      (pf-q (find-keyword-val :pf-q args :default 10))
+	      (pf-freq (find-keyword-val :pf-freq args :default 1000))
+	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
+	      (rev (find-keyword-val :rev args :default 0.0))
+	      (tags (find-keyword-val :tags args :default '(,(read-from-string name-proc))))
+	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
+	      (search-keywords (purge-all-keywords param-keywords rest)))
+	 (grain-8ch (string-downcase ,name)
+		    (get-matching-sample-name ,name search-keywords)
+		    :dur dur
+		    :lvl lvl :rate rate :start start :atk atk :rel rel
+		    :lp-dist lp-dist :lp-freq lp-freq :rev rev :pos pos
+		    :tags tags 
+		    :hp-freq hp-freq :hp-q hp-q :lp-q lp-q :pf-q pf-q
+		    :lp-freq-lfo-depth lp-freq-lfo-depth
+		    :lp-freq-lfo-speed lp-freq-lfo-speed
+		    :lp-freq-lfo-phase lp-freq-lfo-phase
+		    :pf-freq pf-freq :pf-gain pf-gain
+		    :combi-fun combi-fun)))       
+     (defun ,(read-from-string (concatenate 'string name-proc "-p")) (event)
+       (member ',(read-from-string name) (event-tags event))))))
 
 (defun average-sample-length-ms (categ)
   (let ((accum 0.0)
@@ -95,4 +183,6 @@
 		 (dur (cond ((< avg 64) 64)
 			   ((> avg 1024) 1024)
 			   (t (float (floor (/ avg 4)))))))
-	    (eval `(define-category-sampling-event ,dirname ,dur))))))
+	    (eval `(define-category-sampling-event ,dirname ,dur))
+	    (eval `(define-category-sampling-event-4ch ,dirname ,dur))
+	    (eval `(define-category-sampling-event-8ch ,dirname ,dur))))))
