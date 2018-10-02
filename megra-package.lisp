@@ -1,7 +1,9 @@
 (require 'closer-mop)
+(require 'cl-fad)
+(require 'cl-libsndfile)
 
 (defpackage "MEGRA"
- (:use "COMMON-LISP" "CM" "SB-MOP")
+ (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD" "CL-LIBSNDFILE")
  (:export "graph"
 	  "brownian-motion"
 	  "dispatch"
@@ -32,7 +34,7 @@
 (defparameter *eval-on-copy* nil)
 
 ;; make int a little bit longer, because the first one or two elements will be dropped
-(defparameter *global-trace-length* 9)
+(defparameter *global-trace-length* 10)
 
 (defvar *encourage-percentage* 5)
 ;; what might be the justification for this split ?
@@ -42,7 +44,7 @@
 
 (in-package :megra)
 
-;; main storage for event processors (a processor can be used without
+;; main storage for emvent processors (a processor can be used without
 ;; being kept here, but at least historically it has been practical
 ;; to keep track of certain things)
 (defparameter *processor-directory* (make-hash-table :test 'eql))
@@ -89,11 +91,19 @@
 (load (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers"))
 (load (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers"))
 (load (concatenate 'string cm::*megra-root* "/megra-structures"))
-(load (concatenate 'string cm::*megra-root* "/megra-event-processors"))
+(load (concatenate 'string cm::*megra-root* "/megra-growth-parameters"))
+(load (concatenate 'string cm::*megra-root* "/megra-event-processor-base"))
+(load (concatenate 'string cm::*megra-root* "/megra-graph-event-processor"))
+(load (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers"))
+(load (concatenate 'string cm::*megra-root* "/megra-stream-event-processors"))
 (load (concatenate 'string cm::*megra-root* "/megra-disencourage"))
 (load (concatenate 'string cm::*megra-root* "/megra-dispatchers"))
+(load (concatenate 'string cm::*megra-root* "/megra-deepcopy"))
 (load (concatenate 'string cm::*megra-root* "/megra-constructors"))
+(load (concatenate 'string cm::*megra-root* "/megra-controllers-interfaces"))
+(load (concatenate 'string cm::*megra-root* "/megra-helpers"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-filters"))
 (load (concatenate 'string cm::*megra-root* "/megra-supercollider-interface"))
 (load (concatenate 'string cm::*megra-root* "/megra-visualize"))
 (load (concatenate 'string cm::*megra-root* "/megra-growth"))
+(load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))

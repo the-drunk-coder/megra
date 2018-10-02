@@ -78,9 +78,13 @@
 
 ;; a overwrites b, b (or incomplete) is returned ...
 (defmethod combine-single-events ((a event) (b event) &key)
-  (cond ((events-compatible a b) (overwrite-slots a b))
+  (cond ((typep b 'control-event) b) ;; let control events untouched ...
+	((typep b 'population-control-event) b)
+	((typep b 'growth-event) b)
+	((typep b 'shrink-event) b)
+	((events-compatible a b) (overwrite-slots a b))	  
 	;; merge events into a new incomplete event
-	(t (let ((new-event (make-instance 'incomplete-event)))
+	  (t (let ((new-event (make-instance 'incomplete-event)))
 	      (copy-slots-to-class a new-event)
 	      (copy-slots-to-class b new-event)
 	      (overwrite-slots b new-event)
@@ -133,8 +137,6 @@
 	    (format nil ":~a ~a " param-name param-value))	
 	(format nil "~a " value-string))))
 
-(mapcar (lambda (l) (nth 2 l)) '((1 2 4) (1 2 3) (1 2)))
-
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
@@ -148,32 +150,46 @@
 			  (create-accessors t)
 			  (handler nil))
   (let* ((class-name (intern (format nil "~A" long-name)))
-	 (keyword-parameters  (remove-if #'(lambda (x) (member (car x) direct-parameters)) parameters))
+	 (keyword-parameters  (remove-if #'
+			       (lambda (x)
+				 (member (car x) direct-parameters)) parameters))
 	 ;; get parameter definitions from parent classes ...
 	 (parent-parameters (mapcan #'(lambda (cl)
 					(get-param-definitions (find-class cl)))
 				    parent-events))
 	 (direct-parameter-defs (nconc (remove-if-not #'
 					(lambda (x)
-					  (member (car x) direct-parameters)) parameters)
+					  (member (car x) direct-parameters))
+					parameters)
 				       (remove-if-not #'
 					(lambda (x)
-					  (member (car x) direct-parameters)) parent-parameters))) 
-	 (parent-keyword-parameters (remove-if #'(lambda (x) (member (car x) direct-parameters)) 
+					  (member (car x) direct-parameters))
+					parent-parameters))) 
+	 (parent-keyword-parameters (remove-if #'(lambda (x)
+						   (member (car x)
+							   direct-parameters)) 
 					       parent-parameters))
 	 (parameter-names (mapcar #'car parameters))
-	 (accessor-names (mapcar #'cadr parameters)) ;; second is a accessor name 	 
-	 (keyword-parameter-defaults (mapcar (lambda (l) (nth 2 l)) keyword-parameters)) ;; 3rd is default value	 
-	 (keyword-parameter-names (mapcar #'car keyword-parameters)) ;; first is name 
+	 (accessor-names (mapcar #'cadr parameters)) ;; second is a accessor name 
+	 (keyword-parameter-defaults
+	  (mapcar (lambda (l) (nth 2 l)) keyword-parameters)) ;; 3rd is default value    
+	 (keyword-parameter-names
+	  (mapcar #'car keyword-parameters)) ;; first is name 
 	 (parent-parameter-names (mapcar #'car parent-parameters))
-	 (parent-keyword-parameter-defaults (mapcar (lambda (l) (nth 2 l)) parent-keyword-parameters)) ;; 3rd is default	 
+	 (parent-keyword-parameter-defaults
+	  (mapcar (lambda (l) (nth 2 l))
+		  parent-keyword-parameters)) ;; 3rd is default	 
 	 (parent-keyword-parameter-names (mapcar #'car parent-keyword-parameters))
-	 (keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD")) parameter-names))
-	 (parent-keywords (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
-				  parent-parameter-names))
+	 (keywords
+	  (mapcar #'(lambda (x)
+		      (intern (format nil "~A" x) "KEYWORD")) parameter-names))
+	 (parent-keywords
+	  (mapcar #'(lambda (x) (intern (format nil "~A" x) "KEYWORD"))
+		  parent-parameter-names))
 	 (keyword-pairs (interleave keywords parameter-names))
 	 (parent-keyword-pairs (interleave parent-keywords parent-parameter-names))
-	 (class-name-list (make-list (length parameter-names) :initial-element class-name)))
+	 (class-name-list (make-list (length parameter-names)
+				     :initial-element class-name)))
     `(progn
        ;; define the base class
        (defclass ,class-name ,parent-events ())
@@ -190,7 +206,8 @@
 				  :initargs (list slot-keyword)
 				  :initform slot-initform)
 	       ;; set parameter limits
-	       (setf (gethash slot-name *parameter-limits*) (list (nth 3 param) (nth 4 param)))))
+	       (setf (gethash slot-name *parameter-limits*)
+		     (list (nth 3 param) (nth 4 param)))))
        ;; define the constructor function
        (defun ,short-name (,@direct-parameters
 				 &key
@@ -213,7 +230,8 @@
        ;; re-define the getters so that the value is calculated if
        ;; it's a modifier object or function instead of a plain value ...
        (if ,create-accessors
-	   (progn ,@(mapcar #'create-accessor class-name-list accessor-names parameter-names)))
+	   (progn ,@(mapcar #'create-accessor
+			    class-name-list accessor-names parameter-names)))
        ;; produce event handler method ...
        (defmethod handle-event ((evt ,class-name) timestamp &key)
 	 (handler-case ,handler
@@ -223,7 +241,8 @@
 	 (string-downcase (format nil "(~a ~{~a~}~{~a~}~{~a~}~a~a)"
 		 ',short-name
 		 (mapcar #'(lambda (par-name direct-accs-name)
-			     (print-param par-name (funcall direct-accs-name evt) nil))
+			     (print-param par-name
+					  (funcall direct-accs-name evt) nil))
 			 ',(mapcar #'car direct-parameter-defs)
 			 ',(mapcar #'cadr direct-parameter-defs))
 		 (mapcar #'(lambda (par-name accs-name)
@@ -235,7 +254,10 @@
 			 ',parent-keyword-parameter-names
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
-		 (print-combi-fun (value-combine-function evt))))))))
+		 (print-combi-fun (value-combine-function evt)))))
+       ;; define event predicate for filters
+       (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-" (symbol-name 'p))) (event)
+	 (typep event ',class-name )))))
 ;; end event definition macro ...
 
 ;; another macro if you want to make an event available under a different
@@ -280,3 +302,31 @@
 			,(intern "TAGS" "KEYWORD") tags
 			,(intern "COMBI-FUN" "KEYWORD") combi-fun
 			,@keyword-pairs)))))
+
+;; helper functions for abstract sampling events ...
+(defun keyword-match-score (keywords string)
+  (if keywords
+      (let ((matches (mapcar #'(lambda (keyword)
+				 (search (symbol-name keyword)
+					 (string-upcase string)))
+			     keywords)))    
+	(float (/ (length (remove nil matches)) (length keywords))))
+      1.0))
+
+(defun get-matching-sample-name (categ keywords)
+  (let ((best-match "")
+	(best-score 0.0))
+    (loop for path in
+       ;; shuffle list, so that we won't get the same thing
+       ;; everytime no keywords are provided
+	 (shuffle-list (cl-fad::list-directory (concatenate 'string cm::*sample-root*
+							    (string-downcase categ))))
+       do (let ((cur-score (keyword-match-score keywords (pathname-name path))))
+	    (when (eql cur-score 1.0)
+	      (setf best-match (pathname-name path))
+	      (return))
+	    (when (> cur-score best-score)
+	      (setf best-score cur-score)
+	      (setf best-match (pathname-name path)))))	      
+    best-match))
+

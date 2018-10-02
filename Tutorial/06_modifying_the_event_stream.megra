@@ -1,0 +1,38 @@
+;; Mégra is uses event streams, in which
+;; the stream of musical events can be streamed through
+;; certain modificators ...
+
+;; Modifying the Event Stream
+(in-package :megra)
+
+;; graphs can be defined anywhere !  
+(g 'tri-wave ()
+   (n 1 (tri 110 :lvl 0.5 :dur 100 :atk 4 :rel 80 :lp-freq 1600))
+   (e 1 1 :d 210 :p 100)) 
+
+;; to read the flow of events, read from bottom up !
+(sink 'ride-the () ;; <- ... and stream to here ! 
+  ;; <------------ (in between, a lot of stuff can happen !)
+  'tri-wave) ;; <- events are generated here ...
+
+;; Events may be mofified at the source ...
+(g 'tri-wave ()
+  (n 1 (tri (brownian 100 120) ;; <- define a brownian motion on the pitch param
+	    :lvl 0.5 :dur 100
+	    :atk 4 :rel 80
+	    :lp-freq (oscil 100 1600 :cycle 20))) ;; <- add some oscillation
+   (e 1 1 :d 210 :p 100)) 
+
+;; Events may be modified on the stream .. this one has the same effect as the
+;; one above !
+(sink 'ride-the () ;; <- ... and stream to here !
+  (s-oscb 'lp-freq 100 1600 :cyc 20) ;; <- add some oscillation on the stream
+  (s-brow 'pitch 100 120 :step 1.0) ;; <- add some brownian motion
+  (g 'tri-wave ()
+    (n 1 (tri 100 ;; <- define a brownian motion on the pitch param
+	      :lvl 0.5 :dur 100
+	      :atk 4 :rel 80
+	      :lp-freq 500)) 
+    (e 1 1 :d 210 :p 100)))
+
+(clear)
