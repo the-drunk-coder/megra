@@ -38,7 +38,7 @@
   :long-name level-event
   :short-name lvl
   :parent-events (event)
-  :parameters ((lvl event-level 0.3 0.0 1.1)) 
+  :parameters ((lvl event-level 0.3 0.0 0.35)) 
   :direct-parameters (lvl))
 
 (define-event
@@ -358,6 +358,49 @@
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt timestamp))))
 
 (define-event
+  :long-name grain-event-4ch
+  :short-name grain-4ch
+  :parent-events (level-event
+		  duration-event
+		  spatial-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder grain-4ch-sample-folder)
+	       (sample-file grain-4ch-sample-file)
+	       (sample-location grain-4ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-4ch evt timestamp))
+
+
+(define-event
+  :long-name grain-event-8ch
+  :short-name grain-8ch
+  :parent-events (level-event
+		  duration-event
+		  spatial-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder grain-8ch-sample-folder)
+	       (sample-file grain-8ch-sample-file)
+	       (sample-location grain-8ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-8ch evt timestamp))
+
+(define-event
   :long-name grain-event-nores
   :short-name nores
   :parent-events (level-event
@@ -409,6 +452,18 @@
 	(concatenate 'string *sample-root*
 		     (grain-sample-folder g) "/" (grain-sample-file g) "." cm::*sample-type* )))
 
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-4ch) &key)
+  (setf (grain-4ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-4ch-sample-folder g) "/" (grain-4ch-sample-file g) "." cm::*sample-type* )))
+
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-8ch) &key)
+  (setf (grain-8ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-8ch-sample-folder g) "/" (grain-8ch-sample-file g) "." cm::*sample-type* )))
+
 (defmethod initialize-instance :after ((g grain-event-nores) &key)
   (setf (nores-sample-location g)
 	(concatenate 'string *sample-root*
@@ -443,7 +498,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-buzz-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-buzz-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-buzz-event-sc evt timestamp))))
 
 (define-event
   :long-name square-adsr-event
@@ -494,7 +550,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-saw-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-saw-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-saw-event-sc evt timestamp))))
 
 (define-event
   :long-name square-event
@@ -511,7 +568,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-square-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-square-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-square-event-sc evt timestamp))))
 
 
 (define-event
@@ -528,7 +586,8 @@
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-sine-event-incu evt))
-	     (if (member 'sc (event-backends evt)) (handle-sine-event-sc evt timestamp))))
+	     (if (member 'sc (event-backends evt))
+		 (handle-sine-event-sc evt timestamp))))
 
 (define-event
   :long-name triangle-event
@@ -722,7 +781,7 @@
 
 (define-event
   :long-name control-event
-  :short-name ctrl
+  :short-name control
   :parent-events (event)
   :parameters ((control-function event-control-function)) 
   :direct-parameters (control-function)
@@ -730,7 +789,138 @@
   ;; function to be called in the handler function ... 
   :create-accessors nil
   ;; just call the specified control function ... 
-  :handler (funcall (event-control-function evt)))
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+		(event-control-function evt)
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing ctrl ~D" e)))))
+
+;; shorter ... 
+(defmacro ctrl (&body funs)
+  `(control #'(lambda () ,@funs)))
+
+(define-event
+  :long-name population-control-event
+  :short-name popctrl-ev
+  :parent-events (event)
+  :parameters ((graph-id event-popctrl-graph-id)
+	       (variance event-popctrl-variance)	       
+	       (durs event-popctrl-durs '())
+	       (exclude event-popctrl-exclude '())
+	       (method event-popctrl-method 'triloop)
+	       (pgrow event-popctrl-grow-probability 10)
+	       (pprune event-popctrl-prune-probability 10)
+	       (phoedge event-popctrl-higher-order-probability 10)
+	       (hoedge-max event-popctrl-higher-order-max-order 4))
+  :direct-parameters (graph-id variance pgrow pprune method)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-popctrl-graph-id evt) 'self)
+				       (car (event-source evt))
+				       (event-popctrl-graph-id evt))))
+		  (when (< (random 100) (event-popctrl-grow-probability evt))
+		    (let ((order (if
+				  (< (random 100)
+				     (event-popctrl-higher-order-probability evt))
+				  (+ 2 (random
+					(- (event-popctrl-higher-order-max-order
+					    evt) 2)))
+				  nil)))
+		      (grow resolved-id
+			:variance (event-popctrl-variance evt)
+			:durs (event-popctrl-durs evt)
+			:method (event-popctrl-method evt)
+			:higher-order order)))		  
+		  (when (< (random 100) (event-popctrl-prune-probability evt))
+		    (prune resolved-id
+			   :exclude (event-popctrl-exclude evt))))	      
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing growth:~% ~D" e)))))
+
+(define-event
+  :long-name growth-event
+  :short-name growth
+  :parent-events (event)
+  :parameters ((graph-id event-growth-graph-id)
+	       (variance event-growth-variance)	       
+	       (durs event-growth-durs '())
+	       (method event-growth-method 'triloop)
+	       (higher-order event-growth-higher-order 4))
+  :direct-parameters (graph-id variance)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-growth-graph-id evt) 'self)
+				       (car (event-source evt))
+				       (event-growth-graph-id evt))))
+		  (grow resolved-id
+			:variance (event-growth-variance evt)		        
+			:durs (event-growth-durs evt)
+			:method (event-growth-method evt)
+			:higher-order (event-growth-higher-order evt)))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing growth:~% ~D" e)))))
+
+(define-event
+  :long-name shrink-event
+  :short-name shrink
+  :parent-events (event)
+  :parameters ((graph-id event-shrink-graph-id)
+	       (exclude event-shrink-exclude '())
+	       (node-id event-shrink-node-id nil))
+  :direct-parameters (graph-id)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-shrink-graph-id evt) 'self)
+				       (car (event-source evt))
+				       (event-shrink-graph-id evt))))
+		  (prune resolved-id
+			 :exclude (event-shrink-exclude evt)
+			 :node-id (event-shrink-node-id evt)))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing shrink:~% ~D" e)))))
+
+(define-event
+  :long-name stack-push-event
+  :short-name stack-push
+  :parent-events (event)
+  :parameters ((chain-id event-stack-push-chain-id 'self)
+	       (variance event-stack-push-variance 0.001)
+	       (shift event-stack-push-shift 0))
+  :direct-parameters (chain-id variance)
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
+				       (let ((graph-id (car (event-source evt))))
+					 (chain-bound
+					  (gethash graph-id *processor-directory*)))
+				       (event-stack-push-chain-id evt))))
+		  (branch resolved-id
+			  :variance (event-stack-push-variance evt)
+			  :shift (event-stack-push-variance evt)))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing stack-push ~D" e)))))
+
+(define-event
+  :long-name stack-pop-event
+  :short-name stack-pop
+  :parent-events (event)
+  :parameters ((chain-id event-stack-pop-chain-id))
+  :handler (incudine:nrt-funcall
+	    (handler-case 
+	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
+				       (let ((graph-id (car (event-source evt))))
+					 (chain-bound
+					  (gethash graph-id *processor-directory*)))
+				       (event-stack-push-chain-id evt))))
+		  (dq resolved-id))
+	      (simple-error (e)
+		(incudine::msg
+		 error "something went wrong executing stack-pop ~D" e)))))
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 
@@ -740,10 +930,5 @@
   :parent-events (event)
   :parameters ((dur transition-duration 512 20)) 
   :direct-parameters (dur))
-
-
-
-
-				        
 
 
