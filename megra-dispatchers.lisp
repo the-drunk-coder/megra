@@ -134,15 +134,16 @@
 	  (unless (or (is-active chain) (wait-for-sync chain))
 	    (incudine::msg error "start chain")
 	    (activate chain)
-	    ;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
-	    ;;	     #'perform-dispatch-sep-times
-	    ;;	     chain
-	    ;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
-	    ;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
-	    (incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
-			  #'perform-dispatch
-			  chain				     
-			  it)))))
+	    (incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
+	    	     #'perform-dispatch-sep-times
+	    	     chain
+	    	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
+	    	     (+ (incudine:now) #[(chain-shift chain) ms]))
+	    ;;(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
+	    ;;		  #'perform-dispatch
+	    ;;		  chain				     
+	    ;;		  it)
+	    ))))
 
 ;; if 'unique' is t, an event processor can only be hooked into one chain.
 ;; somehow re-introduce msync ? unique is basically msync without sync ... 
