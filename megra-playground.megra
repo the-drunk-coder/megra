@@ -29,17 +29,89 @@
   ;;(inh 90 sn)
   ;;(inh 30 bd)
   ;;(inh (fade 100 0) saw)
-  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+  ;;(lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
    (nuc 'bass4 
        (list
 	;;(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
-	(perc-4ch 'paint)
+	(spieluhr-8ch 'bici :lvl 0.08 :rev (oscil 0.0 0.1)
+		      :pos (oscil 4.5 6.5) :dur 600
+		      :start (oscil 0.1 0.3)
+		      :rate 0.5)
 	;;(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3)
 	)
-       :gap 400 :reset nil)
-   )
+       :gap 400 :reset t)
+   ;;)
   )
 
+
+y
+
+(s 'bass-2 ()
+  ;;(exh 30 sn)
+  ;;(inh 90 sn)
+  ;;(inh 30 bd)
+  ;;(inh (fade 100 0) saw)
+  ;;(lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+   (nuc 'bass4 
+       (list
+	;;(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
+	(spieluhr-8ch 'bici :lvl 0.08 :rev (oscil 0.0 0.1)
+		      :pos (oscil 4.5 6.5) :dur 600
+		      :start (oscil 0.1 0.3)
+		      :rate 0.5)
+	;;(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3)
+	)
+       :gap 400 :reset t)
+   ;;)
+   )
+
+
+
+(s 'bass-6 ()
+  ;;(exh 30 sn)
+  ;;(inh 90 sn)
+  ;;(inh 30 bd)
+  ;;(inh (fade 100 0) saw)
+  ;;(lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+   (nuc 'bass5
+       (list
+	;;(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
+	(bell-8ch 'metal 'water :lvl 0.22 :rev (oscil 0.0 0.1)
+		      :pos (oscil 4.5 6.5) :dur 600
+		      :start (oscil 0.39 0.85)
+		      :rate 1.7)
+	;;(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3)
+	)
+       :gap 400 :reset t)
+   ;;)
+   )
+
+
+(clear)
+
+(s 'bass-3 ()
+  ;;(exh 30 sn)
+  ;;(inh 90 sn)
+  ;;(inh 30 bd)
+  ;;(inh (fade 100 0) saw)
+  ;;(lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+   (nuc 'bass5
+       (list
+	;;(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
+	(spieluhr-8ch 'bici :lvl 0.08 :rev (oscil 0.0 0.1)
+		      :pos (oscil 2.5 4.5) :dur 600
+		      :start (oscil 0.1 0.3)
+		      :rate 0.2)
+	;;(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3)
+	)
+       :gap 400 :reset t)
+   ;;)
+  )
+
+
+(branch 'bass-2)
+
+(clear)
 
 (s 'hat (:sync-to 'bass-2)
   (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
