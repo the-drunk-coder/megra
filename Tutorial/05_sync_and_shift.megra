@@ -8,28 +8,28 @@
 ;; Try to start them, so that a consistent rhythm emerges:
 
 (sink 'drums-sink ()
-  (graph 'drums ()
-    (node 1 (grain "tutorial_samples" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
-    (node 2 (grain "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
-    (edge 1 2 :dur 410 :prob 100)
-    (edge 2 1 :dur 410 :prob 100)))
+      (graph 'drums ()
+	     (node 1 (tutorial 'jazzy 'bd :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 2 (tutorial 'jazzy 'sn :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (edge 1 2 :dur 410 :prob 100)
+	     (edge 2 1 :dur 410 :prob 100)))
 
 (sink 'bassline-sink () 
-  (graph 'bassline ()
-    (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
-    (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
-    (edge 1 2 :dur 410 :prob 100)
-    (edge 2 1 :dur 410 :prob 100)))
+      (graph 'bassline ()
+	     (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
+	     (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
+	     (edge 1 2 :dur 410 :prob 100)
+	     (edge 2 1 :dur 410 :prob 100)))
 
 (sink 'guitar-sink ()
-  (graph 'guitar ()
-    (node 1 (grain "tutorial_samples" "git"
-		   :lvl 0.9
-		   :lp-dist 0.9
-		   :dur 120
-		   :start 0.1 ;; <- start position, relative to the file length
-		   :rate 1.0)) ;; <- playback rate ..
-    (edge 1 1 :dur 410 :prob 100)))
+      (graph 'guitar ()
+	     (node 1 (tutorial 'git
+			       :lvl 0.9
+			       :lp-dist 0.9
+			       :dur 120
+			       :start 0.1 ;; <- start position, relative to the file length
+			       :rate 1.0)) ;; <- playback rate ..
+	     (edge 1 1 :dur 410 :prob 100)))
 
 (clear)
 ;; and again !
@@ -42,19 +42,19 @@
 
 ;; start the drums again:
 (sink 'drums-sink ()
-  (graph 'drums ()
-    (node 1 (grain "tutorial_samples" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
-    (node 2 (grain "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
-    (edge 1 2 :dur 410 :prob 100)
-    (edge 2 1 :dur 410 :prob 100)))
+      (graph 'drums ()
+	     (node 1 (tutorial 'jazzy 'bd :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 2 (tutorial 'jazzy 'sn :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (edge 1 2 :dur 410 :prob 100)
+	     (edge 2 1 :dur 410 :prob 100)))
 
 ;; the solution is rather prosaic:
 (sink 'bassline-sink (:sync-to 'drums-sink) ;; <-- sync to ...
-  (graph 'bassline ()
-    (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
-    (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
-    (edge 1 2 :dur 410 :prob 100)
-    (edge 2 1 :dur 410 :prob 100)))
+      (graph 'bassline ()
+	     (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
+	     (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
+	     (edge 1 2 :dur 410 :prob 100)
+	     (edge 2 1 :dur 410 :prob 100)))
 
 ;; The :sync-to flag makes the current sink wait until the next dispatch
 ;; of the sink it's synced to. Afterwards, each sink is dispatched on
@@ -68,15 +68,15 @@
 ;; but we saw already that this is hard ... that's where shift-sync
 ;; comes into play:
 
-(sink 'guitar-sink (:sync-to 'drums-sink :shift 280) ;;<- sync, but wait for 200ms!
-  (graph 'guitar ()
-    (node 1 (grain "tutorial_samples" "git"
-		   :lvl 0.5
-		   :lp-dist 0.9
-		   :dur 120
-		   :start 0.1 ;; <- start position, relative to the file length
-		   :rate 1.0)) ;; <- playback rate ..
-    (edge 1 1 :dur 410 :prob 100)))
+(sink 'guitar-sink (:sync-to 'drums-sink :shift 280) ;;<- sync, but wait for 280ms!
+      (graph 'guitar ()
+	     (node 1 (tutorial 'git
+			       :lvl 0.5
+			       :lp-dist 0.9
+			       :dur 120
+			       :start 0.1 ;; <- start position, relative to the file length
+			       :rate 1.0)) ;; <- playback rate ..
+	     (edge 1 1 :dur 410 :prob 100)))
 
 (stop 'guitar-sink)
 
@@ -89,14 +89,14 @@
 ;; to delay the dispatching by a certain time:
 
 (sink 'guitar-sink (:shift 3000) ;; <-  wait for three seconds ! 
-  (graph 'guitar ()
-    (node 1 (grain "tutorial_samples" "git"
-		   :lvl 0.5
-		   :lp-dist 0.9
-		   :dur 120
-		   :start 0.1 ;; <- start position, relative to the file length
-		   :rate 1.0)) ;; <- playback rate ..
-    (edge 1 1 :dur 410 :prob 100)))
+      (graph 'guitar ()
+	     (node 1 (grain "tutorial" "git"
+			    :lvl 0.5
+			    :lp-dist 0.9
+			    :dur 120
+			    :start 0.1 ;; <- start position, relative to the file length
+			    :rate 1.0)) ;; <- playback rate ..
+	     (edge 1 1 :dur 410 :prob 100)))
 
 ;; if you want to execute some random actions syncronized to the next
 ;; event of a certain sink, you can use the sync-progn macro ...

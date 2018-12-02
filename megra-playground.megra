@@ -1,44 +1,17 @@
 (ql:quickload :cl-aubio)
 (in-package :cl-aubio)
 
-(fvec_get_sample )
-
-(in-package :megra)
-
-(pring 'bass4 t)
-
-(graph->svg 'bass4 "bass2postel" :renderer 'circo)
-
-(stop)
-
-(clear)
-
-(current-node (gethash 'bass4 *processor-directory*))
-
-(pull-events (gethash 'bass-2 *chain-directory*))
-
-(traced-path (gethash 'bass4 *processor-directory*))
-
-(grain-8ch-sample-location (perc-8ch 'paint))
-
-(handle-event (perc-8ch 'paint) 0.0)
-
-
+;; DOES THAT WORK ?? 
 (s 'bass-2 ()
-  ;;(exh 30 sn)
-  ;;(inh 90 sn)
-  ;;(inh 30 bd)
-  ;;(inh (fade 100 0) saw)
-  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
-   (nuc 'bass4 
-       (list
-	;;(bd '|909| :lp-dist 1.0 :dur 90 :start 0.0 :lvl 0.4)
-	(perc-4ch 'paint)
-	;;(saw 100 :dur 70 :rel 60 :lp-dist 1.0 :lp-freq 500 :lvl 0.3)
-	)
-       :gap 400 :reset nil)
-   )
-  )
+   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	      (nuc 'rates
+		   (rate 0.2)
+		   :gap 400 :reset nil))
+   (g 'lul ()
+      (n 1 (bd))
+      (n 2 (sn))
+      (e 1 2 :d 400 :p 100)
+      (e 2 1 :d 400 :p 100)))
 
 
 (s 'hat (:sync-to 'bass-2)
