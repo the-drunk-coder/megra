@@ -1,18 +1,61 @@
-(ql:quickload :cl-aubio)
-(in-package :cl-aubio)
+(in-package :megra)
 
 ;; DOES THAT WORK ?? 
 (s 'bass-2 ()
-   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
-	      (nuc 'rates
-		   (rate 0.2)
-		   :gap 400 :reset nil))
-   (g 'lul ()
-      (n 1 (bd))
-      (n 2 (sn))
-      (e 1 2 :d 400 :p 100)
-      (e 2 1 :d 400 :p 100)))
+  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	     (nuc 'rates
+		  (rate 0.9)
+		  :gap 400 :reset t))
+  (g 'lul ()
+    (n 1 (bd))
+    (n 2 (sn 'fat))
+    (e 1 2 :d 400 :p 100)
+    (e 2 1 :d 400 :p 100)))
 
+(s 'bass-2 ()
+  (nuc 'rates
+       (rate 7.2)
+       :gap 400 :reset nil)
+  (g 'lul ()
+    (n 1 (bd))
+    (n 2 (sn 'fat))
+    (e 1 2 :d 400 :p 100)
+    (e 2 1 :d 400 :p 100)))
+
+
+(s 'bass-2 ()
+ (g 'luld ()
+    (n 1 (rate 0.2))    
+    (e 1 1 :d 400 :p 100))
+  (g 'lul ()
+    (n 1 (bd))
+    (n 2 (sn 'fat))
+    (e 1 2 :d 400 :p 100)
+    (e 2 1 :d 400 :p 100)))
+
+(clear)
+
+(s 'bass-2 ()
+  (cc 100 (rate 7.2))
+  (g 'lul ()
+    (n 1 (bd))
+    (n 2 (sn 'fat))
+    (e 1 2 :d 400 :p 100)
+    (e 2 1 :d 400 :p 100)))
+
+
+(clear)
+
+(s 'bub ()
+  (lifemodel nil 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	     (nuc 'rates
+		  (rate 3.2)
+		  :gap 400 :reset t))
+  (g 'lul ()
+    (n 1 (bd))
+    (n 2 (sn))
+    (e 1 2 :d 400 :p 100)
+    (e 2 1 :d 400 :p 100)))
 
 (s 'hat (:sync-to 'bass-2)
   (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
