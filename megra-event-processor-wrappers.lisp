@@ -6,13 +6,19 @@
 		      :initarg :wrapped-processor)))
 
 (defmethod pull-events ((w event-processor-wrapper) &key)
-  (let ((ev (pull-events (wrapper-wrapped-processor w))))
-    (when (wrapper-act w)
-      (post-processing w))
+  (let ((ev (if (successor w)
+		(apply-self (wrapper-wrapped-processor w)
+			    (pull-events (successor w)))
+		(current-events (wrapper-wrapped-processor w)))))
+    (when (wrapper-act w) (post-processing w))
     ev))
 
 (defmethod pull-transition ((w event-processor-wrapper) &key)
-  (pull-transition (wrapper-wrapped-processor w)))
+  (if (successor w)
+      (progn
+	(current-transition (wrapper-wrapped-processor w))
+	(pull-transition (successor w)))
+      (current-transition (wrapper-wrapped-processor w))))
 
 ;;;;;;;;;;;;;;;; GENERIC Population Control ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
