@@ -4,13 +4,12 @@
 (s 'bass-2 ()
   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
 	     (nuc 'rates
-		  (rate 0.9)
+		  (pitch 100)
 		  :gap 400 :reset t))
-  (g 'lul ()
-    (n 1 (bd))
-    (n 2 (sn 'fat))
-    (e 1 2 :d 400 :p 100)
-    (e 2 1 :d 400 :p 100)))
+  (nuc 'rates2 (saw 100 :dur 80 :lp-freq (oscil 300 1400))		  
+		  :gap 100 :reset t))
+
+(clear)
 
 (s 'bass-2 ()
   (nuc 'rates
