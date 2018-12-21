@@ -1,0 +1,49 @@
+;; Branching and Merging, or stochastic canons ... 
+;; (terminology shamelessly borrowed from your favourite code revisioning
+;; system ...)
+
+(in-package :megra)
+
+;; look at this nice little bell construction ...
+;; (in case you didn't notice the risset bell sound before ...)
+(s 'bell ()  
+  (lifemodel t 0.1 'triloop 15 :lifespan 33 :durs '(400 200 200 100)
+	  (nuc 'construction (risset 1000 :atk (oscil 4 100 :cycle 20)
+			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
+	       :gap 400 :reset t)))
+
+
+;; wouldn't it be nice if we could add a different "voice", lets say,
+;; an octave higher ? here we go ... 
+(branch 'bell :variance 0.1 :functors '(((pitch) (* 2))))
+
+;; the whole construction is branched, and forms an autonomous entity
+;; that develops a life of it's own ...
+
+;; let's add another to the stack, a bass voice, with higher
+;; variance 
+(branch 'bell :variance 0.5 :functors '(((pitch) (* 0.2))))
+
+;; functors can be applied to any parameter
+(branch 'bell :variance 0.6 :functors '(((rel) (* 0.2))))
+
+;; now, if it's a little too much, let's drop the layers one by one ..
+;; (dq = deque, even though it's a stack ... might need a better word here )
+(dq 'bell)
+
+;; or all of them at once ... 
+;; (the missing g character is not a typo, the merge keyword was already taken)
+(merg 'bell)
+
+;; another way of branching:
+(s 'bell (:branch t) ;; the branch flag means the modified
+  ;; version will be pushed to the stack ...
+  ;; (evaluate code multiple times)
+  (lifemodel t 0.1 'triloop 15 :lifespan 33 :durs '(400 200 200 100)
+	  (nuc 'construction (risset 1000 :atk (oscil 4 100 :cycle 20)
+			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
+	       :gap 400 :reset t)))
+
+;; (merg) and (dq) currently don't work with that method ... 
+
+(clear)

@@ -35,4 +35,15 @@
 		   :lp-freq 500)) 
 	 (e 1 1 :d 210 :p 100)))
 
+;; now both ...  (jk, doesn't work (yet))
+(sink 'ride-the () ;; <- ... and stream to here !
+      (s-oscb 'lp-freq 100 1600 :cyc 20) ;; <- add some oscillation on the stream
+      (s-brow 'pitch 100 120 :step 1.0) ;; <- add some brownian motion
+      (g 'tri-wave ()
+	 (n 1 (tri (brownian 100 120) ;; <- define a brownian motion 
+		   :lvl 0.5 :dur 100
+		   :atk 4 :rel 80
+		   :lp-freq 500)) 
+	 (e 1 1 :d 210 :p 100)))
+
 (clear)
