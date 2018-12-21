@@ -1,21 +1,23 @@
+(in-package :megra)
 ;; 07 - Event "Arithmetics" and Taxonomy
 
 ;; Look at those two events:
 
 (s 'demo-wave ()
-   (g 'wave
-      (n 1 (tri 40 :dur 400 :lvl 0.4))
+   (g 'wave ()
+      (n 1 (tri 90 :dur 200 :lvl 0.4))
       (e 1 1 :d 400 :p 100)))
 
 (s 'demo-sn ()
-   (g 'snare
-      (n 1 (sn 'fat :dur 400 :lvl 0.4))
+   (g 'snare ()
+      (n 1 (sn 'fat :dur 200 :lvl 0.4))
       (e 1 1 :d 400 :p 100)))
 
 ;; Even though they sound quite different, they have a lot in common.
 ;; Both have duration, level, and, if you look at all possible parameters,
 ;; filter frequencies, attack, decay, etc ...
 
+(clear)
 
 
 
