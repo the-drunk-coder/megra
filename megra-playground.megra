@@ -1,6 +1,6 @@
 (in-package :megra)
 
-;; DOES THAT WORK ?? 
+;; DOES THAT WORK ?? -- NOW IT DOES !!  
 (s 'bass-2 ()
   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
 	     (nuc 'rates
@@ -56,101 +56,57 @@
     (e 1 2 :d 400 :p 100)
     (e 2 1 :d 400 :p 100)))
 
-(s 'hat (:sync-to 'bass-2)
-  (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(50 200 200 100))
-  )
+(s 'bb (:sync-to 'bub)  
+  (lifemodel t 0.1 'triloop 15 :lifespan 33 :durs '(100 200 200 100)
+	  (nuc 'bell (risset 2000 :atk (oscil 4 100)
+			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
+	       :gap 400 :reset t)))
 
-(nuc 'hh (hats 'accent) :gap 100 :reset t)
 
-(s 'bb (:sync-to 'bass-2)  
-  (lmctrl 0.1 'triloop 15 :lifespan 18 :durs '(100 200 200 100))
-  (nuc 'bell (risset 2000 :atk (oscil 4 100) :lvl 0.1 :sus 300 :rel 400 :rev 0.1) :gap 400 :reset t))
-
-(dq 'bass-2)
-
-(branch 'bb :variance 0.1 :sync-to 'bass-2
-	:functors '(((pitch) (* 2))) )
+(branch 'bb :variance 0.1 :sync-to 'bass-2 :functors '(((pitch) (* 2))))
 
 (merg 'bb)
 
-;; define some test graph structures
-
 ;; tell a story ! 
+;; (abandoned syntax idea ... )
 (begin with ...
        after a while ... started playing intense/slowly/... <- probs 
        after a short while ...
        short break)
+
 (clear)
 
-(graph 'bassline ()
-  (node 1 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (node 2 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (node 3 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (node 4 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (node 5 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (node 6 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (node 7 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
-  (edge 1 3 :dur 1000 :prob 100)
-  (edge 3 1 :dur 1000 :prob 100)
-  (edge 2 3 :dur 1000 :prob 100)
-  (edge 3 2 :dur 1000 :prob 100)
-  (edge 3 4 :dur 1000 :prob 100)
-  (edge 4 3 :dur 1000 :prob 100)
-  (edge 4 5 :dur 1000 :prob 100)
-  (edge 5 4 :dur 1000 :prob 100)
-  (edge 5 6 :dur 1000 :prob 100)
-  (edge 6 5 :dur 1000 :prob 100)
-  (edge 5 7 :dur 1000 :prob 100)
-  (edge 7 5 :dur 1000 :prob 100))
-
-(has-incoming-1st-order (source-graph (gethash 'bassline *processor-directory*)) 3)
-(has-outgoing-1st-order (source-graph (gethash 'bassline *processor-directory*)) '(3))
-
-(remove-node (source-graph (gethash 'bassline *processor-directory*)) 4)
-
-(s 'hat (:sync-to 'bass-2 :shift 100)
-  (cc 40 (lvl 0.0))
-  (nuc 'hats (list (hats 'accent :rate 1.3 :rev 0.001)
-		   (popctrl 'self 0.2 2
-			   2
-			   'quadloop
-			    :durs '(100 200 200 200 200)
-			  
-			    ))
-       :gap 200 :reset t))
+(s 'mo-bass ()
+  (graph 'bassline ()
+    (node 1 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 2 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 3 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 4 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 5 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 6 (tri 'g2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (node 7 (tri 'c2 :lvl 0.7 :atk 2 :rel 30 :dur 720 :lp-freq 500))
+    (edge 1 3 :dur 1000 :prob 100)
+    (edge 3 1 :dur 1000 :prob 100)
+    (edge 2 3 :dur 1000 :prob 100)
+    (edge 3 2 :dur 1000 :prob 100)
+    (edge 3 4 :dur 1000 :prob 100)
+    (edge 4 3 :dur 1000 :prob 100)
+    (edge 4 5 :dur 1000 :prob 100)
+    (edge 5 4 :dur 1000 :prob 100)
+    (edge 5 6 :dur 1000 :prob 100)
+    (edge 6 5 :dur 1000 :prob 100)
+    (edge 5 7 :dur 1000 :prob 100)
+    (edge 7 5 :dur 1000 :prob 100)))
 
 
+(grow 'bassline :durs '(100 200 200 100 100) :variance 0.2 :method 'quadloop)
 
+(discourage 'bassline)
 
-
-;; doesn't work for higher order ! 
-(collect-child-ids-and-durations
- (source-graph (gethash 'bass2 *processor-directory*)) '(3) :order 1)
-
-(prune 'bass2)
-
-
-
-
-
-;; discourage -- avoid modifying unique edges ... 
-;; avoid creating self-referential nodes when removing !
-
-
-;; freeze method to supress further growth !
-;; check behaviour when CHI = NIL !!
-
-(grow 'bass4 :durs '(100 200 200 100 100) :variance 0.2 :method 'quadloop)
-
-(discourage 'bass4)
-
-(prune 'bass4)
+(prune 'bassline)
 
 (clear)
 (stop)
-
-
-
 
 (s 'bd (:sync-to 'bass-2)
   (cc 100 (lvl 0.2))
@@ -170,76 +126,55 @@
     (e 2 3 :p 100)
     (e 3 1 :p 100)))
 
-(branch 'ho :variance 0.4 :functors '(((rate) (* 2.3)) ((lvl) (* 1.5))) :shift 256)
-
 ;; todo : reset flag ... if set, only replace nodes (leaving grown nodes intact)
 (s 'hi ()
   (cc 100 (start (oscil 0.01 0.9)))
   (nuc 'ki (utter 'kinski) :gap (oscil 256 1024) :reset t))
+
+(branch 'hi :variance 0.4 :functors '(((rate) (* 2.3)) ((lvl) (* 1.5))) :shift 256)
+
 (discourage 'ho)
+
 (s 'ho ()
-   (cyc 'ho (l (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
+   (cyc 'ho (e- (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
 
 (s 'hhasd (:sync-to 'ho :shift 256)  
   (cyc 'hh (e- (elec 'accent 'hat)) 512))
 
+(clear)
+;; DOESN'T WORK !!! 
+(s 'tbest ()
+  (graph 'b-test ()
+    (node 1         
+	  (grain "field" "maine_train" :dur 128
+		 :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
+    (node 2       
+	  (grain "field" "maine_train" :dur 128
+		 :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
+    (node 3 
+	  (growth 'self 0.01)
+	  (grain "field" "maine_train" :dur 128
+		 :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
+    (node 4
+          (shrink 'self :exclude '(1 2 3 4 ))
+	  (grain "field" "maine_train" :dur 128
+		 :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
+    (edge 1 2 :prob 90 :dur 256)
+    (edge 2 2 :prob 90 :dur 256)
+    (edge 2 3 :prob 5 :dur 256)
+    (edge 2 4 :prob 5 :dur 256)
+    (edge 1 3 :prob 5 :dur 256)
+    (edge 1 4 :prob 5 :dur 256)
+    (edge 3 1 :prob 50 :dur 256)
+    (edge 3 2 :prob 50 :dur 256)
+    (edge 4 1 :prob 50 :dur 256)
+    (edge 4 2 :prob 50 :dur 256)))
 
-;; growth - provide possible values for certain params ??
-;; shrink - handle deleted nodes ...
-;; graph-update that keeps "grown" nodes ---
-
-;; DONE - more controllable imprecision/functors ? FUNCTORS !!!
-;; DONE probability for growth replication (return nil on deepcopy, clear list from nils ...)
-;; DONE add-imprecision when cloning ??
-;; DONE unify graph/source/event global ids as lists, not conses ...
-;; DONE update names of deepcopies (like, graphs etc ...)
-;; fix cloning of whole chains - obsolete ??
-;; DONE 'self for automated branching of branches containing growth nodes (growth, shrink)
-;; DONE ? 'self for automated branching stacking (needs chain id ... )
-;; DONE more sophisticated cloning ...
-;; DONE branching graphs - correct naming (currently clones inherit the same name ... )
-
-(graph 'b-test ()
-  (node 1         
-	(grain "field" "maine_train" :dur 128
-	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
-	       :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
-  (node 2       
-	(grain "field" "maine_train" :dur 128
-	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
-	       :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
-  (node 3 
-	(growth 'self 0.01 :replicate 30)
-	(grain "field" "maine_train" :dur 128
-	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
-	       :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
-  (node 4
-        (shrink 'self :exclude '(1 2 3 4 ))
-	(grain "field" "maine_train" :dur 128
-	       :lvl (oscil 0.0 1.0) :rate 0.8 :start 0.1 :atk 1 :rel 7
-	       :lp-dist 1.0 :lp-freq 5000 :rev 0.01 :pos 0.5))
-  (edge 1 2 :prob 90 :dur 256)
-  (edge 2 2 :prob 90 :dur 256)
-  (edge 2 3 :prob 5 :dur 256)
-  (edge 2 4 :prob 5 :dur 256)
-  (edge 1 3 :prob 5 :dur 256)
-  (edge 1 4 :prob 5 :dur 256)
-  (edge 3 1 :prob 50 :dur 256)
-  (edge 3 2 :prob 50 :dur 256)
-  (edge 4 1 :prob 50 :dur 256)
-  (edge 4 2 :prob 50 :dur 256))
-
-
-(branch 'bl :variance 0.3 :shift 128)
-
-(pring 'b-test t)
-
-(sink 'bl ()
-  'b-test)
-
-(del 'bl)
-
-(stop 'bl)
+(clear)
 
 (g 'some-more-other-sines ()
     (n 1 (sine 100 :lvl .6 :dur 200))
@@ -255,15 +190,10 @@
     (e '(2 2 2 2 2) 1 :p 50 :d 600)   
     (e 3 1 :p 100 :d 300))
 
+;; manual clone ...
 (clone 'some-more-other-sines 'ccalone)
 
 (pring 'ccalone t)
-
-(defparameter *ccl* (source-graph (gethash 'ccalone *processor-directory*)))
-
-(node-global-id (gethash 2 (graph-nodes *ccl*)))
-
-(event-source (car (pull-events (gethash 'ccalone *processor-directory*))))
 
 (g 'some-other-sines ()
     (n 1 (sine 50 :lvl .6 :dur 200))
@@ -283,8 +213,6 @@
 
 (sink 's2 ()  
   'some-other-sines)
-
-(pring)
 
 (grow 'some-other-sines :functors '(((pitch) (* 8))))
 
@@ -307,6 +235,7 @@
 
 (clear)
 
+;; DOESN'T WORK !! 
 (sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
     (n 1 (grain-24db "elec" "bd808"
@@ -330,6 +259,7 @@
     (e 2 1 :d 1000 :p 95)
     ))
 
+;; DOESN'T WORK !! 
 (sink 'dede (:sync-to 'rere :branch nil :shift 500)
   (g 'crepessu ()
     (n 1 (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
@@ -366,6 +296,7 @@
 (sync-progn 'blub
   (sink 's2 (:sync-to nil :branch nil :shift 0 :group 'a )))
 
+;; DOESN'T WORK
 (sink 'drums-sink ()  
   (graph 'drums ()
     (node 1 (grain-24db "tutorial_samples" "jazzy_bd" :rev 0.0
@@ -396,6 +327,7 @@
 ;; the solution is rather prosaic:
 (sink 'bassline-sink (:sync-to 'drums-sink))
 
+;; SAMPLE OUTDATED !!
 (sink 'guitar-sink (:sync-to 'drums-sink :shift 100) ;;<- sync, but wait for 200ms!
   (graph 'guitar ()
     (node 1 (grain "02_instruments" "09_egit_lick_high_140bpm"
@@ -457,6 +389,10 @@
     (e '(2 2 2 2 2) 1 :p 50 :d 600)   
     (e 3 1 :p 100 :d 300)))
 
+(clear)
+
+;; you can use midi events, currently only with JACK
+;; (i guess ?)
 (sink 's1 ()
   (g 'uno-midi ()
     (n 1 (mid #'(lambda () (+ 20 (random 60))) :lvl .8 :dur 200))
@@ -472,9 +408,9 @@
 (sink 's2 () 
   (g 'dos-midi ()
     (n 1 (mid 44 :lvl
-	      (env '(0.0 1.0 1.0 0.0 0.0 0.5 0.5 0.0) '(10 10 10 10 10 10 10)) :dur 200))    
-    (e 1 1 :p 100 :d 256)
-    ))
+	      (env '(0.0 1.0 1.0 0.0 0.0 0.5 0.5 0.0)
+		   '(10 10 10 10 10 10 10)) :dur 200))    
+    (e 1 1 :p 100 :d 256)))
 
 (sink 's1 ()
   (g 'dos-midi-0 ()
@@ -530,60 +466,6 @@
 
 (stop 'd1)
 
-;; BUG: first dispatch d1, then d2, then d1 again
-;; expected: second dispatch has no effect, as pitch-generator
-;; is already bound ...
-(sink 'd1 ()
-  (g 'lvl-gen (:combine-mode 'zip)
-    (n 1 (lvl 0.2))
-    (n 2 (lvl 0.9))
-    (n 3 (lvl (oscil 0.1 1.0)))
-    (e 1 1 :p 20)
-    (e 1 2 :p 80)
-    (e 2 1 :p 60)
-    (e 2 3 :p 20)
-    (e 2 2 :p 20)
-    (e 3 3 :p 90)
-    (e 3 1 :p 10))
-  (g 'dur-gen (:combine-mode 'zip :affect-transition t)
-    (n 1 (dur 64))
-    (n 2 (dur 96))
-    (e 1 1 :p 80 :d (oscil 64 128))
-    (e 1 2 :p 20 :d 64)
-    (e 2 1 :p 20 :d 128)
-    (e 2 2 :p 80 :d (oscil 128 512)))
-  (g 'pitch-generator ()
-    (n 1 (mid 'a2))
-    (n 2 (mid 'c3))
-    (n 3 (mid 'gs2))
-    (e 1 2 :p 80 :d 1024)
-    (e 1 3 :p 20 :d 512)
-    (e 2 1 :p 70 :d 1024)
-    (e 2 2 :p 30 :d 1024)
-    (e 3 1 :p 60 :d 1024)
-    (e 3 2 :p 40 :d 512))) 
-
-(clear)
-
-(dispatch 'd2 ()
-  (g 'dur-gen-2 (:combine-mode 'zip :affect-transition t)
-    (n 1 (dur 64))
-    (n 2 (dur 96))
-    (e 1 1 :p 80 :d 640)
-    (e 1 2 :p 20 :d 640)
-    (e 2 1 :p 80 :d 1280)
-    (e 2 2 :p 20 :d 1280))
-  (graph 'pitch-generator ()
-    (node 1 (mid 'a4))
-    (node 2 (mid 'c4))
-    (node 3 (mid 'gs4))
-    (edge 1 2 :prob 80 :dur 1024)
-    (edge 1 3 :prob 20 :dur 512)
-    (edge 2 1 :prob 70 :dur 1024)
-    (edge 2 2 :prob 30 :dur 1024)
-    (edge 3 1 :prob 60 :dur 1024)
-    (edge 3 2 :prob 40 :dur 512))) 
-
 ;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi ()
        (node 1 (mid 59 :lvl .8 :dur 1500))
@@ -634,23 +516,9 @@
   ;;(chance-combine 'grain-lvl-cc 0 (lvl 0.0))
   'the-grain)
 
-
 (deactivate 'the-grain)
 
-(graph 'ambi-test ()
-  (node 1 (grain "instr" "pizz_f4" :dur 128 :atk 1 :rel 30
-		 :lvl 0.9 :rate 1.0 :rev 0.0
-		 :azi (oscil 0.0 3.14)
-		 :ele (oscil 3.14 0)
-		 :ambi-p t))
-  (edge 1 1 :prob 100 :dur 128))
-
-(sink 'lb (:sync-to nil :branch nil :shift 0)
-  'ambi-test)
-
 (clear)
-
-(deactivate 'ambi-tap-512)
 
 (graph 'the-512-beat ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
@@ -670,7 +538,8 @@
 ;; events can be printed ...
 (print-event (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0 :ambi nil :pos 0.5 :tags '(fru)))
+		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0
+		      :pos 0.5 :tags '(fru)))
 
 (print-event (pitch 23))
 
@@ -683,6 +552,7 @@
 
 (sink 's1 ()  
   (chance-combine 'grain-lvl-cc 0 (lvl 0.0):filter #'is-snare-p)
+  ;; long form is broken !!
   (stream-oscillate-between 'tres-osc 'rate 1.0 2.5 :cycle 10 :filter #'is-snare-p)
   'the-512-beat)
 
@@ -739,65 +609,6 @@
 
 (deactivate 'tres-ctrl)
 (deactivate 'tap-b)
-
-;; EXPLAIN - state tracking and perma 
-
-;; UNIQUE vs NON-UNIQUE
-
-;; 1.) unique -- DEFAULT
-(clear)
-
-(graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 100))
-
-(sink 's1 ()  
-  'tres-midi)
-
-(sink 's1 ()
-  (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)
-  (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 300)
-  'tres-midi)
-
-(sink 's1 ()  
-  'tres-midi)
-
-;; 2.) non-unique
-;; the last graph in the chain determines the timing, so each
-;; processor chain needs a unique ending point, but it's possible
-;; for multiple processors to have the same predecessor, thus branching the
-;; dispatcher chains
-(clear)
-
-(graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 200))
-
-(sink 's1 (:unique nil)  
-  (brownian-motion 'tres-rw 'pitch :step-size 1 :lbound 50 :ubound 60 :wrap t)
-  'tres-midi)
-
-(sink 's1 (:unique nil)    
-    ;;(oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
-    'tres-midi)
-
-;; CHAIN - define a processor chain without dispatching it, i.e if you want to dispatch
-;; it by using a (ctrl ...) event ...
-(clear)
-
-(graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 200))
-
-(chain 's1 ()        
-   (oscillate-between 'tres-osc 'lvl 0.0 1.0 :cycle 30)
-   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
-   'tres-midi)
-
-(sink 's1 ())
-
-(deactivate 'tap-b)
-
 
 ;; TAGS AND FILTERS 
 (graph 'tres-midi ()
@@ -923,12 +734,10 @@
     (node 1 (mid 84 :lvl 1.0 :dur 50))
     (edge 1 1 :prob 100 :dur 1000)))
 
-
 (sink 's1 ()
   (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (sine 50 :lvl 1.0 :lp-dist 1.0 :lp-freq 150 :lp-q 0.8 :rev 0.0 :atk 4 :rel 400 :dur 500))
     (edge 1 1 :prob 100 :dur 1000)))
-
 
 (sink 's1 ()
   (graph 'origin-2 () ;; for now, origin event needs to have handler ...
@@ -1005,17 +814,6 @@
 
 (deactivate 'gb2-cc)
 
-;; the path is traced ...
-(princ (traced-path (gethash 'all-to-all *processor-directory*)))
-
-(graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
-(graph->svg 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-vis.dot")
-
-;; encourage or discourage the traced path ...
-(progn (encourage 'all-to-all)
-       (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
-       (graph->svg 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-vis.dot"))
-
 (progn 
   (discourage 'all-to-all)
   (graph->code 'all-to-all "/home/nik/REPOSITORIES/FREE_RANGE/MEGRA/ata-out.lisp")
@@ -1041,10 +839,7 @@
   (n 1 (mid 31))
   (n 2 (mid 31))
   (n 3 (mid 31))
-  (e 1 1 :p 100)
-
-  
-  )
+  (e 1 1 :p 100))
 
 
 (clear) 
@@ -1054,8 +849,6 @@
        (edge 1 1 :prob 100 :dur 300))
 
 (sink 's1 () 'gengen)
-
-(mapcar #'(lambda (valla vallb) (+ valla vallb)) '(2 1 1) '(1 1 ))
 
 ;; generate 
 (notes->midi-graph 'blab :notes '((ds3 500) (f3 500) (a3 500) (c3 500)
@@ -1091,14 +884,10 @@
 				  (ds3 500) (f3 500) (a3 500) (c3 500)
 				  (ds3 500) (f3 500) (a3 500) (c3 500)) :randomize 100)
 
-
+;; BROKEN !! 
 (values->transitions->graph 'durator dur '(500 1000 200) '(512 1024 256))
 
-(print-graph (gethash 'pitcher *processor-directory*))
-
 (values->graph 'pitcher pitch '(a3 a4 d2))
-
-(time (dotimes (i 1000) (graph->dot *test*)))
 
 (graph->code 'blab "/home/nik/brup.lisp")
 
@@ -1109,10 +898,6 @@
 (setf *discourage-percentage* 40)
 
 (discourage 'blab)
-
-(incudine:now)
-
-(defparameter *test* nil)
 
 ; 1. Test:
 
@@ -1145,122 +930,6 @@
 (stop 's2)
 (clear)
 
-
-
-;; TBD:
-;; evtl BUG - missing stream filter predicates can lead to chain not being started
-;; more selective branching - revert to last/first state ??
-;; note names for filter freqs - generic way ?
-;; addressing ?
-;; error message when sync is not viable ? 
-;; total crash ?? how to reproduce ?  -- reversing order of graphs while playing ?
-;; check -- stream modifiers on pmod events ... should be resolved while
-;;   copying, but it's not always the casem as it seems ... 
-;; akita interface
-;; graphviz visualizer -> multiple graphs in one svg
-;; the uniqueness rule for graphs is not really helpful, imagine if you want
-;;    to use a duratoin or level graph with more than one source ... thus,
-;;    there need to be either a change in dhe representation, or some
-;;    cloning function,
-;;    like, (clone 'pitcher) ...
-;; symbols as values, resolve at render time ??
-;; live-visualizer
-;; automatically deactivate if final state is reached 
-;; check why chance-combine doesn't work in any position
-;;    (currently seems to work only in end position) 
-;; ambisonics panner - sc
-;; pass flags for processors, to make programmatic control easier (brownian-motion ... :act t/nil)
-;;     -> important only or programmatic control, live you can just comment them out ... 
-;; arranging modifiers in graphs ...
-;; 'funnel event combnation mode
-;; 'all event combination mode 
-;; setting default handlers for incomplete events ? like, if event has pitch -> midi,
-;;     if event has only dur -> default sample ? Precedence ? Fallback ?
-;; programmatically hook processor in between two others (hook 'proc :post 'bla)
-;; merge streams ? (merge 'tap-a 'tap-b) -- POSSIBLE only if streams have same origin ...
-;; track phase offset per event source for oscillate-between
-;; define meaningful behaviour for non-mandatory modifiers ...
-;; (chance ...) shortcut ... even though the semantics of "chance" is
-;;    slightly different, as is evaluates the chance of something to happen for the current
-;;    event, whereas a graph modifies the modification for the next event ... 
-;; graph-theory stuff -- graph transformations etc
-;; midi note blocker for disklavier
-
-
-;; DONE:
-;; simplify startup 
-;; avoid duplication of tags - done !
-;; growth error !!! dest id can be NIL when path too short ... 
-;; fix reset - done 
-;; re-introduce rebalancing! - done
-;; pruning 1 directly after first grow ... - should be fixed
-;;   results: ERROR: Argument is neither a positive integer nor a positive float: 0
-;; adding random edges as feature of graph ... 
-;; clean up auto-named stream mods
-;; BUG - starting sink 2 times with nonexisting sync might stop chain ... 
-;; syncstart (for live use mainly ...)
-;; more vugs
-;; parameter faders/modders - anonymous
-;;    (mid 84 :lvl '(fade 0.2 0.4 :step 10)) -> step inc after each (handle-event)
-;;    (oscillate-between ... :ubound '(fade 0.4 :step 400)
-;;    needed to be temporarily replaced by current value:
-;;        before event evaluation
-;;        before event modification (i.e. before the modifier acts)
-;;     CONFLICT: what if event passes through modifier ? 
-;; BUG multiple dispatch with sync leads to strange 'results 
-;; avoid complete stop when sync is called with nil graph -- still relevant ?
-;;    yes - start chain, then sync other chain with nil graph ...
-;; make chain re-startable, even when there's a nil somewhere (without clearing)
-;; fix stopping bug ... which one ?
-;; avoid complete stop on case of wrong note name ... 
-;; vom - variable order edges !!!
-;; megra-mode -- S-c S-s for starting, S-ret for evaluation ... 
-;; BUG pluck event 
-;; BUG risset doesn't resolve note names 
-;; BUG active state preservation
-;; combine mode is not updated ... 
-;; got rid of spigot 
-;; rethink dispatcher concept ... maybe replace 'is-active' by dispatcher directory ?
-;;     especially interesting if step dispatching becomes more than a debugging feature ...
-;;  --> now a chain is active, 
-;; combine transitions
-;; functions as parameters ... 
-;; only encourage/discourage processors that are active or in a chain ...
-;; midi latency - that was easy ... thanks cm !
-;; make files loadable ... (check, seems ok ...)
-;; graphviz svg visualizer
-;; text output
-;; disencourage - longer trace, but drop first ??
-;; tracing/ trace/ encourage /discourage
-;; filter for graph combi !! -- tag based
-;; ambisonics panner - incudine 
-;; event tags, like (mid 84 :lvl .9 :dur 30 :tags '(foo bar))
-;; filters, like (oscillate-between ... :filter #'has-foo-tag)
-;;  -- hook those into the same place where you check if event has slot !
-;; for modifying-event-processors: check if modified property is present at all ...
-;; make modifiers work on transition duration 
-;; event combination - 't was a piece of work ... 
-;; get rid of deactivating error msg ...
-;; chain procs without dispatching -- done
-;; define consistent unique/non-unique dispatching ... more or less, it's difficult
-;; eventually make multiple dispatching possible ... like, (dispatch :check-active nil ...)
-;; fix midi note duration, bzw. make it effective
-;; chain rebuilding - if you hook a new effect to the END of the dispatcher chain,
-;;     multiple dispatiching will happen !
-;; fix de-/reactivating graphs -- stupid mistake ...
-;; fix midi handling -- works, seems to be connected to the way of initializing incudine ...
-;; (brownian-motion 'tres-rw 'pitch :step 4 :ubound 84 :lbound 50 :wrap t TRACK-STATE: nil)
-;;            -- makes sense in comination with below ... ??
-;; (graph 'xyz :copy-events nil) --- original events are sent out,
-;;          makes sense in comination with the above
-;; oscillating event modifier -- works !
-;; tree-like dispatch branching -- works !
-;; avoid duplicate dispatches -- works !
-;; automatic re-activation -- works !
-;; node color, inherited by events as tag ...
-;; yasnippets 
-;; keep this for the sake of funcall
-
 (graph 'footwork-bd ()
        (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
 		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
@@ -1292,13 +961,11 @@
        (edge 3 2 :prob 30 :dur 130))
 
 
-
 (sink 's1 ()  
   'footwork-bd)
 
 (sink 's1 (:sync-to 'footwork-tap)  
   'footwork-sn)
-
 
 (clear)
 
@@ -1311,6 +978,7 @@
   'the-grain)
 
 
+;; hmm does this work ?
 (incudine::make-osc-responder *oscin* "/blub/test" "iii"
                     (lambda (a b c)
 		      (incudine::msg warn "~D ~D ~D"
