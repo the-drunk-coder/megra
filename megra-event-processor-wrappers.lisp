@@ -59,7 +59,7 @@
 	(exclude (find-keyword-val :exclude rest :default nil))
 	(wrapped-processor (if (typep (last rest) 'symbol)
 			       (gethash (last rest) *processor-directory*)
-			       (last rest))))
+			       (car (last rest)))))
     (make-instance 'probability-population-control
 		   :wrapped-processor wrapped-processor
 		   :act act
