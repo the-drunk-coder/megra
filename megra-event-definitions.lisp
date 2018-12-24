@@ -800,10 +800,10 @@
   :direct-parameters (control-function)
   ;; don't create accessors here, as we want the control
   ;; function to be called in the handler function ... 
-  :create-accessors nil
+  :create-accessors t
   ;; just call the specified control function ... 
   :handler (incudine:nrt-funcall
-	    (handler-case 
+	    (handler-case 	        
 		(event-control-function evt)
 	      (simple-error (e)
 		(incudine::msg
