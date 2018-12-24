@@ -29,7 +29,8 @@
 		      (remhash id *branch-directory*))))
 	    chains)))
 
-(defun merg (chain-or-group-id)
+(defun cutall (chain-or-group-id)
+  "cut all branches"
   (if (gethash chain-or-group-id *group-directory*)
       (mapc #'merg (gethash chain-or-group-id *group-directory*))  
       (progn
@@ -37,13 +38,15 @@
 	      (gethash chain-or-group-id *branch-directory*))
 	(setf (gethash chain-or-group-id *branch-directory*) nil))))
 
-(defun dq (chain-id)
+(defun cut (chain-id)
+  "cut the latest branch"
   (let* ((branches (gethash chain-id *branch-directory*))
 	 (last (car (reverse branches))))
     (deactivate (gethash last *chain-directory*))
     (setf (gethash chain-id *branch-directory*) (delete last branches))))
 
-(defun stop (&rest chains)  
+(defun stop (&rest chains)
+  "stop a chain or (if no argument given) everything"
   (if (<= (length chains) 0)
       (loop for chain being the hash-values of *chain-directory*
 	 do (deactivate chain))

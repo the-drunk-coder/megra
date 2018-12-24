@@ -65,7 +65,7 @@
 
 (branch 'bb :variance 0.1 :sync-to 'bass-2 :functors '(((pitch) (* 2))))
 
-(merg 'bb)
+(cutall 'bb)
 
 ;; tell a story ! 
 ;; (abandoned syntax idea ... )
@@ -231,7 +231,7 @@
 
 (branch 's2 :variance 0.2)
 
-(dq 's2)
+(cut 's2)
 
 (clear)
 
@@ -308,7 +308,7 @@
     (edge 1 2 :dur 900 :prob 100)
     (edge 2 1 :dur 900 :prob 100)))
 
-(merg 's2)
+(cutall 's2)
 
 (stop 'drums-sink-clone)
 (stop 'drums-sink)
@@ -495,7 +495,7 @@
 (deactivate 'uno-midi-synced)
 
 ;; you can also dispatch multiple graphs at the same time, the event
-;; streams will be merged (for now) ...
+;; streams will be cutalled (for now) ...
 ;; in the future, the event streams might also be combined according to
 ;; certain rules (which i have to figure out yet)
 ;; in any case, the last graph in the chain determines the timing

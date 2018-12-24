@@ -28,12 +28,11 @@
 (branch 'bell :variance 0.6 :functors '(((rel) (* 0.2))))
 
 ;; now, if it's a little too much, let's drop the layers one by one ..
-;; (dq = deque, even though it's a stack ... might need a better word here )
-(dq 'bell)
+;; cut the last branch ...
+(cut 'bell)
 
-;; or all of them at once ... 
-;; (the missing g character is not a typo, the merge keyword was already taken)
-(merg 'bell)
+;; or all of them at once ...
+(cutall 'bell)
 
 ;; another way of branching:
 (s 'bell (:branch t) ;; the branch flag means the modified
