@@ -15,7 +15,7 @@
   (if (<= (length chains) 0)
       (clear)
       (mapc #'(lambda (id)
-		(merg id)
+		(cutall id)
 		;; if it's a group, stop the group
 		(if (gethash id *group-directory*)
 		    (mapc #'(lambda (chain)
@@ -32,7 +32,7 @@
 (defun cutall (chain-or-group-id)
   "cut all branches"
   (if (gethash chain-or-group-id *group-directory*)
-      (mapc #'merg (gethash chain-or-group-id *group-directory*))  
+      (mapc #'cutall (gethash chain-or-group-id *group-directory*))  
       (progn
 	(mapc #'(lambda (id) (deactivate (gethash id *chain-directory*)))
 	      (gethash chain-or-group-id *branch-directory*))
@@ -51,7 +51,7 @@
       (loop for chain being the hash-values of *chain-directory*
 	 do (deactivate chain))
       (mapc #'(lambda (id)
-		(merg id)
+		(cutall id)
 		;; if it's a group, stop the group
 		(if (gethash id *group-directory*)
 		    (mapc #'(lambda (chain)
