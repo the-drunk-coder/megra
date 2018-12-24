@@ -32,7 +32,7 @@
 
 (s 'acid ()
   (g 'bass ()
-      (n 1 (saw 390 :dur 110 :atk 3 :rel 100 :lp-freq 530))
+      (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 530))
       (e 1 1 :d 120 :p 100)))
 
 ;; ... a little shorter ? Yes, we can ! The one above is the same as this one
@@ -82,10 +82,11 @@
 ;; simulate some dynamics
 (s 'acid ()
   (lim 'lvl 0.2 0.4) ;; <- put a limit on level to save your ears and speakers some trouble !
-  (probctrl t 0.4 20 20 'loop :durs '(240 120 120 480) 
-	    (nuc 'bass (saw 490 :dur 110 :atk 3 ;;<- the NUCleus 
+  (probctrl nil 0.4 20 10 'loop :durs '(240 120 120 480) 
+	    (nuc 'bass (saw 110 :dur 110 :atk 3 ;;<- the NUCleus 
 			    :rel 100 :lp-freq 630) 
-		 :gap 120 :reset t)))  
+		 :gap 120 :reset nil)))
+;; the trouble with this one is that it might wipe itself out easily
 
 ;; and a primitive lifemodel ..
 (s 'acid ()

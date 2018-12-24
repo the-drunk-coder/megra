@@ -43,6 +43,6 @@
 			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
 	       :gap 400 :reset t)))
 
-;; (merg) and (dq) currently don't work with that method ... 
+;; (cut) and (cutall) currently don't work with that method ... 
 
 (clear)
