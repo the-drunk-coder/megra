@@ -9,7 +9,9 @@
   (nuc 'rates2 (saw 100 :dur 80 :lp-freq (oscil 300 1400))		  
 		  :gap 100 :reset t))
 
-(clear)
+(stop 'bass-2)
+
+(gethash 'bass-2 *chain-directory*)
 
 (s 'bass-2 ()
   (nuc 'rates
@@ -22,7 +24,7 @@
     (e 2 1 :d 400 :p 100)))
 
 
-(s 'bass-2 ()
+(s 'bass-3 ()
  (g 'luld ()
     (n 1 (rate 0.2))    
     (e 1 1 :d 400 :p 100))
