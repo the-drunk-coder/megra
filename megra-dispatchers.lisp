@@ -144,10 +144,7 @@
 			  chain				     
 			  it)))))
 
-;; if 'unique' is t, an event processor can only be hooked into one chain.
-;; somehow re-introduce msync ? unique is basically msync without sync ... 
-;; as of november 2017, i don't even rememeber what i ever meant by it ... 
-(defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (unique t) (shift 0.0)) &body proc-body)
+(defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   `(funcall #'(lambda ()

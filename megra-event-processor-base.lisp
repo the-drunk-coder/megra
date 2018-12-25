@@ -73,12 +73,11 @@
 (defmethod pull-transition ((p processor-chain) &key)
   (pull-transition (topmost-processor p)))
 
-(defun connect (processor-ids last chain-name unique)
+(defun connect (processor-ids last chain-name)
   (let ((current (car processor-ids))
 	(next (cadr processor-ids)))
     ;; if you try to hook it into a different chain ... 
-    (if (and unique
-	     next 
+    (if (and next 
 	     (chain-bound next)
 	     (not (eql (chain-bound next) chain-name)))
 	(progn
@@ -93,10 +92,7 @@
 	  ;; bound in a chain ... 		
 	  (setf (successor current) next)
 	  (setf (predecessor next) current)	  
-	  (connect (cdr processor-ids) (car processor-ids) chain-name unique)))
-    ;;(incudine::msg
-    ;;	   error
-    ;;	   "fails hjer ?? ~D ~D" current chain-name)
+	  (connect (cdr processor-ids) (car processor-ids) chain-name)))    
     (setf (chain-bound current) chain-name)))
 
 (defun gen-proc-name (ch-name proc idx)
@@ -127,14 +123,13 @@
 		      ))
 	    proc-list)))
 
-(defmacro chain (name (&key (unique t) (activate nil) (shift 0.0) (group nil)) &body proc-body)
+(defmacro chain (name (&key (activate nil) (shift 0.0) (group nil)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors
 		       (gen-proc-list ,name (list ,@proc-body))))
 		(chain-from-list
 		 ,name
-		 event-processors
-		 :unique ,unique
+		 event-processors		 
 		 :activate ,activate
 		 :shift ,shift
 		 :group ,group)))))
@@ -159,12 +154,11 @@
 ;; to change - push branch to regular chain directory,
 ;; just store the name in branch list.
 ;; that should allow for independent growth of branches ! 
-(defun chain-from-list (name event-processors &key (unique t)
-						(activate nil)
+(defun chain-from-list (name event-processors &key (activate nil)
 						(shift 0.0)
 						(branch nil)
 						(group nil))  
-  (connect event-processors nil name unique)
+  (connect event-processors nil name)
   ;; assume the chaining went well 
   (let ((topmost-proc (car event-processors)))
     (if (chain-bound topmost-proc)
