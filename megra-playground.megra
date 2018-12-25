@@ -11,8 +11,6 @@
 
 (stop 'bass-2)
 
-(gethash 'bass-2 *chain-directory*)
-
 (s 'bass-2 ()
   (nuc 'rates
        (rate 7.2)
