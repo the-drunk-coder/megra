@@ -148,10 +148,15 @@
 ;; that you can run two (and more) event sinks in parallel. In their current
 ;; state, they're completely unsynchronized.
 
-;; you can stop them separately as well ! 
+;; you can stop/clear them separately as well ! 
 (stop 'spam-sink) ;; Break !
-(stop 'eggs-sink)
-(clear) ;; reset session (more about that later as well ! )
+(clear 'eggs-sink)
+(clear) ;; reset complete session 
+
+;; the difference between (stop) and (clear) is that the first one will keep
+;; generators in their current state, while the latter one will wipe them
+;; from the current session, so the next time you start them you'll start from
+;; scratch.
 
 ;; So wait again, in the introduction there was something about
 ;; "Variable-Order" Markov-Chains, but the ones above are only order one.
