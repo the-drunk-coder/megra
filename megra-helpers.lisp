@@ -1,4 +1,6 @@
-(defun clear ()
+(in-package :megra)
+
+(defun clear-all ()
   ;; first of all stop all events already passed to incudine ...
   (incudine::flush-pending)
   (setf *processor-directory* (make-hash-table :test 'eql))
@@ -11,23 +13,24 @@
   (setf *branch-directory* (make-hash-table :test 'eql))
   (setf *current-group* 'DEFAULT))
 
-(defun del (&rest chains)
+(defun clear-single (id)
+  (cutall id)
+  ;; if it's a group, stop the group
+  (if (gethash id *group-directory*)
+      (mapc #'(lambda (chain)
+		(stop chain)
+		(remhash chain *chain-directory*))
+	    (gethash id *group-directory*))
+      ;; if it's a chain, stop the chain ...
+      (progn
+	(stop id)
+	(remhash id *chain-directory*)
+	(remhash id *branch-directory*))))
+
+(defun clear (&rest chains)
   (if (<= (length chains) 0)
-      (clear)
-      (mapc #'(lambda (id)
-		(cutall id)
-		;; if it's a group, stop the group
-		(if (gethash id *group-directory*)
-		    (mapc #'(lambda (chain)
-			      (stop chain)
-			      (remhash chain *chain-directory*))
-			  (gethash id *group-directory*))
-		    ;; if it's a chain, stop the chain ...
-		    (progn
-		      (stop id)
-		      (remhash id *chain-directory*)
-		      (remhash id *branch-directory*))))
-	    chains)))
+      (clear-all)
+      (mapc #'clear-single chains)))
 
 (defun cutall (chain-or-group-id)
   "cut all branches"
