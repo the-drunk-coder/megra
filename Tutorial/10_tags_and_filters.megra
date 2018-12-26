@@ -30,12 +30,8 @@
 
 ;; there's default event filters for all events, but you can define custom ones
 ;; and tag events respectively ...
-
-(defun boom-p (event)
-  (member 'boom (event-tags event)))
-
-(defun tschack-p (event)
-  (member 'tschack (event-tags event)))
+(define-filter boom)
+(define-filter tschack)
 
 (s 'demo-beat ()
   (exh 30 saw) ;; <- exhibit saw event with 30 percent chance
@@ -48,12 +44,12 @@
 
 ;; most stream modifiers have the possibility to use filters:
 (s 'demo-beat ()
-  (cc 30 (rate 1.4) :f #'tschack-p)
+  (cc 30 (rate 1.4) :f #'tschack-p) ;; the plain filter function needs the "-p" (for predicate) as a suffix
   (cc 30 (rev 0.4) :f #'tschack-p)
   (cc 30 (rev 0.2) :f #'boom-p)
   (cc 30 (pitch 2.4 :combi-fun #'*) :f #'saw-p)
   (exh 30 saw) ;; <- exhibit saw event with 30 percent chance
-  (inh 30 boom) ;; <- exhibit tutorial event with 30 percent chance
+  (inh 30 boom) ;; <- exhibit tutorial event with 30 percent chance (note the -p is dropped ...)
   (exh 30 tschack) ;; <- exhibit tutorial event with 30 percent chance
   (nuc 'fire (list (tutorial 'boom :dur 100 :lvl 0.4 :lp-dist 1.0 :tags '(boom)) ;; <- note the tag !		   
 		   (tutorial 'tschack :dur 100 :lvl 0.4 :tags '(tschack))
