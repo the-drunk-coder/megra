@@ -39,10 +39,18 @@
   ;; version will be pushed to the stack ...
   ;; (evaluate code multiple times)
   (lifemodel t 0.1 'triloop 15 :lifespan 33 :durs '(400 200 200 100)
-	  (nuc 'construction (risset 1000 :atk (oscil 4 100 :cycle 20)
+	  (nuc 'construction (risset 2000 :atk (oscil 4 100 :cycle 20)
 			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
 	       :gap 400 :reset t)))
 
-;; (cut) and (cutall) currently don't work with that method ... 
+;; in this case, the version you create (modifiying the parameters by hand)
+;; will be pushed on top of the stack ...
+
+;; (cut) and (cutall) work slightly different whether you use the explicit, or
+;; flag branching method.
+;; In the first case, the branch versions will be cut until only the original
+;; version is left.
+;; With the flag method, it behaves more like queue, and the versions will be
+;; cut from the back until only the last version is left.
 
 (clear)

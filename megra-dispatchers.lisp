@@ -165,8 +165,13 @@
 			 ;; and replace the one in the chain-directory by a copy ...
 			 (incudine::msg info "branching chain ~D" ,name)			 
 			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
-				;; build a chain from the previous states of the event processors ...				
-				(real-old-chain (chain-from-list ,name
+				(old-chain-id (intern (concatenate
+						       'string
+						       (symbol-name ,name)
+						       "-"
+						       (symbol-name (gensym)))))
+				;; build a chain from the previous states of the event processors ...			        
+				(real-old-chain (chain-from-list old-chain-id
 								 (mapcar #'(lambda (proc)									
 									     (gethash (name proc) *prev-processor-directory*))
 									 event-processors)
@@ -186,7 +191,7 @@
 			   ;; in that case, the syncing chain will do the
 			   (deactivate old-chain) ;; dactivate old chain and set anschluss
 			   (setf (anschluss-kette old-chain) real-old-chain)
-			   (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list real-old-chain)))))
+			   (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list old-chain-id)))))
 			((and old-chain (wait-for-sync old-chain))			 
 			 (incudine::msg info "chain ~D waiting for sync ..." ,name))
 			((and old-chain (>= 0 (length event-processors)))
