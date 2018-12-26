@@ -238,7 +238,7 @@
 ;; DOESN'T WORK !! 
 (sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
-    (n 1 (grain-24db "elec" "bd808"
+    (n 1 (grain-24db-ambi "elec" "bd808"
 		     :dur 90
 		     :rate 1.0
 		     :lp-q 0.4
@@ -247,11 +247,11 @@
     (n 2 (ctrl #'(lambda () (grow 'crepes
 			     :variance 0.3
 			     :durs '(2000 500 500 500 250 333))))
-       (grain-24db "elec" "bd808"
+       (nores "elec" "snfat"
 		     :dur 90
 		     :rate 1.1
 		     :lp-q 0.4
-		     :lp-freq 900
+		     :lp-freq (oscil 900 3000 :cycle 4)
 		     :lvl 0.7))
     (e 1 1 :d 1000 :p 90)
     (e 1 2 :d 1000 :p 10)
@@ -264,8 +264,7 @@
   (g 'crepessu ()
     (n 1 (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
 		:lp-freq 9500
-		:lp-dist 0.5 :lvl 0.7
-		:ambi-p nil
+		:lp-dist 0.5 :lvl 0.7	        
 		:azi 1.0
 		:ele 1.81
 		))
@@ -275,7 +274,6 @@
        (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
 		:lp-freq 9500
 		:lp-dist 0.5 :lvl 0.7
-		:ambi-p nil
 		:azi 1.0
 		:ele 1.81
 		))

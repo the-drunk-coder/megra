@@ -83,6 +83,32 @@
 			    :rate -0.5)) ;; <- playback rate ..
 	     (edge 1 1 :dur 410 :prob 100)))
 
+;; two more variations exist currently, one that uses 24db filters (as opposed to the
+;; slightly trashy 18db distorting lowpass)
+(sink 'guitar-sink ()
+      (graph 'demo-git ()
+	     (node 1 (grain-24db "tutorial" "git"
+				 :lvl 0.9
+				 :lp-q 0.4
+				 :lp-freq (oscil 100 3000)
+				 :dur 120
+				 :start 0.1 ;; <- start position, relative to the file length
+				 :rate 1.0)) ;; <- playback rate ..
+	     (edge 1 1 :dur 410 :prob 100)))
+
+;; ... and one that uses non-resonant filters ... 
+(sink 'guitar-sink ()
+      (graph 'demo-git ()
+	     (node 1 (nores "tutorial" "git"
+			    :lvl 0.9
+			    :lp-freq (oscil 100 3000)
+			    :dur 120
+			    :start 0.1 ;; <- start position, relative to the file length
+			    :rate 1.0)) ;; <- playback rate ..
+	     (edge 1 1 :dur 410 :prob 100)))
+
+;; THE LATTER ONE MIGHT CHANGE IN THE FUTURE ! 
+
 ;; This was a very basic introduction into the sonic world of megra, but
 ;; stay tuned, there's more to come ! 
 

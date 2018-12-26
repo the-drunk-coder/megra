@@ -430,6 +430,26 @@
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-nores evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores evt timestamp))))
+(define-event
+  :long-name grain-event-nores-ambi
+  :short-name nores-ambi
+  :parent-events (level-event
+		  duration-event
+		  ambi-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder nores-ambi-sample-folder)
+	       (sample-file nores-ambi-sample-file)
+	       (sample-location nores-ambi-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores-ambi evt timestamp)))
 
 (define-event
   :long-name grain-event-24db
@@ -453,6 +473,28 @@
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-24db evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db evt timestamp))))
+
+(define-event
+  :long-name grain-event-24db-ambi
+  :short-name grain-24db-ambi
+  :parent-events (level-event
+		  duration-event
+		  ambi-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder twofourdb-ambi-sample-folder)
+	       (sample-file twofourdb-ambi-sample-file)
+	       (sample-location twofourdb-ambi-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db-ambi evt timestamp)))
+
 
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
@@ -482,10 +524,20 @@
 	(concatenate 'string *sample-root*
 		     (nores-sample-folder g) "/" (nores-sample-file g) "." cm::*sample-type*)))
 
+(defmethod initialize-instance :after ((g grain-event-nores-ambi) &key)
+  (setf (nores-ambi-sample-location g)
+	(concatenate 'string *sample-root*
+		     (nores-ambi-sample-folder g) "/" (nores-ambi-sample-file g) "." cm::*sample-type*)))
+
 (defmethod initialize-instance :after ((g grain-event-24db) &key)
   (setf (twofourdb-sample-location g)
 	(concatenate 'string *sample-root*
 		     (twofourdb-sample-folder g) "/" (twofourdb-sample-file g) "." cm::*sample-type*)))
+
+(defmethod initialize-instance :after ((g grain-event-24db-ambi) &key)
+  (setf (twofourdb-ambi-sample-location g)
+	(concatenate 'string *sample-root*
+		     (twofourdb-ambi-sample-folder g) "/" (twofourdb-ambi-sample-file g) "." cm::*sample-type*)))
 
 ;; end grain-event ...
 
