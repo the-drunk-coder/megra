@@ -6,10 +6,8 @@
 	     (nuc 'rates
 		  (pitch 100)
 		  :gap 400 :reset t))
-  (nuc 'rates2 (saw 100 :dur 80 :lp-freq (oscil 300 1400))		  
+  (nuc 'rates2 (saw 200 :dur 80 :lp-freq (oscil 300 1400))		  
 		  :gap 100 :reset t))
-
-(stop 'bass-2)
 
 (s 'bass-2 ()
   (nuc 'rates
@@ -45,6 +43,59 @@
 
 (clear)
 
+;; processor switched between chains ... 
+(sink 'd1 ()
+  (g 'lvl-gen (:combine-mode 'zip)
+    (n 1 (lvl 0.2))
+    (n 2 (lvl 0.9))
+    (n 3 (lvl (oscil 0.1 1.0)))
+    (e 1 1 :p 20)
+    (e 1 2 :p 80)
+    (e 2 1 :p 60)
+    (e 2 3 :p 20)
+    (e 2 2 :p 20)
+    (e 3 3 :p 90)
+    (e 3 1 :p 10))
+  (g 'dur-gen (:combine-mode 'zip :affect-transition t)
+    (n 1 (dur 64))
+    (n 2 (dur 96))
+    (e 1 1 :p 80 :d (oscil 64 128))
+    (e 1 2 :p 20 :d 64)
+    (e 2 1 :p 20 :d 128)
+    (e 2 2 :p 80 :d (oscil 128 512)))
+  (g 'pitch-generator ()
+    (n 1 (tri 'a2))
+    (n 2 (tri 'c3))
+    (n 3 (tri 'gs2))
+    (e 1 2 :p 80 :d 1024)
+    (e 1 3 :p 20 :d 512)
+    (e 2 1 :p 70 :d 1024)
+    (e 2 2 :p 30 :d 1024)
+    (e 3 1 :p 60 :d 1024)
+    (e 3 2 :p 40 :d 512))) 
+
+(clear)
+
+;; same processor, new chain ! 
+(dispatch 'd2 ()
+  (g 'dur-gen-2 (:combine-mode 'zip :affect-transition t)
+    (n 1 (dur 640))
+    (n 2 (dur 960))
+    (e 1 1 :p 80 :d 640)
+    (e 1 2 :p 20 :d 640)
+    (e 2 1 :p 80 :d 1280)
+    (e 2 2 :p 20 :d 1280))
+  (graph 'pitch-generator ()
+    (node 1 (tri 'a4))
+    (node 2 (tri 'c4))
+    (node 3 (tri 'gs4))
+    (edge 1 2 :prob 80 :dur 1024)
+    (edge 1 3 :prob 20 :dur 512)
+    (edge 2 1 :prob 70 :dur 1024)
+    (edge 2 2 :prob 30 :dur 1024)
+    (edge 3 1 :prob 60 :dur 1024)
+    (edge 3 2 :prob 40 :dur 512))) 
+
 (s 'bub ()
   (lifemodel nil 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
 	     (nuc 'rates
@@ -61,6 +112,29 @@
 	  (nuc 'bell (risset 2000 :atk (oscil 4 100)
 			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
 	       :gap 400 :reset t)))
+(clear)
+
+;; NOT A BUG, the events were just incompatible ...
+;; exec successively
+(s 'bass-2 ()
+  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	     (nuc 'rates
+		  (pitch 100) 
+		  :gap 400 :reset t)) ;; if you switch the event types in the same
+  ;; generator, make sure you reset it or use compatible types ... 
+  (nuc 'rates2 (saw 100 :dur 80 :lp-freq (oscil 300 1400))		  
+       :gap 100 :reset t))
+
+
+(s 'bass-2 ()
+  (nuc 'rates
+       (rate 7.2)
+       :gap 400 :reset t)
+  (g 'lul ()
+    (n 1 (bd))
+    (n 2 (sn 'fat))
+    (e 1 2 :d 400 :p 100)
+    (e 2 1 :d 400 :p 100)))
 
 
 (branch 'bb :variance 0.1 :sync-to 'bass-2 :functors '(((pitch) (* 2))))
