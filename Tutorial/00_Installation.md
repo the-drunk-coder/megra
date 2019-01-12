@@ -59,6 +59,9 @@ Clone the following repositories (ideally in your quicklisp/local-projects folde
 Before you start, go to the incudine folder and copy the file
 `incudinerc-example` to `~/.incudinerc`.
 
+Add `(setq *osc-package-nicknames* nil)` to your `.incudinerc` to avoid conflict
+with `cl-collider`.
+
 Be sure to enable jackmidi if you are on linux. It's easier that way !
 Otherwise you might encounter errors that the `jackmidi` package is not
 available.
