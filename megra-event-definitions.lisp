@@ -38,7 +38,7 @@
   :long-name level-event
   :short-name lvl
   :parent-events (event)
-  :parameters ((lvl event-level 0.3 0.0 0.35)) 
+  :parameters ((lvl event-level 0.3 0.0 0.9)) 
   :direct-parameters (lvl))
 
 (define-event
@@ -143,36 +143,20 @@
 ;; pos is the simple stereo position,
 ;; azimuth, elevation and distance the ambisonics parameters
 (define-event
-  :long-name spatial-event
+  :long-name pan-event
   :short-name pos
   :parent-events (event)
-  :parameters ((pos event-position 0.5 -1.5 1.5)
-	       (azi event-azimuth 0.0)
-	       (ele event-elevation 0.0)
-	       (dst event-distance 2.0)
-	       (ambi-p event-ambi-p nil)) 
+  :parameters ((pos event-position 0.5 -1.5 1.5)) 
   :direct-parameters (pos))
 
-;; alias to write ambisonics positions directly
-(define-event-alias
-  :long-name spatial-event
-  :alias ambi-pos
-  :direct-parameters (azi ele dst)
-  :alias-defaults ((ambi-p t)))
-
-;; custom print function to take into account the aliases
-(defmethod print-event ((s spatial-event) &key)
-  (if (event-ambi-p s)
-      (format nil "(ambi-pos ~a ~a :dist ~a~a~a)"	  	  
-	      (event-azimuth s)
-	      (event-elevation s)
-	      (event-distance s)
-	      (print-tags (event-tags s))
-	      (print-combi-fun (value-combine-function s)))
-      (format nil "(pos ~a ~a~a)"	  	  
-	      (event-position s)
-	      (print-tags (event-tags s))
-	      (print-combi-fun (value-combine-function s)))))
+(define-event
+  :long-name ambi-event
+  :short-name ambi
+  :parent-events (event)
+  :parameters ((azi event-azimuth 0.0)
+	       (ele event-elevation 0.0)
+	       (dst event-distance 2.0)) 
+  :direct-parameters (azi ele))
 
 (define-event
   :long-name rate-event
@@ -339,7 +323,7 @@
   :short-name grain
   :parent-events (level-event
 		  duration-event
-		  spatial-event
+		  pan-event
 		  start-event
 		  rate-event
 		  attack-event
@@ -358,11 +342,35 @@
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt timestamp))))
 
 (define-event
+  :long-name grain-event-ambi
+  :short-name grain-ambi
+  :parent-events (level-event
+		  duration-event
+		  ambi-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder grain-ambi-sample-folder)
+	       (sample-file grain-ambi-sample-file)
+	       (sample-location grain-ambi-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (progn
+	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu evt))
+	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-ambi evt timestamp))))
+
+
+(define-event
   :long-name grain-event-4ch
   :short-name grain-4ch
   :parent-events (level-event
 		  duration-event
-		  spatial-event
+		  pan-event
 		  start-event
 		  rate-event
 		  attack-event
@@ -384,7 +392,7 @@
   :short-name grain-8ch
   :parent-events (level-event
 		  duration-event
-		  spatial-event
+		  pan-event
 		  start-event
 		  rate-event
 		  attack-event
@@ -405,7 +413,7 @@
   :short-name nores
   :parent-events (level-event
 		  duration-event
-		  spatial-event
+		  pan-event
 		  start-event
 		  rate-event
 		  attack-event
@@ -422,13 +430,33 @@
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-nores evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores evt timestamp))))
+(define-event
+  :long-name grain-event-nores-ambi
+  :short-name nores-ambi
+  :parent-events (level-event
+		  duration-event
+		  ambi-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder nores-ambi-sample-folder)
+	       (sample-file nores-ambi-sample-file)
+	       (sample-location nores-ambi-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores-ambi evt timestamp)))
 
 (define-event
   :long-name grain-event-24db
   :short-name grain-24db
   :parent-events (level-event
 		  duration-event
-		  spatial-event
+		  pan-event
 		  start-event
 		  rate-event
 		  attack-event
@@ -446,6 +474,28 @@
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-24db evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db evt timestamp))))
 
+(define-event
+  :long-name grain-event-24db-ambi
+  :short-name grain-24db-ambi
+  :parent-events (level-event
+		  duration-event
+		  ambi-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  filter-hp-event
+		  filter-lp-event
+		  lowpass-frequency-lfo-event
+	          filter-peak-event
+		  reverb-event)
+  :parameters ((sample-folder twofourdb-ambi-sample-folder)
+	       (sample-file twofourdb-ambi-sample-file)
+	       (sample-location twofourdb-ambi-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db-ambi evt timestamp)))
+
+
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event) &key)
   (setf (grain-sample-location g)
@@ -458,6 +508,11 @@
 	(concatenate 'string *sample-root*
 		     (grain-4ch-sample-folder g) "/" (grain-4ch-sample-file g) "." cm::*sample-type* )))
 
+(defmethod initialize-instance :after ((g grain-event-ambi) &key)
+  (setf (grain-ambi-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-ambi-sample-folder g) "/" (grain-ambi-sample-file g) "." cm::*sample-type* )))
+
 ;; additional method after grain event initialization ...
 (defmethod initialize-instance :after ((g grain-event-8ch) &key)
   (setf (grain-8ch-sample-location g)
@@ -469,10 +524,20 @@
 	(concatenate 'string *sample-root*
 		     (nores-sample-folder g) "/" (nores-sample-file g) "." cm::*sample-type*)))
 
+(defmethod initialize-instance :after ((g grain-event-nores-ambi) &key)
+  (setf (nores-ambi-sample-location g)
+	(concatenate 'string *sample-root*
+		     (nores-ambi-sample-folder g) "/" (nores-ambi-sample-file g) "." cm::*sample-type*)))
+
 (defmethod initialize-instance :after ((g grain-event-24db) &key)
   (setf (twofourdb-sample-location g)
 	(concatenate 'string *sample-root*
 		     (twofourdb-sample-folder g) "/" (twofourdb-sample-file g) "." cm::*sample-type*)))
+
+(defmethod initialize-instance :after ((g grain-event-24db-ambi) &key)
+  (setf (twofourdb-ambi-sample-location g)
+	(concatenate 'string *sample-root*
+		     (twofourdb-ambi-sample-folder g) "/" (twofourdb-ambi-sample-file g) "." cm::*sample-type*)))
 
 ;; end grain-event ...
 
@@ -489,7 +554,7 @@
   :parent-events (level-event
 		  harm-event
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -506,7 +571,7 @@
   :short-name sqr-adsr
   :parent-events (level-event
 		  pulsewidth-event		  
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  decay-event
@@ -523,7 +588,7 @@
   :long-name saw-adsr-event
   :short-name saw-adsr
   :parent-events (level-event		 
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  decay-event
@@ -541,7 +606,7 @@
   :short-name saw
   :parent-events (level-event		 
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -558,7 +623,7 @@
   :short-name sqr
   :parent-events (level-event		 
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -577,7 +642,7 @@
   :short-name sine
   :parent-events (level-event		 
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -594,7 +659,7 @@
   :short-name tri
   :parent-events (level-event		 
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -612,7 +677,7 @@
   :short-name cub
   :parent-events (level-event		 
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -630,7 +695,7 @@
   :short-name par
   :parent-events (level-event		 
 		  duration-event
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  release-event		  
@@ -647,7 +712,7 @@
   :long-name meow-event
   :short-name meow
   :parent-events (level-event		  
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  decay-event
@@ -664,7 +729,7 @@
   :long-name risset-event
   :short-name risset
   :parent-events (level-event		  
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  attack-event
 		  decay-event
@@ -681,7 +746,7 @@
   :long-name pluck-event
   :short-name pluck
   :parent-events (level-event		  
-		  spatial-event
+		  pan-event
 		  duration-event
 		  pitch-event		  
 		  filter-lp-event	          
@@ -695,7 +760,7 @@
   :long-name dx-rhodes-event
   :short-name dx-rhodes
   :parent-events (level-event		  
-		  spatial-event
+		  pan-event
 		  pitch-event
 		  velocity-event
 		  level-lfo-event
@@ -726,7 +791,7 @@
 		  frequency-range-event
 		  attack-event
 		  release-event
-		  spatial-event
+		  pan-event
 		  reverb-event
 		  )
   :parameters ((adstr event-amp-distr 1 1 2)
@@ -787,10 +852,10 @@
   :direct-parameters (control-function)
   ;; don't create accessors here, as we want the control
   ;; function to be called in the handler function ... 
-  :create-accessors nil
+  :create-accessors t
   ;; just call the specified control function ... 
   :handler (incudine:nrt-funcall
-	    (handler-case 
+	    (handler-case 	        
 		(event-control-function evt)
 	      (simple-error (e)
 		(incudine::msg

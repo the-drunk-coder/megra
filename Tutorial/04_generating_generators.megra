@@ -32,7 +32,7 @@
 
 (s 'acid ()
   (g 'bass ()
-      (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330))
+      (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 530))
       (e 1 1 :d 120 :p 100)))
 
 ;; ... a little shorter ? Yes, we can ! The one above is the same as this one
@@ -78,23 +78,31 @@
 
 ;; The whole process can also be done without any interaction!
 
+;; currently, there's a simple probablity-controlled way to
+;; simulate some dynamics
 (s 'acid ()
   (lim 'lvl 0.2 0.4) ;; <- put a limit on level to save your ears and speakers some trouble !
-  (popctrl 0.4 20 20 'loop :durs '(240 120 120 480))
-  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :gap 120 :reset t)) ;;<- the NUCleus ! 
+  (probctrl nil 0.4 20 10 'loop :durs '(240 120 120 480) 
+	    (nuc 'bass (saw 110 :dur 110 :atk 3 ;;<- the NUCleus 
+			    :rel 100 :lp-freq 630) 
+		 :gap 120 :reset nil)))
+;; the trouble with this one is that it might wipe itself out easily
 
-;; if the reset flag is set, the generator will be reset to the original nucleus, otherwise it remains
+;; and a primitive lifemodel ..
+(s 'acid ()
+  (lim 'lvl 0.2 0.4) ;; <- put a limit on level to save your ears and speakers some trouble !
+  (lifemodel t 0.4 'loop 20 :lifespan 30 :durs '(240 120 120 480)
+	     :apoptosis t :autophagia nil
+	    (nuc 'bass (saw 90 :dur 110 :atk 3 ;;<- the NUCleus 
+			    :rel 100 :lp-freq 830) 
+		 :gap 120 :reset t)))  
+
+
+;; if the reset flag is set, the generator will be reset
+;; to the original nucleus, otherwise it remains
 ;; untouched ...
 
-;; Syntax of the population control node:
-;; (popctrl <variance> <grow probability> <prune probability> <grow method> :durs '(<durs to mix in>))
 
 ;; If you've found a state you like, you can freeze it there ! 
-
-(s 'acid ()
-  (freeze t) ;; <- if t, all growth and prune actions are supressed !
-  (lim 'lvl 0.2 0.4) ;; <- put a limit on level to save your ears and speakers some trouble !
-  (popctrl 0.4 20 20 'loop :durs '(240 120 120 480))
-  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :gap 120 :reset nil)) ;;<- the NUCleus ! 
 
 ;; thus, you can have generators that evolve into new and surprising directions !

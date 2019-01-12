@@ -613,10 +613,10 @@ SynthDef.new(\saw_adsr_2ch_rev, { | freq, lvl, a, d, s, r, lp_freq, lp_q, lp_dis
 	var lim_gain = min(lvl, 1.1);
 	var filterenv = Env([freq, lim_cutoff, lim_cutoff * 0.5, lim_cutoff * 0.5, 0], [a, d, s, r]);
 	var ampenv = Env([0, lim_gain, lim_gain*0.7, lim_gain*0.7, 0], [a, d, s, r]);
-	var snd = LPF18.ar(LFSaw.ar(freqh), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
+	var snd = LPF18.ar(LFSaw.ar(freq), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
 	var revsnd = PartConv.ar(snd, 2048, 1, rev);
 	var mixsnd = (snd * (1.0 - rev)) + revsnd;
-	var outenv = Env.new([0, gain, gain, 0], [a, d + s + r + 2.0, 0.1]);
+	var outenv = Env.new([0, lvl, lvl, 0], [a, d + s + r + 2.0, 0.1]);
 	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos))
 }).store;
 

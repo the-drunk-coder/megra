@@ -13,9 +13,9 @@
 ;; parenthesis and hit C-<return>:
 
 (sink 'event-sink ()
-  (graph 'first-sounds ()
-      (node 1 (sine 'a4 :lvl 0.5 :dur 500))
-      (edge 1 1 :dur 1000 :prob 100)))
+      (graph 'first-sounds ()
+	     (node 1 (sine 'a4 :lvl 0.5 :dur 500))
+	     (edge 1 1 :dur 1000 :prob 100)))
 
 ;; If nothing went wrong, you should hear a steady beeping now.
 
@@ -59,18 +59,18 @@
 
 ;; Any node can contain more than one event ! 
 (sink 'event-sink ()
-  (graph 'first-sounds ()
-    (node 1 (sine 'a4 :lvl 0.5 :dur 500)
-	    (sine 'c4 :lvl 0.5 :dur 500))
-      (edge 1 1 :dur 1000 :prob 100)))
+      (graph 'first-sounds ()
+	     (node 1 (sine 'a4 :lvl 0.5 :dur 500)
+		   (sine 'c4 :lvl 0.5 :dur 500))
+	     (edge 1 1 :dur 1000 :prob 100)))
 
 ;; It'd be boring if you could't put event in sequences, no ?
 (sink 'event-sink ()
-  (graph 'first-sounds ()
-    (node 1 (sine 'a4 :lvl 0.5 :dur 500))
-    (node 2 (sine 'c4 :lvl 0.5 :dur 500))
-    (edge 1 2 :dur 1000 :prob 100)
-    (edge 2 1 :dur 1000 :prob 100)))
+      (graph 'first-sounds ()
+	     (node 1 (sine 'a4 :lvl 0.5 :dur 500))
+	     (node 2 (sine 'c4 :lvl 0.5 :dur 500))
+	     (edge 1 2 :dur 1000 :prob 100)
+	     (edge 2 1 :dur 1000 :prob 100)))
 
 ;; this one does exactly the same as the one above,
 ;; but is a little less exhausting to write. Choose
@@ -78,35 +78,35 @@
 ;; (if you wonder by now if mégra can only produce sine beeps, of course not ...
 ;; the sonic possiblities will be explored later ...)
 (sink 'event-sink () 
-  (g 'first-sounds ()
-    (n 1 (sine 'a4 :lvl 0.5 :dur 500))
-    (n 2 (sine 'c4 :lvl 0.5 :dur 500))
-    (e 1 2 :d 1000 :p 100)
-    (e 2 1 :d 1000 :p 100)))
+      (g 'first-sounds ()
+	 (n 1 (sine 'a4 :lvl 0.5 :dur 500))
+	 (n 2 (sine 'c4 :lvl 0.5 :dur 500))
+	 (e 1 2 :d 1000 :p 100)
+	 (e 2 1 :d 1000 :p 100)))
 
 ;; Now the magic of conditional probabilies begin to dawn ...
 (sink 'event-sink () 
-  (g 'first-sounds ()
-    (n 1 (sine 'a4 :lvl 0.5 :dur 500))
-    (n 2 (sine 'c4 :lvl 0.5 :dur 500))
-    (e 1 1 :d 1000 :p 50)
-    (e 1 2 :d 1000 :p 50)
-    (e 2 1 :d 1000 :p 100)))
+      (g 'first-sounds ()
+	 (n 1 (sine 'a4 :lvl 0.5 :dur 500))
+	 (n 2 (sine 'c4 :lvl 0.5 :dur 500))
+	 (e 1 1 :d 1000 :p 50)
+	 (e 1 2 :d 1000 :p 50)
+	 (e 2 1 :d 1000 :p 100)))
 ;; this one has a 50/50 chance that node 1 will have itself
 ;; or node 2 as successor.
 
 ;; let's complete the chord ! And make it a little faster ... 
 ;; Remember to visualize ! 
 (sink 'event-sink () ; <- these empty parenthesis are important ! 
-  (g 'first-sounds () ; <- don't forget them (more later!)
-    (n 1 (sine 'a4 :lvl 0.5 :dur 500))
-    (n 2 (sine 'c4 :lvl 0.5 :dur 500))
-    (n 3 (sine 'e4 :lvl 0.5 :dur 500)) 
-    (e 1 1 :d 500 :p 33)
-    (e 1 2 :d 500 :p 33)
-    (e 1 3 :d 500 :p 34) ;; <- make sure you come out at 100% ! 
-    (e 2 1 :d 500 :p 100)
-    (e 3 1 :d 500 :p 100)))
+      (g 'first-sounds () ; <- don't forget them (more later!)
+	 (n 1 (sine 'a4 :lvl 0.5 :dur 500))
+	 (n 2 (sine 'c4 :lvl 0.5 :dur 500))
+	 (n 3 (sine 'e4 :lvl 0.5 :dur 500)) 
+	 (e 1 1 :d 500 :p 33)
+	 (e 1 2 :d 500 :p 33)
+	 (e 1 3 :d 500 :p 34) ;; <- make sure you come out at 100% ! 
+	 (e 2 1 :d 500 :p 100)
+	 (e 3 1 :d 500 :p 100)))
 
 (stop) ;; Let's take a rest !  
 
@@ -121,37 +121,42 @@
 
 ;; Note names:
 (sink 'spam-sink () ; <- Sinks can be named arbitrarily ... 
-  (g 'spam ()  ; <- graphs as well ... 
-    (n 1 (sine 'a4 :lvl 0.5 :dur 500))
-    (n 2 (sine 'cs4 :lvl 0.5 :dur 500)) ; add an 's' for 'sharp'
-    (n 3 (sine 'e4 :lvl 0.5 :dur 500)
-       (sine 'af5 :lvl 0.2 :dur 500 :rev 0.06)) ; add an 'f' for 'flat'
-    (e 1 1 :d 500 :p 33)
-    (e 1 2 :d 500 :p 33)
-    (e 1 3 :d 500 :p 34) ;; <- make sure you come out at 100% ! 
-    (e 2 1 :d 500 :p 100)
-    (e 3 1 :d 500 :p 100)))
+      (g 'spam ()  ; <- graphs as well ... 
+	 (n 1 (sine 'a4 :lvl 0.5 :dur 500))
+	 (n 2 (sine 'cs4 :lvl 0.5 :dur 500)) ; add an 's' for 'sharp'
+	 (n 3 (sine 'e4 :lvl 0.5 :dur 500)
+	    (sine 'af5 :lvl 0.2 :dur 500 :rev 0.06)) ; add an 'f' for 'flat'
+	 (e 1 1 :d 500 :p 33)
+	 (e 1 2 :d 500 :p 33)
+	 (e 1 3 :d 500 :p 34) ;; <- make sure you come out at 100% ! 
+	 (e 2 1 :d 500 :p 100)
+	 (e 3 1 :d 500 :p 100)))
 
 ;; Frequencies:
 (sink 'eggs-sink () 
-  (g 'eggs ()
-    (n 1 (sine 200 :lvl 0.5 :dur 300))
-    (n 2 (sine 331 :lvl 0.5 :dur 300))
-    (n 3 (sine 432 :lvl 0.5 :dur 300)) 
-    (e 1 1 :d 300 :p 33)
-    (e 1 2 :d 300 :p 33)
-    (e 1 3 :d 300 :p 34) ;; <- make sure you come out at 100% ! 
-    (e 2 1 :d 300 :p 100)
-    (e 3 1 :d 300 :p 100)))
+      (g 'eggs ()
+	 (n 1 (sine 200 :lvl 0.5 :dur 300))
+	 (n 2 (sine 331 :lvl 0.5 :dur 300))
+	 (n 3 (sine 432 :lvl 0.5 :dur 300)) 
+	 (e 1 1 :d 300 :p 33)
+	 (e 1 2 :d 300 :p 33)
+	 (e 1 3 :d 300 :p 34) ;; <- make sure you come out at 100% ! 
+	 (e 2 1 :d 300 :p 100)
+	 (e 3 1 :d 300 :p 100)))
 
 ;; And, if you've executed those two blocks of code, you'll also realize
 ;; that you can run two (and more) event sinks in parallel. In their current
 ;; state, they're completely unsynchronized.
 
-;; you can stop them separately as well ! 
+;; you can stop/clear them separately as well ! 
 (stop 'spam-sink) ;; Break !
-(stop 'eggs-sink)
-(clear) ;; reset session (more about that later as well ! )
+(clear 'eggs-sink)
+(clear) ;; reset complete session 
+
+;; the difference between (stop) and (clear) is that the first one will keep
+;; generators in their current state, while the latter one will wipe them
+;; from the current session, so the next time you start them you'll start from
+;; scratch.
 
 ;; So wait again, in the introduction there was something about
 ;; "Variable-Order" Markov-Chains, but the ones above are only order one.
@@ -160,19 +165,19 @@
 ;; You'll notice that this construction as it is is
 ;; a little boring, as it stays on the A most of the time.
 (sink 'eggs-sink () 
-  (g 'eggs ()
-    (n 1 (sine 'a3 :lvl 0.5 :dur 300))
-    (n 2 (sine 'c4 :lvl 0.5 :dur 300))
-    (n 3 (sine 'e4 :lvl 0.5 :dur 300))
-    (n 4 (sine 'f4 :lvl 0.5 :dur 300)) 
-    (e 1 1 :d 300 :p 90)
-    (e '(1 1 1 1 1) 4 :d 600 :p 50)
-    (e '(1 1 1 1 1) 3 :d 600 :p 50) ; <- all in all 100% for every source !
-    (e 1 2 :d 300 :p 5)             
-    (e 1 3 :d 300 :p 5) ;; <- make sure you come out at 100% ! 
-    (e 2 1 :d 300 :p 100)
-    (e 3 1 :d 300 :p 100)
-    (e 4 2 :d 300 :p 100)))
+      (g 'eggs ()
+	 (n 1 (sine 'a3 :lvl 0.5 :dur 300))
+	 (n 2 (sine 'c4 :lvl 0.5 :dur 300))
+	 (n 3 (sine 'e4 :lvl 0.5 :dur 300))
+	 (n 4 (sine 'f4 :lvl 0.5 :dur 300)) 
+	 (e 1 1 :d 300 :p 90)
+	 (e '(1 1 1 1 1) 4 :d 600 :p 50)
+	 (e '(1 1 1 1 1) 3 :d 600 :p 50) ; <- all in all 100% for every source !
+	 (e 1 2 :d 300 :p 5)             
+	 (e 1 3 :d 300 :p 5) ;; <- make sure you come out at 100% ! 
+	 (e 2 1 :d 300 :p 100)
+	 (e 3 1 :d 300 :p 100)
+	 (e 4 2 :d 300 :p 100)))
 
 ;; Now say you want some change when the A has been repeating 5 times.
 ;; No problem, uncomment the two lines that have a list as edge source ! 
