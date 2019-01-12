@@ -106,8 +106,9 @@
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
 					:graph nil :copy-events t
-					:current-node 1 :combine-mode 'append
-					:combine-filter #'all-p)))
+					:current-node 1 :combine-mode 'zip
+					:combine-filter #'all-p
+					:affect-transition nil)))
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
 			  (t (source-graph graph-proc)))))   
@@ -128,8 +129,7 @@
 				 (* (event-duration event) overlap)))))))
 	(graph-add-direct src-graph (list (edge 1 1 :dur dur :prob 100)))
 	(setf (current-node graph-proc) 1)
-	(setf (traced-path graph-proc) '(1)))
-      )   
+	(setf (traced-path graph-proc) '(1))))   
     (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
 

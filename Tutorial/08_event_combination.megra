@@ -1,0 +1,18 @@
+;; 08 modifying the stream with event combinations ...
+(in-package :megra)
+
+;; in extension to the things learned in chapter 06 and 07,
+;; event combination can be used as stream modifiers ...
+
+(clear)
+
+(s 'demo-sn ()
+   (cc 30 (lvl 0.0)) ;; cc is short for chance-combine
+   (cc 30 (filter-lp 600)) ;;
+   (g 'snare ()
+      (n 1 (sn 'fat :dur 400 :lvl 0.4))
+      (e 1 1 :d 400 :p 100)))
+
+;; so, with a chance of 30% each, the event is muted (level set to 0 by combining with
+;; (lvl 0.0)), or the lowpass filter frequency is set to 600 hz (by combining
+;; with the (filter-lp 600) event)

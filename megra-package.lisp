@@ -69,7 +69,7 @@
 
 (defparameter *global-midi-delay* 0.16)
 
-(defparameter *global-osc-delay* 0.12)
+(defparameter *global-osc-delay* 0.24)
 
 (defparameter *current-group* 'DEFAULT)
 

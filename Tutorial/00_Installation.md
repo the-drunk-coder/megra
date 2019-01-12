@@ -57,6 +57,8 @@ Clone the following repositories (ideally in your quicklisp/local-projects folde
 - common music:   https://github.com/ormf/cm
 - cm-incudine:    https://github.com/ormf/cm-incudine
 - fudi-incudine:  https://github.com/ormf/fudi-incudine
+- cl-libsndfile:  https://github.com/ghollisjr/cl-libsndfile
+- cl-fad:         https://github.com/edicl/cl-fad
 
 ## SETUP
 

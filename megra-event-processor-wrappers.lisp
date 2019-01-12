@@ -6,13 +6,19 @@
 		      :initarg :wrapped-processor)))
 
 (defmethod pull-events ((w event-processor-wrapper) &key)
-  (let ((ev (pull-events (wrapper-wrapped-processor w))))
-    (when (wrapper-act w)
-      (post-processing w))
+  (let ((ev (if (successor w)
+		(apply-self (wrapper-wrapped-processor w)
+			    (pull-events (successor w)))
+		(current-events (wrapper-wrapped-processor w)))))
+    (when (wrapper-act w) (post-processing w))
     ev))
 
 (defmethod pull-transition ((w event-processor-wrapper) &key)
-  (pull-transition (wrapper-wrapped-processor w)))
+  (if (successor w)
+      (progn
+	(current-transition (wrapper-wrapped-processor w))
+	(pull-transition (successor w)))
+      (current-transition (wrapper-wrapped-processor w))))
 
 ;;;;;;;;;;;;;;;; GENERIC Population Control ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -35,12 +41,6 @@
   ((pgrowth :accessor population-control-pgrowth :initarg :pgrowth)
    (pprune :accessor population-control-pprune :initarg :pprune)))
 
-(length '(1 nil 3))
-
-(member nil '(1 nil 3))
-
-(cadr (member 1 '(1 nil 3)))
-
 (defun find-keyword-val (keyword seq &key default)
   (if (and
        (member keyword seq)
@@ -59,14 +59,11 @@
 	(exclude (find-keyword-val :exclude rest :default nil))
 	(wrapped-processor (if (typep (last rest) 'symbol)
 			       (gethash (last rest) *processor-directory*)
-			       (last rest))))
+			       (car (last rest)))))
     (make-instance 'probability-population-control
 		   :wrapped-processor wrapped-processor
 		   :act act
-		   :name (gensym)
-		   :mod-prop nil		 
-		   :affect-transition nil
-		   :event-filter nil
+		   :name (gensym)		   		   
 		   :variance variance
 		   :pgrowth pgrowth
 		   :pprune pprune

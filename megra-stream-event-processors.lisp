@@ -26,11 +26,14 @@
 (defmethod apply-self :before ((m stream-event-processor) events &key)
   ;; state tracking 
   (mapc #'(lambda (event)
-	    (if (event-has-slot-by-name event (modified-property m))
-		(unless (gethash (event-source event) (lastval m))  
-		  (setf (gethash (event-source event) (lastval m))
-			(slot-value event (modified-property m))))
-		event))
+	    (when (modified-property m)
+	      (if (and (not (typep (slot-value event (modified-property m))
+				   'param-mod-object))
+		       (event-has-slot-by-name event (modified-property m)))
+		  (unless (gethash (event-source event) (lastval m))  
+		    (setf (gethash (event-source event) (lastval m))
+			  (slot-value event (modified-property m))))
+		  event)))
 	events))
 
 (Defmethod apply-self :after ((m stream-event-processor) events &key)
@@ -44,10 +47,13 @@
 (defmethod filter-events ((m stream-event-processor) events
 			  &key (check-mod-prop t))
   (labels ((current-filter-p (event)
-	     (if check-mod-prop
-		 (and (event-has-slot-by-name event (modified-property m))
-				 (funcall (event-filter m) event))
-		 (funcall (event-filter m) event))))
+	     ;; filter event if parameter is a mod object ... 
+	     (when (not (typep (slot-value event (modified-property m))
+				 'param-mod-object))
+	       (if check-mod-prop
+		   (and (event-has-slot-by-name event (modified-property m))
+			(funcall (event-filter m) event))
+		   (funcall (event-filter m) event)))))
     (remove-if-not #'current-filter-p events)))
 ;; switch to preserve/not preserve state ?
 
