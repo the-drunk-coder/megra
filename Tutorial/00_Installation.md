@@ -70,7 +70,7 @@ git clone https://github.com/edicl/cl-fad
 If you haven't done so, clone this repository to the desired location.
 ```
 cd <desired/location>
-git cline https://github.com/the-drunk-coder/megra
+git clone https://github.com/the-drunk-coder/megra
 ;; osx branch if needed
 git checkout osx
 ```
