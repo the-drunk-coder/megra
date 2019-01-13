@@ -67,35 +67,32 @@ git clone https://github.com/ghollisjr/cl-libsndfile
 git clone https://github.com/edicl/cl-fad
 ```
 
+If you haven't done so, clone this repository to the desired location.
+```
+cd <desired/location>
+git cline https://github.com/the-drunk-coder/megra
+;; osx branch if needed
+git checkout osx
+```
+
 ## SETUP
 
-- pick one of the examples, depending on your operating system, from the `incudinerc_examples`
-  and copy it to `~/.incudinerc`
+Pick one of the examples, depending on your operating system, from the `incudinerc_examples`
+and copy it to `~/.incudinerc`:
 
-- if you have `cl-collider` installed, add `(setq *osc-package-nicknames* nil)` 
-  to your `.incudinerc` to avoid package name conflicts (if you don't know what
-  this is about you can just ignore it ...)
+```
+cp <megra-repo>/incudinerc_examples/incudinerc_[osx|linux] ~/.incudinerc
+```
 
-- be sure to enable jackmidi if you are on linux. It's easier that way !
-  Otherwise you might encounter errors that the `jackmidi` package is not
-  available.
+If you have `cl-collider` installed, add `(setq *osc-package-nicknames* nil)` 
+to your `.incudinerc` to avoid package name conflicts (if you don't know what
+this is about you can just ignore it ...).
 
-- update your quicklisp distributions (open a lisp file and
-  evaluate '(ql:update-all-dists)')
+Be sure to enable jackmidi if you are on linux. It's easier that way !
+Otherwise you might encounter errors that the `jackmidi` package is not
+available.
 
-Then evaluate:
-- `(ql:quickload "quicklisp-slime-helper")` (practical)
-- `(ql:quickload "cm-incudine")`
-- `(ql:quickload "closer-mop")`
-
-Now, in the file "megra-load.lisp" you'll find two paths:
-
-- `*megra-root*` (points to megra repo)
-- `*sample-root*` (points to samples used for "grain*" events)
-
-Set them accordingly ... 
-
-Add the following lines to your .emacs:
+Add the following lines to your `~/.emacs`:
 
 ```
 ;; for a nicer SLIME REPL
@@ -105,11 +102,39 @@ Add the following lines to your .emacs:
 ;; set SBCL as the LISP interpreter for slime ... 
 ;; arch linux (setq inferior-lisp-program "/usr/bin/sbcl --control-stack-size 50000")
 (setq inferior-lisp-program "/usr/local/bin/sbcl --control-stack-size 50000")
+```
 
+Update your quicklisp distributions (open a lisp file and
+evaluate '(ql:update-all-dists)').
+
+Then start emacs and slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
+- `(ql:quickload "quicklisp-slime-helper")` (practical)
+- `(ql:quickload "closer-mop")`
+- `(ql:quickload "cm-incudine")` (ACCEPT all errors on osx)
+
+Now, in the file "megra-load.lisp" you'll find two paths:
+
+- `*megra-root*` (points to megra repo)
+- `*sample-root*` (points to samples used for "grain*" events)
+- `*sample-type*` (if you want to use your tidal samples, set to wav !)
+
+Set them accordingly ... 
+
+Add the following lines to your .emacs:
+
+```
 (setq megra-root "<path-to-megra-repo>") ;; no trailing '/' !  
 (push megra-root load-path)
 (require 'incudine-megra)
 ```
+
+Fire up SuperCollider and load the synthdefs found in `megra-supercollider-synths.scd`.
+
+Now, start ScSynth (and JACK on linux), open the file `megra-playground.megra`, start
+Megra (`C-c m` ... again, ACCEPT all errors on osx) and evaluate the first expression 
+(move cursor to expression and hit `C-RET`).
+
+You should be able to hear some sound now ... 
 
 ## Samples
 
