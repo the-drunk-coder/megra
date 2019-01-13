@@ -34,10 +34,10 @@ Now install:
 - git
 - sbcl (1.3.19 or higher have been tested ... )
 - emacs (25.2.x have been tested, currently the only interface)
-- slime (easiest is to install from MELPA, `M-x package-install RET slime RET RET`)
+- slime (easiest is to install from MELPA, `M-x package-install RET slime RET`)
 - curl (to install quicklisp)
 - gpg (to verify quicklisp)
-- quicklisp (follow guide on quicklisp page, https://www.quicklisp.org)
+- quicklisp (follow guide on quicklisp page, https://www.quicklisp.org ... add to init file !)
 
 On macOS, additionally install (using Homebrew):
 - portaudio
@@ -103,16 +103,13 @@ Add the following lines to your `~/.emacs`:
 ;; arch linux (setq inferior-lisp-program "/usr/bin/sbcl --control-stack-size 50000")
 (setq inferior-lisp-program "/usr/local/bin/sbcl --control-stack-size 50000")
 ```
-
-Update your quicklisp distributions (open a lisp file and
-evaluate '(ql:update-all-dists)').
-
-Then start emacs and slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
+Then start emacs, open some `*.lisp` file, start slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
+- optionally, update quicklisp distributions `(ql:update-all-distributions)`
 - `(ql:quickload "quicklisp-slime-helper")` (practical)
 - `(ql:quickload "closer-mop")`
 - `(ql:quickload "cm-incudine")` (ACCEPT all errors on osx)
 
-Now, in the file "megra-load.lisp" you'll find two paths:
+If everything went well, there's not much left to do. In the file "megra-load.lisp" you'll find two paths:
 
 - `*megra-root*` (points to megra repo)
 - `*sample-root*` (points to samples used for "grain*" events)
@@ -128,9 +125,9 @@ Add the following lines to your .emacs:
 (require 'incudine-megra)
 ```
 
-Fire up SuperCollider and load the synthdefs found in `megra-supercollider-synths.scd`.
+Fire up SuperCollider (or scide) and load the synthdefs found in `megra-supercollider-synths.scd`.
 
-Now, start ScSynth (and JACK on linux), open the file `megra-playground.megra`, start
+Now, boot SCSynth (and JACK on linux), open the file `megra-playground.megra`, start
 Megra (`C-c m` ... again, ACCEPT all errors on osx) and evaluate the first expression 
 (move cursor to expression and hit `C-RET`).
 
@@ -147,6 +144,7 @@ There aren't any samples in this repository except for the tutorial
 samples.
 If you're already using tidal, you can simply set the `*sample-root*` 
 to your Dirt samples folder, and set the type to "wav".
-
+Otherwise, create your own samples folder, point the variable there and copy
+the tutorial samples folder over.
 
 
