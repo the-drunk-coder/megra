@@ -28,13 +28,13 @@ JACK and SBCL, but i've got no idea how they perform.
 ## REQUIREMENTS
 
 Now install:
-- JACK
+- JACK (jack2 preferred)
 - SuperCollider (> 3.8, higher recommended ... )
 - SC3-Plugins
 - git
 - sbcl (1.3.19 or higher have been tested ... )
 - emacs (25.2.x have been tested, currently the only interface)
-- slime (easiest is to install from MELPA, M-x package-install RET slime RET RET)
+- slime (easiest is to install from MELPA, `M-x package-install RET slime RET RET`)
 - curl (to install quicklisp)
 - gpg (to verify quicklisp)
 - quicklisp (follow guide on quicklisp page, https://www.quicklisp.org)
@@ -44,6 +44,11 @@ On macOS, additionally install (using Homebrew):
 - portmidi
 - gsl
 
+osx homebrew command:
+```
+brew install curl gpg portaudio portmidi gsl
+```
+
 Clone the following git repositories (ideally into your quicklisp/local-projects folder):
 - incudine:       https://github.com/titola/incudine
 - common music:   https://github.com/ormf/cm
@@ -51,6 +56,16 @@ Clone the following git repositories (ideally into your quicklisp/local-projects
 - fudi-incudine:  https://github.com/ormf/fudi-incudine
 - cl-libsndfile:  https://github.com/ghollisjr/cl-libsndfile
 - cl-fad:         https://github.com/edicl/cl-fad
+
+```
+cd </path/to/quicklisp>/local-projects
+git clone https://github.com/titola/incudine
+git clone https://github.com/ormf/cm
+git clone https://github.com/ormf/cm-incudine
+git clone https://github.com/ormf/fudi-incudine
+git clone https://github.com/ghollisjr/cl-libsndfile
+git clone https://github.com/edicl/cl-fad
+```
 
 ## SETUP
 
