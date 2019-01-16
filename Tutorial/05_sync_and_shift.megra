@@ -9,8 +9,8 @@
 
 (sink 'drums-sink ()
       (graph 'drums ()
-	     (node 1 (tutorial 'jazzy 'bd :lvl 0.9 :lp-dist 0.9 :dur 100))
-	     (node 2 (tutorial 'jazzy 'sn :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 1 (bd 'jazzy :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 2 (sn 'jazzy :lvl 0.9 :lp-dist 0.9 :dur 100))
 	     (edge 1 2 :dur 410 :prob 100)
 	     (edge 2 1 :dur 410 :prob 100)))
 
@@ -23,12 +23,11 @@
 
 (sink 'guitar-sink ()
       (graph 'guitar ()
-	     (node 1 (tutorial 'git
-			       :lvl 0.9
-			       :lp-dist 0.9
-			       :dur 120
-			       :start 0.1 ;; <- start position, relative to the file length
-			       :rate 1.0)) ;; <- playback rate ..
+	     (node 1 (git :lvl 0.9
+			  :lp-dist 0.9
+			  :dur 120
+			  :start 0.1 ;; <- start position, relative to the file length
+			  :rate 1.0)) ;; <- playback rate ..
 	     (edge 1 1 :dur 410 :prob 100)))
 
 (clear)
@@ -43,8 +42,8 @@
 ;; start the drums again:
 (sink 'drums-sink ()
       (graph 'drums ()
-	     (node 1 (tutorial 'jazzy 'bd :lvl 0.9 :lp-dist 0.9 :dur 100))
-	     (node 2 (tutorial 'jazzy 'sn :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 1 (bd 'jazzy :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 2 (sn 'jazzy :lvl 0.9 :lp-dist 0.9 :dur 100))
 	     (edge 1 2 :dur 410 :prob 100)
 	     (edge 2 1 :dur 410 :prob 100)))
 
@@ -70,12 +69,11 @@
 
 (sink 'guitar-sink (:sync-to 'drums-sink :shift 280) ;;<- sync, but wait for 280ms!
       (graph 'guitar ()
-	     (node 1 (tutorial 'git
-			       :lvl 0.5
-			       :lp-dist 0.9
-			       :dur 120
-			       :start 0.1 ;; <- start position, relative to the file length
-			       :rate 1.0)) ;; <- playback rate ..
+	     (node 1 (git :lvl 0.5
+			  :lp-dist 0.9
+			  :dur 120
+			  :start 0.1 ;; <- start position, relative to the file length
+			  :rate 1.0)) ;; <- playback rate ..
 	     (edge 1 1 :dur 410 :prob 100)))
 
 (stop 'guitar-sink)
@@ -90,7 +88,7 @@
 
 (sink 'guitar-sink (:shift 3000) ;; <-  wait for three seconds ! 
       (graph 'guitar ()
-	     (node 1 (grain "tutorial" "git"
+	     (node 1 (grain "git" "git"
 			    :lvl 0.5
 			    :lp-dist 0.9
 			    :dur 120

@@ -1,0 +1,146 @@
+;;; .incudinerc
+;;;
+;;; Sample configuration file for Incudine
+;;;
+
+;;;-------------------------[ C compiler ]--------------------------
+
+(setq *c-compiler* "gcc")
+
+;; A list, in which each element is a string, a pathname, or a simple Lisp
+;; expression. Used only if the dynamic linker fails to search a library
+;; (see CFFI:*FOREIGN-LIBRARY-DIRECTORIES*)
+(setq *foreign-library-directories* nil)
+
+;;;--------------------[ RT and NRT priorities ]--------------------
+
+;; Thread scheduling algorithm.
+(setq *sched-policy*
+      #+linux "SCHED_FIFO"
+      #-linux "SCHED_RR")
+
+;; Priority for the realtime thread.
+(setq *rt-priority* 9)
+
+;; Priority for the non-realtime thread.
+(setq *nrt-priority* 1)
+
+;; Priority for the threads of the receivers (i.e. MIDI input)
+(setq *receiver-default-priority* 4)
+
+;;;-----------------------[ Audio settings ]------------------------
+
+;; Real time audio:
+;;
+;;     :dummy
+;;     :jack
+;;     :portaudio
+;;     :portaudio-jack
+;;
+;; :portaudio and :portaudio-jack are the same, but with the last
+;; it is possible to set the Jack client name.
+;;
+(setq *audio-driver*
+      #+linux :jack
+      #-linux :portaudio)
+
+(setq *max-buffer-size* 2048)
+
+;; Realtime block size in frames.
+;;(setq *rt-block-size* 128)
+
+(setq *sample-rate* 44100)
+(setq *client-name* "incudine")
+(setq *max-number-of-channels* 1024)
+(setq *number-of-input-bus-channels* 0)
+;;(setq *number-of-output-bus-channels* 2)
+(setq *number-of-output-bus-channels* 16)
+(setq *number-of-bus-channels* 2048)
+
+;; Used only with PortAudio.
+(setq *frames-per-buffer* 512)
+
+;; PORTAUDIO-DEVICE-INFO prints the list of the devices (-1 = default).
+;(setq *portaudio-input-device* -1)
+;(setq *portaudio-output-device* -1)
+
+;;;-----------------------[ MIDI settings ]-------------------------
+
+(setq *enable-jack-midi* t)
+
+;; Number of milliseconds before to test whether MIDI input is
+;; available (useful with PortMidi because it does not support a
+;; blocking read).
+;; low value = low latency but minor CPU time for the system
+(setq *midi-input-timeout* 1)
+
+;;;------------------------[ Networking ]---------------------------
+
+;; addrinfo-flags for the argument 'hints' of the c-call getaddrinfo.
+(setq *addrinfo-hints-flags* 0)
+
+;; Size of the foreign buffer used to read/write octets.
+(setq *network-buffer-size* 128)
+
+;; Open Sound Control
+(setq *osc-buffer-size* 2048)
+(setq *osc-max-values* 128)
+
+;;;---------------------------[ Graph ]-----------------------------
+
+(setq *max-number-of-nodes* 2048)
+
+;;;----------------------[ Event scheduling ]-----------------------
+
+;; Max number of scheduled events in realtime (a power of two).
+(setq *rt-edf-heap-size* 2048)
+
+;; Max number of scheduled events in non-realtime (a power of two).
+(setq *nrt-edf-heap-size* (* 2 65536))
+
+;; Pool size of the temporary EDF heaps.
+(setq *edf-heap-pool-size* 2)
+
+;; New EDF heaps to add when the pool is empty.
+(setq *edf-heap-pool-grow* 1)
+
+;;;-------------------------[ Soundfile ]---------------------------
+
+;; Safe upper limit when the duration of the soundfile is undefined.
+(setq *bounce-to-disk-guard-size* 300) ; 5 minutes
+
+(setq *sndfile-buffer-size* 1024)
+(setq *default-header-type* #-darwin "wav" #+darwin "aiff")
+(setq *default-data-format* "pcm-24")
+
+;;;--------------------[ Foreign memory pool ]----------------------
+
+;; Size (in bytes) of the pool for the C heap used in realtime.
+(setq *foreign-sample-pool-size* (* 1024 1024 1024))
+(setq *foreign-rt-memory-pool-size* (* 1024 1024 1024))
+
+;; Size of the pool used for temporary C malloc in non-realtime.
+(setq *foreign-nrt-memory-pool-size* (* 64 1024 1024))
+
+;;;---------------------------[ Misc ]------------------------------
+
+;; Size in samples (power of two) for frequently used waveforms
+;; (i.e. *SINE-TABLE* and *COSINE-TABLE*).
+(setq *default-table-size* 65536)
+
+;; Initial tempo in beats per minute.
+(setq *default-bpm* 60)
+
+;;; Curve for fade in/out.
+(setq *fade-curve* :lin)
+
+;;; Velocity of the sound at 22°C, 1 atmosfera.
+(setq *sound-velocity* 345)
+
+;; uncomment this if you have cl-collider present ... 
+;;(setq *osc-package-nicknames* nil)
+
+
+;;; Local Variables:
+;;; mode: lisp
+;;; End:
