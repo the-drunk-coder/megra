@@ -52,9 +52,8 @@ osX homebrew command:
 ```
 brew install curl gpg portaudio portmidi gsl sbcl libsndfile fftw
 ```
-
 Clone the following git repositories (ideally into your quicklisp/local-projects folder):
->>>>>>> master
+
 - incudine:       https://github.com/titola/incudine
 - common music:   https://github.com/ormf/cm
 - cm-incudine:    https://github.com/ormf/cm-incudine
