@@ -138,13 +138,17 @@ You should be able to hear some sound now ...
 
 ## Samples
 
-Samples (for the grain event) are organized, in a tidal-like
-manner, in folders. 
-In the file "megra-load.lisp" you can configure the sample root,
+Samples (for the grain event) are organized, in a tidal-like manner, in folders. 
+
+In the file `megra-load.megra` you can configure the sample root,
 the sample type (flac or wav) and the name of the impulse response
 needed for the reverb (without file extension).
+
 There aren't any samples in this repository except for the tutorial 
-samples.
+samples. 
+
+If you don't have any personal samples, set `*sample-root*` to the tutorial_samples folder!
+
 If you're already using tidal, you can simply set the `*sample-root*` 
 to your Dirt samples folder, and set the type to "wav".
 Otherwise, create your own samples folder, point the variable there and copy
