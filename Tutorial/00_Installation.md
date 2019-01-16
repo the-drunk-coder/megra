@@ -127,8 +127,9 @@ Then start emacs, open some `*.lisp` file, start slime (`M-x slime RET`) and eva
 - `(ql:quickload "closer-mop")`
 - `(ql:quickload "cm-incudine")` (**ACCEPT** all errors on osX)
 
-
 Fire up SuperCollider (or scide) and load the synthdefs found in `megra-supercollider-synths.scd`.
+Remove the Synthdefs that don't work, as you most likely won't have the `SimpleAmbiPan` Ugen (ask me if you
+want it ...).
 
 Now, boot SCSynth (and JACK on linux), open the file `megra-playground.megra`, start
 Megra (`C-c m` ... again, **ACCEPT** all errors on osX) and evaluate the first expression 
