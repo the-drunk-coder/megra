@@ -4,8 +4,8 @@
 ;; Some, we already know:
 (sink 'simple ()
       (graph 'beat ()
-	     (node 1 (grain "tutorial" "boom" :lvl 0.9 :lp-dist 0.4 :dur 100))
-	     (node 2 (grain "tutorial" "tschack" :lvl 0.9
+	     (node 1 (grain "bd" "boom" :lvl 0.9 :lp-dist 0.4 :dur 100))
+	     (node 2 (grain "sn" "tschack" :lvl 0.9
 			    :rev 0.01 :lp-dist 0.4 :lp-freq 4000 :dur 50 :rate 1.8))
 	     (edge 1 2 :dur 410 :prob 100)
 	     (edge 2 1 :dur 410 :prob 100)))
@@ -13,8 +13,8 @@
 ;; can be written as:
 (s 'simple ()
    (g 'beat ()
-      (n 1 (grain "tutorial" "boom" :lvl 0.9 :lp-dist 0.4 :dur 100))
-      (n 2 (grain "tutorial" "tschack" :lvl 0.9
+      (n 1 (grain "bd" "boom" :lvl 0.9 :lp-dist 0.4 :dur 100))
+      (n 2 (grain "sn" "tschack" :lvl 0.9
 		  :rev 0.01 :lp-dist 0.4 :lp-freq 4000 :dur 50 :rate 1.8))
       (e 1 2 :d 410 :p 100)
       (e 2 1 :d 410 :p 100)))
@@ -22,14 +22,14 @@
 ;; but, the sample events are still a little long. So here's a solution:
 (s 'simple ()
    (g 'beat ()
-      (n 1 (tutorial 'boom :lvl 0.9 :lp-dist 0.4 :dur 100))
-      (n 2 (tutorial 'tschack :lvl 0.9
-			     :rev 0.01 :lp-dist 0.4 :lp-freq 4000 :dur 50 :rate 1.8))
+      (n 1 (bd 'boom :lvl 0.9 :lp-dist 0.4 :dur 100))
+      (n 2 (sn 'tschack :lvl 0.9
+	       :rev 0.01 :lp-dist 0.4 :lp-freq 4000 :dur 50 :rate 1.8))
       (e 1 2 :d 410 :p 100)
       (e 2 1 :d 410 :p 100)))
 
 ;; If you check your sample folder, you'll see that there's folder called
-;; 'tutorial'. Now, for every folder you add there, Megra will generate
+;; 'tutorial', that has several subfolders Now, for every folder you add there, Megra will generate
 ;; an event category for you, so that you don't have to type the whole grain syntax
 ;; every time. All parameters of the grain event are available.
 ;; You can provide keywords to search the sample category. It's easiest to give
@@ -38,5 +38,13 @@
 
 ;; The syntax then is:
 ;; (<category/folder name> <keywords> <params>)
+
+;; if you want to select a random sample, just leave out the keywords ! 
+(s 'simple ()
+   (g 'beat ()
+      (n 1 (bd :lvl 0.9 :lp-dist 0.4 :dur 100))
+      (n 2 (sn :lvl 0.9 :rev 0.01 :lp-dist 0.4 :lp-freq 4000 :dur 50 :rate 1.8))
+      (e 1 2 :d 410 :p 100)
+      (e 2 1 :d 410 :p 100)))
 
 (clear)

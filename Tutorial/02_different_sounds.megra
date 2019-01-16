@@ -61,21 +61,21 @@
 ;; one the filename (without the .wav or .flac extension ...)
 (sink 'drumming-sink ()
       (graph 'demo-drums ()
-	     (node 1 (grain "tutorial" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
-	     (node 2 (grain "tutorial" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 1 (grain "bd" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 2 (grain "sn" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
 	     (edge 1 2 :dur 410 :prob 100)
 	     (edge 2 1 :dur 410 :prob 100)))
 
 (sink 'drumming-sink ()
       (graph 'demo-drums ()
-	     (node 1 (grain "tutorial" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
-	     (node 2 (grain "tutorial" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 1 (grain "bd" "jazzy_bd" :lvl 0.9 :lp-dist 0.9 :dur 100))
+	     (node 2 (grain "sn" "jazzy_sn" :lvl 0.9 :lp-dist 0.9 :dur 100))
 	     (edge 1 2 :dur 410 :prob 100)
 	     (edge 2 1 :dur 410 :prob 100)))
 
 (sink 'guitar-sink ()
       (graph 'demo-git ()
-	     (node 1 (grain "tutorial" "git"
+	     (node 1 (grain "git" "git"
 			    :lvl 0.9
 			    :lp-dist 0.9
 			    :dur 120
@@ -87,7 +87,7 @@
 ;; slightly trashy 18db distorting lowpass)
 (sink 'guitar-sink ()
       (graph 'demo-git ()
-	     (node 1 (grain-24db "tutorial" "git"
+	     (node 1 (grain-24db "git" "git"
 				 :lvl 0.9
 				 :lp-q 0.4
 				 :lp-freq (oscil 100 3000)
@@ -99,7 +99,7 @@
 ;; ... and one that uses non-resonant filters ... 
 (sink 'guitar-sink ()
       (graph 'demo-git ()
-	     (node 1 (nores "tutorial" "git"
+	     (node 1 (nores "git" "git"
 			    :lvl 0.9
 			    :lp-freq (oscil 100 3000)
 			    :dur 120
