@@ -37,6 +37,8 @@ Now install:
 - slime (easiest is to install from MELPA, `M-x package-install RET slime RET`)
 - curl (to install quicklisp)
 - gpg (to verify quicklisp)
+- libsndfile
+- fftw
 - quicklisp (follow guide on quicklisp page, https://www.quicklisp.org ... add to init file !)
 
 On macOS, additionally install (using Homebrew):
@@ -44,9 +46,11 @@ On macOS, additionally install (using Homebrew):
 - portmidi
 - gsl
 
-osx homebrew command:
+For osX emacs installation, check out https://wikemacs.org/wiki/Installing_Emacs_on_OS_X !
+
+osX homebrew command:
 ```
-brew install curl gpg portaudio portmidi gsl
+brew install curl gpg portaudio portmidi gsl sbcl libsndfile fftw
 ```
 
 Clone the following git repositories (ideally into your quicklisp/local-projects folder):
@@ -77,20 +81,28 @@ git checkout osx
 
 ## SETUP
 
-Pick one of the examples, depending on your operating system, from the `incudinerc_examples`
+Pick one of the examples, depending on your operating system, from the `incudinerc_samples`
 and copy it to `~/.incudinerc`:
 
 ```
-cp <megra-repo>/incudinerc_examples/incudinerc_[osx|linux] ~/.incudinerc
+cp <megra-repo>/incudinerc_samples/incudinerc_[osx|linux] ~/.incudinerc
 ```
 
 If you have `cl-collider` installed, add `(setq *osc-package-nicknames* nil)` 
-to your `.incudinerc` to avoid package name conflicts (if you don't know what
-this is about you can just ignore it ...).
+to your `.incudinerc` to avoid package name conflicts (*if you don't know what
+this is about you can just ignore it ...*).
 
 Be sure to enable jackmidi if you are on linux. It's easier that way !
 Otherwise you might encounter errors that the `jackmidi` package is not
 available.
+
+If everything went well, there's not much left to do. In the file `megra-load.megra` you'll find two paths:
+
+- `*megra-root*` (points to megra repo)
+- `*sample-root*` (points to samples used for "grain*" events)
+- `*sample-type*` (if you want to use your tidal samples, set to wav !)
+
+Set them accordingly !
 
 Add the following lines to your `~/.emacs`:
 
@@ -100,35 +112,26 @@ Add the following lines to your `~/.emacs`:
 (slime-setup '(slime-fancy))
 
 ;; set SBCL as the LISP interpreter for slime ... 
+;; if slime complains about the control stack size, remove that argument !
 ;; arch linux (setq inferior-lisp-program "/usr/bin/sbcl --control-stack-size 50000")
 (setq inferior-lisp-program "/usr/local/bin/sbcl --control-stack-size 50000")
-```
-Then start emacs, open some `*.lisp` file, start slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
-- optionally, update quicklisp distributions `(ql:update-all-distributions)`
-- `(ql:quickload "quicklisp-slime-helper")` (practical)
-- `(ql:quickload "closer-mop")`
-- `(ql:quickload "cm-incudine")` (ACCEPT all errors on osx)
 
-If everything went well, there's not much left to do. In the file "megra-load.lisp" you'll find two paths:
-
-- `*megra-root*` (points to megra repo)
-- `*sample-root*` (points to samples used for "grain*" events)
-- `*sample-type*` (if you want to use your tidal samples, set to wav !)
-
-Set them accordingly ... 
-
-Add the following lines to your .emacs:
-
-```
 (setq megra-root "<path-to-megra-repo>") ;; no trailing '/' !  
 (push megra-root load-path)
 (require 'incudine-megra)
 ```
 
+Then start emacs, open some `*.lisp` file, start slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
+- optionally, update quicklisp distributions `(ql:update-all-distributions)`
+- `(ql:quickload "quicklisp-slime-helper")` (practical)
+- `(ql:quickload "closer-mop")`
+- `(ql:quickload "cm-incudine")` (**ACCEPT** all errors on osX)
+
+
 Fire up SuperCollider (or scide) and load the synthdefs found in `megra-supercollider-synths.scd`.
 
 Now, boot SCSynth (and JACK on linux), open the file `megra-playground.megra`, start
-Megra (`C-c m` ... again, ACCEPT all errors on osx) and evaluate the first expression 
+Megra (`C-c m` ... again, **ACCEPT** all errors on osX) and evaluate the first expression 
 (move cursor to expression and hit `C-RET`).
 
 You should be able to hear some sound now ... 
