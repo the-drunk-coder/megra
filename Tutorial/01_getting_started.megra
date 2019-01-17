@@ -1,10 +1,6 @@
 ;; Welcome to the mégra tutorial !
 ;; Assuming you've everything up and running, we can start to make some sound !
 
-;; Copy the folder "tutorial_samples" to your sample folder (see installation guide),
-;; start and connect SuperCollider, start SLIME (M-x slime) and mégra (C-c m).
-;; C-<return> evaluates a function.
-
 ;; first, tell the system that we want to work in the mégra package !
 (in-package :megra)
 
