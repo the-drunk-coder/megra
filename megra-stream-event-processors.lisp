@@ -123,7 +123,7 @@
 			      )))
 
 (defclass chance-combine (stream-event-processor)
-  ((event-to-combine :accessor event-to-combine :initarg :event-to-combine)
+  ((events-to-combine :accessor events-to-combine :initarg :events-to-combine)
    (combi-chance :accessor combi-chance :initarg :combi-chance)
    (step :accessor pmod-step :initform 0)))
 
@@ -133,22 +133,23 @@
 
 ;; make state-tracking switchable ???
 (defmethod apply-self ((c chance-combine) events &key)
-  (mapcar #'(lambda (event)	    
-	    (let ((chance-val (random 100)))
-	      (if (and (funcall (event-filter c) event)
-		       (< chance-val (combi-chance c)))		  
-		  (combine-single-events (event-to-combine c) event)		  
-		  event)))        
-	events))
+  (loop for cev in (events-to-combine c)
+     do (mapcar #'(lambda (event)	    
+		    (let ((chance-val (random 100)))
+		      (if (and (funcall (event-filter c) event)
+			       (< chance-val (combi-chance c)))	 		  
+			  (combine-single-events cev event)			 
+			  event)))        
+		events)) events)
 
 ;; the constructor ... if store is set, it'll be stored in the processor directory,
 ;; if not, it'll be stored in the processor directory by the chain building
 ;; routine
-(defun chance-combine (name chance event &key (affect-transition nil) (filter #'all-p) (store nil))
+(defun chance-combine (name chance events &key (affect-transition nil) (filter #'all-p) (store nil))
   (let ((new-inst (make-instance 'chance-combine
 				 :name name
 				 :combi-chance chance
-				 :event-to-combine event
+				 :events-to-combine events
 				 :track-state nil
 				 :mod-prop nil
 				 :affect-transition affect-transition
@@ -166,7 +167,33 @@
 		     id
 		     (gensym))))
     ;;(incudine::msg info "~D" cc-name)
-    (chance-combine cc-name chance event :affect-transition at :filter f)))
+    (chance-combine cc-name chance (list event) :affect-transition at :filter f)))
+
+(defun prob (chance &rest events)
+  (chance-combine (gensym) chance events))
+
+(defun always (&rest events)
+  (chance-combine (gensym) 100 events))
+
+(defmacro multi-filter (filters)
+  #'(lambda (event)
+    (> (loop for f in filters
+	  summing (if (member f (event-tags event)) 1 0))
+	 0)))
+
+(defmacro for (&rest filters)
+  (let ((filter-names
+	 (loop for filter in filters
+	    when (typep filter 'symbol)
+	    collect  filter))
+	(_proc (car (reverse filters))))
+    `(funcall (lambda ()
+		(let ((proc ,_proc))
+		  (setf (event-filter proc) (multi-filter ,filter-names))
+		  (when (member 'transition ',filter-names)
+		    (setf (affect-transition proc) t)
+		    )
+		  proc)))))
 
 ;; a random walk on whatever parameter ...
 (defclass stream-brownian-motion
