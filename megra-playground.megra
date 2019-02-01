@@ -20,13 +20,15 @@
     (e 2 1 :d 400 :p 100)))
 
 
-(s 'bass-3 ()
-  (cc 100 (lvl 0.5))
+
+
+(s 'bass-3 ()  
+  (always (dur 200) (start (brownian 0.0 1.0 :step-size 0.1)))
   (g 'lul ()
     (n 1 (bd))
-    (n 2 (sn 'fat))
-    (e 1 2 :d 400 :p 100)
-    (e 2 1 :d 400 :p 100)))
+    (n 2 (bell) (sn 'fat))
+    (e 1 2 :d 200 :p 100)
+    (e 2 1 :d 200 :p 100)))
 
 (clear)
 
