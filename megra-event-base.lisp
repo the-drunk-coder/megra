@@ -6,7 +6,7 @@
 	     :initarg :backends
 	     :initform `(,*default-dsp-backend*))
    (value-combine-function :accessor value-combine-function
-			   :initarg :combi-fun
+			   :initarg :cfun
 			   :initform #'replace-value)))
 
 ;; upper and lower limits for parameters. Refer to those when using
@@ -44,7 +44,9 @@
 			   (eval-slot-value
 			    (slot-value b (slot-definition-name slot)))
 			   (eval-slot-value
-			    (slot-value a (slot-definition-name slot)))))))) b)
+			    (slot-value a (slot-definition-name slot)))
+
+			   ))))) b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
   (loop for slot in (class-direct-slots (class-of a))
@@ -109,9 +111,9 @@
 	(format nil ":tags '(~a) " tags-string)) ""))
 
 ;; helper method to print combi function name 
-(defun print-combi-fun (fun)
+(defun print-cfun (fun)
   ;; sbcl-specific ??
-  (format nil ":combi-fun #'~a" (print-function-name fun)))
+  (format nil ":cfun #'~a" (print-function-name fun)))
 
 ;; generic helper method to print function name ...
 (defun print-function-name (fun)
@@ -217,12 +219,12 @@
 					     parent-keyword-parameter-defaults)
 				   (backends '(,*default-dsp-backend*))
 				   (tags nil)
-				   (combi-fun #'replace-value))
+				   (cfun #'replace-value))
 	 (make-instance ',class-name
 			;; add the very basic keyword parameters 'by hand'
 			,(intern "BACKENDS" "KEYWORD") backends
 			,(intern "TAGS" "KEYWORD") tags
-			,(intern "COMBI-FUN" "KEYWORD") combi-fun
+			,(intern "CFUN" "KEYWORD") cfun
 			,@keyword-pairs
 			,@parent-keyword-pairs
 			))
@@ -254,7 +256,7 @@
 			 ',parent-keyword-parameter-names
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
-		 (print-combi-fun (value-combine-function evt)))))
+		 (print-cfun (value-combine-function evt)))))
        ;; define event predicate for filters
        (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-" (symbol-name 'p))) (event)
 	 (typep event ',class-name )))))
@@ -297,10 +299,10 @@
 			     ,@(mapcar #'list keyword-parameter-names
 				       keyword-parameter-defaults)			     
 			     (tags nil)
-			     (combi-fun #'replace-value))
+			     (cfun #'replace-value))
 	 (make-instance ',long-name
 			,(intern "TAGS" "KEYWORD") tags
-			,(intern "COMBI-FUN" "KEYWORD") combi-fun
+			,(intern "CFUN" "KEYWORD") cfun
 			,@keyword-pairs)))))
 
 ;; helper functions for abstract sampling events ...
