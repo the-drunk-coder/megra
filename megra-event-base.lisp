@@ -218,7 +218,7 @@
 				   ,@(mapcar #'list parent-keyword-parameter-names
 					     parent-keyword-parameter-defaults)
 				   (backends '(,*default-dsp-backend*))
-				   (tags nil)
+				   (tags '(,short-name))
 				   (cfun #'replace-value))
 	 (make-instance ',class-name
 			;; add the very basic keyword parameters 'by hand'
@@ -298,7 +298,7 @@
 			   &key
 			     ,@(mapcar #'list keyword-parameter-names
 				       keyword-parameter-defaults)			     
-			     (tags nil)
+			     (tags '(,alias))
 			     (cfun #'replace-value))
 	 (make-instance ',long-name
 			,(intern "TAGS" "KEYWORD") tags
