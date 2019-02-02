@@ -19,41 +19,26 @@
     (e 1 2 :d 400 :p 100)
     (e 2 1 :d 400 :p 100)))
 
-
+;; that's a fat one !!
 (s 'bass-3 ()  
-  (for transition bd bell (always (dur 600)))
-  (inh 30 bd)
-  (g 'lul ()
-    (n 1 (bd))
-    (n 2 (bell :dur 130) (sn 'fat))
-    (e 1 2 :d 200 :p 100)
-    (e 2 1 :d 200 :p 100)))
-
-
-(event-tags (car (current-transition (gethash 'lul *processor-directory*))))
-
-(pull-events (gethash 'bass-3 *chain-directory*))
-
-(event-tags (car (pull-transition (gethash 'bass-3 *chain-directory*))))
-
-(defparameter *a* (event-filter (for bd transition (always (dur 500)))))
-
-(defparameter *b* (for transition (always (dur 500))))
-(defparameter *c* (cc 100 (dur 500) :at t :f #'transition-p))
-
-(event-tags (car (apply-self *b* (list (transition 400)))))
-
-(funcall (event-filter *c*) (transition 400))
-
-(funcall *a* (sn))
+  (for bd (prob 20 (dur 200)))
+  (for saw (always (dur 100) (atk 3) (rel 90) (lvl 0.6)))
+  (inh 10 bd)
+  (inh 20 sn)
+  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	     (cyc 'rates (~ (% (bd) (pitch 90)) (% (sn) (pitch 50))) 
+		  :gap 400 :reset t))
+  (cyc 'lul (~ (% (bd) (saw 90 :lp-freq 500 :dur 500 :lp-dist 1.0)) 100
+	       (% (sn) (saw 150 :lp-freq 500 :dur 500 :lp-dist 1.0))) 
+       :gap 200))
 
 (clear)
 
-(s 'bass-2 ()
-  (cc 100 (rate 7.2))
-  (g 'lul ()
-    (n 1 (bd))
-    (n 2 (sn 'fat))
+(s 'bass-2 (:sync-to 'bass-3)
+  (always (filter-lp 3000 :lp-dist 1.0) (rev (oscil 0.03 0.0 :cycle 20)))  
+  (g 'lula ()
+    (n 1 (meow 100 :sus 400))
+    (n 2 (meow 200 :sus 400))
     (e 1 2 :d 400 :p 100)
     (e 2 1 :d 400 :p 100)))
 
