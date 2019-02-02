@@ -139,7 +139,7 @@
 			  (gethash name *processor-directory*)
 			  (make-instance 'graph-event-processor :name name
 					:graph nil :copy-events t
-					:current-node 1 :combine-mode 'append
+					:current-node 1 :combine-mode 'zip
 					:combine-filter #'all-p)))
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
