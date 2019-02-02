@@ -21,16 +21,30 @@
 
 ;; that's a fat one !!
 (s 'bass-3 ()  
-  (for bd (prob 20 (dur 200)))
+  (for bd (prob 20 (dur 500)))
   (for saw (always (dur 100) (atk 3) (rel 90) (lvl 0.6)))
-  (inh 10 bd)
-  (inh 20 sn)
-  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
-	     (cyc 'rates (~ (% (bd) (pitch 90)) (% (sn) (pitch 50))) 
+  ;(inh 10 bd)
+  ;(inh 20 sn)
+  (inh 80 orch)
+  (for orch (prob 40 (rev 0.2)))
+  (lifemodel t 0.1 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	     (cyc 'rates (~ (% (bd) (pitch 'a1)) (% (sn :lvl 0.2) (pitch 'e2))) 
 		  :gap 400 :reset t))
-  (cyc 'lul (~ (% (bd) (saw 90 :lp-freq 500 :dur 500 :lp-dist 1.0)) 100
-	       (% (sn) (saw 150 :lp-freq 500 :dur 500 :lp-dist 1.0))) 
-       :gap 200))
+  (cyc 'lul (~ (% (bd :lvl 0.0 :dur 80) (saw 'a1 :lp-freq 500 :dur 100 :lp-dist 1.0)) 100
+	       (% (hats) (orch 'marimba :dur 100)) 100
+	       (% (sn :dur 80 :lvl 0.1) (saw 'e2 :lp-freq 500 :dur 100 :lp-dist 1.0))) :reset t :gap 200))
+
+(s 'bass-3 ()    
+  ;;(for saw (always (cyc 'rates (~  (pitch 'a1)  (pitch 'e2)) :gap 400 :reset t)))
+  (cyc 'lula (~ (pitch 'a1) (pitch 'a3) (pitch 'a5)))
+  ;;(nuc 'lula  (saw 'a3 :lp-freq 300) :reset t :gap 200)
+  ;;(cyc 'lul  (~ (saw 'a2 :lp-freq 300 :dur 100)) :gap 100)
+  (cyc 'lulo  (~ (tri 'a2 :lp-freq 3000 :dur 100)) :gap 100)
+  )
+
+(pull-transition (gethash 'bass-3 *chain-directory*))
+
+(grow 'lul :method 'triloop :variance 0.1)
 
 (clear)
 

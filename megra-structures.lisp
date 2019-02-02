@@ -377,11 +377,11 @@
 
 (defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob
-		 :content `(,(make-instance 'transition-event :dur dur))))
+		 :content `(,(make-instance 'transition-event :dur dur :tags '(transition)))))
 
 ;; shorthand for edge
 (defun e (src dest &key p (d 512))
-  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition-event :dur d))))
+  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition-event :dur d :tags '(transition)))))
 
 
 
