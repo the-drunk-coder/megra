@@ -191,8 +191,7 @@
 		(let ((proc ,_proc))
 		  (setf (event-filter proc) (multi-filter ,filter-names))
 		  (when (member 'transition ',filter-names)
-		    (setf (affect-transition proc) t)
-		    )
+		    (setf (affect-transition proc) t))
 		  proc)))))
 
 ;; a random walk on whatever parameter ...

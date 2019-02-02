@@ -121,7 +121,7 @@
 						     '(probability))
 			   :functors functors))
 
-(defmethod deepcopy-object ((tr transition)
+(defmethod deepcopy-object ((tr transition-event)
 			    &key (imprecision 0.0)
 			      exclude-keywords
 			      precise-keywords

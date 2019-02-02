@@ -1,3 +1,4 @@
+(in-package :megra)
 ;; the basic structure of music ...
 (defclass node ()
   ((global-id :accessor node-global-id)
@@ -376,11 +377,11 @@
 
 (defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob
-		 :content `(,(make-instance 'transition :dur dur))))
+		 :content `(,(make-instance 'transition-event :dur dur))))
 
 ;; shorthand for edge
 (defun e (src dest &key p (d 512))
-  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
+  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition-event :dur d))))
 
 
 
