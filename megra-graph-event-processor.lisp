@@ -8,7 +8,6 @@
    (combine-mode :accessor combine-mode :initarg :combine-mode)
    (combine-filter :accessor combine-filter :initarg :combine-filter)
    (affect-transition :accessor affect-transition :initarg :affect-transition)
-   (path) ;; path is a predefined path - an idea i never picked up again ..
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
