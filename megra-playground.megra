@@ -1,5 +1,42 @@
 (in-package :megra)
 
+
+(defparameter *a* (learn-mpfa (list (list 'a (saw 200))
+				    (list 'b (saw 300))
+				    (list 'c (saw 500)))
+	    4 0.001 50
+	    '((a 100) (b 200)
+	      (a 100) (b 300)
+	      (c 500) (a 100)
+	      (b 300) (c 400)
+	      (b 300) (a 100)
+	      (a 100) (b 200)
+	      (a 100) (b 300)
+	      (c 500) (a 100)
+	      (b 300) (b 300)
+	      (c 400) (c 400)
+	      (b 300))
+	    300
+	    ))
+
+(vom::pfa->svg *a* "lala" )
+
+(vom::pfa-set-current-state *a* '(a))
+
+(setf (mpfa-last-symbol *a*) 'a)
+
+(defparameter a-pro (make-instance 'mpfa-event-processor :mpfa *a* :name 'hollo))
+
+(pull-events a-pro)
+(pull-transition a-pro)
+(pull-transition (gethash 'rates2 *processor-directory*))
+
+(s 'al ()
+  a-pro)
+
+(clear)
+(stop)
+
 ;; DOES THAT WORK ?? -- NOW IT DOES !!  
 (s 'bass-2 ()
   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil

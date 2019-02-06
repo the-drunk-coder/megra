@@ -11,6 +11,7 @@
    (chain-bound :accessor chain-bound :initform nil)   
    (name :accessor name :initarg :name)
    (clones :accessor clones :initform nil)
+   (affect-transition :accessor affect-transition :initarg :affect-transition)
    (update-clones :accessor update-clones :initarg :update-clones :initform nil)))
 
 (defmethod pull-events ((e event-processor) &key)
@@ -18,11 +19,19 @@
       (apply-self e (pull-events (successor e)))
       (current-events e)))
 
+;; events are the successor events 
+(defmethod apply-self ((e event-processor) events &key)
+  events)
+
+(defmethod apply-self-transition ((e event-processor) current-transition transition &key)
+  transition)
+
 (defmethod pull-transition ((e event-processor) &key)
   (if (successor e)
-      (progn
-	(current-transition e) ;; trigger node selection ...
-	(pull-transition (successor e)))
+      (let ((cur-trans (current-transition e)))
+	(if (affect-transition e)
+	    (apply-self-transition e cur-trans (pull-transition (successor g)))
+	    (pull-transition (successor e))))
       (current-transition e)))
 
 ;; pass -- default 
