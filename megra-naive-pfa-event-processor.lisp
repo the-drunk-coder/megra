@@ -234,11 +234,3 @@
 
 (defmethod apply-self-transition ((g graph-event-processor) current-transition transition &key)
   (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
-
-(defmethod pull-transition ((g graph-event-processor) &key)
-  (if (successor g)
-      (let ((cur-trans (current-transition g)))
-	(if (affect-transition g)
-	    (apply-self-transition g cur-trans (pull-transition (successor g)))
-	    (pull-transition (successor g))))
-      (current-transition g)))
