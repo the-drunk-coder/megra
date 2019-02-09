@@ -8,20 +8,18 @@
    (combine-filter :accessor combine-filter :initarg :combine-filter)))
 
 (defmethod current-events ((m mpfa-event-processor) &key)
-  (list (current-events (source-mpfa m))))
+  (current-events (source-mpfa m)))
 
 (defmethod current-transition ((m mpfa-event-processor) &key)
   (list (current-transition (source-mpfa m))))
-
-;; -------------------------------------------------------------- ;;
-;; infer an mpfa event processor form a set of user-defined rules ;;
-;; -------------------------------------------------------------- ;;
+;; data transformation macro to define event lists more easily
 (defmacro events (&rest mappings)
   (let ((mapping (make-hash-table :test #'equal)))
     (loop for m in mappings 
-       do (setf (gethash (car m) mapping) (eval (cadr m))))
+       do (setf (gethash (car m) mapping) (mapcar #'eval (cdr m))))
     mapping))
 
+;; data transformation macro to define transition rules  more easily
 (defmacro rules (&rest rules)
   (let ((duration-mapping (make-hash-table))
 	(plain-rule-list (list)))
@@ -35,6 +33,9 @@
 		    (nth 3 rule))) ))
     `(list ,duration-mapping ',plain-rule-list)))
 
+;; -------------------------------------------------------------- ;;
+;; infer an mpfa event processor form a set of user-defined rules ;;
+;; -------------------------------------------------------------- ;;
 (defun infer (name events rules &key (dur 200))
   (let* ((new-mpfa (vom::infer-st-pfa-list (cadr rules)))
 	 (new-proc (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa))
@@ -46,3 +47,22 @@
     (setf (mpfa-last-symbol new-mpfa) init-sym)
     (vom::pfa-set-current-state new-mpfa (list init-sym))
     (setf (gethash name *processor-directory*) new-proc)))
+
+;; ---------------------------------------------------- ;;
+;; learn an mpfa event processor form a sample sequence ;;
+;; ---------------------------------------------------- ;;
+(defun learn (name events sample-string &key (dur 200)
+					  (bound 3)
+					  (epsilon 0.001)
+					  (size 50))
+  (let* ((alphabet (reverse (alexandria::hash-table-keys events)))
+	 (new-mpfa (vom::learn-pfa alphabet bound epsilon size sample-string))
+	 (new-proc (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa))
+	 (init-sym (car alphabet)))
+    (vom::pfa-set-current-state new-mpfa (list init-sym))
+    (change-class new-mpfa 'mpfa)
+    (setf (mpfa-default-duration new-mpfa) dur)
+    (setf (mpfa-event-dictionary new-mpfa) events)
+    (setf (mpfa-last-symbol new-mpfa) init-sym)    
+    (setf (gethash name *processor-directory*) new-proc)))
+
