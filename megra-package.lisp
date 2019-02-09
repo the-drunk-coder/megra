@@ -97,6 +97,7 @@
 (load (concatenate 'string cm::*megra-root* "/megra-growth-parameters"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-processor-base"))
 (load (concatenate 'string cm::*megra-root* "/megra-naive-pfa-event-processor"))
+(load (concatenate 'string cm::*megra-root* "/megra-pfa-event-processor"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers"))
 (load (concatenate 'string cm::*megra-root* "/megra-stream-event-processors"))
 (load (concatenate 'string cm::*megra-root* "/megra-disencourage"))
