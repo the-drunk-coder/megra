@@ -9,12 +9,19 @@
 
 (defmethod current-events ((m mpfa-event-processor) &key)
   (if (copy-events m)
-      (current-events (source-mpfa m))
-      (current-events (source-mpfa m))
-      ))
+      (deepcopy (current-events (source-mpfa m)))
+      (current-events (source-mpfa m))))
 
 (defmethod current-transition ((m mpfa-event-processor) &key)
   (list (current-transition (source-mpfa m))))
+
+(defun sstring (string-as-sym)
+  "convenience method to enter sample strings without spacesx"
+  (let ((sname (if (typep string-as-sym 'string)
+		   string-as-sym
+		   (symbol-name string-as-sym))))
+    (loop for c in (coerce sname 'list)
+       collecting (intern (string-upcase (string c))))))
 
 ;; data transformation macro to define event lists more easily
 (defmacro events (&rest mappings)

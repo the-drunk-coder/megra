@@ -14,17 +14,15 @@
 	      ((3) 1 1.0))
        :dur 100))
 
-(learn 'grob 
-       (events (a (saw 'c2)) (c (saw 'a2)) (g (saw 'f4)) (t (saw 'e4)))
-       '(c c c c c c c c c a c g t a t a t c a t c a t c a t c a
-	 t c a t c a t c a t c c a t c c a t c c a t c c a c c c a g t a c g a t)
-       :dur 200
-       :bound 4)
-
 ;; genetic live code ... 
 (s 'golb (:sync-to 'grod)
+  (prob 90 (pitch 3 :cfun #'add))
   (always (dur 100) (atk 1) (rel 90) (filter-lp 1900))  
-  'grob)
+  (learn 'grob 
+       (events (a (saw 'c2)) (c (saw 'a2)) (g (saw 'f5)) (t (saw 'e4)))
+       (sstring 'catgagcatgagacacacacacagagaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaagagagagagcacacacacagaggaacatcatcatcatcactac)
+       :dur 200
+       :bound 4))
 
 (clear)
 
