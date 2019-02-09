@@ -42,9 +42,15 @@
 ;; -------------------------------------------------------------- ;;
 (defun infer (name events rules &key (dur 200))
   (let* ((new-mpfa (vom::infer-st-pfa-list (cadr rules)))
-	 (new-proc (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa))
+	 (old-proc (gethash name *processor-directory*))
+	 (new-proc
+	  (if (and old-proc (typep old-proc 'mpfa-event-processor))
+	      old-proc
+	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa)))
 	 (init-sym (car (alexandria::hash-table-keys events))))
     (change-class new-mpfa 'mpfa)
+    (if (and old-proc (typep old-proc 'mpfa-event-processor))
+	(setf (source-mpfa old-proc) new-mpfa))
     (setf (mpfa-default-duration new-mpfa) dur)
     (setf (mpfa-event-dictionary new-mpfa) events)
     (setf (mpfa-transition-durations new-mpfa) (car rules))
@@ -61,12 +67,18 @@
 					  (size 50))
   (let* ((alphabet (reverse (alexandria::hash-table-keys events)))
 	 (new-mpfa (vom::learn-pfa alphabet bound epsilon size sample-string))
-	 (new-proc (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa))
-	 (init-sym (car alphabet)))
+	 (old-proc (gethash name *processor-directory*))
+	 (new-proc
+	  (if (and old-proc (typep old-proc 'mpfa-event-processor))
+	      old-proc
+	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa)))
+	 (init-sym (car alphabet)))        
     (vom::pfa-set-current-state new-mpfa (list init-sym))
     (change-class new-mpfa 'mpfa)
+    (if (and old-proc (typep old-proc 'mpfa-event-processor))
+	(setf (source-mpfa old-proc) new-mpfa))
     (setf (mpfa-default-duration new-mpfa) dur)
     (setf (mpfa-event-dictionary new-mpfa) events)
-    (setf (mpfa-last-symbol new-mpfa) init-sym)    
+    (setf (mpfa-last-symbol new-mpfa) init-sym)        
     (setf (gethash name *processor-directory*) new-proc)))
 
