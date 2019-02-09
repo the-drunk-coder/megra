@@ -134,6 +134,7 @@
 		      ;; an old instance of itself,
 		      ;; and replace itself in that case
 		      ((and (not (typep proc 'graph-event-processor))
+			    (not (typep proc 'mpfa-event-processor))
 			    (not (gethash (name proc) *processor-directory*)))
 		       (let ((proc-name (gen-proc-name ch-name proc idx)))
 			 (setf (name proc) proc-name)

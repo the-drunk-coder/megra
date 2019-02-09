@@ -1,5 +1,20 @@
 (in-package :megra)
 
+(clear)
+
+(s 'grod ()
+  (always (dur 100) (atk 1) (rel 90) (filter-lp 900))  
+  (infer 'glob       
+       (events (1 (saw 300)) (3 (saw 50)) (2 (saw 500)))
+       (rules ((1) 2 0.5)
+	      ((1) 1 .5)
+	      ((2) 1 1.0)
+	      ((1 2 1 2) 3 1.0)
+	      ((3) 1 1.0))
+       :dur 130))
+
+
+
 
 (defparameter *a* (learn-mpfa (list (list 'a (saw 200))
 				    (list 'b (saw 300))
@@ -29,9 +44,10 @@
 
 (pull-events a-pro)
 (pull-transition a-pro)
-(pull-transition (gethash 'rates2 *processor-directory*))
+
 
 (s 'al ()
+  (always (rev 1.0) (dur 200) (atk 1) (rel 120) (filter-lp (oscil 500 1500)))
   a-pro)
 
 (clear)

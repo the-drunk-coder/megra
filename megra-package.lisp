@@ -1,6 +1,7 @@
 (require 'closer-mop)
 (require 'cl-fad)
 (require 'cl-libsndfile)
+(require 'vom)
 
 (defpackage "MEGRA"
  (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD" "CL-LIBSNDFILE")
