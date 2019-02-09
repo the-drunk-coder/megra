@@ -89,6 +89,7 @@
 (load (concatenate 'string cm::*megra-root* "/megra-param-modificators"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-base"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-definitions"))
+(load (concatenate 'string cm::*megra-root* "/megra-pitch-arithmetic"))
 (load (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers"))
 (load (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers"))
 (load (concatenate 'string cm::*megra-root* "/megra-pfa"))
