@@ -8,10 +8,14 @@
    (combine-filter :accessor combine-filter :initarg :combine-filter)))
 
 (defmethod current-events ((m mpfa-event-processor) &key)
-  (current-events (source-mpfa m)))
+  (if (copy-events m)
+      (current-events (source-mpfa m))
+      (current-events (source-mpfa m))
+      ))
 
 (defmethod current-transition ((m mpfa-event-processor) &key)
   (list (current-transition (source-mpfa m))))
+
 ;; data transformation macro to define event lists more easily
 (defmacro events (&rest mappings)
   (let ((mapping (make-hash-table :test #'equal)))

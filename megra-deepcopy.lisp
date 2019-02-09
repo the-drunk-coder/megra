@@ -16,7 +16,6 @@
 	 (max-res (if (and limits (cadr limits))
 		      (cadr limits)
 		      max)))
-    ;;(format t "hi ~D ~D ~%" object-name newval)
     (cond ((< newval min-res) min-res)
 	  ((> newval max-res) max-res)
 	  (t newval))))
