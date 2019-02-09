@@ -139,7 +139,9 @@
 		       (let ((proc-name (gen-proc-name ch-name proc idx)))
 			 (setf (name proc) proc-name)
 			 (setf (gethash proc-name *processor-directory*) proc)))
-		      ((typep proc 'graph-event-processor) proc)
+		      ((or (typep proc 'graph-event-processor)
+			   (typep proc 'mpfa-event-processor))
+		       proc)
 		      ))
 	    proc-list)))
 
