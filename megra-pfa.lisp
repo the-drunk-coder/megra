@@ -1,6 +1,6 @@
 ;; megra-flavoured PFAs
-(ql:quickload :vom)
 
+;; needs the generic variable-order markov chain library ...
 (in-package :megra)
 
 (defun gen-transition-durations (sample-string-with-durations dict)
@@ -38,6 +38,7 @@
 		   n
 		   sample-string-with-durations
 		   default-duration)
+  "learn an mpfa from an alphabet and a number od samples ..."
   (let* ((alphabet (mapcar #'car alphabet-with-payload))
 	 (sample-string (mapcar #'car sample-string-with-durations))
 	 (new-pfa (vom::learn-pfa alphabet bound epsilon n sample-string)))
@@ -49,3 +50,5 @@
     (gen-event-dictionary alphabet-with-payload
 			  (mpfa-event-dictionary new-pfa))
     new-pfa))
+
+
