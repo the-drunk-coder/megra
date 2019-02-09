@@ -13,42 +13,15 @@
 	      ((3) 1 1.0))
        :dur 130))
 
-
-
-
-(defparameter *a* (learn-mpfa (list (list 'a (saw 200))
-				    (list 'b (saw 300))
-				    (list 'c (saw 500)))
-	    4 0.001 50
-	    '((a 100) (b 200)
-	      (a 100) (b 300)
-	      (c 500) (a 100)
-	      (b 300) (c 400)
-	      (b 300) (a 100)
-	      (a 100) (b 200)
-	      (a 100) (b 300)
-	      (c 500) (a 100)
-	      (b 300) (b 300)
-	      (c 400) (c 400)
-	      (b 300))
-	    300
-	    ))
-
-(vom::pfa->svg *a* "lala" )
-
-(vom::pfa-set-current-state *a* '(a))
-
-(setf (mpfa-last-symbol *a*) 'a)
-
-(defparameter a-pro (make-instance 'mpfa-event-processor :mpfa *a* :name 'hollo))
-
-(pull-events a-pro)
-(pull-transition a-pro)
-
-
-(s 'al ()
-  (always (rev 1.0) (dur 200) (atk 1) (rel 120) (filter-lp (oscil 500 1500)))
-  a-pro)
+(s 'grod ()
+  (always (dur 100) (atk 1) (rel 90) (filter-lp 900))  
+  (learn 'glob 
+       (events (a (saw 'c4) (saw 'cs4)) (c (saw 'a3)) (g (saw 'f4)) (t (saw 'e4)) )
+       '(c a t t a g a g c a t g a g g a g c a t g a g c a t
+	 g a g c a t g a g c a t g a g c a t g a g
+	 t t c a g c a g a c a g a t a g a)
+       :dur 200
+       :bound 4))
 
 (clear)
 (stop)
