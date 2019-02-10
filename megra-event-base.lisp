@@ -1,3 +1,4 @@
+
 ;; the atomic units of music - events and transitions ...
 (defclass event ()
   ((source :accessor event-source)
@@ -15,7 +16,7 @@
 
 ;; the default value combination function
 (defun replace-value (b a) a)
-
+(in-package :megra)
 ;; see what we can still do with this ... 
 (defmethod handle-event ((e event) timestamp &key))
 
