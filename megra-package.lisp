@@ -14,7 +14,8 @@
 	  "grain"
 	  "megra-init"
 	  "megra-stop"
-	  "handle-event"))
+	  "handle-event"
+	  "EVENTS"))
 
 (in-package :megra)
 

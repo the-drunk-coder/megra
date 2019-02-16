@@ -11,7 +11,8 @@
    (chain-bound :accessor chain-bound :initform nil)   
    (name :accessor name :initarg :name)
    (clones :accessor clones :initform nil)
-   (affect-transition :accessor affect-transition :initarg :affect-transition)
+   (combine-mode :accessor combine-mode :initarg :combine-mode :initform 'zip)
+   (affect-transition :accessor affect-transition :initarg :affect-transition :initform nil)
    (update-clones :accessor update-clones :initarg :update-clones :initform nil)))
 
 (defmethod pull-events ((e event-processor) &key)
@@ -20,11 +21,12 @@
       (current-events e)))
 
 ;; events are the successor events 
-(defmethod apply-self ((e event-processor) events &key)
-  events)
+(defmethod apply-self ((g event-processor) events &key)
+  (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
 
-(defmethod apply-self-transition ((e event-processor) current-transition transition &key)
-  transition)
+(defmethod apply-self-transition ((g event-processor) current-transition transition &key)
+  (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
+
 
 (defmethod pull-transition ((e event-processor) &key)
   (if (successor e)
