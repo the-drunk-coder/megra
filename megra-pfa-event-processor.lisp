@@ -4,8 +4,7 @@
 (defclass mpfa-event-processor (event-processor)
   ((source-mpfa :accessor source-mpfa :initarg :mpfa)
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
-   (combine-mode :accessor combine-mode :initarg :combine-mode)
-   (combine-filter :accessor combine-filter :initarg :combine-filter)))
+   (combine-filter :accessor combine-filter :initarg :combine-filter :initform #'all-p)))
 
 (defmethod current-events ((m mpfa-event-processor) &key)
   (if (copy-events m)
