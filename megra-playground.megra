@@ -1,15 +1,7 @@
 (in-package :megra)
 
 
-
-(defmacro stringify ( body)
-  `,"body"
-  )
-
-(stringify 'l)
-
-(clear)
-
+       
 (s 'grod ()
   (prob 50 (rev 0.1))
   (always (pitch 100 :cfun #'add) (dur 50) (atk 1) (rel 40) (filter-lp (oscil 900 1900)))  
@@ -25,13 +17,11 @@
 ;; genetic live code ... 
 (s 'golb (:sync-to 'grod)
   (always (dur 100) (atk 1) (rel 90) (filter-lp 1900))
-  (learn 'grob 
-       (events (a (saw 'c2)) (c (saw 'a2)) (g (saw 'f5)) (t (saw 'e4)))
-       (sstring 'catgagcatgagacacacacacagagaaaaaaaagagcatgagacacacacacagaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactac)
-       :dur 200
-       :bound 4))
-
-(pring 'keys t)
+  (slearn 'grob 
+         (a (saw 'c2) c (saw 'a2) g (saw 'f5) t (saw 'e4))
+	 "catgagcatgagacacacacacagagaaaaaaaagagcatgagacacacacacagaaagagaaagagatagagagcacaca
+cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactac"
+       :dur 200))
 
 (clear)
 
