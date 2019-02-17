@@ -29,6 +29,20 @@
        do (setf (gethash (car m) mapping) (mapcar #'eval (cdr m))))
     mapping))
 
+(defmacro p-events (event-plist)
+  `(funcall (lambda ()
+	      (let ((mapping (make-hash-table :test #'equal))
+		    (key))    
+		(loop for m in ',event-plist 
+		   do (if (or (typep m 'symbol) (typep m 'number))
+			  (progn
+			    (setf key m)
+			    (setf (gethash key mapping) (list)))
+			  (let ((me (eval m))
+				(le (gethash key mapping)))			    
+			    (setf (gethash key mapping) (append le (list me))))))
+		mapping ))))
+
 ;; data transformation macro to define transition rules  more easily
 (defmacro rules (&rest rules)
   (let ((duration-mapping (make-hash-table))
@@ -88,3 +102,14 @@
     (setf (mpfa-last-symbol new-mpfa) init-sym)        
     (setf (gethash name *processor-directory*) new-proc)))
 
+
+(defmacro slearn (name events sample-string &key (dur 200)
+					      (bound 3)
+					      (epsilon 0.001)
+					      (size 50))
+  `(funcall (lambda ()
+	      (learn ,name (p-events ,events) (sstring ,sample-string)
+		     :dur ,dur
+		     :bound ,bound
+		     :epsilon ,epsilon
+		     :size ,size))))
