@@ -11,6 +11,8 @@
    (chain-bound :accessor chain-bound :initform nil)   
    (name :accessor name :initarg :name)
    (clones :accessor clones :initform nil)
+   (combine-mode :accessor combine-mode :initarg :combine-mode :initform 'zip)
+   (affect-transition :accessor affect-transition :initarg :affect-transition :initform nil)
    (update-clones :accessor update-clones :initarg :update-clones :initform nil)))
 
 (defmethod pull-events ((e event-processor) &key)
@@ -18,11 +20,20 @@
       (apply-self e (pull-events (successor e)))
       (current-events e)))
 
+;; events are the successor events 
+(defmethod apply-self ((g event-processor) events &key)
+  (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
+
+(defmethod apply-self-transition ((g event-processor) current-transition transition &key)
+  (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
+
+
 (defmethod pull-transition ((e event-processor) &key)
   (if (successor e)
-      (progn
-	(current-transition e) ;; trigger node selection ...
-	(pull-transition (successor e)))
+      (let ((cur-trans (current-transition e)))
+	(if (affect-transition e)
+	    (apply-self-transition e cur-trans (pull-transition (successor g)))
+	    (pull-transition (successor e))))
       (current-transition e)))
 
 ;; pass -- default 
@@ -125,11 +136,14 @@
 		      ;; an old instance of itself,
 		      ;; and replace itself in that case
 		      ((and (not (typep proc 'graph-event-processor))
+			    (not (typep proc 'mpfa-event-processor))
 			    (not (gethash (name proc) *processor-directory*)))
 		       (let ((proc-name (gen-proc-name ch-name proc idx)))
 			 (setf (name proc) proc-name)
 			 (setf (gethash proc-name *processor-directory*) proc)))
-		      ((typep proc 'graph-event-processor) proc)
+		      ((or (typep proc 'graph-event-processor)
+			   (typep proc 'mpfa-event-processor))
+		       proc)
 		      ))
 	    proc-list)))
 

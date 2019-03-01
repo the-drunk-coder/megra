@@ -5,10 +5,8 @@
   ((source-graph :accessor source-graph :initarg :graph)
    (current-node :accessor current-node :initarg :current-node)
    (copy-events :accessor copy-events :initarg :copy-events :initform t)
-   (combine-mode :accessor combine-mode :initarg :combine-mode)
    (combine-filter :accessor combine-filter :initarg :combine-filter)
    (affect-transition :accessor affect-transition :initarg :affect-transition)
-   (path) ;; path is a predefined path - an idea i never picked up again ..
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
@@ -228,18 +226,3 @@
 			    (mapcar #'copy-instance (edge-content chosen-edge)))
 			  (return-from order-loop (edge-content chosen-edge))
 			  ))))))))
-
-;; events are the successor events 
-(defmethod apply-self ((g graph-event-processor) events &key)
-  (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
-
-(defmethod apply-self-transition ((g graph-event-processor) current-transition transition &key)
-  (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
-
-(defmethod pull-transition ((g graph-event-processor) &key)
-  (if (successor g)
-      (let ((cur-trans (current-transition g)))
-	(if (affect-transition g)
-	    (apply-self-transition g cur-trans (pull-transition (successor g)))
-	    (pull-transition (successor g))))
-      (current-transition g)))

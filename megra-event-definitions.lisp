@@ -1,3 +1,5 @@
+(in-package :megra)
+
 ;; EVENT DEFINITIONS ...
 ;; the root event is defined in megra-event-base ...
 
@@ -990,7 +992,7 @@
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 
 (define-event
-  :long-name transition
+  :long-name transition-event
   :short-name transition
   :parent-events (event)
   :parameters ((dur transition-duration 512 20)) 
