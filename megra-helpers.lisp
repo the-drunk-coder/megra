@@ -80,7 +80,11 @@
 (defun group (groupname)
   (setf *current-group* groupname))
 
-(defmacro e- (&body li) `(funcall #'(lambda () (list ,@li))))
+(defmacro ~ (&body li) `(funcall #'(lambda () (list ,@li))))
+
+(defmacro % (&body li) `(funcall #'(lambda () (list ,@li))))
+
+
 
 (defmacro define-filter (tag)
   (let ((name-proc (concatenate 'string (symbol-name tag) "-p")))

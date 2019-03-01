@@ -1,6 +1,7 @@
 (require 'closer-mop)
 (require 'cl-fad)
 (require 'cl-libsndfile)
+(require 'vom)
 
 (defpackage "MEGRA"
  (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD" "CL-LIBSNDFILE")
@@ -13,7 +14,8 @@
 	  "grain"
 	  "megra-init"
 	  "megra-stop"
-	  "handle-event"))
+	  "handle-event"
+	  "EVENTS"))
 
 (in-package :megra)
 
@@ -84,26 +86,29 @@
 (defparameter *default-dsp-backend* 'sc)
 
 ;; load the megra stuff except for dsp ...
-(load (concatenate 'string cm::*megra-root* "/megra-object-handling"))
-(load (concatenate 'string cm::*megra-root* "/megra-param-modificators"))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-object-handling")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-param-modificators")))
 (load (concatenate 'string cm::*megra-root* "/megra-event-base"))
 (load (concatenate 'string cm::*megra-root* "/megra-event-definitions"))
-(load (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers"))
-(load (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers"))
-(load (concatenate 'string cm::*megra-root* "/megra-structures"))
-(load (concatenate 'string cm::*megra-root* "/megra-growth-parameters"))
-(load (concatenate 'string cm::*megra-root* "/megra-event-processor-base"))
-(load (concatenate 'string cm::*megra-root* "/megra-graph-event-processor"))
-(load (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers"))
-(load (concatenate 'string cm::*megra-root* "/megra-stream-event-processors"))
-(load (concatenate 'string cm::*megra-root* "/megra-disencourage"))
-(load (concatenate 'string cm::*megra-root* "/megra-dispatchers"))
-(load (concatenate 'string cm::*megra-root* "/megra-deepcopy"))
-(load (concatenate 'string cm::*megra-root* "/megra-constructors"))
-;;(load (concatenate 'string cm::*megra-root* "/megra-controllers-interfaces"))
-(load (concatenate 'string cm::*megra-root* "/megra-helpers"))
-(load (concatenate 'string cm::*megra-root* "/megra-event-filters"))
-(load (concatenate 'string cm::*megra-root* "/megra-supercollider-interface"))
-(load (concatenate 'string cm::*megra-root* "/megra-visualize"))
-(load (concatenate 'string cm::*megra-root* "/megra-growth"))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-pitch-arithmetic")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-pfa")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-growth-parameters")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-base")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-event-processor")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-pfa-event-processor")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-disencourage")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-dispatchers")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-deepcopy")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-constructors")))
+;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-controllers-interfaces")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-helpers")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-filters")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualize")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-growth")))
 (load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))

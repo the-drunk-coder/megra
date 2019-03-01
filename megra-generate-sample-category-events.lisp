@@ -36,7 +36,7 @@
 	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
 	      (rev (find-keyword-val :rev args :default 0.0))
 	      (tags (find-keyword-val :tags args :default '(,(read-from-string name))))
-	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (cfun (find-keyword-val :cfun args :default #'replace-value))
 	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
 	      (search-keywords (purge-all-keywords param-keywords rest)))
 	 (grain (string-downcase ,name)
@@ -50,7 +50,7 @@
 		:lp-freq-lfo-speed lp-freq-lfo-speed
 		:lp-freq-lfo-phase lp-freq-lfo-phase
 		:pf-freq pf-freq :pf-gain pf-gain
-		:combi-fun combi-fun)))       
+		:cfun cfun)))       
      (defun ,(read-from-string (concatenate 'string name "-p")) (event)
        (member ',(read-from-string name) (event-tags event)))))
 
@@ -79,7 +79,7 @@
 	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
 	      (rev (find-keyword-val :rev args :default 0.0))
 	      (tags (find-keyword-val :tags args :default '(,(read-from-string name-proc))))
-	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (cfun (find-keyword-val :cfun args :default #'replace-value))
 	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
 	      (search-keywords (purge-all-keywords param-keywords rest)))
 	 (grain-4ch (string-downcase ,name)
@@ -94,7 +94,7 @@
 		    :lp-freq-lfo-speed lp-freq-lfo-speed
 		    :lp-freq-lfo-phase lp-freq-lfo-phase
 		    :pf-freq pf-freq :pf-gain pf-gain
-		    :combi-fun combi-fun)))       
+		    :cfun cfun)))       
      (defun ,(read-from-string (concatenate 'string name-proc "-p")) (event)
        (member ',(read-from-string name) (event-tags event))))))
 
@@ -123,7 +123,7 @@
 	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
 	      (rev (find-keyword-val :rev args :default 0.0))
 	      (tags (find-keyword-val :tags args :default '(,(read-from-string name-proc))))
-	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (cfun (find-keyword-val :cfun args :default #'replace-value))
 	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
 	      (search-keywords (purge-all-keywords param-keywords rest)))
 	 (grain-8ch (string-downcase ,name)
@@ -137,7 +137,7 @@
 		    :lp-freq-lfo-speed lp-freq-lfo-speed
 		    :lp-freq-lfo-phase lp-freq-lfo-phase
 		    :pf-freq pf-freq :pf-gain pf-gain
-		    :combi-fun combi-fun)))       
+		    :cfun cfun)))       
      (defun ,(read-from-string (concatenate 'string name-proc "-p")) (event)
        (member ',(read-from-string name) (event-tags event))))))
 
@@ -167,7 +167,7 @@
 	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
 	      (rev (find-keyword-val :rev args :default 0.0))
 	      (tags (find-keyword-val :tags args :default '(,(read-from-string name-proc))))
-	      (combi-fun (find-keyword-val :combi-fun args :default #'replace-value))
+	      (cfun (find-keyword-val :cfun args :default #'replace-value))
 	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
 	      (search-keywords (purge-all-keywords param-keywords rest)))
 	 (grain-ambi (string-downcase ,name)
@@ -182,7 +182,7 @@
 		     :lp-freq-lfo-speed lp-freq-lfo-speed
 		     :lp-freq-lfo-phase lp-freq-lfo-phase
 		     :pf-freq pf-freq :pf-gain pf-gain
-		     :combi-fun combi-fun)))       
+		     :cfun cfun)))       
      (defun ,(read-from-string (concatenate 'string name-proc "-p")) (event)
        (member ',(read-from-string name) (event-tags event))))))
 

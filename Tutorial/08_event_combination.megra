@@ -10,7 +10,7 @@
    (cc 30 (lvl 0.0)) ;; cc is short for chance-combine
    (cc 30 (filter-lp 600)) ;;
    (g 'snare ()
-      (n 1 (sn 'fat :dur 400 :lvl 0.4))
+      (n 1 (sn 'tschack :dur 400 :lvl 0.4))
       (e 1 1 :d 400 :p 100)))
 
 ;; so, with a chance of 30% each, the event is muted (level set to 0 by combining with

@@ -1,42 +1,84 @@
 (in-package :megra)
 
+
+       
+(s 'grod ()
+  (prob 50 (rev 0.1))
+  (always (pitch 100 :cfun #'add) (dur 50) (atk 1) (rel 40) (filter-lp (oscil 900 1900)))  
+  (infer 'glob       
+       (events (1 (saw 300)) (3 (saw 50)) (2 (saw 500)))
+       (rules ((1) 2 0.5)
+	      ((1) 1 .5)
+	      ((2) 1 1.0)
+	      ((1 2 1 2) 3 1.0)
+	      ((3) 1 1.0))
+       :dur 100))
+
+;; genetic live code ... 
+(s 'golb (:sync-to 'grod)
+  (always (dur 100) (atk 1) (rel 90) (filter-lp 1900))
+  (slearn 'grob 
+         (a (saw 'c2) c (saw 'a2) g (saw 'f5) t (saw 'e4))
+	 "catgagcatgagacacacacacagagaaaaaaaagagcatgagacacacacacagaaagagaaagagatagagagcacaca
+cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactac"
+       :dur 200))
+
+(clear)
+
+(stop)
+
 ;; DOES THAT WORK ?? -- NOW IT DOES !!  
 (s 'bass-2 ()
   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
 	     (nuc 'rates
-		  (pitch 100)
+	  (pitch 100)
 		  :gap 400 :reset t))
   (nuc 'rates2 (saw 200 :dur 80 :lp-freq (oscil 300 1400))		  
 		  :gap 100 :reset t))
 
-(s 'bass-2 ()
+(s 'bass-2 (:sync-to 'grod)
   (nuc 'rates
-       (rate 7.2)
-       :gap 400 :reset nil)
+       (rate 1.2))
   (g 'lul ()
     (n 1 (bd))
     (n 2 (sn 'fat))
     (e 1 2 :d 400 :p 100)
     (e 2 1 :d 400 :p 100)))
 
+;; that's a fat one !!
+(s 'bass-2 ()  
+  (for bd (prob 20 (dur 500)))
+  (for saw (always (dur 100) (atk 3) (rel 90) (lvl 0.6)))
+  ;(inh 10 bd)
+  ;(inh 20 sn)
+  (inh 80 orch)
+  (for orch (prob 40 (rev 0.2)))
+  (lifemodel t 0.1 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
+	     (cyc 'rates (~ (% (bd) (pitch 'a1)) (% (sn :lvl 0.2) (pitch 'e2))) 
+		  :gap 400 :reset t))
+  (cyc 'lul (~ (% (bd :lvl 0.0 :dur 80) (saw 'a1 :lp-freq 500 :dur 100 :lp-dist 1.0)) 90
+	       (% (hats) (orch 'marimba :dur 100)) 90
+	       (% (sn :dur 80 :lvl 0.1) (saw 'e2 :lp-freq 500 :dur 100 :lp-dist 1.0))) :reset t :gap 180))
 
-(s 'bass-3 ()
- (g 'luld ()
-    (n 1 (rate 0.2))    
-    (e 1 1 :d 400 :p 100))
-  (g 'lul ()
-    (n 1 (bd))
-    (n 2 (sn 'fat))
-    (e 1 2 :d 400 :p 100)
-    (e 2 1 :d 400 :p 100)))
+(s 'bass-3 ()    
+  ;;(for saw (always (cyc 'rates (~  (pitch 'a1)  (pitch 'e2)) :gap 400 :reset t)))
+  (cyc 'lula (~ (pitch 'a1) (pitch 'a3) (pitch 'a5)))
+  ;;(nuc 'lula  (saw 'a3 :lp-freq 300) :reset t :gap 200)
+  ;;(cyc 'lul  (~ (saw 'a2 :lp-freq 300 :dur 100)) :gap 100)
+  (cyc 'lulo  (~ (tri 'a2 :lp-freq 3000 :dur 100)) :gap 100)
+  )
+
+(pull-transition (gethash 'bass-3 *chain-directory*))
+
+(grow 'lul :method 'triloop :variance 0.1)
 
 (clear)
 
-(s 'bass-2 ()
-  (cc 100 (rate 7.2))
-  (g 'lul ()
-    (n 1 (bd))
-    (n 2 (sn 'fat))
+(s 'bass-2 (:sync-to 'bass-3)
+  (always (filter-lp 3000 :lp-dist 1.0) (rev (oscil 0.03 0.0 :cycle 20)))  
+  (g 'lula ()
+    (n 1 (meow 100 :sus 400))
+    (n 2 (meow 200 :sus 400))
     (e 1 2 :d 400 :p 100)
     (e 2 1 :d 400 :p 100)))
 
