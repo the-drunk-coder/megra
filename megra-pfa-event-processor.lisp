@@ -40,12 +40,12 @@
 			    (setf (gethash key mapping) (list)))
 			  (let ((me (eval m))
 				(le (gethash key mapping)))			    
-			    (setf (gethash key mapping) (append le (list me))))))
-		mapping ))))
+			    (setf (gethash key mapping) (nconc le (list me))))))
+		mapping))))
 
 ;; data transformation macro to define transition rules  more easily
 (defmacro rules (&rest rules)
-  (let ((duration-mapping (make-hash-table))
+  (let ((duration-mapping (make-hash-table :test #'equal))
 	(plain-rule-list (list)))
     (loop for rule in rules
        do (progn
