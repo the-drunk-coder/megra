@@ -1,7 +1,6 @@
 (in-package :megra)
 
 
-       
 (s 'grod ()
   (prob 50 (rev 0.1))
   (always (pitch 100 :cfun #'add) (dur 50) (atk 1) (rel 40) (filter-lp (oscil 900 1900)))  
@@ -13,6 +12,38 @@
 	      ((1 2 1 2) 3 1.0)
 	      ((3) 1 1.0))
        :dur 100))
+
+(s 'small ()
+   (infer 'beat
+	  (events (x (sn)) (o (bd)) (- (hats)))
+	  (rules ((x) - 1.0)
+		 ((o) - 1.0)
+		 ((-) x 0.4)
+		 ((-) o 0.4)
+		 ((-) - 0.2 200)
+		 ((- - - -) o 1.0))
+	  :dur 400))
+
+(s 'larger ()
+  (slearn 'beat
+	  (x (sn) o (bd) - (hats))
+	  "x-o-x-o-x-o-x-o-x-o-x-o-x-o-x-o-x-
+o-x-o-x-o-x-ox-xo-x--ox-ox--xo-x-xo-xox-ox-ox-ox-xx-ox"))
+
+
+(stop)
+(clear)
+
+(equal (list - -) (list - -))
+
+(vom::pfa->svg (source-mpfa (gethash 'beat *processor-directory*)) "largebeat" )
+
+(s 'the ()
+  (nuc 'nucleus (saw 'a2 :dur 102 :atk 2 :rel 100 :lp-freq 1000) :gap 200))
+
+(grow 'nucleus :variance 0.3 :method 'triloop)
+
+;;
 
 ;; genetic live code ... 
 (s 'golb (:sync-to 'grod)
