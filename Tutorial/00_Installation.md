@@ -60,6 +60,7 @@ Clone the following git repositories (ideally into your quicklisp/local-projects
 - fudi-incudine:  https://github.com/ormf/fudi-incudine
 - cl-libsndfile:  https://github.com/ghollisjr/cl-libsndfile
 - cl-fad:         https://github.com/edicl/cl-fad
+- vom:            https://gitlab.com/ellipsenpark/vom
 
 ```
 cd </path/to/quicklisp>/local-projects
@@ -69,6 +70,7 @@ git clone https://github.com/ormf/cm-incudine
 git clone https://github.com/ormf/fudi-incudine
 git clone https://github.com/ghollisjr/cl-libsndfile
 git clone https://github.com/edicl/cl-fad
+git clone https://github.com/ellipsenpark/vom
 ```
 
 If you haven't done so, clone this repository to the desired location.
