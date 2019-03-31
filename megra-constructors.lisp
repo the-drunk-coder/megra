@@ -70,7 +70,7 @@
 
 ;; takes notes in the format '(pitch duration) ant turns them into a loop graph
 ;; which might be randomized
-(defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
+(defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (dur *global-default-duration*))
   (let ((new-graph (make-instance 'graph))
 	(count 1)
 	(len (list-length notes)))		      
@@ -101,7 +101,7 @@
 			     :combine-filter #'all-p)))))
 
 ;; nucleus, one node, with one repeating edge ... 
-(defun nuc (name event &key (overlap 0) (dur 400) (reset t))  
+(defun nuc (name event &key (overlap 0) (dur *global-default-duration*) (reset t))  
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
@@ -134,7 +134,7 @@
     (setf (gethash name *processor-directory*) graph-proc)))
 
 ;; a cycle ... 
-(defun cyc (name events  &key (dur 400) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t))
+(defun cyc (name events  &key (dur *global-default-duration*) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t))
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
@@ -179,7 +179,6 @@
     (if (> rnd 0) (randomize-edges src-graph rnd dur))
     (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
-
 
 
 ;; star
