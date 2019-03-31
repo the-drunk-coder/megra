@@ -13,16 +13,23 @@
 	      ((3) 1 1.0))
        :dur 100))
 
-(s 'small ()
-   (infer 'beat
-	  (events (x (sn)) (o (bd)) (- (hats)))
-	  (rules ((x) - 1.0)
-		 ((o) - 1.0)
-		 ((-) x 0.4)
-		 ((-) o 0.4)
-		 ((-) - 0.2 200)
-		 ((- - - -) o 1.0))
-	  :dur 400))
+(s 'sma ()
+   (infer 'bea
+	  (events (1 (sine 100 :atk 1 :rel 90 :dur 100)))
+	  (rules ((1) 1 1.0))
+	  :dur 100))
+
+(defmacro nuc2 (name event &key (dur 200))
+  `(funcall #'(lambda ()
+               (infer ,name
+	              (events (1 ,event))
+	              (rules ((1) 1 1.0))
+	              :dur ,dur))))
+
+(s 'la ()
+  (nuc2 'lad (sine 100))))
+
+(clear)
 
 (s 'larger ()
   (slearn 'beat
