@@ -250,7 +250,7 @@
 	(setf (current-node g) replacement-id))
       (remove-node (source-graph g) prune-id :rebalance t))))
 
-(defun grow (graph-or-id &key (variance 0)		        
+(defun grow (graph-or-id &key (var 0)		        
 			   durs
 			   functors
 			   (method 'old)
@@ -261,27 +261,27 @@
 			    graph-or-id)))
     (cond ((eql method 'triloop)
 	   (grow-graph-triloop resolved-graph
-	    :var variance
+	    :var var
 	    :durs durs
 	    :functors functors
 	    :rnd rnd
 	    :higher-order higher-order))
 	  ((eql method 'quadloop)
 	   (grow-graph-quadloop resolved-graph
-				:var variance
+				:var var
 				:durs durs
 				:functors functors
 				:rnd rnd
 				:higher-order higher-order))
 	  ((eql method 'loop)
 	   (grow-graph-loop resolved-graph
-			    :var variance
+			    :var var
 			    :durs durs
 			    :functors functors
 			    :rnd rnd
 			    :higher-order higher-order))
 	  (t (grow-graph resolved-graph
-			 :var variance
+			 :var var
 			 :durs durs
 			 :functors functors
 			 :rnd rnd
@@ -292,7 +292,7 @@
 	       :exclude exclude
 	       :node-id node-id))
 
-(defun branch (chain-id &key (shift 0) (variance 0.1) sync-to functors)
+(defun branch (chain-id &key (shift 0) (var 0.1) sync-to functors)
   (incudine::msg info "branching chain ~D" chain-id)			 
   ;; get the old chain ... 
   (let* ((current-chain (gethash chain-id *chain-directory*))
@@ -315,7 +315,7 @@
 						   new-chain-id
 						   proc
 						   idx)
-						  :variance variance
+						  :var var
 						  :functors functors
 						  :track nil))
 					     current-procs)
