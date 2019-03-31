@@ -51,9 +51,11 @@
 	val)
       default))
 
-(defun probctrl (act variance pgrowth pprune method
+(defun probctrl (act pgrowth pprune
 		 &rest rest)
-  (let ((durs (find-keyword-val :durs rest :default nil))
+  (let ((method (find-keyword-val :method rest :default 'triloop))
+	(variance (find-keyword-val :var rest :default 0.2))
+	(durs (find-keyword-val :durs rest :default nil))
 	(hoe-max (find-keyword-val :hoe-max rest :default 4))
 	(hoe (find-keyword-val :hoe rest :default 4))
 	(exclude (find-keyword-val :exclude rest :default nil))
@@ -215,7 +217,7 @@
 		   :hoe-max hoe-max
 		   :exclude exclude
 		   :autophagia autophagia
-		   :apoptosis apoptosis)))  
+		   :apoptosis apoptosis)))
 
 
 
