@@ -189,11 +189,12 @@
   (floor (+ orig (* (* (- 20000 (random 40000)) var)
 	     (/ orig 20000)))))
 
-(defun lifemodel (act variance method growth-cycle
+(defun lifemodel (act growth-cycle lifespan
 	       &rest rest)
-  (let ((autophagia (find-keyword-val :autophagia rest :default t))
-	(apoptosis (find-keyword-val :apoptosis rest :default t))
-	(lifespan (find-keyword-val :lifespan rest :default 20))
+  (let ((method (find-keyword-val :method rest :default 'triloop))
+	(variance (find-keyword-val :var rest :default 0.2))
+	(autophagia (find-keyword-val :autophagia rest :default t))
+	(apoptosis (find-keyword-val :apoptosis rest :default t))        
 	(durs (find-keyword-val :durs rest :default nil))
 	(hoe-max (find-keyword-val :hoe-max rest :default 4))
 	(hoe (find-keyword-val :hoe rest :default 4))
