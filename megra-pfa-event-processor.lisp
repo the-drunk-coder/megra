@@ -60,7 +60,7 @@
 ;; -------------------------------------------------------------- ;;
 ;; infer an mpfa event processor form a set of user-defined rules ;;
 ;; -------------------------------------------------------------- ;;
-(defun infer (name events rules &key (dur 200))
+(defun infer (name events rules &key (dur *global-default-duration*))
   (let* ((new-mpfa (vom::infer-st-pfa-list (cadr rules)))
 	 (old-proc (gethash name *processor-directory*))
 	 (new-proc
@@ -81,7 +81,7 @@
 ;; ---------------------------------------------------- ;;
 ;; learn an mpfa event processor form a sample sequence ;;
 ;; ---------------------------------------------------- ;;
-(defun learn (name events sample-string &key (dur 200)
+(defun learn (name events sample-string &key (dur *global-default-duration*)
 					  (bound 3)
 					  (epsilon 0.001)
 					  (size 50))
@@ -103,7 +103,7 @@
     (setf (gethash name *processor-directory*) new-proc)))
 
 
-(defmacro slearn (name events sample-string &key (dur 200)
+(defmacro slearn (name events sample-string &key (dur *global-default-duration*)
 					      (bound 3)
 					      (epsilon 0.001)
 					      (size 50))
@@ -114,7 +114,7 @@
 		     :epsilon ,epsilon
 		     :size ,size))))
 ;; abstractions ... 
-(defmacro nuc2 (name event &key (dur 200))
+(defmacro nuc2 (name event &key (dur *global-default-duration*))
   `(funcall #'(lambda ()
                 (infer ,name
 	               (events (1 ,event))

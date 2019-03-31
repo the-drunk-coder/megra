@@ -75,6 +75,16 @@
 
 (defparameter *current-group* 'DEFAULT)
 
+(defparameter *global-default-duration* 210)
+
+(defun global-dur (new-duration)
+  "Set a global default duration. Already constructed entities won't be affected."
+  (setf *global-default-duration* new-duration))
+
+(defun global-bpm (bpm)
+  "Set a global tempo (approximate). Already constructed entities won't be affected."
+  (setf *global-default-duration* (coerce 'integer (/ 60000 bpm))))
+
 ;; the default backend for DSP
 ;; 'inc -> incudine
 ;; 'sc -> SuperCollider
