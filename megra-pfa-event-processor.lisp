@@ -113,3 +113,10 @@
 		     :bound ,bound
 		     :epsilon ,epsilon
 		     :size ,size))))
+;; abstractions ... 
+(defmacro nuc2 (name event &key (dur 200))
+  `(funcall #'(lambda ()
+                (infer ,name
+	               (events (1 ,event))
+	               (rules ((1) 1 1.0))
+	               :dur ,dur))))
