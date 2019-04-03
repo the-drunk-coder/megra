@@ -70,7 +70,7 @@
 
 ;; takes notes in the format '(pitch duration) ant turns them into a loop graph
 ;; which might be randomized
-(defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (default-dur 512))
+(defun notes->midi-graph (name &key notes (level 0.5) (type 'loop) (randomize 0) (dur *global-default-duration*))
   (let ((new-graph (make-instance 'graph))
 	(count 1)
 	(len (list-length notes)))		      
@@ -101,7 +101,7 @@
 			     :combine-filter #'all-p)))))
 
 ;; nucleus, one node, with one repeating edge ... 
-(defun nuc (name event &key (overlap 0) (gap 400) (reset t))  
+(defun nuc (name event &key (overlap 0) (dur *global-default-duration*) (reset t))  
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
@@ -121,8 +121,8 @@
 							       event
 							       (list event))
 						  :color 'white)))
-      (let ((dur (cond ((typep gap 'param-mod-object) gap)
-		       (gap (- gap (* gap overlap)))
+      (let ((dur (cond ((typep dur 'param-mod-object) dur)
+		       (dur (- dur (* dur overlap)))
 		       (t (if (typep (event-duration event) 'param-mod-object)
 			      (event-duration event)
 			      (- (event-duration event)
@@ -134,7 +134,7 @@
     (setf (gethash name *processor-directory*) graph-proc)))
 
 ;; a cycle ... 
-(defun cyc (name events  &key (gap 400) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t))
+(defun cyc (name events  &key (dur *global-default-duration*) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t))
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
@@ -145,13 +145,13 @@
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
 			  (t (source-graph graph-proc))))
-	 (dur (cond ((typep gap 'param-mod-object) gap)
-		    (gap (- gap (* gap overlap)))))
+	 (dur (cond ((typep dur 'param-mod-object) dur)
+		    (dur (- dur (* dur overlap)))))
 	 (count 1))
     (setf (graph-id src-graph) name)
     (loop for (a b) on events
        do (let ((duration (if (and b (typep b 'integer))
-			      b gap)))
+			      b dur)))
 	    (unless (typep a 'number)
 	      (insert-node src-graph (node count a))
 	      (when (or reset (not (source-graph graph-proc)))
@@ -179,7 +179,6 @@
     (if (> rnd 0) (randomize-edges src-graph rnd dur))
     (setf (source-graph graph-proc) src-graph)    
     (setf (gethash name *processor-directory*) graph-proc)))
-
 
 
 ;; star

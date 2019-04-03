@@ -40,12 +40,12 @@
 			    (setf (gethash key mapping) (list)))
 			  (let ((me (eval m))
 				(le (gethash key mapping)))			    
-			    (setf (gethash key mapping) (append le (list me))))))
-		mapping ))))
+			    (setf (gethash key mapping) (nconc le (list me))))))
+		mapping))))
 
 ;; data transformation macro to define transition rules  more easily
 (defmacro rules (&rest rules)
-  (let ((duration-mapping (make-hash-table))
+  (let ((duration-mapping (make-hash-table :test #'equal))
 	(plain-rule-list (list)))
     (loop for rule in rules
        do (progn
@@ -60,7 +60,7 @@
 ;; -------------------------------------------------------------- ;;
 ;; infer an mpfa event processor form a set of user-defined rules ;;
 ;; -------------------------------------------------------------- ;;
-(defun infer (name events rules &key (dur 200))
+(defun infer (name events rules &key (dur *global-default-duration*))
   (let* ((new-mpfa (vom::infer-st-pfa-list (cadr rules)))
 	 (old-proc (gethash name *processor-directory*))
 	 (new-proc
@@ -81,7 +81,7 @@
 ;; ---------------------------------------------------- ;;
 ;; learn an mpfa event processor form a sample sequence ;;
 ;; ---------------------------------------------------- ;;
-(defun learn (name events sample-string &key (dur 200)
+(defun learn (name events sample-string &key (dur *global-default-duration*)
 					  (bound 3)
 					  (epsilon 0.001)
 					  (size 50))
@@ -103,7 +103,7 @@
     (setf (gethash name *processor-directory*) new-proc)))
 
 
-(defmacro slearn (name events sample-string &key (dur 200)
+(defmacro slearn (name events sample-string &key (dur *global-default-duration*)
 					      (bound 3)
 					      (epsilon 0.001)
 					      (size 50))
@@ -113,3 +113,10 @@
 		     :bound ,bound
 		     :epsilon ,epsilon
 		     :size ,size))))
+;; abstractions ... 
+(defmacro nuc2 (name event &key (dur *global-default-duration*))
+  `(funcall #'(lambda ()
+                (infer ,name
+	               (events (1 ,event))
+	               (rules ((1) 1 1.0))
+	               :dur ,dur))))
