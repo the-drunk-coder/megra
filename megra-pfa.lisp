@@ -42,8 +42,9 @@
   (let* ((alphabet (mapcar #'car alphabet-with-payload))
 	 (sample-string (mapcar #'car sample-string-with-durations))
 	 (new-pfa (vom::learn-pfa alphabet bound epsilon n sample-string)))
-    ;; dirty, but hey ... 
-    (change-class new-pfa 'mpfa)
+    ;; dirty, but hey ..
+    (vom::pfa->st-pfa new-pfa)
+    (change-class new-pfa 'mpfa)    
     (setf (mpfa-default-duration new-pfa) default-duration)
     (gen-transition-durations sample-string-with-durations
 			      (mpfa-transition-durations new-pfa))
