@@ -15,7 +15,7 @@
   (list (current-transition (source-mpfa m))))
 
 (defun sstring (string-as-sym)
-  "convenience method to enter sample strings without spacesx"
+  "convenience method to enter sample strings without spaces"
   (let ((sname (if (typep string-as-sym 'string)
 		   string-as-sym
 		   (symbol-name string-as-sym))))
@@ -120,3 +120,15 @@
 	               (events (1 ,event))
 	               (rules ((1) 1 1.0))
 	               :dur ,dur))))
+
+(defun grow2 (name &key (var 0.1) (hist 2) (ord 2) method durs funct)
+  (let* ((proc (gethash name *processor-directory*))
+	 ;; this one needs to be adapted to keep the old methods
+	 ;; alive ! 
+	 (growth-result (vom::grow-st-pfa (source-mpfa proc) hist ord))
+	 (template (gethash (first growth-result) (mpfa-event-dictionary (source-mpfa proc)))))
+    (setf (gethash (second growth-result) (mpfa-event-dictionary (source-mpfa proc)))
+	  (deepcopy template :imprecision var :functors funct))
+    ;; default duration will be picked for now ... 
+    )
+  )
