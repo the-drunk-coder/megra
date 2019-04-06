@@ -92,8 +92,9 @@
 	  (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	      old-proc
 	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa)))
-	 (init-sym (car alphabet)))        
-    (vom::pfa-set-current-state new-mpfa (list init-sym))
+	 (init-sym (car alphabet)))
+    (vom::pfa->st-pfa new-mpfa)
+    (vom::pfa-set-current-state new-mpfa (list init-sym))    
     (change-class new-mpfa 'mpfa)
     (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	(setf (source-mpfa old-proc) new-mpfa))
