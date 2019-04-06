@@ -31,11 +31,11 @@
 (current-events (gethash 'lopa *processor-directory*))
 
 (s 'faum ()
-  (cyc2 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) (bd) (sn)) :dur 400))
+  (cyc2 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) 200 (hats) 200 (bd) 200 (hats) 200 (sn)) :dur 400))
 
-(grow2 'lopa :var 0.4)
+(grow2 'lopa :var 0.9)
 
-(vom::pfa->svg (gethash ))
+(mpfa->svg 'lopa)
 
 (s 'sma ()
    (infer 'bea
