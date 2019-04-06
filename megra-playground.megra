@@ -12,30 +12,14 @@
 	      ((3) 1 1.0))
        :dur 100))
 
-(cadr (rules ((1) 2 0.5)
-	     ((1) 1 .5 600)
-	     ((2) 1 1.0)
-	     ((1 2 1 2) 3 1.0)
-	     ((3) 1 1.0)))
-
-(rules ((1) 2 0.5)
-       ((1) 1 .5 600)
-	     ((2) 1 1.0)
-	     ((1 2 1 2) 3 1.0)
-	     ((3) 1 1.0))
-
-(clear)
-
-(defvar lop )
-
-(current-events (gethash 'lopa *processor-directory*))
-
 (s 'faum ()
   (cyc2 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) 200 (hats) 200 (bd) 200 (hats) 200 (sn)) :dur 400))
 
-(grow2 'lopa :var 0.9)
+(grow2 'lad :var 0.9 :method 'loop)
 
-(mpfa->svg 'lopa)
+(mpfa->svg 'lad)
+
+(clear)
 
 (s 'sma ()
    (infer 'bea
@@ -50,7 +34,7 @@
 
 (s 'la ()
   (always (filter-lp 1000))
-  (nuc2 'lad (saw 100 :dur 120 :rel 90 :atk 1) :dur 130))
+  (nuc2 'lad (saw 500 :dur 120 :rel 90 :atk 1) :dur 130))
 
 
 (current-events (gethash 'beat *processor-directory*))
