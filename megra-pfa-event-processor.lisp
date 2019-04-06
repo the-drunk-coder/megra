@@ -128,8 +128,6 @@
 		     :epsilon ,epsilon
 		     :size ,size))))
 
-()
-
 ;; abstractions ... 
 (defmacro nuc2 (name event &key (dur *global-default-duration*))
   `(funcall #'(lambda ()
@@ -138,11 +136,11 @@
 	               (rules ((1) 1 1.0))
 	               :dur ,dur))))
 
-(defun grow2 (name &key (var 0.1) (hist 2) (ord 2) method durs funct)
+(defun grow2 (name &key (var 0.1) (hist 2) (ord 2) (exit 1) method durs funct)
   (let* ((proc (gethash name *processor-directory*))
 	 ;; this one needs to be adapted to keep the old methods
 	 ;; alive ! 
-	 (growth-result (vom::grow-st-pfa (source-mpfa proc) hist ord))
+	 (growth-result (vom::grow-st-pfa (source-mpfa proc) hist ord exit))
 	 (template (gethash (first growth-result)
 			    (mpfa-event-dictionary (source-mpfa proc)))))
     (setf (gethash (second growth-result)
@@ -163,9 +161,9 @@
 	     (let ((new-rule (list (list count) (incf count) 1.0)))
 	       (setf rules (nconc rules (list new-rule)))))
 	    ((and (or (typep a 'event) (typep a 'list)) (typep b 'number))
-	     (setf (gethash count event-mapping) (if (typep a 'list) a (list a)))
+	     (setf (gethash count event-mapping) (if (typep a 'list) a (list a))))
 	    ((and (typep a 'number) (or (typep b 'event) (typep b 'list)))
-	     (setf (gethash (+ count 1) event-mapping) (if (typep b 'list) b (list b))
+	     (setf (gethash (+ count 1) event-mapping) (if (typep b 'list) b (list b)))
 	     (let ((new-rule (list (list count) (incf count) 1.0 a)))
 	       (setf rules (nconc rules (list new-rule)))))))
     (if (typep (car (last events)) 'number)
@@ -174,5 +172,8 @@
     (infer name
 	   event-mapping
 	   (rules-list rules)
-	   :dur dur)))))
+	   :dur dur)))
+
+(defun mpfa->svg (name)
+  (vom::pfa->svg (source-mpfa (gethash name *processor-directory*)) (symbol-name name) ))
 
