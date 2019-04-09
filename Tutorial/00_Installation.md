@@ -125,7 +125,6 @@ Add the following lines to your `~/.emacs`:
 
 Then start emacs, open some `*.lisp` file, start slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
 - optionally, update quicklisp distributions `(ql:update-all-distributions)`
-- `(ql:quickload "quicklisp-slime-helper")` (practical)
 - `(ql:quickload "closer-mop")`
 - `(ql:quickload "cm-incudine")` (**ACCEPT** all errors on osX)
 
