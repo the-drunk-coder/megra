@@ -40,11 +40,11 @@ Now install:
 - libsndfile
 - fftw
 - quicklisp (follow guide on quicklisp page, https://www.quicklisp.org ... add to init file !)
+- portmidi
+- gsl
 
 On macOS, additionally install (using Homebrew):
 - portaudio
-- portmidi
-- gsl
 
 For osX emacs installation, check out https://wikemacs.org/wiki/Installing_Emacs_on_OS_X !
 
