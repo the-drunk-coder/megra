@@ -144,7 +144,7 @@
 			  chain				     
 			  it)))))
 
-(defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
+(defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   `(funcall #'(lambda ()
@@ -212,7 +212,7 @@
 			   (if (not new-chain)
 			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
 			   ;; in that case, the syncing chain will do the anschluss ...
-			   (unless (gethash ,sync-to *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
+			   (unless (gethash ,sync *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
 			   (deactivate old-chain))) 
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
@@ -226,7 +226,7 @@
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)
 		;; if we've reached this point, we should have a valid chain, or left the function ...
-		(inner-dispatch ,name ,sync-to))))
+		(inner-dispatch ,name ,sync))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
