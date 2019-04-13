@@ -152,8 +152,11 @@
 (defun cyc2 (name events  &key (dur *global-default-duration*))
   (let ((count 1)
 	(rules (list))
-	(event-mapping (make-hash-table :test #'equal)))    
-    (loop for (a b) on events while b
+	(event-mapping (make-hash-table :test #'equal))
+	(real-events (if (typep events 'string)
+			 (string->cycle-list events)
+			 events)))
+    (loop for (a b) on real-events while b
        do (cond
 	    ((and (or (typep a 'event) (typep a 'list)) (or (typep b 'event) (typep b 'list)))
 	     (setf (gethash count event-mapping) (if (typep a 'list) a (list a)))
@@ -166,8 +169,8 @@
 	     (setf (gethash (+ count 1) event-mapping) (if (typep b 'list) b (list b)))
 	     (let ((new-rule (list (list count) (incf count) 1.0 a)))
 	       (setf rules (nconc rules (list new-rule)))))))
-    (if (typep (car (last events)) 'number)
-	(setf rules (nconc rules (list (list (list count) 1 1.0 (car (last events))))))
+    (if (typep (car (last real-events)) 'number)
+	(setf rules (nconc rules (list (list (list count) 1 1.0 (car (last real-events))))))
 	(setf rules (nconc rules (list (list (list count) 1 1.0)))))
     (infer name
 	   event-mapping
