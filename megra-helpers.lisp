@@ -91,7 +91,9 @@
          cur)
     (setf cur cycle)
     (loop for token in split      
-       do (cond ((string= token "(") (setf cur (list)))
+       do (cond ((string= token "(")
+		 (setf cycle (nconc cycle  cur))
+		 (setf cur (list)))
 		((string= token ")")
 		 (setf cycle (nconc cycle (list cur)))
 		 (setf cur cycle))
