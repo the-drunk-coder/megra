@@ -1,8 +1,13 @@
+;;(ql:quickload :cl-ppcre)
+;;(ql:quickload :closer-mop)
+;;(ql:quickload :cm-incudine)
+
 (in-package :megra)
+(clear)
 
-(register-clock-sync 'mampf "/mampf")
+(register-clock-sync 'mampf "/mampf" :host "172.24.7.255" :port 12350)
 
-(s 'grod ()
+(s 'grod (:sync 'mampf)
   (prob 50 (rev 0.1))
   (always (pitch 100 :cfun #'add) (dur 50) (atk 1) (rel 40) (filter-lp (oscil 900 1900)))  
   (infer 'glob       
@@ -14,16 +19,19 @@
 		((3) 1 1.0))
 	 :dur 100))
 
-(s 'faum (:sync 'mampf )
-  (cyc2 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) 200 (hats) 200 (bd) 200 (hats) 200 (sn)) :dur 400))
+(s 'faum (:sync 'mampf)
+  (cyc 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) 200 (hats) 200 (bd) 200 (hats) 200 (sn)) :dur 400))
 
-(grow2 'lad :var 0.9 :method 'loop)
+(s 'faum (:sync 'mampf)  
+  (cyc 'lopa "bd 200 hats 200 [saw:600 sn] 200 hats 200 bd 200 hats 200 sn" :dur 400))
+
+(grow2 'bea :var 0.9 :method 'loop)
 
 (mpfa->svg 'lad)
 
 (clear)
 
-(s 'sma ()
+(s 'sma (:sync 'mampf)
   (infer 'bea
 	 (events (1 (sine 100 :atk 1 :rel 90 :dur 100)))
 	 (rules ((1) 1 1.0))
@@ -41,28 +49,30 @@
 
 (current-events (gethash 'beat *processor-directory*))
 
-(s 'larger ()
+(s 'larger (:sync 'faum)
   (slearn 'beat
 	  (x (sn) o (bd) - (hats))
 	  "x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---" :dur 130 :bound 3))
 
-(stop)
+(stop 'larger)
 
 (clear)
 
-(s 'the (:sync-to 'larger)
-  (nuc 'nucleus (saw 'a2 :dur 102 :atk 2 :rel 100 :lp-freq 1000 :lp-dist 1.0) :dur 390))
+(grow 'nucleus :var 0.3 :method 'triloop :durs '(200 100 300 100 100))
+
+(s 'the (:sync 'faum)
+  (nuc 'nucleus (saw 'a2 :dur 102 :atk 2 :rel 100 :lp-freq 1000 :lp-dist 1.0) :dur 300))
 
 (grow2 'beat :var 0.3 :ord 4 :hist 5)
 
 ;; genetic live code ... 
-(s 'golb (:sync-to 'larger)
-  (always (dur 100) (atk 1) (rel 90) (filter-lp 1900))
+(s 'golb (:sync 'faum)
+  (always (dur 80) (atk 1) (rel 79) (filter-lp (oscil 400 3900)) (rev (oscil 0.0 0.1)))
   (slearn 'grob 
-          (a (saw 'c2) c (saw 'a2) g (saw 'f5) t (saw 'e4))
+          (a (saw 'c5) c (saw 'a2) g (saw 'f5) t (saw 'e4))
 	  "catgagcatgagacacacacacagagaaaaaaaagagcatgagacacacacacagaaagagaaagagatagagagcacaca
 cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactac"
-	  :dur 130))
+	  :dur 100))
 
 (clear 'golb)
 

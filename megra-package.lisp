@@ -2,6 +2,7 @@
 (require 'cl-fad)
 (require 'cl-libsndfile)
 (require 'vom)
+(require 'cl-ppcre)
 
 (defpackage "MEGRA"
  (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD" "CL-LIBSNDFILE")
