@@ -23,7 +23,7 @@
   (cyc 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) 200 (hats) 200 (bd) 200 (hats) 200 (sn)) :dur 400))
 
 (s 'faum (:sync 'mampf)  
-  (cyc 'lopa "bd 200 hats 200 [saw:600 sn] 200 hats 200 bd 200 hats 200 sn" :dur 400))
+  (cyc2 'lopa "bd 200 hats 200 [saw:600 sn] 200 hats 200 bd 200 hats 200 sn" :dur 400))
 
 (grow2 'bea :var 0.9 :method 'loop)
 
