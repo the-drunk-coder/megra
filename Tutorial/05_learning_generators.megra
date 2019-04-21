@@ -1,0 +1,66 @@
+(in-package :megra)
+
+;; Now it's time to introduce a variant of the underlying model.
+;; So far, we've worked with a fairly naive implementation of what
+;; is called "Probablistic Finite Automata".
+
+;; The second implementation is closer to the mathematical theory and
+;; allows to use simple machine learning techniques to generate generators.
+
+;; Unfortunately at this stage of development, the two models are not compatible.
+
+;; Let's start by learning a generator from a user-provided distribution
+
+(s 'learned ()
+  (slearn 'distr ;; <- slearn stands for "shorthand learn"
+          (x (sn) o (bd) - (hats)) ;; <- First, define an event key
+          "x---o---x---o---x---o---x---o---" ;; <- Now, provide a distribution with the defined events
+          :dur 300)) 
+
+;; now, modify the distribution ...
+(s 'learned ()
+  (slearn 'distr ;; <- slearn stands for "shorthand learn"
+          (x (sn) o (bd) - (hats)) ;; <- First, define an event key
+          "x---o---xoooxoxooxooxoxoxoxoxoxoxo-xoxoxoxooooxxxxoooxoxoxo--o---x---oxoxoxoxoxoxooooxxxxoo---x---o---"
+          :dur 300))
+
+;; While both sound very different, do they sound "as expected" ? Guess that's up to you to decide,
+;; but note that those are not "pattern", what you see is NOT what you hear ! 
+
+(s 'learned ()
+  (slearn 'distr ;; <- slearn stands for "shorthand learn"
+          (x (sn) o (bd) - (hats)) ;; <- First, define an event key
+          "x---o---x---o---x---o---x---o---" ;; <- Now, provide a distribution with the defined events
+          :dur 300)) 
+
+;; this is closer to the old graph model, you define rules by hand !
+;; the "missing" rules are inferred  
+(s 'grod (:sync 'learned)
+  (always (dur 50) (atk 1) (rel 40) (filter-lp (oscil 900 1900))) ;; set params for saw bass  
+  (infer 'glob       
+	 (events (a (saw 100)) (b (saw 50)) (c (saw 200)))
+	 (rules ((a) b 0.5)
+		((a) a 0.5)
+		((b) a 1.0)
+		((a b a b) c 1.0)
+		((c) a 1.0))
+	 :dur 300))
+
+(clear)
+
+;; finally, there's nuc and cyc constructors as well ! Note the 2 suffix ...
+;; note the pattern string syntax ! 
+(s 'faum ()  
+  (cyc2 'lopa "bd 200 hats 200 [tri:600 sn] 200 hats 200 bd 200 hats 200 sn" :dur 400))
+
+(s 'daum (:sync 'faum)
+  (always (filter-lp 1000) (dur 190) (atk 2) (rel 180) (lvl 0.2))
+  (nuc2 'pola (saw 100) :dur 200))
+
+;; you can grow those into something else ... sounds a bit different than
+;; the old models so far ...
+;; more about that later ...
+(grow2 'pola :var 0.9)
+(grow2 'lopa :var 0.9)
+
+(clear)
