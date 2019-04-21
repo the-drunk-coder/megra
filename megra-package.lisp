@@ -1,3 +1,10 @@
+;; load dependencies
+(ql:quickload :closer-mop)
+(ql:quickload :cl-fad)
+(ql:quickload :cl-libsndfile)
+(ql:quickload :vom)
+(ql:quickload :cl-ppcre)
+
 (require 'closer-mop)
 (require 'cl-fad)
 (require 'cl-libsndfile)

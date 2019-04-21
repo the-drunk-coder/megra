@@ -1,13 +1,14 @@
+(ql:quickload :cm-incudine)
 (require 'cm-incudine)
 (in-package :cm)
 
 ;; --------- PATHS TO SET ------------- ;; 
 
 ;; path to megra package
-(defparameter *megra-root* "/home/nik/repositories/megra")
+(defparameter *megra-root* "megra")
 
 ;; sample root folder ... note trailing "/" !
-(defparameter *sample-root* "/home/nik/repositories/music-needs-texture/")
+(defparameter *sample-root* "megra-samples/")
 
 ;; sample type aka file extension - wav or flac !
 ;; (currently not possible to mix ...)
