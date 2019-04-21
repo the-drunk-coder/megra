@@ -38,7 +38,7 @@
 (s 'bell (:branch t) ;; the branch flag means the modified
   ;; version will be pushed to the stack ...
   ;; (evaluate code multiple times)
-  (lifemodel nil 15 33 :var 0.1 :method 'triloop :durs '(400 200 200 100)
+  (lifemodel t 15 33 :var 0.1 :method 'triloop :durs '(400 200 200 100)
 	  (nuc 'construction (risset 2000 :atk (oscil 4 100 :cycle 20)
 			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
 	       :dur 400 :reset t)))
