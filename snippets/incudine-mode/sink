@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: sink
-# key: si
-# --
-(sink '$1 (:sync-to ${2:nil} :branch nil :shift 0) $3)
