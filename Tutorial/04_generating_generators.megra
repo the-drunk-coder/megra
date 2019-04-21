@@ -5,8 +5,8 @@
 
 (s 'acid ()
   (g 'bass ()
-      (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330))
-      (e 1 1 :d 120 :p 100)))
+    (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330))
+    (e 1 1 :d 120 :p 100)))
 
 ;; so nice, so boring (after a while)
 ;; So, how to make things more interesting ? Naive approach would be
@@ -32,17 +32,17 @@
 
 (s 'acid ()
   (g 'bass ()
-      (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 530))
-      (e 1 1 :d 120 :p 100)))
+    (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 530))
+    (e 1 1 :d 120 :p 100)))
 
 ;; ... a little shorter ? Yes, we can ! The one above is the same as this one
 
 (s 'acid ()
-  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :gap 120)) ;;<- the NUCleus ! 
+  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :dur 120)) ;;<- the NUCleus ! 
 
 ;; now behold (or, better execute the following several times):
 
-(grow 'bass :variance 0.8) ;; <- play with the variance a bit, but stay below 1.0
+(grow 'bass :var 0.8) ;; <- play with the variance a bit, but stay below 1.0
 
 (stop)
 (clear)
@@ -57,17 +57,17 @@
 ;; there's more than one method to "grow" a graph:
 
 ;; default, heuristic method
-(grow 'bass :variance 0.8)
+(grow 'bass :var 0.8)
 
 ;; this one will likely (but not strictly) lead to little, occasionally repeating groups of 3
 ;; events:
-(grow 'bass :variance 0.8 :method 'triloop)
+(grow 'bass :var 0.8 :method 'triloop)
 
 ;; groups of 4 events:
-(grow 'bass :variance 0.8 :method 'quadloop)
+(grow 'bass :var 0.8 :method 'quadloop)
 
 ;; plain old loop ... also, mix in some different durations (one will be chosen at random ...)
-(grow 'bass :variance 0.8 :method 'loop :durs '(120 240 240 480))
+(grow 'bass :var 0.8 :method 'loop :durs '(120 240 240 480))
 
 ;; Try to mix and match them for a bit !
 
@@ -82,26 +82,23 @@
 ;; simulate some dynamics
 (s 'acid ()
   (lim 'lvl 0.2 0.4) ;; <- put a limit on level to save your ears and speakers some trouble !
-  (probctrl nil 0.4 20 10 'loop :durs '(240 120 120 480) 
+  (probctrl t 20 0 :var 0.4 :method 'loop :durs '(240 120 120 480) 
 	    (nuc 'bass (saw 110 :dur 110 :atk 3 ;;<- the NUCleus 
-			    :rel 100 :lp-freq 630) 
-		 :gap 120 :reset nil)))
+			        :rel 100 :lp-freq 630) 
+		 :dur 120 :reset nil)))
 ;; the trouble with this one is that it might wipe itself out easily
 
 ;; and a primitive lifemodel ..
 (s 'acid ()
   (lim 'lvl 0.2 0.4) ;; <- put a limit on level to save your ears and speakers some trouble !
-  (lifemodel t 0.4 'loop 20 :lifespan 30 :durs '(240 120 120 480)
-	     :apoptosis t :autophagia nil
-	    (nuc 'bass (saw 90 :dur 110 :atk 3 ;;<- the NUCleus 
-			    :rel 100 :lp-freq 830) 
-		 :gap 120 :reset t)))  
+  (lifemodel t 20 30 :var 0.4 :method 'loop 20 :durs '(240 120 120 480) :apoptosis t :autophagia nil
+	     (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 830) ;;<- the NUCleus 
+		  :dur 120 :reset t)))  
 
 
 ;; if the reset flag is set, the generator will be reset
 ;; to the original nucleus, otherwise it remains
 ;; untouched ...
-
 
 ;; If you've found a state you like, you can freeze it there ! 
 
