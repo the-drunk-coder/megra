@@ -20,7 +20,7 @@ cd ..
 cp -R megra/tutorial_samples ./megra-samples
 
 # copy incudinerc
-cp -R megra/incudinerc_examples/incudinerc_linux ~/.incudinerc
+cp megra/incudinerc_examples/incudinerc_linux ~/.incudinerc
 
 # copy tutorial folder
 cp -R megra/Tutorial ./megra-tutorial
