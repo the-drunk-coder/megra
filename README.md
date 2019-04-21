@@ -29,4 +29,7 @@ by Orm Finnendahl.
 * Variable-Order Markov Chains
 * Event Streaming and Manipulation
 * Musical Event Arithmetics
-* Wall-Clock Time
+
+See the slides here that cover the very basic model (need an update ...)
+
+https://github.com/the-drunk-coder/megra/blob/master/Tutorial/ICLC2019_workshop_slides.pdf
