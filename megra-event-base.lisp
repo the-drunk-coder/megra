@@ -1,3 +1,4 @@
+
 ;; the atomic units of music - events and transitions ...
 (defclass event ()
   ((source :accessor event-source)
@@ -6,7 +7,7 @@
 	     :initarg :backends
 	     :initform `(,*default-dsp-backend*))
    (value-combine-function :accessor value-combine-function
-			   :initarg :combi-fun
+			   :initarg :cfun
 			   :initform #'replace-value)))
 
 ;; upper and lower limits for parameters. Refer to those when using
@@ -15,7 +16,7 @@
 
 ;; the default value combination function
 (defun replace-value (b a) a)
-
+(in-package :megra)
 ;; see what we can still do with this ... 
 (defmethod handle-event ((e event) timestamp &key))
 
@@ -44,7 +45,9 @@
 			   (eval-slot-value
 			    (slot-value b (slot-definition-name slot)))
 			   (eval-slot-value
-			    (slot-value a (slot-definition-name slot)))))))) b)
+			    (slot-value a (slot-definition-name slot)))
+
+			   ))))) b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
   (loop for slot in (class-direct-slots (class-of a))
@@ -82,13 +85,15 @@
 	((typep b 'population-control-event) b)
 	((typep b 'growth-event) b)
 	((typep b 'shrink-event) b)
-	((events-compatible a b) (overwrite-slots a b))	  
+	((events-compatible a b) (overwrite-slots a b))
+	(t b)
 	;; merge events into a new incomplete event
-	  (t (let ((new-event (make-instance 'incomplete-event)))
-	      (copy-slots-to-class a new-event)
-	      (copy-slots-to-class b new-event)
-	      (overwrite-slots b new-event)
-	      (overwrite-slots a new-event)))))
+	;;(t (let ((new-event (make-instance 'incomplete-event)))
+	  ;;   (copy-slots-to-class a new-event)
+	    ;; (copy-slots-to-class b new-event)
+	    ;; (overwrite-slots b new-event)
+	    ;; (overwrite-slots a new-event)))
+	))
 
 ;; combining events ... a has precedence
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
@@ -109,9 +114,9 @@
 	(format nil ":tags '(~a) " tags-string)) ""))
 
 ;; helper method to print combi function name 
-(defun print-combi-fun (fun)
+(defun print-cfun (fun)
   ;; sbcl-specific ??
-  (format nil ":combi-fun #'~a" (print-function-name fun)))
+  (format nil ":cfun #'~a" (print-function-name fun)))
 
 ;; generic helper method to print function name ...
 (defun print-function-name (fun)
@@ -216,13 +221,13 @@
 				   ,@(mapcar #'list parent-keyword-parameter-names
 					     parent-keyword-parameter-defaults)
 				   (backends '(,*default-dsp-backend*))
-				   (tags nil)
-				   (combi-fun #'replace-value))
+				   (tags '(,short-name))
+				   (cfun #'replace-value))
 	 (make-instance ',class-name
 			;; add the very basic keyword parameters 'by hand'
 			,(intern "BACKENDS" "KEYWORD") backends
 			,(intern "TAGS" "KEYWORD") tags
-			,(intern "COMBI-FUN" "KEYWORD") combi-fun
+			,(intern "CFUN" "KEYWORD") cfun
 			,@keyword-pairs
 			,@parent-keyword-pairs
 			))
@@ -254,7 +259,7 @@
 			 ',parent-keyword-parameter-names
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
-		 (print-combi-fun (value-combine-function evt)))))
+		 (print-cfun (value-combine-function evt)))))
        ;; define event predicate for filters
        (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-" (symbol-name 'p))) (event)
 	 (typep event ',class-name )))))
@@ -296,11 +301,11 @@
 			   &key
 			     ,@(mapcar #'list keyword-parameter-names
 				       keyword-parameter-defaults)			     
-			     (tags nil)
-			     (combi-fun #'replace-value))
+			     (tags '(,alias))
+			     (cfun #'replace-value))
 	 (make-instance ',long-name
 			,(intern "TAGS" "KEYWORD") tags
-			,(intern "COMBI-FUN" "KEYWORD") combi-fun
+			,(intern "CFUN" "KEYWORD") cfun
 			,@keyword-pairs)))))
 
 ;; helper functions for abstract sampling events ...

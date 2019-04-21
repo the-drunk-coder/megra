@@ -16,10 +16,17 @@
 	 (max-res (if (and limits (cadr limits))
 		      (cadr limits)
 		      max)))
-    ;;(format t "hi ~D ~D ~%" object-name newval)
     (cond ((< newval min-res) min-res)
 	  ((> newval max-res) max-res)
 	  (t newval))))
+
+(defun add-pitch-imprecision (pitch imprecision)
+  (cm::note (add-imprecision (cm::hertz pitch) imprecision) :hz))
+
+(defun is-note-name (symbol)
+  (handler-case		    
+      (cm::hertz symbol)
+      (simple-error (e) nil)))
 
 (defun deepcopy-list (list &key
 			     (imprecision 0.0)
@@ -113,7 +120,7 @@
 						     '(probability))
 			   :functors functors))
 
-(defmethod deepcopy-object ((tr transition)
+(defmethod deepcopy-object ((tr transition-event)
 			    &key (imprecision 0.0)
 			      exclude-keywords
 			      precise-keywords
@@ -266,8 +273,11 @@
 		   (setf temp
 			 (funcall (caadr functor) temp (cadadr functor))))))
        temp))
-    ((or (typep object 'symbol) (typep object 'function))
-     object)
+    ((typep object 'symbol)
+     (if (is-note-name object)
+	 (add-pitch-imprecision object imprecision)
+	 object))
+    ((typep object 'function) object)    
     ((typep object 'list)
      (deepcopy-list object
 		    :imprecision imprecision
