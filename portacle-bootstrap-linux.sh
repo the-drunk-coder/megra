@@ -13,14 +13,14 @@ git clone https://github.com/ormf/cm-incudine
 git clone https://github.com/ormf/fudi-incudine
 git clone https://github.com/ghollisjr/cl-libsndfile
 git clone https://github.com/edicl/cl-fad
-git clone https://github.com/ellipsenpark/vom
+git clone https://gitlab.com/ellipsenpark/vom.git
 cd ..
 
 # copy tutorial samples
-cp -R megra/tutorial_samples ./megra-samples
+cp -R megra/Tutorial/tutorial_samples ./megra-samples
 
 # copy incudinerc
-cp megra/incudinerc_examples/incudinerc_linux ~/.incudinerc
+cp megra/incudinerc_samples/incudinerc_linux ~/.incudinerc
 
 # copy tutorial folder
 cp -R megra/Tutorial ./megra-tutorial
