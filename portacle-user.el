@@ -23,7 +23,7 @@
 
 (defun now ()
   (interactive)
-  (let ((daily-name (concat (portacle-path "/megra-sketchbook")
+  (let ((daily-name (concat (portacle-path "/megra-sketchbook/")
 			    (format-time-string "%Y")
 			    "/"
 			    (format-time-string "%m%d_%H%M"))))
