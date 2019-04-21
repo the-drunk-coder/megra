@@ -1,3 +1,4 @@
+(in-package :megra)
 ;; the basic structure of music ...
 (defclass node ()
   ((global-id :accessor node-global-id)
@@ -334,7 +335,7 @@
       (find-destination current-edges destination))))
 
 ;; helper function to add random edges to a graph ... 
-(defmethod randomize-edges ((g graph) chance)
+(defmethod randomize-edges ((g graph) chance duration)
   (loop for src being the hash-keys of (graph-nodes g)
      do (loop for dest being the hash-keys of (graph-nodes g)
 	   do (let ((randval (random 100)))
@@ -344,7 +345,7 @@
 					  src
 					  (list src))
 				    dest)))
-		    (insert-edge g (edge src dest :prob 0)))))))
+		    (insert-edge g (edge src dest :prob 0 :dur duration)))))))
 
 (defmethod update-graph-name ((g graph) new-name &key)
   (setf (graph-id g) new-name)
@@ -376,11 +377,11 @@
 
 (defun edge (src dest &key prob (dur 512))
   (make-instance 'edge :src src :dest dest :prob prob
-		 :content `(,(make-instance 'transition :dur dur))))
+		 :content `(,(make-instance 'transition-event :dur dur :tags '(transition)))))
 
 ;; shorthand for edge
 (defun e (src dest &key p (d 512))
-  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition :dur d))))
+  (make-instance 'edge :src src :dest dest :prob p :content `(,(make-instance 'transition-event :dur d :tags '(transition)))))
 
 
 
