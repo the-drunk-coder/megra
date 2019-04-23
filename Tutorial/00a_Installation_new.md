@@ -40,13 +40,14 @@ In the default installation, there's a few samples that'll be enough for the tut
 
 The installation process on macOS is fairly similar to the Linux process. Use *homebrew* or *MacPorts* to install the libraries as above. JACK doesn't work properly on macOS anymore, so there's no need to install it.
 
-Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works!
+Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your Finder.
 
 Then, use the macOS bootstrap script instead of the Linux one:
 https://github.com/the-drunk-coder/megra/blob/master/portacle-bootstrap-macos.sh
 
-There might be some (or a lot of) error message during startup, those can safely be ignored !
-Just click on "Accept" (or press the respective button) when they occur. They're fairly annoying, i'm working on that.
+The macOS version might not support MIDI right now, or at least it might have sync problems. Working on that. Not that MIDI support is really documented, anyway.
+
+If you see an error "Division by Zero" on starting Portacle, make sure all samplerates of all programs are set to 48000 (or, if you've changed that in your ~/.incudinerc, the respective samplerate). It happens if there's a samplerate mismatch. 
 
 ## Windows
 Now, I must admit that I don't stable access to a Windows machine, and I'm not well-versed anymore 
