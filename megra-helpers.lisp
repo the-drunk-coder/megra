@@ -99,10 +99,8 @@
 		 (setf cur cycle))
 		((ignore-errors (parse-integer token)) (setf cur (nconc cur (list (parse-integer token)))))
 		(t (setf cur (nconc cur (list (let ((f-par (cl-ppcre:split ":" token)))  
-                                               
-                                                (format t "~D" cycle)
-                                                
                                                 (eval (read-from-string (format nil "(~{~a~^ ~})" f-par))))))))))
+    (setf cycle cur)
     cycle))
 
 (defmacro define-filter (tag)
