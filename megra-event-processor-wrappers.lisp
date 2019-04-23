@@ -83,7 +83,7 @@
 			   (- (population-control-higher-order-max-order g) 2)))
 		     nil)))
       (grow (wrapper-wrapped-processor g)
-	    :variance (population-control-var g)
+	    :var (population-control-var g)
 	    :durs (population-control-durs g)
 	    :method (population-control-method g)
 	    :higher-order order)))
@@ -129,7 +129,7 @@
 			   nil)))
 	    ;; grow graph 
 	    (grow (wrapper-wrapped-processor l)
-		  :variance (population-control-var l)
+		  :var (population-control-var l)
 		  :durs (population-control-durs l)
 		  :method (population-control-method l)
 		  :higher-order order)	    
