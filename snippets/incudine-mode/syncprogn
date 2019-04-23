@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: sync-progn
-# key: syp
-# --
-(sync-progn $1
-	    $2
-)

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: grain
-# key: grain
-# --
-(grain $1 $2 :dur $3 :rate $5 :lp-freq $6)

@@ -135,7 +135,10 @@
 
 ;; a cycle ... 
 (defun cyc (name events  &key (dur *global-default-duration*) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t))
-  (let* ((graph-proc (if (gethash name *processor-directory*)
+  (let* ((real-events (if (typep events 'string)
+			  (string->cycle-list events)
+			  events))
+	 (graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
 					:graph nil :copy-events t
@@ -149,7 +152,7 @@
 		    (dur (- dur (* dur overlap)))))
 	 (count 1))
     (setf (graph-id src-graph) name)
-    (loop for (a b) on events
+    (loop for (a b) on real-events
        do (let ((duration (if (and b (typep b 'integer))
 			      b dur)))
 	    (unless (typep a 'number)

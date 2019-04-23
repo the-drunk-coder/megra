@@ -1,4 +1,4 @@
-# MEGRA INSTALLATION GUIDE
+# MEGRA INSTALLATION GUIDE (old version)
 
 ## DISCLAIMER
 This guide is still on "expert" mode, like with so many
@@ -40,18 +40,11 @@ Now install:
 - libsndfile
 - fftw
 - quicklisp (follow guide on quicklisp page, https://www.quicklisp.org ... add to init file !)
-
-On macOS, additionally install (using Homebrew):
-- portaudio
 - portmidi
 - gsl
+- portaudio
 
 For osX emacs installation, check out https://wikemacs.org/wiki/Installing_Emacs_on_OS_X !
-
-osX homebrew command:
-```
-brew install curl gpg portaudio portmidi gsl sbcl libsndfile fftw
-```
 
 Clone the following git repositories (ideally into your quicklisp/local-projects folder):
 
@@ -126,7 +119,6 @@ Add the following lines to your `~/.emacs`:
 
 Then start emacs, open some `*.lisp` file, start slime (`M-x slime RET`) and evaluate (`C-M-x` on desired line):
 - optionally, update quicklisp distributions `(ql:update-all-distributions)`
-- `(ql:quickload "quicklisp-slime-helper")` (practical)
 - `(ql:quickload "closer-mop")`
 - `(ql:quickload "cm-incudine")` (**ACCEPT** all errors on osX)
 

@@ -1,7 +1,15 @@
+;; load dependencies
+(ql:quickload :closer-mop)
+(ql:quickload :cl-fad)
+(ql:quickload :cl-libsndfile)
+(ql:quickload :vom)
+(ql:quickload :cl-ppcre)
+
 (require 'closer-mop)
 (require 'cl-fad)
 (require 'cl-libsndfile)
 (require 'vom)
+(require 'cl-ppcre)
 
 (defpackage "MEGRA"
  (:use "COMMON-LISP" "CM" "SB-MOP" "CL-FAD" "CL-LIBSNDFILE")
@@ -57,6 +65,7 @@
 ;; chains and branches 
 (defparameter *chain-directory* (make-hash-table :test 'eql))
 (defparameter *branch-directory* (make-hash-table :test 'eql))
+(defparameter *clock-directory* (make-hash-table :test 'eql))
 
 ;; chain groups ... 
 (defparameter *group-directory* (make-hash-table :test 'eql))
@@ -121,4 +130,5 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualize")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-growth")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-clock-receiver")))
 (load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))
