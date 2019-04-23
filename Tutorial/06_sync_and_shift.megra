@@ -48,7 +48,7 @@
 	     (edge 2 1 :dur 410 :prob 100)))
 
 ;; the solution is rather prosaic:
-(sink 'bassline-sink (:sync-to 'drums-sink) ;; <-- sync to ...
+(sink 'bassline-sink (:sync 'drums-sink) ;; <-- sync to ...
       (graph 'bassline ()
 	     (node 1 (tri 'c2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
 	     (node 2 (tri 'g2 :lvl 0.9 :atk 2 :rel 30 :dur 200 :lp-freq 400))
@@ -67,7 +67,7 @@
 ;; but we saw already that this is hard ... that's where shift-sync
 ;; comes into play:
 
-(sink 'guitar-sink (:sync-to 'drums-sink :shift 280) ;;<- sync, but wait for 280ms!
+(sink 'guitar-sink (:sync 'drums-sink :shift 280) ;;<- sync, but wait for 280ms!
       (graph 'guitar ()
 	     (node 1 (git :lvl 0.5
 			  :lp-dist 0.9

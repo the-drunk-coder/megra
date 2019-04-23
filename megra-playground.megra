@@ -1,8 +1,5 @@
-;;(ql:quickload :cl-ppcre)
-;;(ql:quickload :closer-mop)
-;;(ql:quickload :cm-incudine)
-
 (in-package :megra)
+
 (clear)
 
 (register-clock-sync 'mampf "/mampf" :host "172.24.7.255" :port 12350)
