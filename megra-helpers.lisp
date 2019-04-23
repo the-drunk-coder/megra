@@ -86,7 +86,7 @@
 
 ;; primitive and inefficient pattern string parser ...
 (defun string->cycle-list (str)
-  (let* ((split (split-sequence:split-sequence #\SPACE (cl-ppcre:regex-replace-all "\\]" (cl-ppcre:regex-replace-all "\\[" str "( ") " )")))
+  (let* ((split (cl-ppcre:split "\\s+" (cl-ppcre:regex-replace-all "\\]" (cl-ppcre:regex-replace-all "\\[" str "( ") " )")))
          (cycle (list))
          cur)
     (setf cur cycle)
@@ -98,7 +98,7 @@
 		 (setf cycle (nconc cycle (list cur)))
 		 (setf cur cycle))
 		((ignore-errors (parse-integer token)) (setf cur (nconc cur (list (parse-integer token)))))
-		(t (setf cur (nconc cur (list (let ((f-par (split-sequence:split-sequence #\: token)))  
+		(t (setf cur (nconc cur (list (let ((f-par (cl-ppcre:split ":" token)))  
 						(eval (read-from-string (format nil "(~{~a~^ ~})" f-par))))))))))
     cycle))
 
