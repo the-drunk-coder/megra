@@ -71,18 +71,18 @@
 cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactac"
 	  :dur 100))
 
-(clear 'golb)
-
 (clear)
 
+(stop)
+
 ;; DOES THAT WORK ?? -- NOW IT DOES !!  
+
+(pull-events (gethash 'bass-2 *chain-directory*))
+
 (s 'bass-2 ()
-  (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
-	     (nuc 'rates
-		  (pitch 100)
-		  :gap 400 :reset t))
-  (nuc 'rates2 (saw 200 :dur 80 :lp-freq (oscil 300 1400))		  
-       :gap 100 :reset t))
+  (lifemodel t 2 3 :var 0.4 :method 'triloop  :autophagia nil :apoptosis nil
+	     (nuc 'rates2 (saw 200 :dur 80 :lp-freq (oscil 300 1400))		  
+		  :dur 100 :reset t)))
 
 (s 'bass-2 (:sync-to 'grod)
   (nuc 'rates
