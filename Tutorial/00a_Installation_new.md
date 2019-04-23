@@ -22,6 +22,7 @@ also install the following:
 * portaudio 
 * portmidi
 * gsl
+* graphviz
 * git
 
 Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice.

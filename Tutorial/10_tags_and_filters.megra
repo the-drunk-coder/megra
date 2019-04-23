@@ -4,29 +4,31 @@
 
 ;; imagine this machine-gun like beat ...
 (s 'demo-beat ()
-  (nuc 'fire (list (tutorial 'boom :dur 100 :lvl 0.4) ;; <- note that the nucleus can fire several events at the same time
-		   (tutorial 'tschack :dur 100 :lvl 0.4)
+  (nuc 'fire (list (bd 'boom :dur 100 :lvl 0.4) ;; <- note that the nucleus can fire several events at the same time
+		   (sn 'tschack :dur 100 :lvl 0.4)
 		   (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
-       :gap 100 :reset t))
+       :dur 100 :reset t))
 
 ;; a bit boring ... how'd it be if we could inhibit certain events to be processed ?
 ;; let's see ...
 (s 'demo-beat ()
   (inh 30 saw) ;; <- inhibit saw event with 30 percent chance
-  (inh 30 tutorial) ;; <- inhibit tutorial event with 30 percent chance
-  (nuc 'fire (list (tutorial 'boom :dur 100 :lvl 0.4) ;; <- note that the nucleus can fire several events at the same time
-		   (tutorial 'tschack :dur 100 :lvl 0.4)
+  (inh 30 bd) ;; <- inhibit bd event with 30 percent chance
+  (inh 30 sn) ;; <- inhibit sn event with 30 percent chance
+  (nuc 'fire (list (bd 'boom :dur 100 :lvl 0.4) ;; <- note that the nucleus can fire several events at the same time
+		   (sn 'tschack :dur 100 :lvl 0.4)
 		   (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
-       :gap 100 :reset t))
+       :dur 100 :reset t))
 
 ;; better ... now if we could do the opposite and exhibit events (mute all other events)?
 (s 'demo-beat ()
   (exh 30 saw) ;; <- exhibit saw event with 30 percent chance
-  (exh 30 tutorial) ;; <- exhibit tutorial event with 30 percent chance
-  (nuc 'fire (list (tutorial 'boom :dur 100 :lvl 0.4) ;; <- note that the nucleus can fire several events at the same time
-		   (tutorial 'tschack :dur 100 :lvl 0.4)
+  (exh 30 bd) ;; <- exhibit tutorial event with 30 percent chance
+  (exh 30 sn) ;; <- exhibit tutorial event with 30 percent chance
+  (nuc 'fire (list (bd 'boom :dur 100 :lvl 0.4) ;; <- note that the nucleus can fire several events at the same time
+		   (sn 'tschack :dur 100 :lvl 0.4)
 		   (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
-       :gap 100 :reset t))
+       :dur 100 :reset t))
 
 ;; there's default event filters for all events, but you can define custom ones
 ;; and tag events respectively ...
@@ -37,24 +39,24 @@
   (exh 30 saw) ;; <- exhibit saw event with 30 percent chance
   (inh 30 boom) ;; <- exhibit tutorial event with 30 percent chance
   (exh 30 tschack) ;; <- exhibit tutorial event with 30 percent chance
-  (nuc 'fire (list (tutorial 'boom :dur 100 :lvl 0.4 :tags '(boom)) ;; <- note the tag !		   
-		   (tutorial 'tschack :dur 100 :lvl 0.4 :tags '(tschack))
-		   (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
-       :gap 100 :reset t))
+  (nuc 'fire (% (bd 'boom :dur 100 :lvl 0.4 :tags '(boom)) ;; <- note the shorthand for list!		   
+	       (sn 'tschack :dur 100 :lvl 0.4 :tags '(tschack))
+	       (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
+       :dur 100 :reset t))
 
 ;; most stream modifiers have the possibility to use filters:
 (s 'demo-beat ()
-  (cc 30 (rate 1.4) :f #'tschack-p) ;; the plain filter function needs the "-p" (for predicate) as a suffix
-  (cc 30 (rev 0.4) :f #'tschack-p)
-  (cc 30 (rev 0.2) :f #'boom-p)
-  (cc 30 (pitch 2.4 :combi-fun #'*) :f #'saw-p)
+  (for tschack (prob 30 (rate 1.4)))
+  (for boom (prob 30 (rev 0.4)))
+  (for tschack (prob 30 (rev 0.2)))
+  (for saw (prob 30 (pitch 2.4 :cfun #'*)))
   (exh 30 saw) ;; <- exhibit saw event with 30 percent chance
   (inh 30 boom) ;; <- exhibit tutorial event with 30 percent chance (note the -p is dropped ...)
   (exh 30 tschack) ;; <- exhibit tutorial event with 30 percent chance
-  (nuc 'fire (list (tutorial 'boom :dur 100 :lvl 0.4 :lp-dist 1.0 :tags '(boom)) ;; <- note the tag !		   
-		   (tutorial 'tschack :dur 100 :lvl 0.4 :tags '(tschack))
-		   (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
-       :gap 100 :reset t))
+  (nuc 'fire (% (bd 'boom :dur 100 :lvl 0.4 :lp-dist 1.0 :tags '(boom)) ;; <- note the tag !		   
+	       (sn 'tschack :dur 100 :lvl 0.4 :tags '(tschack))
+	       (saw 100 :dur 80 :lp-freq 800 :lvl 0.4))
+       :dur 100 :reset t))
 
 (clear)
 
