@@ -1,5 +1,8 @@
-(ql:quickload :cm-incudine)
-(require 'cm-incudine)
+(ql:quickload :incudine)
+(ql:quickload :cm)
+(require 'incudine)
+(require 'cm)
+
 (in-package :cm)
 
 ;; --------- PATHS TO SET ------------- ;; 
