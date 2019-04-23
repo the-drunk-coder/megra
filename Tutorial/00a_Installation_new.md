@@ -40,10 +40,13 @@ In the default installation, there's a few samples that'll be enough for the tut
 
 The installation process on macOS is fairly similar to the Linux process. Use *homebrew* or *MacPorts* to install the libraries as above. JACK doesn't work properly on macOS anymore, so there's no need to install it.
 
+Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works!
+
 Then, use the macOS bootstrap script instead of the Linux one:
 https://github.com/the-drunk-coder/megra/blob/master/portacle-bootstrap-macos.sh
 
-There might be some error message during startup, those can safely be ignored ! 
+There might be some (or a lot of) error message during startup, those can safely be ignored !
+Just click on "Accept" (or press the respective button) when they occur. They're fairly annoying, i'm working on that.
 
 ## Windows
 Now, I must admit that I don't stable access to a Windows machine, and I'm not well-versed anymore 
