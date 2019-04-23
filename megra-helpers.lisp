@@ -90,16 +90,19 @@
          (cycle (list))
          cur)
     (setf cur cycle)
-    (loop for token in split      
+    (loop for token in split 
        do (cond ((string= token "(")
-		 (setf cycle (nconc cycle  cur))
+		 (setf cycle (nconc cycle cur))
 		 (setf cur (list)))
 		((string= token ")")
 		 (setf cycle (nconc cycle (list cur)))
 		 (setf cur cycle))
 		((ignore-errors (parse-integer token)) (setf cur (nconc cur (list (parse-integer token)))))
 		(t (setf cur (nconc cur (list (let ((f-par (cl-ppcre:split ":" token)))  
-						(eval (read-from-string (format nil "(~{~a~^ ~})" f-par))))))))))
+                                               
+                                                (format t "~D" cycle)
+                                                
+                                                (eval (read-from-string (format nil "(~{~a~^ ~})" f-par))))))))))
     cycle))
 
 (defmacro define-filter (tag)
