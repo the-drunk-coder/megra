@@ -119,33 +119,42 @@
   (let ((chain (if (typep chain-or-id 'symbol)
 		   (gethash chain-or-id *chain-directory*)
 		   chain-or-id))
-	(chain-to-sync-to (gethash sync-to *chain-directory*)))
-      ;; now, if we want to sync the current chain to :sync-to,
-      ;; and :sync-to denotes a chain that is actually present,
-      (if (and chain-to-sync-to (is-active chain-to-sync-to))
-	  ;; when the current chain is NOT yet synced to chain-to-sync-to ...		      
-	  (unless (wait-for-sync chain)
-	    (deactivate chain)
-	    (setf (wait-for-sync chain) t)
-	    ;;(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" name sync-to name sync-to)
-	    (setf (synced-chains chain-to-sync-to)
-		  (append (synced-chains chain-to-sync-to)
-			  (list chain))))		      
-	  (unless (or (is-active chain) (wait-for-sync chain))
-	    (incudine::msg error "start chain")
-	    (activate chain)
-	    (incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
-	    	     #'perform-dispatch-sep-times
-	    	     chain
-	    	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
-	    	     (+ (incudine:now) #[(chain-shift chain) ms]))
-	    ;;(incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
-	    ;;		  #'perform-dispatch
-	    ;;		  chain				     
-	    ;;		  it)
-	    ))))
+	(chain-to-sync-to (gethash sync-to *chain-directory*))
+	(clock-to-sync-to (gethash sync-to *clock-directory*)))
+    ;; now, if we want to sync the current chain to :sync-to,
+    ;; and :sync-to denotes a chain that is actually present,
+    (cond
+      (clock-to-sync-to
+       (unless (wait-for-sync chain)
+	 (deactivate chain)
+	 (setf (wait-for-sync chain) t)
+	 ;;(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" name sync-to name sync-to)
+	 (setf (clock-sync-synced-chains clock-to-sync-to)
+	       (nconc (clock-sync-synced-chains clock-to-sync-to)
+		      (list chain)))))
+      ((and chain-to-sync-to (is-active chain-to-sync-to))
+       ;; when the current chain is NOT yet synced to chain-to-sync-to ...		      
+       (unless (wait-for-sync chain)
+	 (deactivate chain)
+	 (setf (wait-for-sync chain) t)
+	 ;;(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" name sync-to name sync-to)
+	 (setf (synced-chains chain-to-sync-to)
+	       (nconc (synced-chains chain-to-sync-to)
+		      (list chain)))))		      
+      (t (unless (or (is-active chain) (wait-for-sync chain))
+	   (incudine::msg error "start chain")
+	   (activate chain)
+	   ;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
+	   ;;	     #'perform-dispatch-sep-times
+	   ;;	     chain
+	   ;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
+	   ;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
+	   (incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
+			 #'perform-dispatch
+			 chain				     
+			 it))))))
 
-(defmacro dispatch (name (&key (sync-to nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
+(defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   `(funcall #'(lambda ()
@@ -213,7 +222,7 @@
 			   (if (not new-chain)
 			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
 			   ;; in that case, the syncing chain will do the anschluss ...
-			   (unless (gethash ,sync-to *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
+			   (unless (gethash ,sync *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
 			   (deactivate old-chain))) 
 			((>= 0 (length event-processors))
 			 ;; if there's no chain present under this name, and no material to build one,
@@ -227,7 +236,7 @@
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)
 		;; if we've reached this point, we should have a valid chain, or left the function ...
-		(inner-dispatch ,name ,sync-to))))
+		(inner-dispatch ,name ,sync))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))

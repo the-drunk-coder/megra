@@ -1,78 +1,91 @@
+;;(ql:quickload :cl-ppcre)
+;;(ql:quickload :closer-mop)
+;;(ql:quickload :cm-incudine)
+
 (in-package :megra)
+(clear)
 
+(register-clock-sync 'mampf "/mampf" :host "172.24.7.255" :port 12350)
 
-(s 'grod ()
+(s 'grod (:sync 'mampf)
   (prob 50 (rev 0.1))
   (always (pitch 100 :cfun #'add) (dur 50) (atk 1) (rel 40) (filter-lp (oscil 900 1900)))  
   (infer 'glob       
-       (events (1 (saw 300)) (3 (saw 50)) (2 (saw 500)))
-       (rules ((1) 2 0.5)
-	      ((1) 1 .5)
-	      ((2) 1 1.0)
-	      ((1 2 1 2) 3 1.0)
-	      ((3) 1 1.0))
-       :dur 100))
+	 (events (1 (saw 300)) (3 (saw 50)) (2 (saw 500)))
+	 (rules ((1) 2 0.5)
+		((1) 1 .5)
+		((2) 1 1.0)
+		((1 2 1 2) 3 1.0)
+		((3) 1 1.0))
+	 :dur 100))
 
-(s 'sma ()
-   (infer 'bea
-	  (events (1 (sine 100 :atk 1 :rel 90 :dur 100)))
-	  (rules ((1) 1 1.0))
-	  :dur 100))
+(s 'faum (:sync 'mampf)
+  (cyc 'lopa (~ (bd) 200 (hats) 200 (% (saw 600 :lp-freq 1300 :dur 90) (sn)) 200 (hats) 200 (bd) 200 (hats) 200 (sn)) :dur 400))
 
-(defmacro nuc2 (name event &key (dur 200))
-  `(funcall #'(lambda ()
-               (infer ,name
-	              (events (1 ,event))
-	              (rules ((1) 1 1.0))
-	              :dur ,dur))))
+(s 'faum (:sync 'mampf)  
+  (cyc2 'lopa "bd 200 hats 200 [saw:600 sn] 200 hats 200 bd 200 hats 200 sn" :dur 400))
+
+(grow2 'bea :var 0.9 :method 'loop)
+
+(mpfa->svg 'lad)
+
+(clear)
+
+(s 'sma (:sync 'mampf)
+  (infer 'bea
+	 (events (1 (sine 100 :atk 1 :rel 90 :dur 100)))
+	 (rules ((1) 1 1.0))
+	 :dur 100))
+
+(s 'la3 ()
+  (always (filter-lp 10000))
+  (nuc2 'lad4 (perc 'paint) :dur 520))
+
 
 (s 'la ()
-  (nuc2 'lad (sine 100))))
+  (always (filter-lp 1000))
+  (nuc2 'lad (saw 500 :dur 120 :rel 90 :atk 1) :dur 130))
 
-(clear)
 
-(s 'larger ()
+(current-events (gethash 'beat *processor-directory*))
+
+(s 'larger (:sync 'faum)
   (slearn 'beat
 	  (x (sn) o (bd) - (hats))
-	  "x-o-x-o-x-o-x-o-x-o-x-o-x-o-x-o-x-
-o-x-o-x-o-x-ox-xo-x--ox-ox--xo-x-xo-xox-ox-ox-ox-xx-ox"))
+	  "x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---x---o---" :dur 130 :bound 3))
 
+(stop 'larger)
 
-(stop)
 (clear)
 
-(equal (list - -) (list - -))
+(grow 'nucleus :var 0.3 :method 'triloop :durs '(200 100 300 100 100))
 
-(vom::pfa->svg (source-mpfa (gethash 'beat *processor-directory*)) "largebeat" )
+(s 'the (:sync 'faum)
+  (nuc 'nucleus (saw 'a2 :dur 102 :atk 2 :rel 100 :lp-freq 1000 :lp-dist 1.0) :dur 300))
 
-(s 'the ()
-  (nuc 'nucleus (saw 'a2 :dur 102 :atk 2 :rel 100 :lp-freq 1000) :gap 200))
-
-(grow 'nucleus :variance 0.3 :method 'triloop)
-
-;;
+(grow2 'beat :var 0.3 :ord 4 :hist 5)
 
 ;; genetic live code ... 
-(s 'golb (:sync-to 'grod)
-  (always (dur 100) (atk 1) (rel 90) (filter-lp 1900))
+(s 'golb (:sync 'faum)
+  (always (dur 80) (atk 1) (rel 79) (filter-lp (oscil 400 3900)) (rev (oscil 0.0 0.1)))
   (slearn 'grob 
-         (a (saw 'c2) c (saw 'a2) g (saw 'f5) t (saw 'e4))
-	 "catgagcatgagacacacacacagagaaaaaaaagagcatgagacacacacacagaaagagaaagagatagagagcacaca
+          (a (saw 'c5) c (saw 'a2) g (saw 'f5) t (saw 'e4))
+	  "catgagcatgagacacacacacagagaaaaaaaagagcatgagacacacacacagaaagagaaagagatagagagcacaca
 cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatcactac"
-       :dur 200))
+	  :dur 100))
+
+(clear 'golb)
 
 (clear)
-
-(stop)
 
 ;; DOES THAT WORK ?? -- NOW IT DOES !!  
 (s 'bass-2 ()
   (lifemodel t 0.4 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
 	     (nuc 'rates
-	  (pitch 100)
+		  (pitch 100)
 		  :gap 400 :reset t))
   (nuc 'rates2 (saw 200 :dur 80 :lp-freq (oscil 300 1400))		  
-		  :gap 100 :reset t))
+       :gap 100 :reset t))
 
 (s 'bass-2 (:sync-to 'grod)
   (nuc 'rates
@@ -87,8 +100,8 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (s 'bass-2 ()  
   (for bd (prob 20 (dur 500)))
   (for saw (always (dur 100) (atk 3) (rel 90) (lvl 0.6)))
-  ;(inh 10 bd)
-  ;(inh 20 sn)
+					;(inh 10 bd)
+					;(inh 20 sn)
   (inh 80 orch)
   (for orch (prob 40 (rev 0.2)))
   (lifemodel t 0.1 'triloop 2 :lifespan 3 :autophagia nil :apoptosis nil
@@ -189,9 +202,9 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 (s 'bb (:sync-to 'bub)  
   (lifemodel t 0.1 'triloop 15 :lifespan 33 :durs '(100 200 200 100)
-	  (nuc 'bell (risset 2000 :atk (oscil 4 100)
-			     :lvl 0.1 :sus 300 :rel 400 :rev 0.1)
-	       :gap 400 :reset t)))
+	     (nuc 'bell (risset 2000 :atk (oscil 4 100)
+				:lvl 0.1 :sus 300 :rel 400 :rev 0.1)
+		  :gap 400 :reset t)))
 (clear)
 
 ;; NOT A BUG, the events were just incompatible ...
@@ -292,7 +305,7 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (discourage 'ho)
 
 (s 'ho ()
-   (cyc 'ho (e- (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
+  (cyc 'ho (e- (bd) (sn 'cr)) 512 :reset t :rep 0 :rnd 80 :max-rep 5))
 
 (s 'hhasd (:sync-to 'ho :shift 256)  
   (cyc 'hh (e- (elec 'accent 'hat)) 512))
@@ -333,18 +346,18 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (clear)
 
 (g 'some-more-other-sines ()
-    (n 1 (sine 100 :lvl .6 :dur 200))
-    (n 2 (sine 200 :lvl .6 :dur 200))
-    (n 3 (sine 300 :lvl .6 :dur 200))
-    (e 1 2 :p 50 :d 300)
-    (e 1 1 :p 50 :d 300) 
-    (e '(1 1 1) 3 :p 100 :d 900)     
-    (e 2 1 :p 10 :d 300)
-    (e 2 3 :p 10 :d 200)
-    (e 2 2 :p 80 :d 300)
-    (e '(2 2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2 2) 1 :p 50 :d 600)   
-    (e 3 1 :p 100 :d 300))
+  (n 1 (sine 100 :lvl .6 :dur 200))
+  (n 2 (sine 200 :lvl .6 :dur 200))
+  (n 3 (sine 300 :lvl .6 :dur 200))
+  (e 1 2 :p 50 :d 300)
+  (e 1 1 :p 50 :d 300) 
+  (e '(1 1 1) 3 :p 100 :d 900)     
+  (e 2 1 :p 10 :d 300)
+  (e 2 3 :p 10 :d 200)
+  (e 2 2 :p 80 :d 300)
+  (e '(2 2 2 2 2) 3 :p 50 :d 600)
+  (e '(2 2 2 2 2) 1 :p 50 :d 600)   
+  (e 3 1 :p 100 :d 300))
 
 ;; manual clone ...
 (clone 'some-more-other-sines 'ccalone)
@@ -352,20 +365,20 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (pring 'ccalone t)
 
 (g 'some-other-sines ()
-    (n 1 (sine 50 :lvl .6 :dur 200))
-    (n 2 (sine 100 :lvl .6 :dur 200))
-    (n 3 (sine 150 :lvl .6 :dur 200)
-       ;;(ctrl (grow 'some-other-sines :variance 0.2))
-       )
-    (e 1 2 :p 50 :d 300)
-    (e 1 1 :p 50 :d 300) 
-    (e '(1 1 1) 3 :p 100 :d 900)     
-    (e 2 1 :p 10 :d 300)
-    (e 2 3 :p 10 :d 200)
-    (e 2 2 :p 80 :d 300)
-    (e '(2 2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2 2) 1 :p 50 :d 600)   
-    (e 3 1 :p 100 :d 300))
+  (n 1 (sine 50 :lvl .6 :dur 200))
+  (n 2 (sine 100 :lvl .6 :dur 200))
+  (n 3 (sine 150 :lvl .6 :dur 200)
+     ;;(ctrl (grow 'some-other-sines :variance 0.2))
+     )
+  (e 1 2 :p 50 :d 300)
+  (e 1 1 :p 50 :d 300) 
+  (e '(1 1 1) 3 :p 100 :d 900)     
+  (e 2 1 :p 10 :d 300)
+  (e 2 3 :p 10 :d 200)
+  (e 2 2 :p 80 :d 300)
+  (e '(2 2 2 2 2) 3 :p 50 :d 600)
+  (e '(2 2 2 2 2) 1 :p 50 :d 600)   
+  (e 3 1 :p 100 :d 300))
 
 (sink 's2 ()  
   'some-other-sines)
@@ -395,20 +408,20 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (sink 'rere (:sync-to nil :branch nil :shift 0)
   (g 'crepes ()
     (n 1 (grain-24db-ambi "elec" "bd808"
-		     :dur 90
-		     :rate 1.0
-		     :lp-q 0.4
-		     :lp-freq 900
-		     :lvl 0.7))
+			  :dur 90
+			  :rate 1.0
+			  :lp-q 0.4
+			  :lp-freq 900
+			  :lvl 0.7))
     (n 2 (ctrl #'(lambda () (grow 'crepes
-			     :variance 0.3
-			     :durs '(2000 500 500 500 250 333))))
+				  :variance 0.3
+				  :durs '(2000 500 500 500 250 333))))
        (nores "elec" "snfat"
-		     :dur 90
-		     :rate 1.1
-		     :lp-q 0.4
-		     :lp-freq (oscil 900 3000 :cycle 4)
-		     :lvl 0.7))
+	      :dur 90
+	      :rate 1.1
+	      :lp-q 0.4
+	      :lp-freq (oscil 900 3000 :cycle 4)
+	      :lvl 0.7))
     (e 1 1 :d 1000 :p 90)
     (e 1 2 :d 1000 :p 10)
     (e 2 2 :d 1000 :p 5)
@@ -419,20 +432,20 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (sink 'dede (:sync-to 'rere :branch nil :shift 500)
   (g 'crepessu ()
     (n 1 (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
-		:lp-freq 9500
-		:lp-dist 0.5 :lvl 0.7	        
-		:azi 1.0
-		:ele 1.81
-		))
+		     :lp-freq 9500
+		     :lp-dist 0.5 :lvl 0.7	        
+		     :azi 1.0
+		     :ele 1.81
+		     ))
     (n 2 (ctrl #'(lambda () (grow 'crepessu
-			     :variance 0.2
-			     :durs '(2000 2000 500 500 500 250 333))))
+				  :variance 0.2
+				  :durs '(2000 2000 500 500 500 250 333))))
        (grain-24db "elec" "sncr78" :dur 90 :rate 1.0
-		:lp-freq 9500
-		:lp-dist 0.5 :lvl 0.7
-		:azi 1.0
-		:ele 1.81
-		))
+		   :lp-freq 9500
+		   :lp-dist 0.5 :lvl 0.7
+		   :azi 1.0
+		   :ele 1.81
+		   ))
     (e 1 1 :d 1000 :p 90)
     (e 1 2 :d 1000 :p 10)
     (e 2 2 :d 1000 :p 5)
@@ -454,11 +467,11 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (sink 'drums-sink ()  
   (graph 'drums ()
     (node 1 (grain-24db "tutorial_samples" "jazzy_bd" :rev 0.0
-		   :lvl 0.9 :rate 0.9 :lp-q 0.2 :dur 100))
+			:lvl 0.9 :rate 0.9 :lp-q 0.2 :dur 100))
     (node 2 (grain-24db "tutorial_samples" "jazzy_sn" :lvl 0.9 :lp-dist 0.9
-		   :dur 800 :rate 0.5 :lp-q 0.2 :lp-freq-lfo-speed 1.0
-		   :lp-freq-lfo-depth 1.0 :lp-freq-lfo-phase 0.5 :lp-freq 9000
-		   :rev 0.0))
+			:dur 800 :rate 0.5 :lp-q 0.2 :lp-freq-lfo-speed 1.0
+			:lp-freq-lfo-depth 1.0 :lp-freq-lfo-phase 0.5 :lp-freq 9000
+			:rev 0.0))
     (edge 1 2 :dur 900 :prob 100)
     (edge 2 1 :dur 900 :prob 100)))
 
@@ -496,18 +509,18 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (stop)
 
 (g 'some-sines ()
-    (n 1 (tri 'd1 :lvl .6 :lp-freq 1000 :lp-dist 1.0 :dur 200))
-    (n 2 (sqr 'a1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))
-    (n 3 (saw 'f1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))
-    (e 1 2 :p 50 :d 300)
-    (e 1 1 :p 50 :d 300) 
-    (e '(1 1 1) 3 :p 100 :d 900)     
-    (e 2 1 :p 10 :d 300)
-    (e 2 3 :p 10 :d 200)
-    (e 2 2 :p 80 :d 300)
-    (e '(2 2 2 2 2) 3 :p 50 :d 600)
-    (e '(2 2 2 2 2) 1 :p 50 :d 600)   
-    (e 3 1 :p 100 :d 300))
+  (n 1 (tri 'd1 :lvl .6 :lp-freq 1000 :lp-dist 1.0 :dur 200))
+  (n 2 (sqr 'a1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))
+  (n 3 (saw 'f1 :lp-freq 200 :lvl .6 :lp-dist 1.0 :dur 200))
+  (e 1 2 :p 50 :d 300)
+  (e 1 1 :p 50 :d 300) 
+  (e '(1 1 1) 3 :p 100 :d 900)     
+  (e 2 1 :p 10 :d 300)
+  (e 2 3 :p 10 :d 200)
+  (e 2 2 :p 80 :d 300)
+  (e '(2 2 2 2 2) 3 :p 50 :d 600)
+  (e '(2 2 2 2 2) 1 :p 50 :d 600)   
+  (e 3 1 :p 100 :d 300))
 
 (sink 's1 (:sync-to 's2)
   (cc 0 (rev 0.1))
@@ -596,23 +609,23 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 ;; (which we don't use so far ... )
 
 (sink 'd1 ()
-	  (graph 'duration-generator (:combine-mode 'zip :affect-transition t)
-		 (node 1 (dur 64))
-		 (node 2 (dur 96))
-		 (edge 1 1 :prob 80 :dur 64)
-		 (edge 1 2 :prob 20 :dur 64)
-		 (edge 2 1 :prob 80 :dur 128)
-		 (edge 2 2 :prob 20 :dur 128))
-	  (graph 'pitch-generator ()
-		 (node 1 (mid 'a2))
-		 (node 2 (mid 'c3))
-		 (node 3 (mid 'gs2))
-		 (edge 1 2 :prob 80 :dur 1024)
-		 (edge 1 3 :prob 20 :dur 512)
-		 (edge 2 1 :prob 70 :dur 1024)
-		 (edge 2 2 :prob 30 :dur 1024)
-		 (edge 3 1 :prob 60 :dur 1024)
-		 (edge 3 2 :prob 40 :dur 512))) 
+  (graph 'duration-generator (:combine-mode 'zip :affect-transition t)
+    (node 1 (dur 64))
+    (node 2 (dur 96))
+    (edge 1 1 :prob 80 :dur 64)
+    (edge 1 2 :prob 20 :dur 64)
+    (edge 2 1 :prob 80 :dur 128)
+    (edge 2 2 :prob 20 :dur 128))
+  (graph 'pitch-generator ()
+    (node 1 (mid 'a2))
+    (node 2 (mid 'c3))
+    (node 3 (mid 'gs2))
+    (edge 1 2 :prob 80 :dur 1024)
+    (edge 1 3 :prob 20 :dur 512)
+    (edge 2 1 :prob 70 :dur 1024)
+    (edge 2 2 :prob 30 :dur 1024)
+    (edge 3 1 :prob 60 :dur 1024)
+    (edge 3 2 :prob 40 :dur 512))) 
 
 (clone 'dur-gen 'dur-gen-2)
 
@@ -622,19 +635,19 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 ;; individual graphs are basically first-order markov chains ...
 (graph 'dos-midi ()
-       (node 1 (mid 59 :lvl .8 :dur 1500))
-       (node 2 (mid 73 :lvl .9 :dur 1500))
-       (node 3 (mid 78 :lvl .9 :dur 350))
-       (edge 1 2 :prob 50 :dur 5500)
-       (edge 1 3 :prob 50 :dur 6750)
-       (edge 2 1 :prob 100 :dur 5500)
-       (edge 3 1 :prob 100 :dur 6250))
+  (node 1 (mid 59 :lvl .8 :dur 1500))
+  (node 2 (mid 73 :lvl .9 :dur 1500))
+  (node 3 (mid 78 :lvl .9 :dur 350))
+  (edge 1 2 :prob 50 :dur 5500)
+  (edge 1 3 :prob 50 :dur 6750)
+  (edge 2 1 :prob 100 :dur 5500)
+  (edge 3 1 :prob 100 :dur 6250))
 
 (graph 'uno-midi-synced ()
-       (node 1 (mid 65 :lvl .8 :dur 200))
-       (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
-       (edge 1 2 :prob 100 :dur 400)
-       (edge 2 1 :prob 100 :dur 400))
+  (node 1 (mid 65 :lvl .8 :dur 200))
+  (node 2 (mid 81 :lvl 1 :dur 200) (mid 50 :lvl 1 :dur 50))
+  (edge 1 2 :prob 100 :dur 400)
+  (edge 2 1 :prob 100 :dur 400))
 
 (dispatch 'd1 ()
   'dos-midi)
@@ -664,7 +677,7 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 (graph 'the-grain () 
   (node 1 (grain "misc" "tada" :dur 3000 :lp-freq 6000 :pos 0.5 :lvl 1.0 :rate 0.5 :atk 64 :rel 65 :rev 0.0))
-       (edge 1 1 :prob 100 :dur 2000 ))
+  (edge 1 1 :prob 100 :dur 2000 ))
 
 (dispatch 'd1 (:sync-to 'the-512-beat)
   ;;(chance-combine 'grain-lvl-cc 0 (lvl 0.0))
@@ -675,25 +688,25 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (clear)
 
 (graph 'the-512-beat ()
-       (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
-       (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1 :pos 0.5
-		      :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) ))
-       (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))     
-       (edge 1 2 :prob 100 :dur 512)
-       (edge 2 1 :prob 60 :dur 512)
-       (edge 2 3 :prob 40 :dur 256)
-       (edge 3 3 :prob 40 :dur 256)
-       (edge 3 2 :prob 60 :dur 512))
+  (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
+		 :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
+  (node 2 (grain "03_electronics" "08_fat_snare" :dur 512 :atk 0.1 :pos 0.5
+		 :lvl 0.9 :rate 2.4 :rev 0.0 :tags '(snare) ))
+  (node 3 (grain "03_electronics" "01_808_long_kick" :dur 512
+		 :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))     
+  (edge 1 2 :prob 100 :dur 512)
+  (edge 2 1 :prob 60 :dur 512)
+  (edge 2 3 :prob 40 :dur 256)
+  (edge 3 3 :prob 40 :dur 256)
+  (edge 3 2 :prob 60 :dur 512))
 
 ;; events can be printed ...
 (print-event (grain "03_electronics" "01_808_long_kick" :dur 512
-		      :lvl 1.0 :rate 1.1 :start 0.01 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0
-		      :pos 0.5 :tags '(fru)))
+		    :lvl 1.0 :rate 1.1 :start 0.01 :rel 7
+		    :lp-dist 1.0 :lp-freq 5000 :rev 0.0
+		    :pos 0.5 :tags '(fru)))
 
 (print-event (pitch 23))
 
@@ -718,8 +731,8 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (clear)
 
 (graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 100))
+  (node 1 (mid 84 :lvl .9 :dur 50))
+  (edge 1 1 :prob 100 :dur 100))
 
 (sink 's1 ()
   (brownian-motion 'tres-rw 'pitch :step-size 3 :ubound 84 :lbound 50 :wrap t)  
@@ -736,16 +749,16 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 ;; hook an event modifier into the chain ...
 (sink 's1 ()
- 'tres-midi
- (brownian-motion 'tres-rw 'pitch :step-size 5 :ubound 84 :lbound 50 :wrap t)
- 'uno-midi)
+  'tres-midi
+  (brownian-motion 'tres-rw 'pitch :step-size 5 :ubound 84 :lbound 50 :wrap t)
+  'uno-midi)
 
 ;; CONDUCTOR GRAPHS -- use a graph to control another graph
 (clear)
 
 (graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 100))
+  (node 1 (mid 84 :lvl .9 :dur 50))
+  (edge 1 1 :prob 100 :dur 100))
 
 ;; Use the PSET function to set a parameter in some object.
 ;; the lambda construction seems a little inconvenient, might
@@ -766,8 +779,8 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 ;; TAGS AND FILTERS 
 (graph 'tres-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50 :tags '(red)))
-       (edge 1 1 :prob 100 :dur 200))
+  (node 1 (mid 84 :lvl .9 :dur 50 :tags '(red)))
+  (edge 1 1 :prob 100 :dur 200))
 
 (defun has-red-tag-p (event)
   (member 'red (event-tags event)))
@@ -784,15 +797,15 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (clear)
 
 (chain 'c1 ()     
-   (graph 'x-midi ()
-       (node 1 (mid 84 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 200)))
+  (graph 'x-midi ()
+    (node 1 (mid 84 :lvl .9 :dur 50))
+    (edge 1 1 :prob 100 :dur 200)))
 
 
 (chain 'c2 ()        
-   (graph 'y-midi ()
-       (node 1 (mid 85 :lvl .9 :dur 50))
-       (edge 1 1 :prob 100 :dur 400)))
+  (graph 'y-midi ()
+    (node 1 (mid 85 :lvl .9 :dur 50))
+    (edge 1 1 :prob 100 :dur 400)))
 
 ;; in this case, don't delete the spigot, as the graph doesn't recreate the chain ...
 (graph 'xy-ctrl ()
@@ -869,7 +882,7 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
     (edge 1 2 :prob 40)
     (edge 2 2 :prob 55)
     (edge 2 1 :prob 45))
-   (graph 'origin () ;; for now, origin event needs to have handler ...
+  (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (sine 'a3 :lvl .9 :dur 50))
     (node 2 (sine 'a4 :lvl .9 :dur 50))
     (edge 1 2 :prob 100 :dur 100)
@@ -907,24 +920,24 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 ;; the disencourage algorithm 
 (graph 'all-to-all ()
-       (node 1 (mid 60 :lvl .8 :dur 250))
-       (node 2 (mid 62 :lvl .9 :dur 250))
-       (node 3 (mid 64 :lvl .9 :dur 250))
-       (node 4 (mid 67 :lvl .9 :dur 150))
-       (node 5 (mid 70 :lvl .9 :dur 150))       
-       (edge 1 1 :prob 20 :dur 250) (edge 1 2 :prob 20 :dur 125) (edge 1 3 :prob 20 :dur 125)
-       (edge 1 4 :prob 20 :dur 250) (edge 1 5 :prob 20 :dur 750)        
-       (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
-       (edge 2 4 :prob 20 :dur 250) (edge 2 5 :prob 20 :dur 500) 
+  (node 1 (mid 60 :lvl .8 :dur 250))
+  (node 2 (mid 62 :lvl .9 :dur 250))
+  (node 3 (mid 64 :lvl .9 :dur 250))
+  (node 4 (mid 67 :lvl .9 :dur 150))
+  (node 5 (mid 70 :lvl .9 :dur 150))       
+  (edge 1 1 :prob 20 :dur 250) (edge 1 2 :prob 20 :dur 125) (edge 1 3 :prob 20 :dur 125)
+  (edge 1 4 :prob 20 :dur 250) (edge 1 5 :prob 20 :dur 750)        
+  (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
+  (edge 2 4 :prob 20 :dur 250) (edge 2 5 :prob 20 :dur 500) 
 
-       (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 250)
-       (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 250) 
+  (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 250)
+  (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 250) 
 
-       (edge 4 1 :prob 20 :dur 500) (edge 4 2 :prob 20 :dur 500) (edge 4 3 :prob 20 :dur 500)
-       (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 250) 
-       
-       (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
-       (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
+  (edge 4 1 :prob 20 :dur 500) (edge 4 2 :prob 20 :dur 500) (edge 4 3 :prob 20 :dur 500)
+  (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 250) 
+  
+  (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
+  (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
 
 (sink 's1 ()
   'all-to-all)
@@ -943,24 +956,24 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
     (edge 1 1 :dur 1000 :prob 100))
 
   (graph 'all-to-all-gb ()
-       (node 1 (gb2 'c4 :lvl .8 :dur 240))
-       (node 2 (gb2 'cs4 :lvl .9 :dur 240))
-       (node 3 (gb2 'd4 :lvl .9 :dur 240))
-       (node 4 (gb2 'ds4 :lvl .9 :dur 140))
-       (node 5 (gb2 'e4 :lvl .9 :dur 140))       
-       (edge 1 1 :prob 20 :dur 550) (edge 1 2 :prob 20 :dur 300) (edge 1 3 :prob 20 :dur 300)
-       (edge 1 4 :prob 20 :dur 550) (edge 1 5 :prob 20 :dur 750)        
-       (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
-       (edge 2 4 :prob 20 :dur 280) (edge 2 5 :prob 20 :dur 500) 
+    (node 1 (gb2 'c4 :lvl .8 :dur 240))
+    (node 2 (gb2 'cs4 :lvl .9 :dur 240))
+    (node 3 (gb2 'd4 :lvl .9 :dur 240))
+    (node 4 (gb2 'ds4 :lvl .9 :dur 140))
+    (node 5 (gb2 'e4 :lvl .9 :dur 140))       
+    (edge 1 1 :prob 20 :dur 550) (edge 1 2 :prob 20 :dur 300) (edge 1 3 :prob 20 :dur 300)
+    (edge 1 4 :prob 20 :dur 550) (edge 1 5 :prob 20 :dur 750)        
+    (edge 2 1 :prob 20 :dur 500) (edge 2 2 :prob 20 :dur 250) (edge 2 3 :prob 20 :dur 250)
+    (edge 2 4 :prob 20 :dur 280) (edge 2 5 :prob 20 :dur 500) 
 
-       (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 250)
-       (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 250) 
+    (edge 3 1 :prob 20 :dur 500) (edge 3 2 :prob 20 :dur 500) (edge 3 3 :prob 20 :dur 250)
+    (edge 3 4 :prob 20 :dur 500) (edge 3 5 :prob 20 :dur 250) 
 
-       (edge 4 1 :prob 20 :dur 500) (edge 4 2 :prob 20 :dur 500) (edge 4 3 :prob 20 :dur 500)
-       (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 250) 
-       
-       (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
-       (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
+    (edge 4 1 :prob 20 :dur 500) (edge 4 2 :prob 20 :dur 500) (edge 4 3 :prob 20 :dur 500)
+    (edge 4 4 :prob 20 :dur 500) (edge 4 5 :prob 20 :dur 250) 
+    
+    (edge 5 1 :prob 20 :dur 500) (edge 5 2 :prob 20 :dur 250) (edge 5 3 :prob 20 :dur 500)
+    (edge 5 4 :prob 20 :dur 250) (edge 5 5 :prob 20 :dur 250))
 
   )
 
@@ -999,8 +1012,8 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (clear) 
 
 (graph 'gengen ()
-       (node 1 (gendy 100 900))
-       (edge 1 1 :prob 100 :dur 300))
+  (node 1 (gendy 100 900))
+  (edge 1 1 :prob 100 :dur 300))
 
 (sink 's1 () 'gengen)
 
@@ -1053,17 +1066,17 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 (discourage 'blab)
 
-; 1. Test:
+					; 1. Test:
 
 (setf *test* (graph->dot (source-graph (gethash 'blab *processor-directory*))))
 
-; 2. Test:
+					; 2. Test:
 
 (setf *test* (copy-instance (source-graph (gethash 'blab *processor-directory*))))
 
 (format nil "~a" (graph->dot *test*))
 
-; 3. Test:
+					; 3. Test:
 
 (setf *test* (source-graph (gethash 'blab *processor-directory*)))
 
@@ -1085,34 +1098,34 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 (clear)
 
 (graph 'footwork-bd ()
-       (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
-		      :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
-       (node 2 (grain "03_electronics" "01_808_long_kick" :dur 512 :atk 0.1 :pos 0.5
-		      :lvl 0.9 :rate 1.0 :rev 0.0 :tags '(snare) ))
-       (node 3 (grain "03_electronics" "01_808_long_kick" :dur 130
-		      :lvl 1.0 :rate 1.0 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.00 :pos 0.5))     
-       (edge 1 2 :prob 100 :dur 390)
-       (edge 2 1 :prob 20 :dur 130)
-       (edge 2 3 :prob 60 :dur 130)
-       (edge 3 3 :prob 20 :dur 390)
-       (edge 3 2 :prob 80 :dur 260))
+  (node 1 (grain "03_electronics" "01_808_long_kick" :dur 512
+		 :lvl 1.0 :rate 1.1 :start 0.01 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.0  :pos 0.5))
+  (node 2 (grain "03_electronics" "01_808_long_kick" :dur 512 :atk 0.1 :pos 0.5
+		 :lvl 0.9 :rate 1.0 :rev 0.0 :tags '(snare) ))
+  (node 3 (grain "03_electronics" "01_808_long_kick" :dur 130
+		 :lvl 1.0 :rate 1.0 :start 0.01 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.00 :pos 0.5))     
+  (edge 1 2 :prob 100 :dur 390)
+  (edge 2 1 :prob 20 :dur 130)
+  (edge 2 3 :prob 60 :dur 130)
+  (edge 3 3 :prob 20 :dur 390)
+  (edge 3 2 :prob 80 :dur 260))
 
 (graph 'footwork-sn ()
-       (node 1 (grain "03_electronics" "08_fat_snare" :dur 65
-		      :lvl 1.0 :rate 2.05 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.01  :pos 0.5))
-       (node 2 (grain "03_electronics" "08_fat_snare" :dur 65 :atk 0.1 :pos 0.5
-		      :lvl 0.9 :rate 2.0 :rev 0.01 ))
-       (node 3 (grain "03_electronics" "08_fat_snare" :dur 65
-		      :lvl 1.0 :rate 2.0 :start 0.01 :atk 1 :rel 7
-		      :lp-dist 1.0 :lp-freq 5000 :rev 0.1 :pos 0.5))     
-       (edge 1 2 :prob 100 :dur 1560)
-       (edge 2 1 :prob 80 :dur 780)
-       (edge 2 3 :prob 20 :dur 390)
-       (edge 3 3 :prob 70 :dur 780)
-       (edge 3 2 :prob 30 :dur 130))
+  (node 1 (grain "03_electronics" "08_fat_snare" :dur 65
+		 :lvl 1.0 :rate 2.05 :start 0.01 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.01  :pos 0.5))
+  (node 2 (grain "03_electronics" "08_fat_snare" :dur 65 :atk 0.1 :pos 0.5
+		 :lvl 0.9 :rate 2.0 :rev 0.01 ))
+  (node 3 (grain "03_electronics" "08_fat_snare" :dur 65
+		 :lvl 1.0 :rate 2.0 :start 0.01 :atk 1 :rel 7
+		 :lp-dist 1.0 :lp-freq 5000 :rev 0.1 :pos 0.5))     
+  (edge 1 2 :prob 100 :dur 1560)
+  (edge 2 1 :prob 80 :dur 780)
+  (edge 2 3 :prob 20 :dur 390)
+  (edge 3 3 :prob 70 :dur 780)
+  (edge 3 2 :prob 30 :dur 130))
 
 
 (sink 's1 ()  
@@ -1134,10 +1147,10 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
 
 ;; hmm does this work ?
 (incudine::make-osc-responder *oscin* "/blub/test" "iii"
-                    (lambda (a b c)
-		      (incudine::msg warn "~D ~D ~D"
-		      		     a b c)
-		      ))
+			      (lambda (a b c)
+				(incudine::msg warn "~D ~D ~D"
+		      			       a b c)
+				))
 
 (sink 's1 ()  
   (graph 'pitcher (:combine-mode 'zip)
@@ -1147,7 +1160,7 @@ cacagaggaacatcatcatcatcactacaaaaaagagaaagagatagagagcacacacacagaggaacatcatcatcatc
     (edge 1 2 :prob 40)
     (edge 2 2 :prob 55)
     (edge 2 1 :prob 45))
-   (graph 'origin () ;; for now, origin event needs to have handler ...
+  (graph 'origin () ;; for now, origin event needs to have handler ...
     (node 1 (mid 84 :lvl .9 :dur 50))
     (node 2 (mid 84 :lvl .9 :dur 50))
     (edge 1 2 :prob 100 :dur 64)

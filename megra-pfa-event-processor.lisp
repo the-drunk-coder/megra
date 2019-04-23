@@ -15,7 +15,7 @@
   (list (current-transition (source-mpfa m))))
 
 (defun sstring (string-as-sym)
-  "convenience method to enter sample strings without spacesx"
+  "convenience method to enter sample strings without spaces"
   (let ((sname (if (typep string-as-sym 'string)
 		   string-as-sym
 		   (symbol-name string-as-sym))))
@@ -35,7 +35,7 @@
 		    (key))    
 		(loop for m in ',event-plist 
 		   do (if (or (typep m 'symbol) (typep m 'number))
-			  (progn
+ 			  (progn
 			    (setf key m)
 			    (setf (gethash key mapping) (list)))
 			  (let ((me (eval m))
@@ -43,7 +43,7 @@
 			    (setf (gethash key mapping) (nconc le (list me))))))
 		mapping))))
 
-;; data transformation macro to define transition rules  more easily
+;; data transformation macro to define transition rules more easily
 (defmacro rules (&rest rules)
   (let ((duration-mapping (make-hash-table :test #'equal))
 	(plain-rule-list (list)))
@@ -56,6 +56,19 @@
 			     duration-mapping)
 		    (nth 3 rule))) ))
     `(list ,duration-mapping ',plain-rule-list)))
+
+(defun rules-list (rules)
+  (let ((duration-mapping (make-hash-table :test #'equal))
+	(plain-rule-list (list)))
+    (loop for rule in rules
+       do (progn
+	    (push (subseq rule 0 3) plain-rule-list)
+	    ;; if the rule has a specific duration ... 
+	    (when (nth 3 rule)
+	      (setf (gethash (list (car (reverse (car rule))) (cadr rule))
+			     duration-mapping)
+		    (nth 3 rule))) ))
+    (list duration-mapping plain-rule-list)))
 
 ;; -------------------------------------------------------------- ;;
 ;; infer an mpfa event processor form a set of user-defined rules ;;
@@ -92,8 +105,9 @@
 	  (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	      old-proc
 	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa)))
-	 (init-sym (car alphabet)))        
-    (vom::pfa-set-current-state new-mpfa (list init-sym))
+	 (init-sym (car alphabet)))
+    (vom::pfa->st-pfa new-mpfa)
+    (vom::pfa-set-current-state new-mpfa (list init-sym))    
     (change-class new-mpfa 'mpfa)
     (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	(setf (source-mpfa old-proc) new-mpfa))
@@ -113,6 +127,7 @@
 		     :bound ,bound
 		     :epsilon ,epsilon
 		     :size ,size))))
+
 ;; abstractions ... 
 (defmacro nuc2 (name event &key (dur *global-default-duration*))
   `(funcall #'(lambda ()
@@ -120,3 +135,48 @@
 	               (events (1 ,event))
 	               (rules ((1) 1 1.0))
 	               :dur ,dur))))
+
+(defun grow2 (name &key (var 0.1) (hist 2) (ord 2) (exit 1) method durs funct)
+  (let* ((proc (gethash name *processor-directory*))
+	 ;; this one needs to be adapted to keep the old methods
+	 ;; alive ! 
+	 (growth-result (vom::grow-st-pfa (source-mpfa proc) hist ord exit))
+	 (template (gethash (first growth-result)
+			    (mpfa-event-dictionary (source-mpfa proc)))))
+    (setf (gethash (second growth-result)
+		   (mpfa-event-dictionary (source-mpfa proc)))
+	  (deepcopy template :imprecision var :functors funct))
+    ;; default duration will be picked for now ...
+    ))
+
+(defun cyc2 (name events  &key (dur *global-default-duration*))
+  (let ((count 1)
+	(rules (list))
+	(event-mapping (make-hash-table :test #'equal))
+	(real-events (if (typep events 'string)
+			 (string->cycle-list events)
+			 events)))
+    (loop for (a b) on real-events while b
+       do (cond
+	    ((and (or (typep a 'event) (typep a 'list)) (or (typep b 'event) (typep b 'list)))
+	     (setf (gethash count event-mapping) (if (typep a 'list) a (list a)))
+	     (setf (gethash (+ count 1) event-mapping) (if (typep b 'list) b (list b)))
+	     (let ((new-rule (list (list count) (incf count) 1.0)))
+	       (setf rules (nconc rules (list new-rule)))))
+	    ((and (or (typep a 'event) (typep a 'list)) (typep b 'number))
+	     (setf (gethash count event-mapping) (if (typep a 'list) a (list a))))
+	    ((and (typep a 'number) (or (typep b 'event) (typep b 'list)))
+	     (setf (gethash (+ count 1) event-mapping) (if (typep b 'list) b (list b)))
+	     (let ((new-rule (list (list count) (incf count) 1.0 a)))
+	       (setf rules (nconc rules (list new-rule)))))))
+    (if (typep (car (last real-events)) 'number)
+	(setf rules (nconc rules (list (list (list count) 1 1.0 (car (last real-events))))))
+	(setf rules (nconc rules (list (list (list count) 1 1.0)))))
+    (infer name
+	   event-mapping
+	   (rules-list rules)
+	   :dur dur)))
+
+(defun mpfa->svg (name)
+  (vom::pfa->svg (source-mpfa (gethash name *processor-directory*)) (symbol-name name) ))
+
