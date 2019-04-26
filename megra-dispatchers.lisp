@@ -144,11 +144,15 @@
       (t (unless (or (is-active chain) (wait-for-sync chain))
 	   (incudine::msg error "start chain")
 	   (activate chain)
-	  (incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
-	   	     #'perform-dispatch-sep-times
-	   	     chain
-	   	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
-	  	     (+ (incudine:now) #[(chain-shift chain) ms])))))))
+	   ;;(incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
+	   ;;	     #'perform-dispatch-sep-times
+	   ;;	     chain
+	   ;;	     (+ (incudine:timestamp) (* (chain-shift chain) 0.001))
+	   ;;	     (+ (incudine:now) #[(chain-shift chain) ms]))
+	   (incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
+			 #'perform-dispatch
+			 chain				     
+			 it))))))
 
 (defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
