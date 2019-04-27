@@ -5,41 +5,41 @@
 ;; only for single values (pitch, duration, level etc)
 (defmacro values->graph (name event-type values
 			 &key (type 'loop)
-			   (combine-mode 'append)
-			   (affect-transition nil)
-			   (randomize 0))
+			      (combine-mode 'append)
+			      (affect-transition nil)
+			      (randomize 0))
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph))
-			       (count 1))		      
-			   (setf (graph-id new-graph) ,name)
-			   (mapc #'(lambda (value)	      
-				     (insert-node new-graph (node count (,event-type value)))
-				     (if (> count 1)
-					 (insert-edge new-graph (edge (- count 1) count :prob 100)))
-				     (incf count)
-				     ) ,values)
-			   ;; reverse last step
-			   (decf count)
-			   (if (eq ',type 'loop)
-			       (insert-edge new-graph (edge count 1 :prob 100)))
-			   ;; add random blind edges 
-			   (if (> ,randomize 0) (randomize-edges new-graph ,randomize ))
-			   (if (gethash ,name *processor-directory*)
-			       (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
-			       (setf (gethash ,name *processor-directory*)
-				     (make-instance 'graph-event-processor :name ,name
-						    :graph new-graph :copy-events t
-						    :current-node 1 :combine-mode ,combine-mode
-						    :affect-transition ,affect-transition
-						    :combine-filter #'all-p)))))))
+			  (count 1))		      
+		      (setf (graph-id new-graph) ,name)
+		      (mapc #'(lambda (value)	      
+				(insert-node new-graph (node count (,event-type value)))
+				(if (> count 1)
+				    (insert-edge new-graph (edge (- count 1) count :prob 100)))
+				(incf count)
+				) ,values)
+		      ;; reverse last step
+		      (decf count)
+		      (if (eq ',type 'loop)
+			  (insert-edge new-graph (edge count 1 :prob 100)))
+		      ;; add random blind edges 
+		      (if (> ,randomize 0) (randomize-edges new-graph ,randomize ))
+		      (if (gethash ,name *processor-directory*)
+			  (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
+			  (setf (gethash ,name *processor-directory*)
+				(make-instance 'graph-event-processor :name ,name
+						                      :graph new-graph :copy-events t
+						                      :current-node 1 :combine-mode ,combine-mode
+						                      :affect-transition ,affect-transition
+						                      :combine-filter #'all-p)))))))
 
 ;; only for single values (pitch, duration, level etc )
 ;; takes a list of values and transition times and turns them into a graph
 ;; filled with single-value events like (pitch ..) or (lvl ..)
 (defmacro values->transitions->graph (name event-type values transitions
 				      &key (type 'loop)
-					(randomize 0)
-					(combine-mode 'append)
-					(affect-transition nil))
+					   (randomize 0)
+					   (combine-mode 'append)
+					   (affect-transition nil))
   `(funcall #'(lambda ()
 		(let ((new-graph (make-instance 'graph))
 		      (count 1)
@@ -63,10 +63,10 @@
 		      (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 		      (setf (gethash ,name *processor-directory*)
 			    (make-instance 'graph-event-processor :name ,name
-					   :graph new-graph :copy-events t
-					   :current-node 1 :combine-mode ,combine-mode
-					   :affect-transition ,affect-transition
-					   :combine-filter #'all-p)))))))
+					                          :graph new-graph :copy-events t
+					                          :current-node 1 :combine-mode ,combine-mode
+					                          :affect-transition ,affect-transition
+					                          :combine-filter #'all-p)))))))
 
 ;; takes notes in the format '(pitch duration) ant turns them into a loop graph
 ;; which might be randomized
@@ -89,26 +89,26 @@
     (decf count)
     (if (eq type 'loop)
 	(insert-edge new-graph (edge count 1 :prob 100
-				     :dur (cadr (car (reverse notes))))))
+				             :dur (cadr (car (reverse notes))))))
     ;; add random blind edges ...
     (if (> randomize 0) (randomize-edges new-graph randomize))
     (if (gethash name *processor-directory*)
 	(setf (source-graph (gethash name *processor-directory*)) new-graph)
 	(setf (gethash name *processor-directory*)
 	      (make-instance 'graph-event-processor :name name
-			     :graph new-graph :copy-events t
-			     :current-node 1 :combine-mode 'append
-			     :combine-filter #'all-p)))))
+			                            :graph new-graph :copy-events t
+			                            :current-node 1 :combine-mode 'append
+			                            :combine-filter #'all-p)))))
 
 ;; nucleus, one node, with one repeating edge ... 
 (defun nuc (name event &key (overlap 0) (dur *global-default-duration*) (reset t))  
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
-					:graph nil :copy-events t
-					:current-node 1 :combine-mode 'zip
-					:combine-filter #'all-p
-					:affect-transition nil)))
+					                       :graph nil :copy-events t
+					                       :current-node 1 :combine-mode 'zip
+					                       :combine-filter #'all-p
+					                       :affect-transition nil)))
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
 			  (t (source-graph graph-proc)))))   
@@ -141,46 +141,52 @@
 	 (graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
-					:graph nil :copy-events t
-					:current-node 1 :combine-mode 'zip
-					:combine-filter #'all-p
-					:affect-transition nil)))
+					                       :graph nil :copy-events t
+					                       :current-node 1 :combine-mode 'zip
+					                       :combine-filter #'all-p
+					                       :affect-transition nil)))
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
 			   (make-instance 'graph))
 			  (t (source-graph graph-proc))))
 	 (dur (cond ((typep dur 'param-mod-object) dur)
 		    (dur (- dur (* dur overlap)))))
-	 (count 1))
+	 (count 1)
+         (last-dur dur))
     (setf (graph-id src-graph) name)
-    (loop for (a b) on real-events
-       do (let ((duration (if (and b (typep b 'integer))
-			      b dur)))
-	    (unless (typep a 'number)
-	      (insert-node src-graph (node count a))
-	      (when (or reset (not (source-graph graph-proc)))
-		;; either it's new or reset ... 		
-		(when b
-		  (insert-edge src-graph
-			       (edge count (+ count 1) :prob 100 :dur duration)))
-		(when (> rep 0)
+    (loop for (a b) on real-events while b
+          do (cond
+	       ((and (or (typep a 'event) (typep a 'list)) (or (typep b 'event) (typep b 'list)))
+                (insert-node src-graph (node count a))
+                (insert-node src-graph (node (+ count 1) b))
+                (insert-edge src-graph (edge count (+ count 1) :prob 100 :dur dur))
+                (when (> rep 0)
 		  (when (< (random 100) rep)
-		    (insert-edge src-graph (edge count count :prob 100 :dur duration))
+		    (insert-edge src-graph (edge count count :prob 100 :dur dur))
 		    (when max-rep
-		      (insert-edge src-graph
-				   (edge (make-list max-rep :initial-element count)
-					 (if b
-					     (+ count 1)
-					     1)
-					 :dur duration :prob 100))))))
-	      (incf count))))       
-    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...
-      (insert-edge src-graph (edge (- count 1) 1 :prob 100 :dur dur))
+		      (insert-edge src-graph (edge (make-list max-rep :initial-element count) (+ count 1) :dur dur :prob 100)))))
+                (incf count))               	        
+	       ((and (or (typep a 'event) (typep a 'list)) (typep b 'number))
+                (insert-node src-graph (node count a))
+                (setf last-dur b))
+	       ((and (typep a 'number) (or (typep b 'event) (typep b 'list)))
+                (insert-node src-graph (node (+ count 1) b))
+                (insert-edge src-graph (edge count (+ count 1) :prob 100 :dur last-dur))
+                (when (> rep 0)
+		  (when (< (random 100) rep)
+		    (insert-edge src-graph (edge count count :prob 100 :dur last-dur))
+		    (when max-rep
+                      (insert-edge src-graph (edge (make-list max-rep :initial-element count) (+ count 1) :dur last-dur :prob 100)))))
+                (incf count))))
+    (if (typep (car (last real-events)) 'number)
+        (insert-edge src-graph (edge count 1 :prob 100 :dur (car (last real-events))))
+        (insert-edge src-graph (edge count 1 :prob 100 :dur dur)))          
+    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...      
       (setf (current-node graph-proc) 1)
       (setf (traced-path graph-proc) '(1)))
     (rebalance-edges src-graph)
-    ;; randomize if necessary ... 
+             ;; randomize if necessary ... 
     (if (> rnd 0) (randomize-edges src-graph rnd dur))
-    (setf (source-graph graph-proc) src-graph)    
+    (setf (source-graph graph-proc) src-graph)
     (setf (gethash name *processor-directory*) graph-proc)))
 
 
