@@ -84,7 +84,7 @@
 
 (defparameter *current-group* 'DEFAULT)
 
-(defparameter *global-default-duration* 210)
+(defparameter *global-default-duration* 200)
 
 (defun global-dur (new-duration)
   "Set a global default duration. Already constructed entities won't be affected."
