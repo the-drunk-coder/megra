@@ -98,8 +98,7 @@
                     ;;(format t "found close ~%")
                     (setf stack-mode nil)
                     (setf cycle (nconc cycle (list stack)))
-                    (setf stack (list))
-		    )
+                    (setf stack (list)))
 		   ((ignore-errors (parse-integer token)) (setf cycle (nconc cycle (list (parse-integer token)))))
 		   (t (if stack-mode
                           (setf stack (nconc stack (list (let ((f-par (cl-ppcre:split ":" token)))  

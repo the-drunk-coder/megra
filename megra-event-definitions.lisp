@@ -9,6 +9,12 @@
   :short-name incomplete
   :parent-events (event))
 
+
+(define-event
+  :long-name silent-event
+  :short-name silence
+  :parent-events (event))
+
 ;; those "abstract" events provide the building blocks
 ;; for the events that will later on produce a sound
 
@@ -54,7 +60,6 @@
   :long-name tuned-instrument-event
   :short-name tuned-instrument-event
   :parent-events (pitch-event level-event instrument-event duration-event))
-(in-package :megra)
 
 ;;;;;;;;;;;;;;;;;
 ;; MIDI events ;;
