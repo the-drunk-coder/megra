@@ -134,7 +134,7 @@
     (setf (gethash name *processor-directory*) graph-proc)))
 
 ;; a cycle ... 
-(defun cyc (name events  &key (dur *global-default-duration*) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t))
+(defun cyc (name events  &key (dur *global-default-duration*) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t) (cmode 'zip))
   (let* ((real-events (if (typep events 'string)
 			  (string->cycle-list events)
 			  events))
@@ -142,7 +142,7 @@
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
 					                       :graph nil :copy-events t
-					                       :current-node 1 :combine-mode 'zip
+					                       :current-node 1 :combine-mode cmode
 					                       :combine-filter #'all-p
 					                       :affect-transition nil)))
 	 (src-graph (cond ((or reset (not (source-graph graph-proc)))
