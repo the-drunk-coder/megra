@@ -86,7 +86,7 @@
 
 ;; primitive and inefficient pattern string parser ...
 (defun string->cycle-list (str)
-  (let* ((split (cl-ppcre:split "\\s+" (cl-ppcre:regex-replace-all "\\]" (cl-ppcre:regex-replace-all "\\[" (cl-ppcre:regex-replace-all "\\-" str "silence") "( ") " )")))
+  (let* ((split (cl-ppcre:split "\\s+" (cl-ppcre:regex-replace-all "\\]" (cl-ppcre:regex-replace-all "\\[" (cl-ppcre:regex-replace-all "\\~" str "silence") "( ") " )")))
          (cycle (list))
          (stack (list))
          (stack-mode nil))

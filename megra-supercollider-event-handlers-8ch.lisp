@@ -54,7 +54,7 @@
 			   "r" (coerce (* (event-release g) 0.001) 'float)
 			   "pos" (coerce (- (event-position g) 0.5) 'float)))))
 
-(defmethod handle-sine-event-sc-8ch ((s sine-event) timestamp &key)
+(defmethod handle-sine-event-sc-8ch ((s sine-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -89,7 +89,7 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
-(defmethod handle-triangle-event-sc-8ch ((s triangle-event) timestamp &key)
+(defmethod handle-triangle-event-sc-8ch ((s triangle-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -124,7 +124,7 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
-(defmethod handle-cub-event-sc-8ch ((s cub-event) timestamp &key)
+(defmethod handle-cub-event-sc-8ch ((s cub-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -159,7 +159,7 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
-(defmethod handle-par-event-sc-8ch ((s par-event) timestamp &key)
+(defmethod handle-par-event-sc-8ch ((s par-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -194,7 +194,7 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
-(defmethod handle-saw-event-sc-8ch ((s saw-event) timestamp &key)
+(defmethod handle-saw-event-sc-8ch ((s saw-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -229,7 +229,7 @@
 			 "pos" (coerce (- (event-position s) 0.5) 'float)
 			 )))
 
-(defmethod handle-square-event-sc-8ch ((s square-event) timestamp &key)
+(defmethod handle-square-event-sc-8ch ((s square-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -267,7 +267,7 @@
 			 )))
 
 
-(defmethod handle-buzz-event-sc-8ch ((b buzz-event) timestamp &key)
+(defmethod handle-buzz-event-sc-8ch ((b buzz-event-8ch) timestamp &key)
   (if (> (event-reverb b) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -306,7 +306,7 @@
 
 
 
-(defmethod handle-pluck-event-sc-8ch ((p pluck-event) timestamp &key)
+(defmethod handle-pluck-event-sc-8ch ((p pluck-event-8ch) timestamp &key)
   (if (> (event-reverb p) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -336,7 +336,7 @@
 			 "length" (coerce (* (event-duration p) 0.001) 'float)
 			 "pos" (coerce (- (event-position p) 0.5) 'float))))
 
-(defmethod handle-risset-event-sc-8ch ((r risset-event) timestamp &key)
+(defmethod handle-risset-event-sc-8ch ((r risset-event-8ch) timestamp &key)
   (if (> (event-reverb r) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
@@ -372,7 +372,7 @@
 			 "r" (coerce (* (event-release r) 0.001) 'float)
 			 "pos" (coerce (- (event-position r) 0.5) 'float))))
 
-(defmethod handle-dx-rhodes-event-sc-8ch ((d dx-rhodes-event) timestamp &key)
+(defmethod handle-dx-rhodes-event-sc-8ch ((d dx-rhodes-event-8ch) timestamp &key)
   (if (> (event-reverb d) 0)     
       (osc:simple-bundle cm::*oscout* timestamp  
 			 "/s_new"	    
