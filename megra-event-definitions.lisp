@@ -574,6 +574,24 @@
 		 (handle-buzz-event-sc evt timestamp))))
 
 (define-event
+  :long-name buzz-event-8ch
+  :short-name buzz-8ch
+  :parent-events (level-event
+		  harm-event
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-buzz-event-sc-8ch evt timestamp))))
+
+
+(define-event
   :long-name square-adsr-event
   :short-name sqr-adsr
   :parent-events (level-event
@@ -626,6 +644,24 @@
 		 (handle-saw-event-sc evt timestamp))))
 
 (define-event
+  :long-name saw-event-8ch
+  :short-name saw-8ch
+  :parent-events (level-event		 
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-saw-event-sc-8ch evt timestamp))))
+
+
+
+(define-event
   :long-name square-event
   :short-name sqr
   :parent-events (level-event		 
@@ -642,6 +678,23 @@
 	     (if (member 'inc (event-backends evt)) (handle-square-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-square-event-sc evt timestamp))))
+
+(define-event
+  :long-name square-event-8ch
+  :short-name sqr-8ch
+  :parent-events (level-event		 
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event
+		  pulsewidth-event
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	    
+	     (if (member 'sc (event-backends evt))
+		 (handle-square-event-sc-8ch evt timestamp))))
 
 
 (define-event
@@ -662,6 +715,22 @@
 		 (handle-sine-event-sc evt timestamp))))
 
 (define-event
+  :long-name sine-event-8ch
+  :short-name sine-8ch
+  :parent-events (level-event		 
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-sine-event-sc-8ch evt timestamp))))
+
+(define-event
   :long-name triangle-event
   :short-name tri
   :parent-events (level-event		 
@@ -678,6 +747,23 @@
 		 (handle-triangle-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-triangle-event-sc evt timestamp))))
+
+(define-event
+  :long-name triangle-event-8ch
+  :short-name tri-8ch
+  :parent-events (level-event		 
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	
+	     (if (member 'sc (event-backends evt))
+		 (handle-triangle-event-sc-8ch evt timestamp))))
+
 ;; LFCub
 (define-event
   :long-name cub-event
@@ -696,6 +782,22 @@
 		 (handle-cub-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-cub-event-sc evt timestamp))))
+
+(define-event
+  :long-name cub-event-8ch
+  :short-name cub-8ch
+  :parent-events (level-event		 
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-cub-event-sc-8ch evt timestamp))))
 ;; LFPar
 (define-event
   :long-name par-event
@@ -714,6 +816,22 @@
 		 (handle-par-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-par-event-sc evt timestamp))))
+
+(define-event
+  :long-name par-event-8ch
+  :short-name par-8ch
+  :parent-events (level-event		 
+		  duration-event
+		  pan-event
+		  pitch-event
+		  attack-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'sc (event-backends evt))
+		 (handle-par-event-sc-8ch evt timestamp))))
 
 (define-event
   :long-name meow-event
@@ -750,6 +868,23 @@
 		 (handle-risset-event-sc evt timestamp))))
 
 (define-event
+  :long-name risset-event-8ch
+  :short-name risset-8ch
+  :parent-events (level-event		  
+		  pan-event
+		  pitch-event
+		  attack-event
+		  decay-event
+		  sustain-event
+		  release-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-risset-event-sc-8ch evt timestamp))))
+
+(define-event
   :long-name pluck-event
   :short-name pluck
   :parent-events (level-event		  
@@ -762,6 +897,21 @@
   :handler (progn	     
 	     (if (member 'sc (event-backends evt))
 		 (handle-pluck-event-sc evt timestamp))))
+
+(define-event
+  :long-name pluck-event-8ch
+  :short-name pluck-8ch
+  :parent-events (level-event		  
+		  pan-event
+		  duration-event
+		  pitch-event		  
+		  filter-lp-event	          
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-pluck-event-sc-8ch evt timestamp))))
+
 
 (define-event
   :long-name dx-rhodes-event
@@ -778,6 +928,23 @@
   :handler (progn	     
 	     (if (member 'sc (event-backends evt))
 		 (handle-dx-rhodes-event-sc evt timestamp))))
+
+(define-event
+  :long-name dx-rhodes-event-8ch
+  :short-name dx-rhodes-8ch
+  :parent-events (level-event		  
+		  pan-event
+		  pitch-event
+		  velocity-event
+		  level-lfo-event
+		  mix-event
+		  mod-index-event
+		  reverb-event)
+  :direct-parameters (pitch)
+  :handler (progn	     
+	     (if (member 'sc (event-backends evt))
+		 (handle-dx-rhodes-event-sc-8ch evt timestamp))))
+
 
 (define-event
   :long-name frequency-range-event
