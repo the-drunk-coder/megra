@@ -180,9 +180,11 @@
     (if (typep (car (last real-events)) 'number)
         (insert-edge src-graph (edge count 1 :prob 100 :dur (car (last real-events))))
         (insert-edge src-graph (edge count 1 :prob 100 :dur dur)))          
-    (when (or reset (not (source-graph graph-proc))) ;; either it's new or reset ...      
+    (when (or (not (source-graph graph-proc))
+              (and (source-graph graph-proc) (not (gethash (current-node graph-proc) (graph-nodes src-graph)))))
+      ;; either it's new or reset ...      
       (setf (current-node graph-proc) 1)
-      (setf (traced-path graph-proc) '(1)))
+      (setf (traced-path graph-proc) '(1)))    
     (rebalance-edges src-graph)
              ;; randomize if necessary ... 
     (if (> rnd 0) (randomize-edges src-graph rnd dur))
