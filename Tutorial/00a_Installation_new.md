@@ -50,8 +50,8 @@ The macOS version might not support MIDI right now, or at least it might have sy
 If you see an error "Division by Zero" on starting Portacle, make sure all samplerates of all programs are set to 48000 (or, if you've changed that in your ~/.incudinerc, the respective samplerate). It happens if there's a samplerate mismatch. 
 
 ## Windows
-Now, I must admit that I don't stable access to a Windows machine, and I'm not well-versed anymore 
-in operating it. I know that Portacle works on Windows (tried it on Windows 7), and so does SuperCollider.
+Now, I must admit that I don't have stable access to a Windows machine, and I'm not well-versed anymore 
+in operating one. I know that Portacle works on Windows (tried it on Windows 7), and so does SuperCollider.
 SBCL thread support is needed by the underlying Incudine system, which is notoriously fragile on the Windows port.
 Another problem is that you need to compile the several dependencies (like portaudio and portmidi)
 by hand, so you'd need to be well-versed in Windows development. If you anybody is willing to try, please let
