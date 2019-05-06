@@ -82,13 +82,22 @@
 	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa :combine-mode combine-mode)))
 	 (init-sym (car (alexandria::hash-table-keys events))))
     (change-class new-mpfa 'mpfa)
-    (if (and old-proc (typep old-proc 'mpfa-event-processor))
-	(setf (source-mpfa old-proc) new-mpfa))
     (setf (mpfa-default-duration new-mpfa) dur)
     (setf (mpfa-event-dictionary new-mpfa) events)
+    (if old-proc
+        (let ((old-mpfa (source-mpfa old-proc)))
+          (if (member (mpfa-last-symbol old-mpfa) (vom::pfa-alphabet new-mpfa))
+              (setf (mpfa-last-symbol new-mpfa) init-sym))
+          (if (vom::pfa-get-state new-mpfa (vom::pfa-state-label (vom::pfa-current-state old-mpfa))   )
+              (vom::pfa-set-current-state new-mpfa (vom::pfa-state-label (vom::pfa-current-state old-mpfa)))
+              (vom::pfa-set-current-state new-mpfa (list init-sym))))
+        (progn
+          (setf (mpfa-last-symbol new-mpfa) init-sym)
+          (vom::pfa-set-current-state new-mpfa (list init-sym))))
+    (if (and old-proc (typep old-proc 'mpfa-event-processor))
+	(setf (source-mpfa old-proc) new-mpfa))
     (setf (mpfa-transition-durations new-mpfa) (car rules))
-    (setf (mpfa-last-symbol new-mpfa) init-sym)
-    (vom::pfa-set-current-state new-mpfa (list init-sym))
+    
     (setf (gethash name *processor-directory*) new-proc)))
 
 ;; ---------------------------------------------------- ;;
@@ -192,8 +201,7 @@
                         (let ((new-rule (list (list count) (incf count) 1.0)))
 	                  (setf rules (nconc rules (list new-rule)))))
                     (let ((new-rule (list (list count) (incf count) 1.0)))
-	              (setf rules (nconc rules (list new-rule)))))
-                )))
+	              (setf rules (nconc rules (list new-rule))))))))
     (if (typep (car (last real-events)) 'number)
 	(setf rules (nconc rules (list (list (list count) 1 1.0 (car (last real-events))))))
 	(setf rules (nconc rules (list (list (list count) 1 1.0)))))
