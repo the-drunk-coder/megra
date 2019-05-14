@@ -315,7 +315,7 @@
 						   new-chain-id
 						   proc
 						   idx)
-						  :var var
+						  :variance var
 						  :functors functors
 						  :track nil))
 					     current-procs)
