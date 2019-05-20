@@ -1,0 +1,79 @@
+(in-package :megra)
+;; 12 - Step Sequencers
+
+;; At some point I couldn't help it and implemented a step-sequencer that
+;; looks way too much like tidal's sequencing DSL.
+
+;; Anyway, here it is:
+
+(s 'a-basic ()
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100)) ;; roughly 150 bpm ... ~ is silence
+
+;; now, how about some hi-hats ?
+
+(s 'a-basic ()
+  (cyc 'beat "[hats bd] ~ hats ~ [sn hats] ~ hats ~" :dur 100)) ;; the square bracket syntax is different from tidal, it just means "play at the same time"
+
+(clear)
+
+;; now, the square bracket syntax might get messy at times.
+;; how about this ?
+
+;; "append" tell the generator to inject it's events into the stream,
+;; rather than combine with whatever comes in ... 
+
+(s 'a-more-complex ()
+  (cyc 'hat "hats ~ hats ~ hats ~ hats ~" :cmode 'append) 
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100))
+
+(clear)
+
+;; ska ?
+(s 'a-more-complex ()
+  (for git (always (dur 100) (atk 1) (start 0.3) (rel 90)))
+  (cyc 'git "~ ~ git ~ ~ ~ git ~" :cmode 'append) 
+  (cyc 'hat "hats ~ hats ~ hats ~ hats ~" :cmode 'append) 
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100))
+
+;; now you can grow individual elements:
+
+(grow 'git :var 0.8)
+
+;; TRAP !! (or something)
+(s 'a-more-complex ()
+  (for git (always (dur 100) (atk 1) (start 0.3) (rel 90)))
+  (cyc 'git "~ ~ git ~ ~ ~ git ~" :cmode 'append :reset nil) 
+  (cyc 'hat "hats ~ hats ~ hats ~ hats ~" :cmode 'append :rep 90 :max-rep 4) ;; use repetitions to shake things up ! 
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100 :rep 80 :max-rep 4)) ;; use repetitions to shake things up ! 
+
+;; you can add lifemodeling to individual elements and hear things unfold !!
+(s 'a-more-complex ()
+  (for git (always (dur 100) (atk 1) (start 0.3) (rel 90)))
+  (lifemodel t 5 10 :var 0.4 ;; add more variance !!
+             (cyc 'git "~ ~ git ~ ~ ~ git ~" :cmode 'append :reset nil))
+  (cyc 'hat "hats ~ hats ~ hats ~ hats ~" :cmode 'append :rep 90 :max-rep 4) ;; use repetitions to shake things up ! 
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100 :rep 80 :max-rep 4)) ;; use repetitions to shake things up ! 
+
+;; aaand back to a straight beat ! 
+(s 'a-more-complex ()
+  (for git (always (dur 100) (atk 1) (start 0.3) (rel 90) (rate 1.2)))
+  (cyc 'git "~ ~ git ~ ~ ~ git ~" :cmode 'append) 
+  (cyc 'hat "hats ~ hats ~ hats ~ hats ~" :cmode 'append) 
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100))
+
+;; BREAK !!
+(clear)
+
+;; the "NEW" model ... 
+(s 'a-more-complex ()
+  (for git (always (dur 100) (atk 1) (start 0.3) (rel 90)))
+  (cyc2 'git "~ ~ git ~ ~ ~ git ~" :cmode 'append) 
+  (cyc2 'hat "hats ~ hats ~ hats ~ hats ~" :cmode 'append) 
+  (cyc2 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100))
+
+;; different results with new model!
+(progn
+  (grow2 'git :var 0.8)
+  (grow2 'hat :var 0.2)
+  (grow2 'beat :var 0.4 :hist 1 :ord 1))
+
