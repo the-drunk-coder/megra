@@ -52,8 +52,8 @@
 (setq *sample-rate* 48000)
 (setq *client-name* "incudine")
 (setq *max-number-of-channels* 1024)
-(setq *number-of-input-bus-channels* 2)
-(setq *number-of-output-bus-channels* 2)
+(setq *number-of-input-bus-channels* 0)
+(setq *number-of-output-bus-channels* 1)
 (setq *number-of-bus-channels* 4096)
 
 ;; Used only with PortAudio.
