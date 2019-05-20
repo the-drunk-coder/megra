@@ -54,7 +54,7 @@
 (setq *max-number-of-channels* 1024)
 (setq *number-of-input-bus-channels* 0)
 ;;(setq *number-of-output-bus-channels* 2)
-(setq *number-of-output-bus-channels* 16)
+(setq *number-of-output-bus-channels* 1)
 (setq *number-of-bus-channels* 2048)
 
 ;; Used only with PortAudio.
