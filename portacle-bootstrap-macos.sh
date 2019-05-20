@@ -5,11 +5,6 @@
 # get megra repo
 git clone https://github.com/the-drunk-coder/megra
 
-# get osx branch
-cd megra
-git checkout osx
-cd ..
-
 # get dependencies
 cd projects
 git clone https://github.com/titola/incudine 
