@@ -51,7 +51,9 @@ https://github.com/the-drunk-coder/megra/blob/master/portacle-bootstrap-macos.sh
 
 The macOS version might not support MIDI right now, or at least it might have sync problems. Working on that. Not that MIDI support is really documented, anyway.
 
-If you see an error "Division by Zero" on starting Portacle, make sure all samplerates of all programs are set to 48000 (or, if you've changed that in your ~/.incudinerc, the respective samplerate). It happens if there's a samplerate mismatch. 
+### Troubleshooting
+
+If you see an error "Division by Zero" while Portacle is starting and loading the Mégra system, make sure all samplerates of all programs are set to 48000 (or, if you've changed that in your ~/.incudinerc, the respective samplerate). It happens if there's a samplerate mismatch. If you have another audio application running (i.e. Reaper), it might change the samplerate if you pull that window into focus !
 
 ## Windows
 Now, I must admit that I don't have stable access to a Windows machine, and I'm not well-versed anymore 
