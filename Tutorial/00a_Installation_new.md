@@ -13,6 +13,7 @@ I assume you have the following programs up and running:
 * JACK (jack2 preferred)
 * SuperCollider
 * sc3-plugins
+* gcc
 
 If not, now is the time to use your distro's package manager to install them. While you're at it,
 also install the following:
@@ -40,7 +41,10 @@ In the default installation, there's a few samples that'll be enough for the tut
 
 The installation process on macOS is fairly similar to the Linux process. Use *homebrew* or *MacPorts* to install the libraries as above. JACK doesn't work properly on macOS anymore, so there's no need to install it.
 
-Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your Finder.
+You need a C/C++ compiler to install certain libraries (don't worry, you don't have to interact with it in any way).
+The easiest way is to go to the App Store and install Xcode (which is a big download). Now open a Terminal and enter `xcode-select --install` to install the necessary command line tools.
+
+Now you need to get portacle. Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your Finder.
 
 Then, use the macOS bootstrap script instead of the Linux one:
 https://github.com/the-drunk-coder/megra/blob/master/portacle-bootstrap-macos.sh
