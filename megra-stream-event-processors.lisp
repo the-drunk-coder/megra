@@ -139,7 +139,7 @@
 		      (if (and (funcall (event-filter c) event)
 			       (< chance-val (combi-chance c)))		          
 			  (combine-single-events
-                           (if (typep cev 'event-processor)                                                     
+                           (if (typep cev 'event-processor)
                                (let ((ev (car (pull-events cev)))) 
                                  (pull-transition cev)
                                  ev)
