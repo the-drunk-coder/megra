@@ -143,7 +143,7 @@
                                (let ((ev (car (pull-events cev)))) 
                                  (pull-transition cev)
                                  ev)
-                               event)
+                               cev)
                            event)			                           
                           event)))        
 		events))

@@ -104,16 +104,17 @@
 ;; learn an mpfa event processor form a sample sequence ;;
 ;; ---------------------------------------------------- ;;
 (defun learn (name events sample-string &key (dur *global-default-duration*)
-					  (bound 3)
-					  (epsilon 0.001)
-					  (size 50))
+					     (bound 3)
+					     (epsilon 0.001)
+					     (size 50)
+                                             (combine-mode 'zip))
   (let* ((alphabet (reverse (alexandria::hash-table-keys events)))
 	 (new-mpfa (vom::learn-pfa alphabet bound epsilon size sample-string))
 	 (old-proc (gethash name *processor-directory*))
 	 (new-proc
 	  (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	      old-proc
-	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa)))
+	      (make-instance 'mpfa-event-processor :name name :mpfa new-mpfa :combine-mode combine-mode)))
 	 (init-sym (car alphabet)))
     (vom::pfa->st-pfa new-mpfa)
     (vom::pfa-set-current-state new-mpfa (list init-sym))    
@@ -127,15 +128,17 @@
 
 
 (defmacro slearn (name events sample-string &key (dur *global-default-duration*)
-					      (bound 3)
-					      (epsilon 0.001)
-					      (size 50))
+					         (bound 3)
+					         (epsilon 0.001)
+					         (size 50)
+                                                 (cmode ''append))
   `(funcall (lambda ()
 	      (learn ,name (p-events ,events) (sstring ,sample-string)
 		     :dur ,dur
 		     :bound ,bound
 		     :epsilon ,epsilon
-		     :size ,size))))
+		     :size ,size
+                     :combine-mode ,cmode))))
 
 ;; abstractions ... 
 (defmacro nuc2 (name event &key (dur *global-default-duration*))
