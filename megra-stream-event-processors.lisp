@@ -137,10 +137,17 @@
      do (mapcar #'(lambda (event)	    
 		    (let ((chance-val (random 100)))
 		      (if (and (funcall (event-filter c) event)
-			       (< chance-val (combi-chance c)))	 		  
-			  (combine-single-events cev event)			 
-			  event)))        
-		events)) events)
+			       (< chance-val (combi-chance c)))		          
+			  (combine-single-events
+                           (if (typep cev 'event-processor)                                                     
+                               (let ((ev (car (pull-events cev)))) 
+                                 (pull-transition cev)
+                                 ev)
+                               event)
+                           event)			                           
+                          event)))        
+		events))
+  events)
 
 ;; the constructor ... if store is set, it'll be stored in the processor directory,
 ;; if not, it'll be stored in the processor directory by the chain building
