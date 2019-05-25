@@ -54,3 +54,5 @@ SynthDef(\grain_4ch_rev, {
 	var revenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2.5, r]);
 	Out.ar(0, PanAz.ar(4, sample_out *  EnvGen.ar(revenv, doneAction:2) , pos * 0.25, orientation: 0));
 }).store;
+
+0.exit;
