@@ -19,7 +19,8 @@ to do at least a sanity check before executing them!
 
 * [Linux](#Linux) installation instructions
 * [macOS](#macOS) installation instructions
-* [Windows](#Windows) installation hints 
+* [Windows](#Windows) installation hints
+* [Samples](#Samples) tips on how to manage a sample set for Mégra 
 
 ## Linux
 Make sure you have the following programs up and running: 
@@ -57,7 +58,7 @@ Now just run Portacle by executing the `portacle.run` script in the portacle fol
 
 You'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
 
-You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that lives also inside your portacle folder.
+You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that also lives inside your portacle folder.
 
 ## macOS
 
