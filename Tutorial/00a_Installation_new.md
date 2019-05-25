@@ -23,7 +23,8 @@ to do at least a sanity check before executing them!
 * [Samples](#Samples) tips on how to manage a sample set for Mégra 
 
 ## Linux
-1. Make sure you have the following programs up and running: 
+### 1. Preparation
+Make sure you have the following programs up and running: 
 
 * JACK (jack2 preferred)
 * SuperCollider (3.8 or later)
@@ -42,9 +43,11 @@ also install the following:
 * git
 * wget
 
-2. Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend your home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
+### 2. Download Portacle
+Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend your home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
 
-3. Open a terminal. In the terminal, navigate to the portacle folder (that is, the folder you just extracted) and execute the following line. This will download the installation script:
+### 3. Get Mégra
+Open a terminal. In the terminal, navigate to the portacle folder (that is, the folder you just extracted) and execute the following line. This will download the installation script:
 
 ```wget https://raw.githubusercontent.com/the-drunk-coder/megra/master/portacle-bootstrap-linux.sh```
 
@@ -52,19 +55,23 @@ Next, you need to make the installation exectuable and run it. This will downloa
 
 ```chmod +x portacle-boostrap-linux.sh && ./portacle-boostrap-linux.sh```
 
-4. Now just run Portacle by executing the `portacle.run` script in the portacle folder:
+### 4. Start Portacle
+Now just run Portacle by executing the `portacle.run` script in the portacle folder:
 
 ```./portacle.run```
 
 You'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
 
-5. You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that also lives inside your portacle folder.
+### 5. Start Learning!
+You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that also lives inside your portacle folder.
 
 ## macOS
 
 Mégra runs on macOS from version 10.11 onwards, even though I'd recommend at least 10.12, the oldest supported version as of 2019.
 
-1. Make sure you have the following programs up and running: 
+### 1. Preparation
+#### SuperCollider
+Make sure you have the following programs up and running: 
 
 * SuperCollider (3.8 or later)
 * sc3-plugins
@@ -73,14 +80,16 @@ If not, you can find those here:
 * SuperCollider: https://supercollider.github.io/download
 * sc3-plugins: https://supercollider.github.io/sc3-plugins
 
-2. You need a C/C++ compiler to install certain libraries (don't worry, you don't have to interact with it in any way).
+#### C/C++ Compiler
+You also need a C/C++ compiler to install certain libraries (don't worry, you don't have to interact with it in any way).
 To check whether you have one already, open a terminal, type `cc` and press `Return`. If you see something along the lines of
 `clang: error: no input files found`, you should be all set.
 
 If not, enter `xcode-select --install` in the terminal to install the necessary command line tools. For more detailed
 instructions, see: https://developpaper.com/install-command-line-tools-no-xcode-in-mac-os-x/.
 
-3. Now make sure you have the following packages installed:
+#### Libraries
+Lastly, make sure you have the following packages installed:
 * libsndfile
 * fftw
 * portaudio 
@@ -97,9 +106,11 @@ With homebrew installed, just open a terminal and type:
 
 If you have some other package manager like *macPorts* installed, you might use that as well, in which case I assume you know what you're doing.
 
-4. Now you need to get portacle. Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your *Finder* or *Spotlight*. As a hint, do NOT put portacle in your global *Applications* folder, instead just move the *portacle* folder from the DMG to your home folder, or Desktop if you want. **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
+### 2. Download Portacle
+Now you need to get portacle. Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your *Finder* or *Spotlight*. As a hint, do NOT put portacle in your global *Applications* folder, instead just move the *portacle* folder from the DMG to your home folder, or Desktop if you want. **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
 
-5. Download the Mégra installation script by navigating to the portacle folder in the terminal and execute the following line: 
+### 3. Get Mégra
+Download the Mégra installation script by navigating to the portacle folder in the terminal and execute the following line: 
 
 ```wget https://raw.githubusercontent.com/the-drunk-coder/megra/master/portacle-bootstrap-macos.sh```
 
@@ -107,9 +118,11 @@ Next, you need to make the installation executable and run it. This will downloa
 
 ```chmod +x portacle-boostrap-macos.sh && ./portacle-boostrap-macos.sh```
 
-6. The next time you start Portacle, you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
+### 4. Start Portacle
+The next time you start Portacle, you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
 
-7. You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that also lives inside your portacle folder.
+### 5. Start Learning!
+You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that also lives inside your portacle folder.
 
 ### Troubleshooting
 
