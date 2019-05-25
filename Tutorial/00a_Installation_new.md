@@ -7,9 +7,19 @@ It focuses on using Mégra with **Portacle** (https://portacle.github.io), a sel
 Editor that already comes with all kinds of helpers. This is especially helpful for people who don't have
 a lot of experience with the Common Lisp environment.
 
-* [Linux](#Linux)
-* [macOS](#macOS)
-* [Windows](#Windows) 
+This guide assumes that you've some basic experience with handling a terminal. If you don't, here's some hints
+on how to familiarize yourself with it:
+* http://linuxcommand.org/lc3_learning_the_shell.php (general)
+* https://macpaw.com/how-to/use-terminal-on-mac (macOS specific)
+
+**WARNING**: This guide prompts you to download all kinds of scripts from the internet. It's recommendable
+to do at least a sanity check before executing them!
+
+Table of Contents:
+
+* [Linux](#Linux) installation instructions
+* [macOS](#macOS) installation instructions
+* [Windows](#Windows) installation hints 
 
 ## Linux
 Make sure you have the following programs up and running: 
@@ -31,19 +41,23 @@ also install the following:
 * git
 * wget
 
-Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend you home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
+Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend your home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
 
-Navigate to the portacle folder (that is, the folder you just extracted) and execute:
+Open a terminal. In the terminal, navigate to the portacle folder (that is, the folder you just extracted) and execute the following line. This will download the installation script:
 
 ```wget https://raw.githubusercontent.com/the-drunk-coder/megra/master/portacle-bootstrap-linux.sh```
 
-Run the bootstrap script:
+Now make the installation exectuable and run it. This will download and install all the necessary Lisp code and Lisp dependencies for Mégra.
 
 ```chmod +x portacle-boostrap-linux.sh && ./portacle-boostrap-linux.sh```
 
-Now just run Portacle with the `portacle.run` script, and you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your Portacle folder now.
+Now just run Portacle by executing the `portacle.run` script in the portacle folder:
 
-In the default installation, there's a few samples that'll be enough for the tutorial. Copy or link your samples into the `megra-samples` folder you'll find in the Portacle root folder. The structure is similar to *TidalCycles*, samples are organized in folders. 
+```./portacle.run```
+
+You'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
+
+You're ready to follow the tutorial now. You can find the tutorial in the `megra-tutorial` folder that lives also inside your portacle folder.
 
 ## macOS
 
@@ -59,10 +73,10 @@ If not, you can find those here:
 * sc3-plugins: https://supercollider.github.io/sc3-plugins
 
 You need a C/C++ compiler to install certain libraries (don't worry, you don't have to interact with it in any way).
-To check whether you do, open a terminal, type `cc` and press `Return`. If you see something along the lines of
+To check whether you have one already, open a terminal, type `cc` and press `Return`. If you see something along the lines of
 `clang: error: no input files found`, you should be all set.
 
-If not, open a terminal and enter `xcode-select --install` to install the necessary command line tools. For a more detailed
+If not, enter `xcode-select --install` in the terminal to install the necessary command line tools. For more detailed
 instructions, see: https://developpaper.com/install-command-line-tools-no-xcode-in-mac-os-x/.
 
 Now make sure you have the following packages installed:
@@ -84,17 +98,17 @@ If you have some other package manager like *macPorts* installed, you might use 
 
 Now you need to get portacle. Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your *Finder*. As a hint, do NOT put portacle in your global *Applications* folder, instead just move the *portacle* folder from the DMG to your home folder, or Desktop if you want. **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
 
-Then, get the bootstrap script by navigating to the portacle folder in the terminal and execute the following: 
+Then, download the installation script by navigating to the portacle folder in the terminal and execute the following line: 
 
 ```wget https://raw.githubusercontent.com/the-drunk-coder/megra/master/portacle-bootstrap-macos.sh```
 
-After that, type the following to run the bootstrap script:
+Now make the installation exectuable and run it. This will download and install all the necessary Lisp code and Lisp dependencies for Mégra.
 
 ```chmod +x portacle-boostrap-macos.sh && ./portacle-boostrap-macos.sh```
 
-This pulls all the necessary projects to the necessary places. Now, if you start portacle, you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
+Now, if you start portacle, you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
 
-The macOS version might not support MIDI right now, or at least it might have sync problems. Working on that. Not that MIDI support is really documented, anyway.
+You're ready to follow the tutorial. You can find the tutorial in the `megra-tutorial` folder that lives inside your portacle folder now.
 
 ### Troubleshooting
 
@@ -107,3 +121,10 @@ SBCL thread support is needed by the underlying Incudine system, which is notori
 Another problem is that you need to compile the several dependencies (like portaudio and portmidi)
 by hand, so you'd need to be well-versed in Windows development. If you anybody is willing to try, please let
 me know.
+
+# Samples
+In the default installation, there's a very basic set of samples that'll be enough for the tutorial. They can be found in the `megra-samples` folder that is inside portacle folder. The structure is similar to *TidalCycles*, samples are organized in folders. The samples are in **FLAC** format and **mono**.
+
+When you start Mégra, it'll check for sub-folders in the `megra-samples` folder and create an event for each of those.
+
+If you want to add samples, create a subfolder in `megra-samples` and put your samples there.
