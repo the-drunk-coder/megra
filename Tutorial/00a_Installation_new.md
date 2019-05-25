@@ -15,7 +15,7 @@ on how to familiarize yourself with it:
 **WARNING**: This guide prompts you to download all kinds of scripts from the internet. It's recommendable
 to do at least a sanity check before executing them!
 
-Table of Contents:
+## Table of Contents:
 
 * [Linux](#Linux) installation instructions
 * [macOS](#macOS) installation instructions
