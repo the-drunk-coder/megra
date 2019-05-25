@@ -8,10 +8,10 @@ Editor that already comes with all kinds of helpers. This is especially helpful 
 a lot of experience with the Common Lisp environment.
 
 ## Linux
-I assume you have the following programs up and running: 
+Make sure you have the following programs up and running: 
 
 * JACK (jack2 preferred)
-* SuperCollider
+* SuperCollider (3.8 or later)
 * sc3-plugins
 * gcc
 
@@ -25,13 +25,17 @@ also install the following:
 * gsl
 * graphviz
 * git
+* wget
 
-Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice.
+Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend you home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
 
-Download this file and put it into your portacle root folder (that is, the folder you just extracted):
-https://github.com/the-drunk-coder/megra/blob/master/portacle-bootstrap-linux.sh
+Navigate to the portacle folder (that is, the folder you just extracted) and execute:
 
-Run the bootstrap script, and you're about to be ready. In the Portacle root folder you should find the `megra` folder. In there, there's a file called `megra-supercollider-synths.scd`. Store the Synthdefs to you local system (using scide, for example). 
+```wget https://raw.githubusercontent.com/the-drunk-coder/megra/master/portacle-bootstrap-linux.sh```
+
+Run the bootstrap script:
+
+```chmod +x portacle-boostrap-linux.sh && ./portacle-boostrap-linux.sh```
 
 Now just run Portacle with the `portacle.run` script, and you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your Portacle folder now.
 
@@ -39,15 +43,52 @@ In the default installation, there's a few samples that'll be enough for the tut
 
 ## macOS
 
-The installation process on macOS is fairly similar to the Linux process. Use *homebrew* or *MacPorts* to install the libraries as above. JACK doesn't work properly on macOS anymore, so there's no need to install it.
+Mégra runs on macOS from version 10.11 onwards, even though I'd recommend at least 10.12, the oldest supported version as of 2019.
+
+Make sure you have the following programs up and running: 
+
+* SuperCollider (3.8 or later)
+* sc3-plugins
+
+If not, you can find those here:
+* SuperCollider: https://supercollider.github.io/download
+* sc3-plugins: https://supercollider.github.io/sc3-plugins
 
 You need a C/C++ compiler to install certain libraries (don't worry, you don't have to interact with it in any way).
-The easiest way is to go to the App Store and install Xcode (which is a big download). Now open a Terminal and enter `xcode-select --install` to install the necessary command line tools.
+To check whether you do, open a terminal, type `cc` and press `Return`. If you see something along the lines of
+`clang: error: no input files found`, you should be all set.
 
-Now you need to get portacle. Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your Finder.
+If not, open a terminal and enter `xcode-select --install` to install the necessary command line tools. For a more detailed
+instructions, see: https://developpaper.com/install-command-line-tools-no-xcode-in-mac-os-x/.
 
-Then, use the macOS bootstrap script instead of the Linux one:
-https://github.com/the-drunk-coder/megra/blob/master/portacle-bootstrap-macos.sh
+Now make sure you have the following packages installed:
+* libsndfile
+* fftw
+* portaudio 
+* portmidi
+* gsl
+* graphviz
+* git
+* wget
+
+I recommend **Homebrew** to install them. If you do not have homebrew, here's instructions on how to get it: https://brew.sh .
+With homebrew installed, just open a terminal and type:
+
+```brew install libsndfile fftw portaudio portmidi gsl graphviz git wget```
+
+If you have some other package manager like *macPorts* installed, you might use that as well, in which case I assume you know what you're doing.
+
+Now you need to get portacle. Here's a guide how to get Portacle running despite Apple's security theatre: https://portacle.github.io/#get-mac . It works! After you've been through the process, you can start Portacle like any other application from your *Finder*. As a hint, do NOT put portacle in your global *Applications* folder, instead just move the *portacle* folder from the DMG to your home folder, or Desktop if you want. **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
+
+Then, get the bootstrap script by navigating to the portacle folder in the terminal and execute the following: 
+
+```wget https://raw.githubusercontent.com/the-drunk-coder/megra/master/portacle-bootstrap-macos.sh```
+
+After that, type the following to run the bootstrap script:
+
+```chmod +x portacle-boostrap-macos.sh && ./portacle-boostrap-macos.sh```
+
+This pulls all the necessary projects to the necessary places. Now, if you start portacle, you'll end up directly in a Mégra file where you can start hacking around. Per default, the files are stored in the `megra-sketchbook` folder that lives in your portacle folder now.
 
 The macOS version might not support MIDI right now, or at least it might have sync problems. Working on that. Not that MIDI support is really documented, anyway.
 
