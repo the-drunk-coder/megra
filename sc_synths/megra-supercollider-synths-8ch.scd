@@ -351,3 +351,5 @@ SynthDef(\rhodey_sc_8ch_rev, {
 
     Out.ar(0,  PanAz.ar(8, mixsnd * EnvGen.ar(outenv, doneAction:2), pos, lvl));
 }).store;
+
+0.exit;

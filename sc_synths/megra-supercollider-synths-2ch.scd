@@ -541,3 +541,5 @@ SynthDef(\rhodey_sc_2ch_rev, {
 
     Out.ar(0,  Pan2.ar(mixsnd * EnvGen.ar(outenv, doneAction:2), pos, lvl));
 }).store;
+
+0.exit;

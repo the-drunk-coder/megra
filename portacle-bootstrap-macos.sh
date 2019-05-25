@@ -16,6 +16,12 @@ git clone https://github.com/edicl/cl-fad
 git clone https://gitlab.com/ellipsenpark/vom.git
 cd ..
 
+cd megra/sc_synths
+sclang megra-supercollider-synths-2ch.scd
+sclang megra-supercollider-synths-4ch.scd
+sclang megra-supercollider-synths-8ch.scd
+cd ../..
+
 # copy tutorial samples
 cp -R megra/Tutorial/tutorial_samples ./megra-samples
 
