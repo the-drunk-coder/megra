@@ -7,6 +7,10 @@ It focuses on using Mégra with **Portacle** (https://portacle.github.io), a sel
 Editor that already comes with all kinds of helpers. This is especially helpful for people who don't have
 a lot of experience with the Common Lisp environment.
 
+* [Linux](#Linux)
+* [macOS](#macOS)
+* [Windows](#Windows) 
+
 ## Linux
 Make sure you have the following programs up and running: 
 
