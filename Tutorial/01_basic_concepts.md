@@ -2,13 +2,13 @@
 
 Welcome to the Mégra tutorial ! Assuming you've got everything up and running, we can start to make some sound !
 
-In this first part, we'll cover the very xbasic concepts of Mégra. 
+In this first part, we'll cover the very basic concepts of Mégra. 
 
 ## 1.1 Soundcheck!
 Make sure your headphones are not too lound. 
 
 Now, type the following lines of code into Portacle (or copy/paste them), move the curser to somewhere in between the outer
-parenthesis and hit `C-<return>`:
+parenthesis and hit `Ctrl-<return>` to run them:
 
 ```lisp
 (s 'first ()
@@ -16,7 +16,7 @@ parenthesis and hit `C-<return>`:
 		(node 1 (sine 'a4 :lvl 0.5 :dur 500))
 		(edge 1 1 :dur 1000 :prob 100)))
 ```
-If nothing went wrong, you should hear a steady beeping now. This means we're ready to start. So, to stop the beeping before it gets too annoying, type:
+If nothing went wrong, you should hear a steady beeping now. This means we're ready to start. So, to stop the beeping before it gets too annoying, type and run:
 
 ```lisp
 (stop) ;; Silence ! 
@@ -27,7 +27,7 @@ If nothing went wrong, you should hear a steady beeping now. This means we're re
 ### Basic Characteristics or Mégra
 
 1. Mégra is mostly suited to create musical structures (as opposed to create synths).
-2. Mégra is mostly suited to write *sequence generators*
+2. Mégra is mostly suited to write *sequence generators*.
 3. It has some synthesis aspects, but that's currently not its strongest side.
 4. Mégra uses *Variable-Order Markov Chains* as its basic data structure. We'll explain that later on.
 5. Mégra also uses *Probabilistic Finite Automata*, which is a specific representation of *Variable Order Markov Chains*.
@@ -37,30 +37,32 @@ If nothing went wrong, you should hear a steady beeping now. This means we're re
 If you're not familiar with basic Lisp syntax, I'd recommend by just tagging along and learn by experience. You don't need to know
 Lisp to play with Mégra. Here's just a few basic hints:
 
-1. Function calls look like this: `(my-function <params>)`
-2. Everything is enclosed by parenthesis. If a parenthesis isn't closed, you'll get an error
+1. Function calls look like this: `(my-function <params>)`.
+2. Everything is enclosed by parenthesis. If a parenthesis isn't closed, you'll get an error.
 3. Named parameters start with a colon: `(my-function <unnamed param> :name <named param>)`
-4. Symbols, that are used here to identify things, are *quoted* with a single quote: `(my-function 'some-name :par <some param>)`
-5. Lists are also quoted: `(my-function 'some-name-param :list-param '(1 2 3 4))`
+4. Symbols, that are used here to identify things, are *quoted* with a single quote: `(my-function 'some-name :par <some param>)`.
+5. Lists are also quoted: `(my-function 'some-name-param :list-param '(1 2 3 4))`.
 
 ## 1.2 Markov Chains
 If you're into generative music, you probably know already what a *Markov Chain* is, as it is a fairly common structure in that domain. 
-If not, here's a simple explanation. Even if you know them already, i'd recommend reading the following part to get to know the specific 
+If not, here's a simple explanation. Even if you know them already, I'd recommend reading the following part to get to know the specific 
 "flavour" of Markov Chains employed by Mégra.
 
 Imagine you want to create a simple *boom-bap* style beat, with just a bassdrum, a snare and some hi-hats. 
 Only half the time the hi-hat should be in between the bassdrum and the snare. 
 
-In slightly more mathematical terms, we could describe that the following with some rules. The natural language description
+In slightly more precise terms, we could describe the beat with the following rules. The natural language description
 is a bit tedious, but bear with me here. More concise descriptions will follow! 
 
-1. Start with a bassdrum
-2. There's a 50% chance that a snare will follow the bassdrum
-3. There's a 50% chance that a hi-hat will follow the bassdrum
-4. After every snare will follow a bassdrum
-5. After every hi-hat will follow a snare
+1. Start with a bassdrum.
+2. There's a 50% chance that a snare will follow the bassdrum, after 400 milliseconds.
+3. There's a 50% chance that a hi-hat will follow the bassdrum, after 200 milliseconds.
+4. After every snare will follow a bassdrum, after 400 milliseconds.
+5. After every hi-hat will follow a snare, after 200 milliseconds.
 
 This could be easily represented graphically:
+
+![A beat](./megra_beat.svg) 
 
 This representation is called a *directed graph* (as each arrow has a direction), that has a couple of *nodes* and *edges* that 
 connect the nodes. 
