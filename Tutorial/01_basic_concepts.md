@@ -62,7 +62,7 @@ is a bit tedious, but bear with me here. More concise descriptions will follow!
 
 This could be easily represented graphically:
 
-![A beat](./megra_beat.svg) 
+![A beat](./megra_beat.svg | width=400 ) 
 
 This representation is called a *directed graph* (as each arrow has a direction), that has a couple of *nodes* and *edges* that 
 connect the nodes. 
