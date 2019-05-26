@@ -52,7 +52,46 @@ some shorter methods here !
 We can save lots of lines of code by generate the generators from a more abstract description, or we can start out from
 a very simple, repeated event and "grow" a generator by repeatedly adding new nodes.
 
-Let's look at the second method first ! 
+Let's look at the second method first !
+
+### 2.2.1 Growing Generators
+
+Let's look at a simple generator with one repeating node:
+
+```lisp
+(s 'acid ()
+  (g 'bass ()
+    (n 1 (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 530))
+    (e 1 1 :d 120 :p 100)))
+```
+Can we make this a little shorter ? Yes, we can ! The one above is the same as this one:
+
+```lisp
+(s 'acid ()
+  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :dur 120)) ;;<- the NUCleus ! 
+```
+
+The `(nuc ...)` function is short for *Nucleus*, if you were wondering.
+
+Now behold (or, better execute the following several times):
+
+```lisp
+(grow 'bass :var 0.8) ;; <- play with the variance a bit, but stay below 1.0
+```
+
+Check what you have just cultivated:
+
+You can also generate an SVG (if you don't provide a folder, it'll be in the
+same folder as the current file):
+
+
+```lisp
+(graph->svg 'bass "bass-diagram" :renderer 'neato) ;; <- all graphviz renderers avai
+```
+
+```lisp
+(pring 'bass t) ;; pring is short for 'print graph' 
+```
 
 ## 2.3 Learning Generators
 
