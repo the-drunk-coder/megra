@@ -137,7 +137,7 @@ by hand, so you'd need to be well-versed in Windows development. If you anybody 
 me know.
 
 # Samples
-The default installation contains a very basic set of samples that'll be enough to follow the tutorial. They're fetched from the **Mégra Public Sampes** repository (https://github.com/the-drunk-coder/megra-public-samples) and after the installation they can be found in the `megra-samples` folder inside the Portacle folder. 
+The default installation contains a very basic set of samples that'll be enough to follow the tutorial. They're fetched from the **Mégra Public Samples** repository (https://github.com/the-drunk-coder/megra-public-samples) and after the installation they can be found in the `megra-samples` folder inside the Portacle folder. 
 
 The samples are in **FLAC** format and **mono** (important if you want to add samples later on).
 
