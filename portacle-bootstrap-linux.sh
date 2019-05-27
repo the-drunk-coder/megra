@@ -23,7 +23,7 @@ sclang megra-supercollider-synths-8ch.scd
 cd ../..
 
 # copy tutorial samples
-cp -R megra/Tutorial/tutorial_samples ./megra-samples
+git clone https://github.com/the-drunk-coder/megra-public-samples megra-samples
 
 # copy incudinerc
 cp megra/incudinerc_samples/incudinerc_linux ~/.incudinerc
