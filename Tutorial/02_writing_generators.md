@@ -50,7 +50,8 @@ some shorter methods here !
 ## 2.2 Generating Generators
 
 We can save lots of lines of code by generate the generators from a more abstract description, or we can start out from
-a very simple, repeated event and "grow" a generator by repeatedly adding new nodes.
+a very simple, repeated event and "grow" a generator by repeatedly adding new nodes. Internally, they just generate the long-form
+code that we've seen above. The results can even be exported to code.
 
 Let's look at the second method first !
 
@@ -68,30 +69,99 @@ Can we make this a little shorter ? Yes, we can ! The one above is the same as t
 
 ```lisp
 (s 'acid ()
-  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :dur 120)) ;;<- the NUCleus ! 
+  (nuc 'bass (saw 90 :dur 110 :atk 3 :rel 100 :lp-freq 330) :dur 120)) 
 ```
 
 The `(nuc ...)` function is short for *Nucleus*, if you were wondering.
 
-Now behold (or, better execute the following several times):
+Now behold (or, better, execute the following several times):
 
 ```lisp
-(grow 'bass :var 0.8) ;; <- play with the variance a bit, but stay below 1.0
+(grow 'bass :var 0.8 :method 'loop) ;; <- play with the variance a bit, but stay below 1.0
 ```
 
 Check what you have just cultivated:
-
-You can also generate an SVG (if you don't provide a folder, it'll be in the
-same folder as the current file):
-
 
 ```lisp
 (graph->svg 'bass "bass-diagram" :renderer 'neato) ;; <- all graphviz renderers avai
 ```
 
+This will generate an SVG (if you don't provide an absolute path, it'll be in the
+Portacle root folder).
+
+You can also turn the result back into code by running the following code that'll
+print the code to the command prompt:
+
 ```lisp
 (pring 'bass t) ;; pring is short for 'print graph' 
 ```
+### 2.2.2 Creating Generators from an Abstract Description
+
+Mégra contains a sub-language to describe loops (that are called *Cycles* here).
+
+That way, a simple, more-or-less cyclic event generator can be created with just 
+two lines of code:
+
+```lisp
+(s 'a-basic ()
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~" :dur 100)) ;; roughly 150 bpm ... ~ is silence
+```
+
+This loop contains eight events, of which 6 are just a silent placeholder. It could be written like this:
+
+```lisp
+(s 'a-basic ()
+  (cyc 'beat "bd sn" :dur 400)) ;; note the longer duration!
+```
+
+I prefer the first method because it allows for easier modification ... like, how about we add some hi-hats ?
+
+```lisp
+(s 'a-basic ()
+  (cyc 'beat "[hats bd] ~ hats ~ [sn hats] ~ hats ~" :dur 100)) 
+```
+
+If this reminds you a bit of TidalCycles, you're right, but note that the square bracket syntax is different. It just means "play at the same time". Anyway, the thing above would be harder to do if we just had the two events, because there'd be no space for our hi-hats and we'd need to re-write the whole thing.
+
+As you can see above, the events are evenly spaced over the course of the cycle, where the duration between each event is the same.
+
+If you want more time control, you can define explicit transition times. A number in the cycle description is interpreted as an explicit transition time! The beat below contains two double strokes, one on the hi-hat, one on the snare:
+
+```lisp
+(s 'a-basic ()
+  (cyc 'beat "[hats bd] ~ hats 50 hats 50 ~ [sn hats] 50 sn 50 ~ hats ~" :dur 100)) 
+```
+
+If that's all a bit too cyclical for you, how about we allow for the repetition of events ? 
+
+```lisp
+(s 'a-basic ()
+  (cyc 'beat "[hats bd] ~ hats 50 hats 50 ~ [sn hats] 50 sn 50 ~ hats ~" :dur 100 :rep 80 :max-rep 4)) 
+```
+
+The `:rep 80` parameter says "for every node, there's a chance of 80 percent that it'll be repeated. The `:max-rep 4` parameter specifies that the maximum number of repetitions will be 4. Internally, it'll add rules like:
+
+```lisp
+(e 1 1 :p 80 :d 100) ;; <- the 'rep' parameter will generate this
+(e '(1 1 1 1) 2 :p 100 :d 100) ;; <- the 'max-rep' parameter will generate this 
+```
+
+If that's still not enough variation for you, you can also add a chance that random connections between nodes will be created:
+
+```lisp
+(s 'a-basic ()
+  (cyc 'beat "[hats bd] ~ hats 50 hats 50 ~ [sn hats] 50 sn 50 ~ hats ~" :dur 100 :rep 80 :max-rep 4 :rnd 70)) 
+```
+
+Now there's a 70% chance that random connections between nodes will be created, specified by the `:rnd 70` parameter!
+
+And finally, you can grow the beat if you wish:
+
+```lisp
+(grow 'beat :var 0.8 :method 'triloop)
+```
+
+Everything beyong that would probably be just randomness ...
 
 ## 2.3 Learning Generators
 
