@@ -94,7 +94,7 @@ that the sum of outgoing probabilities for each node is 100% ! If not, it'll sti
 results. 
 
 If you look at the structure above, each event is only dependent on the immediately preceding event. In technical terms,
-that's what we call a *first-order* Markov chain. They can give you neat results but generally aren't all that interesting.
+that's what we call a *first-order* Markov chain. They sometimes can give you neat results but generally aren't all that interesting.
 That might be due to the fact that in human cognition, the expectation of the next event isn't just determined by the immediately 
 preceding one, but by two, three or even more preceding events. 
 
@@ -165,6 +165,9 @@ Now you'll find an SVG file named `bap_visualized.svg` in your Portacle root fol
 In this Chapter we've learned some of the very basic ideas of Mégra. In the first iterations of the language, this was the only way to write sequence generators. If you 
 think that's pretty tedious, you're right ! But, as we'll see in the next chapter, there are ways to make the process of writing sequence generators more fun!
 
+## 1.6 Further Reading
+* If you're interested in human cognition and expectation as applied to music, I really recommend the book *Sweet Anticipation* by David Huron (https://mitpress.mit.edu/books/sweet-anticipation)
+* If you want to get into the theory of *Variable Order Markov Chains*, I recommend the following paper: https://link.springer.com/content/pdf/10.1007%2FBF00114008.pdf
 
 
 
