@@ -7,7 +7,7 @@ In this first part, we'll cover the very basic concepts of Mégra.
 ## 1.1 Soundcheck!
 Make sure your headphones are not too lound. 
 
-Now, type the following lines of code into Portacle (or copy/paste them), move the curser to somewhere in between the outer
+Now, type the following lines of code into Portacle (or copy/paste them), move the cursor to somewhere in between the outer
 parenthesis and hit `Ctrl-<return>` to run them:
 
 ```lisp
