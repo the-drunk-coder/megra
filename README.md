@@ -7,14 +7,27 @@ and some other stochastic shenanigans.
 There are currently two ways to install. One uses **Portacle** as the underlying editor 
 and is comparatively easy. You can find the instructions here:
 
-https://github.com/the-drunk-coder/megra/blob/master/Tutorial/00a_Installation_new.md
+https://github.com/the-drunk-coder/megra/blob/master/Tutorial/00_Installation.md
 
 If you're familar with Common Lisp and Emacs, and want to integrate Mégra into your current
 Emacs installation, please find some hints here:
 
-https://github.com/the-drunk-coder/megra/blob/master/Tutorial/00b_Installation_old.md
+https://github.com/the-drunk-coder/megra/blob/master/Tutorial/old/00b_Installation_old.md
 
-Please check the tutorial (in the folder of the same name) for notes on usage !
+## Learning
+
+Currently, there are two Tutorials. 
+
+The *new*, main tutorial is in the making. It provides more in-depth explanations
+about the inner workings of Mégra. Please find it in:
+
+https://github.com/the-drunk-coder/megra/blob/master/Tutorial/
+
+The historical, *old* tutorial was written as the language
+evolved. It covers a good lot of the language, but the order in which things are explained might not be 
+all that reasonable. You can find it in:
+
+https://github.com/the-drunk-coder/megra/blob/master/Tutorial/old
 
 ## Technicalities
 
@@ -23,13 +36,3 @@ Tito Latini's amazing **Incudine** library and **Common Music 2.x**, which
 is old but working, and currently (inofficially and as needed) maintained
 by Orm Finnendahl.
 
-## Basic Concepts
-(to be expanded ...)
-
-* Variable-Order Markov Chains
-* Event Streaming and Manipulation
-* Musical Event Arithmetics
-
-See the slides here that cover the very basic model (need an update ...)
-
-https://github.com/the-drunk-coder/megra/blob/master/Tutorial/ICLC2019_workshop_slides.pdf
