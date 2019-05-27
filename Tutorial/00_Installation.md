@@ -67,7 +67,7 @@ You're ready to follow the tutorial now. You can find the tutorial in the `megra
 
 ## macOS
 
-Mégra runs on macOS from version 10.11 onwards, even though I'd recommend at least 10.12, the oldest supported version as of 2019.
+Mégra runs on macOS from version 10.12 onwards.
 
 ### 1. Preparation
 #### SuperCollider
