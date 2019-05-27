@@ -1,3 +1,0 @@
-'boom.flac' (808 Bassdrum), 'jazzy_bd.flac' and 'jazzy_snm.flac' - Hydrogen Project
-'tschack.flac' - Tidal/Alex McLean
-'git' - guitar sample recorded by myself
