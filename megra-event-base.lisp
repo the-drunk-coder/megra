@@ -95,7 +95,7 @@
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
 	((eq mode 'zip) (alexandria:flatten
-                         (mapc
+                         (mapcan
 			  #'(lambda (ev-b ev-a)
                              
 			      (cond
