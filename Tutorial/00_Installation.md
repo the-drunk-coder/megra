@@ -67,7 +67,7 @@ You're ready to follow the tutorial now. You can find the tutorial in the `megra
 
 ## macOS
 
-Mégra runs on macOS from version 10.11 onwards, even though I'd recommend at least 10.12, the oldest supported version as of 2019.
+Mégra runs on macOS from version 10.12 onwards.
 
 ### 1. Preparation
 #### SuperCollider
@@ -137,8 +137,10 @@ by hand, so you'd need to be well-versed in Windows development. If you anybody 
 me know.
 
 # Samples
-In the default installation, there's a very basic set of samples that'll be enough for the tutorial. They can be found in the `megra-samples` folder that is inside portacle folder. The structure is similar to *TidalCycles*; samples are organized in folders. The samples are in **FLAC** format and **mono**.
+The default installation contains a very basic set of samples that'll be enough to follow the tutorial. They're fetched from the **Mégra Public Samples** repository (https://github.com/the-drunk-coder/megra-public-samples) and after the installation they can be found in the `megra-samples` folder inside the Portacle folder. 
 
-When you start Mégra, it'll check for subfolders in the `megra-samples` folder and create an event for each of those.
+The samples are in **FLAC** format and **mono** (important if you want to add samples later on).
 
-If you want to add samples, create a subfolder in `megra-samples` and put your samples there.
+When you start Mégra, it'll check for subfolders in the `megra-samples` folder and create an event for each of those. You'll learn in the tutorial what that means. For now just make sure there's no empty folder, and the samples are in the correct format.
+
+Finally, if you browse through the samples folder, you'll notice that the samples have relatively meaningful names (as opposed to, say, the *Dirt-samples* provided by TidalCycles). We'll see in the Tutorial why this is the case.
