@@ -1,8 +1,10 @@
+(in-package :megra)
 
 ;; the atomic units of music - events and transitions ...
 (defclass event ()
   ((source :accessor event-source)
    (tags :accessor event-tags :initarg :tags)
+   (abstract :accessor event-abstract :initarg :abstract)
    (backends :accessor event-backends
 	     :initarg :backends
 	     :initform `(,*default-dsp-backend*))
@@ -16,7 +18,7 @@
 
 ;; the default value combination function
 (defun replace-value (b a) a)
-(in-package :megra)
+
 ;; see what we can still do with this ... 
 (defmethod handle-event ((e event) timestamp &key))
 
@@ -46,7 +48,6 @@
 			    (slot-value b (slot-definition-name slot)))
 			   (eval-slot-value
 			    (slot-value a (slot-definition-name slot)))
-
 			   ))))) b)
 
 (defmethod copy-slots-to-class ((a event) (b event) &key)
@@ -86,26 +87,28 @@
 	((typep b 'growth-event) b)
 	((typep b 'shrink-event) b)
 	((events-compatible a b) (overwrite-slots a b))
-	(t b)
-	;; merge events into a new incomplete event
-	;;(t (let ((new-event (make-instance 'incomplete-event)))
-	  ;;   (copy-slots-to-class a new-event)
-	    ;; (copy-slots-to-class b new-event)
-	    ;; (overwrite-slots b new-event)
-	    ;; (overwrite-slots a new-event)))
-	))
+	(t b)))
 
 ;; combining events ... a has precedence
+;; a - current proc events 
+;; b - incoming events
 (defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
   (cond ((eq mode 'append) (append events-a events-b))
-	((eq mode 'zip) (mapc
-			 #'(lambda (ev-b ev-a)
-			     (if (funcall filter ev-b)
-				 (combine-single-events ev-a ev-b)
-				 ev-b))
-			 ;; got to be in this order as mapc returns first list 
-			 events-b
-			 events-a))))
+	((eq mode 'zip) (alexandria:flatten
+                         (mapc
+			  #'(lambda (ev-b ev-a)
+                             
+			      (cond
+                                ;; if event a is not abstract, append
+                                ((not (event-abstract ev-a))
+                                 (list ev-a ev-b)
+                                 )
+                                ((funcall filter ev-b)
+				 (combine-single-events ev-a ev-b))
+			        (t ev-b)))
+			  ;; got to be in this order as mapc returns first list 
+			  events-b
+			  events-a)))))
 
 ;; helper methods to turn events back into their textual representation ...
 (defun print-tags (tags)
@@ -145,10 +148,10 @@
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
-(in-package :megra)
 (defmacro define-event (&key
 			  short-name
 			  long-name
+                          (abstract-event t)
 			  (parent-events nil)
 			  (parameters nil)
 			  (direct-parameters nil)
@@ -222,12 +225,14 @@
 					     parent-keyword-parameter-defaults)
 				   (backends '(,*default-dsp-backend*))
 				   (tags '(,short-name))
+                                   (abstract ,abstract-event)
 				   (cfun #'replace-value))
 	 (make-instance ',class-name
 			;; add the very basic keyword parameters 'by hand'
 			,(intern "BACKENDS" "KEYWORD") backends
 			,(intern "TAGS" "KEYWORD") tags
 			,(intern "CFUN" "KEYWORD") cfun
+                        ,(intern "ABSTRACT" "KEYWORD") abstract
 			,@keyword-pairs
 			,@parent-keyword-pairs
 			))

@@ -67,6 +67,7 @@
 (define-event
   :long-name midi-event
   :short-name mid
+  :abstract-event nil
   :parent-events (tuned-instrument-event)  
   :parameters ((channel event-channel 0))
   :direct-parameters (pitch)
@@ -328,6 +329,7 @@
 (define-event
   :long-name grain-event
   :short-name grain
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  pan-event
@@ -351,6 +353,7 @@
 (define-event
   :long-name grain-event-ambi
   :short-name grain-ambi
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  ambi-event
@@ -375,6 +378,7 @@
 (define-event
   :long-name grain-event-4ch
   :short-name grain-4ch
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  pan-event
@@ -397,6 +401,7 @@
 (define-event
   :long-name grain-event-8ch
   :short-name grain-8ch
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  pan-event
@@ -418,6 +423,7 @@
 (define-event
   :long-name grain-event-nores
   :short-name nores
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  pan-event
@@ -437,9 +443,11 @@
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-nores evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores evt timestamp))))
+
 (define-event
   :long-name grain-event-nores-ambi
   :short-name nores-ambi
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  ambi-event
@@ -461,6 +469,7 @@
 (define-event
   :long-name grain-event-24db
   :short-name grain-24db
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  pan-event
@@ -484,6 +493,7 @@
 (define-event
   :long-name grain-event-24db-ambi
   :short-name grain-24db-ambi
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  ambi-event
@@ -558,6 +568,7 @@
 (define-event
   :long-name buzz-event
   :short-name buzz
+  :abstract-event nil
   :parent-events (level-event
 		  harm-event
 		  duration-event
@@ -576,6 +587,7 @@
 (define-event
   :long-name buzz-event-8ch
   :short-name buzz-8ch
+  :abstract-event nil
   :parent-events (level-event
 		  harm-event
 		  duration-event
@@ -594,6 +606,7 @@
 (define-event
   :long-name square-adsr-event
   :short-name sqr-adsr
+  :abstract-event nil
   :parent-events (level-event
 		  pulsewidth-event		  
 		  pan-event
@@ -646,6 +659,7 @@
 (define-event
   :long-name saw-event-8ch
   :short-name saw-8ch
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -664,6 +678,7 @@
 (define-event
   :long-name square-event
   :short-name sqr
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -682,6 +697,7 @@
 (define-event
   :long-name square-event-8ch
   :short-name sqr-8ch
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -700,6 +716,7 @@
 (define-event
   :long-name sine-event
   :short-name sine
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -717,6 +734,7 @@
 (define-event
   :long-name sine-event-8ch
   :short-name sine-8ch
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -733,6 +751,7 @@
 (define-event
   :long-name triangle-event
   :short-name tri
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -751,6 +770,7 @@
 (define-event
   :long-name triangle-event-8ch
   :short-name tri-8ch
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -768,6 +788,7 @@
 (define-event
   :long-name cub-event
   :short-name cub
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -786,6 +807,7 @@
 (define-event
   :long-name cub-event-8ch
   :short-name cub-8ch
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -820,6 +842,7 @@
 (define-event
   :long-name par-event-8ch
   :short-name par-8ch
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -836,6 +859,7 @@
 (define-event
   :long-name meow-event
   :short-name meow
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  pitch-event
@@ -853,6 +877,7 @@
 (define-event
   :long-name risset-event
   :short-name risset
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  pitch-event
@@ -887,6 +912,7 @@
 (define-event
   :long-name pluck-event
   :short-name pluck
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  duration-event
@@ -901,6 +927,7 @@
 (define-event
   :long-name pluck-event-8ch
   :short-name pluck-8ch
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  duration-event
@@ -916,6 +943,7 @@
 (define-event
   :long-name dx-rhodes-event
   :short-name dx-rhodes
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  pitch-event
@@ -932,6 +960,7 @@
 (define-event
   :long-name dx-rhodes-event-8ch
   :short-name dx-rhodes-8ch
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  pitch-event
@@ -959,6 +988,7 @@
 (define-event
   :long-name gendy-event
   :short-name gendy
+  :abstract-event nil
   :parent-events (level-event
 		  duration-event
 		  filter-lp-event
@@ -966,8 +996,7 @@
 		  attack-event
 		  release-event
 		  pan-event
-		  reverb-event
-		  )
+		  reverb-event)
   :parameters ((adstr event-amp-distr 1 1 2)
 	       (ddstr event-dur-distr 1 1 2 )
 	       (adstr-par event-amp-distr-param 1 1 2)
@@ -1021,6 +1050,7 @@
 (define-event
   :long-name control-event
   :short-name control
+  :abstract-event nil
   :parent-events (event)
   :parameters ((control-function event-control-function)) 
   :direct-parameters (control-function)
@@ -1042,6 +1072,7 @@
 (define-event
   :long-name population-control-event
   :short-name popctrl-ev
+  :abstract-event nil
   :parent-events (event)
   :parameters ((graph-id event-popctrl-graph-id)
 	       (variance event-popctrl-variance)	       
@@ -1081,6 +1112,7 @@
 (define-event
   :long-name growth-event
   :short-name growth
+  :abstract-event nil
   :parent-events (event)
   :parameters ((graph-id event-growth-graph-id)
 	       (variance event-growth-variance)	       
@@ -1105,6 +1137,7 @@
 (define-event
   :long-name shrink-event
   :short-name shrink
+  :abstract-event nil
   :parent-events (event)
   :parameters ((graph-id event-shrink-graph-id)
 	       (exclude event-shrink-exclude '())
