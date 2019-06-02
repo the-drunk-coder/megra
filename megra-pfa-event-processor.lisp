@@ -73,7 +73,7 @@
 ;; -------------------------------------------------------------- ;;
 ;; infer an mpfa event processor form a set of user-defined rules ;;
 ;; -------------------------------------------------------------- ;;
-(defun infer (name events rules &key (dur *global-default-duration*) (combine-mode 'zip))
+(defun infer (name events rules &key (dur *global-default-duration*) (combine-mode 'append))
   (let* ((new-mpfa (vom::infer-st-pfa-list (cadr rules)))
 	 (old-proc (gethash name *processor-directory*))
 	 (new-proc
@@ -107,7 +107,7 @@
 					     (bound 3)
 					     (epsilon 0.001)
 					     (size 50)
-                                             (combine-mode 'zip))
+                                             (combine-mode 'append))
   (let* ((alphabet (reverse (alexandria::hash-table-keys events)))
 	 (new-mpfa (vom::learn-pfa alphabet bound epsilon size sample-string))
 	 (old-proc (gethash name *processor-directory*))
@@ -161,7 +161,7 @@
     ;; default duration will be picked for now ...
     ))
 
-(defun cyc2 (name events  &key (dur *global-default-duration*) (rep 0) (max-rep 4) (cmode 'zip))
+(defun cyc2 (name events  &key (dur *global-default-duration*) (rep 0) (max-rep 4) (cmode 'append))
   (let ((count 1)
 	(rules (list))
 	(event-mapping (make-hash-table :test #'equal))
@@ -215,5 +215,5 @@
            :combine-mode cmode)))
 
 (defun mpfa->svg (name)
-  (vom::pfa->svg (source-mpfa (gethash name *processor-directory*)) (symbol-name name) ))
+  (vom::pfa->svg (source-mpfa (gethash name *processor-directory*)) (symbol-name name)))
 

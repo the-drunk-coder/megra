@@ -92,23 +92,34 @@
 ;; combining events ... a has precedence
 ;; a - current proc events 
 ;; b - incoming events
-(defmethod combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
-  (cond ((eq mode 'append) (append events-a events-b))
-	((eq mode 'zip) (alexandria:flatten
-                         (mapcan
-			  #'(lambda (ev-b ev-a)
-                             
-			      (cond
-                                ;; if event a is not abstract, append
-                                ((not (event-abstract ev-a))
-                                 (list ev-a ev-b)
-                                 )
-                                ((funcall filter ev-b)
-				 (combine-single-events ev-a ev-b))
-			        (t ev-b)))
-			  ;; got to be in this order as mapc returns first list 
-			  events-b
-			  events-a)))))
+(defun combine-events (events-a events-b &key (mode 'append) (filter #'all-p))
+  (cond ((eq mode 'append) (nconc events-b events-a))
+	((eq mode 'chord) (combine-events-chord-mode events-a events-b filter))
+        (t (combine-events-auto-mode events-a events-b filter))))
+
+(defun combine-events-auto-mode (events-a events-b filter)
+  (loop for ev-a in events-a
+        do (when (event-abstract ev-a)
+             (loop for ev-b in events-b
+                   do (when (and (not (event-abstract ev-b))
+                                 (funcall filter ev-b))
+                        (combine-single-events ev-a ev-b)))))
+  (loop for ev-a in events-a
+        do (when (not (event-abstract ev-a))
+             (nconc events-b (list ev-a))))
+  events-b)
+
+(defun combine-events-chord-mode (events-a events-b filter)
+  (mapc
+   #'(lambda (ev-b ev-a)
+       (cond
+         ;; if event a is not abstract, append
+         ((and (event-abstract ev-a) (not (event-abstract ev-b)) (funcall filter ev-b)) 
+	  (combine-single-events ev-a ev-b))
+	 (t ev-b)))
+   ;; got to be in this order as mapc returns first list 
+   events-b
+   events-a))
 
 ;; helper methods to turn events back into their textual representation ...
 (defun print-tags (tags)
