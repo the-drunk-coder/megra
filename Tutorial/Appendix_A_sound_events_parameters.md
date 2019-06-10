@@ -1,12 +1,12 @@
 # Mégra Tutorial - Appendix A: Sound Events and Parameters
 
-* [Sample Events](#Sample Events) - play samples
-* [Simple Synth Events](#Simple Synth Events) - simple waves
-* [Risset Event](#Risset Event) - Risset bells
-* [Pluck Event](#Pluck Event) - Karplus-Strong
-* [DX Rhodes Event](#DX Rhodes Event) - DX7-type Rhodes
-* [Meow Event](#Meow Event) - Meow !
-* A [Note](#A Note about Note Names) about Note Names
+* [Sample Events](#sample-events) - play samples
+* [Simple Synth Events](#simple-synth-events) - simple waves
+* [Risset Event](#risset-event) - Risset bells
+* [Pluck Event](#pluck-event) - Karplus-Strong
+* [DX Rhodes Event](#dx-rhodes-event) - DX7-type Rhodes
+* [Meow Event](#meow-event) - Meow !
+* A [Note](#a-note-about-note-names) about Note Names
 
 ## Sample Events
 
