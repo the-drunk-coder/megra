@@ -23,8 +23,15 @@ If nothing went wrong, you should hear a steady beeping now. This means we're re
 ```
 
 ## 1.2 Basic Things
+### Some Terminology
 
-### Basic Characteristics or Mégra
+Across this Tutorial, you'll find some words that might need some explanation in this context.
+
+* An **Event** is an abstract description of a sound, rather than the sound itself. It contains the information that is needed to generate sound, in the form of **Parameters**.
+* A **Generator** is something that emits events at certain time intervals. Sometimes also called **Source** or **Sequence Generator** because it produces a sequence of events.
+* A **Sink** is something that receives the events and sends them somewhere where the abstract description is turned into actual sound.
+
+### Basic Characteristics of Mégra
 
 1. Mégra is mostly suited to create musical structures (as opposed to create synths).
 2. Mégra is mostly suited to write *sequence generators*.
@@ -43,7 +50,7 @@ Lisp to play with Mégra. Here's just a few basic hints:
 4. Symbols, that are used here to identify things, are *quoted* with a single quote: `(my-function 'some-name :par <some param>)`.
 5. Lists are also quoted: `(my-function 'some-name-param :list-param '(1 2 3 4))`.
 
-## 1.2 Markov Chains
+## 1.3 Markov Chains
 If you're into generative music, you probably know already what a *Markov Chain* is, as it is a fairly common structure in that domain. 
 If not, here's a simple explanation. Even if you know them already, I'd recommend reading the following part to get to know the specific 
 "flavour" of Markov Chains employed by Mégra.
