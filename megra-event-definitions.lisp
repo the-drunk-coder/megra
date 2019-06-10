@@ -306,13 +306,25 @@
   :direct-parameters (hp-freq))
 
 (define-event
-  :long-name filter-lp-event
-  :short-name filter-lp
+  :long-name lowpass-frequency-event
+  :short-name lp-freq
   :parent-events (event)
-  :parameters ((lp-freq event-lp-freq 19000 10 19000)
-	       (lp-q event-lp-q 0.1 0.07 0.9)
-	       (lp-dist event-lp-dist 0.0 0.0 1.0)) 
+  :parameters ((lp-freq event-lp-freq 19000 10 19000)) 
   :direct-parameters (lp-freq))
+
+(define-event
+  :long-name lowpass-distortion-event
+  :short-name lp-dist
+  :parent-events (event)
+  :parameters ((lp-dist event-lp-dist 0.0 0.0 1.0)) 
+  :direct-parameters (lp-dist))
+
+(define-event
+  :long-name lowpass-q-event
+  :short-name lp-q
+  :parent-events (event)
+  :parameters ((lp-q event-lp-q 0.1 0.07 0.9)) 
+  :direct-parameters (lp-q))
 
 (define-event
   :long-name filter-peak-event
@@ -338,7 +350,9 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -362,7 +376,9 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -387,7 +403,9 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -410,7 +428,9 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -432,7 +452,8 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -456,7 +477,8 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -478,7 +500,8 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -502,7 +525,8 @@
 		  attack-event
 		  release-event
 		  filter-hp-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-q-event
 		  lowpass-frequency-lfo-event
 	          filter-peak-event
 		  reverb-event)
@@ -576,7 +600,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -595,7 +621,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -615,7 +643,9 @@
 		  decay-event
 		  sustain-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -632,7 +662,9 @@
 		  decay-event
 		  sustain-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -648,7 +680,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -666,7 +700,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -685,7 +721,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  pulsewidth-event
 		  reverb-event)
   :direct-parameters (pitch)
@@ -704,7 +742,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  pulsewidth-event
 		  reverb-event)
   :direct-parameters (pitch)
@@ -723,7 +763,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -741,7 +783,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -758,7 +802,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -777,7 +823,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	
@@ -795,7 +843,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -814,7 +864,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -830,7 +882,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -849,7 +903,9 @@
 		  pitch-event
 		  attack-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -867,7 +923,9 @@
 		  decay-event
 		  sustain-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -885,7 +943,9 @@
 		  decay-event
 		  sustain-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -902,7 +962,9 @@
 		  decay-event
 		  sustain-event
 		  release-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -917,7 +979,9 @@
 		  pan-event
 		  duration-event
 		  pitch-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -932,7 +996,9 @@
 		  pan-event
 		  duration-event
 		  pitch-event		  
-		  filter-lp-event	          
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -991,7 +1057,9 @@
   :abstract-event nil
   :parent-events (level-event
 		  duration-event
-		  filter-lp-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
 		  frequency-range-event
 		  attack-event
 		  release-event
