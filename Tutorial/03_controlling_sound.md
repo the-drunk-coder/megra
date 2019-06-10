@@ -83,7 +83,7 @@ On their way, there's a lot of things that can happen to them. for example, we c
   (always (dur 150) (atk 2) (rel 100))  ;; here's the modifier
   (cyc 'vio "violin:'a3 ~ ~ ~ violin:'a4 ~ ~ ~" :dur 300)) ;; <- this is an event source
 ```
-The `always` operator means that those modifications will always be applied. We can also apply them with a certain probablity. Say you want a 30% chance that the sound will be reverberated:
+The `(always ...)` operator means that those modifications will always be applied. We can also apply them with a certain probablity. Say you want a 30% chance that the sound will be reverberated ... the `(prob ...)` function will help you:
 
 ```lisp
 (s 'strings () ;; <- this is an event sink
@@ -108,8 +108,7 @@ You can even mix in other events from another generator:
 In the case above, the first generator (violin) controls the timing, and whenever the second one receives an event,
 it'll mix in its own!
 
-If you only want to apply a modifier to one specific sound, you can filter the event stream for that with the `(for ..)` 
-function:
+If you only want to apply a modifier to one specific type of sound event, you can filter the event stream for that with the `(for ..)` function:
 
 ```lisp
 (s 'strings () ;; <- this is an event sink
@@ -138,3 +137,102 @@ So far we have only covered sample sounds, but Mégra has some (admittedly basic
 
 
 ## Synth Sounds
+
+The principal synth sounds that Mégra currently offers are simple one-oscillator sounds. The following example is a simple, pulsing squarewave bass sound:
+
+```lisp
+(s 'bass ()
+  (nuc 'sqare (sqr 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+The `(sqr ...)` function will produce that type of sound event. Just to remind you, another way to write this would be:
+
+```lisp
+(s 'bass ()
+  (always (lp-dist 1.0) (lp-freq 1000) (atk 1) (rel 99) (dur 100) (lvl 0.5))
+  (nuc 'sqare (sqr 90) :dur 200))
+```
+
+Those two variants will produce the same sound. 
+
+It works the same with other types of waves:
+
+* Sawtooth:
+```lisp
+(s 'bass ()
+  (nuc 'wave (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+* Triangle:
+```lisp
+(s 'bass ()
+  (nuc 'wave (tri 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+* Different sine waves:
+```lisp
+(s 'bass () ;; regular sine
+  (nuc 'wave (sine 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+  
+(s 'bass () ;; LFCub sine
+  (nuc 'wave (cub 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+  
+(s 'bass () ;; LFPar sine
+  (nuc 'wave (par 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+Please find a list of the different synth sounds in the appendix ! Some more will be introduced during the tutorial.
+
+## Technique: Event Inhibition and Exhibition
+
+One nice technique based on the event streaming idea is the idea of event inhibition and exhibition. Look at the following structure:
+
+```lisp
+(s 'all-in ()
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+A bit massive, isn't it ? Now, would't it be great if we could *inhibit* the snar occasionally, say, with a 30% chance? 
+Here we go:
+
+
+```lisp
+(s 'all-in ()
+  (inh 30 sn) ;; <- the inhibitor! 
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+That seems to make things a bit more interesting, but how about this one:
+
+```lisp
+(s 'all-in ()
+  (inh 30 sn) ;; <- the inhibitor!
+  (inh 30 bd)
+  (inh 30 saw)
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+That already creates quite a complex rhythm. 
+
+There's also the reciprocal function, `(exh ...)`, which inhibits all event types *except* the specified one:
+
+```lisp
+(s 'all-in ()
+  (exh 30 sn) ;; <- the inhibitor!
+  (exh 30 bd)
+  (exh 30 saw)
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+
+Mixing the two, you can create complex rhythms from a single nucleus.
+
+
