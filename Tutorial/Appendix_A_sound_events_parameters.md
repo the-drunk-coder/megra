@@ -1,6 +1,14 @@
-# Mégra Tutorial - Appendix A: Events and Parameters
+# Mégra Tutorial - Appendix A: Sound Events and Parameters
 
-## Sample Event
+* [Sample Events](#Sample Events) - play samples
+* [Simple Synth Events](#Simple Synth Events) - simple waves
+* [Risset Event](#Risset Event) - Risset bells
+* [Pluck Event](#Pluck Event) - Karplus-Strong
+* [DX Rhodes Event](#DX Rhodes Event) - DX7-type Rhodes
+* [Meow Event](#Meow Event) - Meow !
+* A [Note](#A Note about Note Names) about Note Names
+
+## Sample Events
 
 **Syntax**: 
 ```lisp 
@@ -197,3 +205,6 @@ Meow.
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
+
+## A Note about Note Names
+Note names follow the Common Music 2.x convention, where `'a4` is the concert pitch of 440hz, above the *middle c* which is `'c4`. `'cs4` denotes a sharp note, `'cf4` denotes a flat note. The sharp/flat schema is consistent over all notes.
