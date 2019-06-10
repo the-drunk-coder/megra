@@ -298,12 +298,18 @@
   :direct-parameters (rev))
 
 (define-event
-  :long-name filter-hp-event
-  :short-name filter-hp
+  :long-name highpass-frequency-event
+  :short-name hp-freq
   :parent-events (event)
-  :parameters ((hp-freq event-hp-freq 10 5 19000)
-	       (hp-q event-hp-q 0.4 0.09 0.9)) 
+  :parameters ((hp-freq event-hp-freq 10 5 19000)) 
   :direct-parameters (hp-freq))
+
+(define-event
+  :long-name highpass-q-event
+  :short-name hp-q
+  :parent-events (event)
+  :parameters ((hp-q event-hp-q 0.4 0.09 0.9)) 
+  :direct-parameters (hp-q))
 
 (define-event
   :long-name lowpass-frequency-event
@@ -327,13 +333,25 @@
   :direct-parameters (lp-q))
 
 (define-event
-  :long-name filter-peak-event
-  :short-name filter-peak
+  :long-name peak-frequency-event
+  :short-name pf-freq
   :parent-events (event)
-  :parameters ((pf-freq event-pf-freq 1000 10 19000)
-	       (pf-q event-pf-q 10 1 40)
-	       (pf-gain event-pf-gain 0.0 -10.0 10.0)) 
+  :parameters ((pf-freq event-pf-freq 1000 10 19000)) 
   :direct-parameters (pf-freq))
+
+(define-event
+  :long-name peak-gain-event
+  :short-name pf-gain
+  :parent-events (event)
+  :parameters ((pf-gain event-pf-gain 0.0 -10.0 10.0)) 
+  :direct-parameters (pf-gain))
+
+(define-event
+  :long-name peak-q-event
+  :short-name pf-q
+  :parent-events (event)
+  :parameters ((pf-q event-pf-q 10 1 40)) 
+  :direct-parameters (pf-q))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GRAIN EVENT (slightly longer);;
@@ -349,12 +367,15 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
-		  lowpass-frequency-event
+                  highpass-frequency-event
+                  highpass-q-event
+                  lowpass-frequency-event
                   lowpass-distortion-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+                  peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder grain-sample-folder)
 	       (sample-file grain-sample-file)
@@ -375,12 +396,15 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-distortion-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder grain-ambi-sample-folder)
 	       (sample-file grain-ambi-sample-file)
@@ -402,12 +426,15 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-distortion-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder grain-4ch-sample-folder)
 	       (sample-file grain-4ch-sample-file)
@@ -427,12 +454,15 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-distortion-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder grain-8ch-sample-folder)
 	       (sample-file grain-8ch-sample-file)
@@ -451,11 +481,14 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder nores-sample-folder)
 	       (sample-file nores-sample-file)
@@ -476,11 +509,14 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder nores-ambi-sample-folder)
 	       (sample-file nores-ambi-sample-file)
@@ -499,11 +535,14 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder twofourdb-sample-folder)
 	       (sample-file twofourdb-sample-file)
@@ -524,11 +563,14 @@
 		  rate-event
 		  attack-event
 		  release-event
-		  filter-hp-event
+		  highpass-frequency-event
+                  highpass-q-event
 		  lowpass-frequency-event
                   lowpass-q-event
 		  lowpass-frequency-lfo-event
-	          filter-peak-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
 		  reverb-event)
   :parameters ((sample-folder twofourdb-ambi-sample-folder)
 	       (sample-file twofourdb-ambi-sample-file)
