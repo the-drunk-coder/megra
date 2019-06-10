@@ -3,8 +3,9 @@
 In the last chapters, the main topic was creating generators for musical structures. Now we will look into how to 
 control sound parameters with Mégra.
 
-## Sample Sounds, Part 1
+A list of all sound events available at the current time, plus a list of all their parameters, can be found in **Appendix A**
 
+## 3.1 Sample Sounds
 ### Choosing Samples
 
 In the last chapter, we created beats from samples. You might have noticed that the sound changes sometimes when you re-run the code. Before we get deeper into that, first take a look into the `megra-samples` folder inside your Portacle folder. You can see different subfolders named `bd`, `sn`, etc. that look just like the events we use to fill our structures. And in fact, when Mégra is started, it scans through the `megra-samples` folder and creates one event representation for each of the subfolders. Now, when the event is called "as is", Mégra will just choose a random sample from that subfolder.
@@ -61,7 +62,7 @@ There doesn't seem to be room to provide the parameters, right ? Well, that's on
 ```
 For the sound parameters, we need to take a little detour first ...
 
-## Detour: Event Streaming
+## 3.2 Detour: Event Streaming
 
 Mégra is all about events. Events, like a bassdrum or snare event, travel from an event generator, or source, towards an event sink, like you can see in the example below.
 
@@ -136,7 +137,7 @@ And finally, you can also add modifiers to the modifiers (phew ...):
 So far we have only covered sample sounds, but Mégra has some (admittedly basic) synth sounds as well, as we'll see in the next section.
 
 
-## Synth Sounds
+## 3.3 Synth Sounds
 
 The principal synth sounds that Mégra currently offers are simple one-oscillator sounds. The following example is a simple, pulsing squarewave bass sound:
 
@@ -181,9 +182,7 @@ It works the same with other types of waves:
   (nuc 'wave (par 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
 ```
 
-Please find a list of the different synth sounds in the appendix ! Some more will be introduced during the tutorial.
-
-## Technique: Event Inhibition and Exhibition
+## 3.4 Technique: Event Inhibition and Exhibition
 
 One nice technique based on the event streaming idea is the idea of event inhibition and exhibition. Look at the following structure:
 
