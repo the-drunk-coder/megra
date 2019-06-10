@@ -3,7 +3,12 @@
 In the last chapters, the main topic was creating generators for musical structures. Now we will look into how to 
 control sound parameters with Mégra.
 
-A list of all sound events available at the current time, plus a list of all their parameters, can be found in **Appendix A**
+A list of all sound events available at the current time, plus a list of all their parameters, can be found in **Appendix A**.
+
+* 3.1 - [Sample Sounds](#31-sample-sounds)
+* 3.2 - [Event Streaming](#32-detour-event-streaming)
+* 3.3 - [Synth Sounds](#33-synth-sounds)
+* 3.4 - [Technique: Inhibition and Exhibition](#34-technique-event-inhibition-and-exhibition)
 
 ## 3.1 Sample Sounds
 ### Choosing Samples
