@@ -224,7 +224,7 @@ There's also the reciprocal function, `(exh ...)`, which inhibits all event type
 
 ```lisp
 (s 'all-in ()
-  (exh 30 sn) ;; <- the inhibitor!
+  (exh 30 sn) ;; <- the exhibitor!
   (exh 30 bd)
   (exh 30 saw)
   (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
