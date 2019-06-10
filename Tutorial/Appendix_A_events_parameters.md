@@ -75,4 +75,5 @@
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
+| `:pw`        | 0.5     | pulswidth (ONLY `sqr` !)|
 
