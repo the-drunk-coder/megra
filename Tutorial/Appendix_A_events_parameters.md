@@ -40,7 +40,7 @@
 
 **Syntax**: 
 ```lisp 
-(sine|saw|sqr|par|cub|tri <pitch> <keyword parameters>)
+(sine|saw|sqr|par|cub|tri|buzz <pitch> <keyword parameters>)
 ```
 
 **Example** 
@@ -58,15 +58,14 @@
 | tri  | a triangle wave |
 | sqr  | a square wave   |
 | saw  | a sawtooth wave |
+| buzz  | band-limited impulse oscillator|
 
 ### Parameters
 
 | Parameter | Default | Description |
 |-----------|:-------:|:-----------:|
-| pitch     | 43     | pitch - might be frequency in hertz or quoted note name |
+|  pitch     | 43     | pitch - might be frequency in hertz or quoted note name |
 | `:lvl`       | 0.3     | gain level |
-| `:rate`      | 1.0     | sample playback rate |
-| `:start`     | 0.0     | start within sample file, ratio |
 | `:atk`       | 5       | gain envelope attack, in ms |
 | `:rel`       | 5       | gain envelope release, in ms |
 | `:dur`       | -       | overall event duration (including atk and rel), in ms |
@@ -75,5 +74,126 @@
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
-| `:pw`        | 0.5     | pulswidth (ONLY `sqr` !)|
+| `:pw`        | 0.5     | pulsewidth (ONLY `sqr`) |
+| `:harm`      | 3       | number of harmonics (ONLY `buzz`), be careful with values over 10 ! |
 
+## Risset Event
+
+A simple risset bell event.
+
+**Syntax**: 
+```lisp 
+(risset <pitch> <keyword parameters>)
+```
+
+**Example** 
+```lisp
+(risset 2000) ;; with frequency
+(risset 'a5 :rev 0.1) ;; with note name and reverb
+```
+### Parameters
+
+| Parameter | Default | Description |
+|-----------|:-------:|:-----------:|
+|  pitch     | 43     | pitch - might be frequency in hertz or quoted note name |
+| `:lvl`       | 0.3     | gain level |
+| `:atk`       | 5       | gain envelope attack, in ms |
+| `:dec`       | 20       | gain envelope decay, in ms |
+| `:sus`       | 50       | gain envelope sustain, in ms |
+| `:rel`       | 5       | gain envelope release, in ms |
+| `:pos`       | 0.5     | stereo position (0.5 - center) |
+| `:lp-freq`   | 19000   | lowpass filter frequency  |
+| `:lp-q`      | 0.4     | lowpass filter q factor |
+| `:lp-dist`   | 0.0     | lowpass filter distortion|
+| `:rev`       | 0.0     | reverb amount |
+
+## Pluck Event
+
+Karplus-Strong type pluck event.
+
+**Syntax**: 
+```lisp 
+(pluck <pitch> <keyword parameters>)
+```
+
+**Example** 
+```lisp
+(pluck 2000) ;; with frequency
+(pluck 'a5 :rev 0.1) ;; with note name and reverb
+```
+
+### Parameters
+
+| Parameter | Default | Description |
+|-----------|:-------:|:-----------:|
+|  pitch     | 43     | pitch - might be frequency in hertz or quoted note name |
+| `:lvl`       | 0.3     | gain level |
+| `:pos`       | 0.5     | stereo position (0.5 - center) |
+| `:dur`       | 512      | overall event duration, in ms |
+| `:lp-freq`   | 19000   | lowpass filter frequency  |
+| `:lp-q`      | 0.4     | lowpass filter q factor |
+| `:lp-dist`   | 0.0     | lowpass filter distortion|
+| `:rev`       | 0.0     | reverb amount |
+
+## DX Rhodes Event
+
+A DX7 Rhodes type of event.
+
+**Syntax**: 
+```lisp 
+(dx-rhodes <pitch> <keyword parameters>)
+```
+
+**Example** 
+```lisp
+(dx-rhodes 900) ;; with frequency
+(dx-rhodes 'a4 :rev 0.1) ;; with note name and reverb
+```
+
+### Parameters
+
+| Parameter | Default | Description |
+|-----------|:-------:|:-----------:|
+|  pitch     | 43     | pitch - might be frequency in hertz or quoted note name |
+| `:lvl`       | 0.3     | gain level |
+| `:pos`       | 0.5     | stereo position (0.5 - center) |
+| `:dur`       | 512      | overall event duration, in ms |
+| `:lp-freq`   | 19000   | lowpass filter frequency  |
+| `:lp-q`      | 0.4     | lowpass filter q factor |
+| `:lp-dist`   | 0.0     | lowpass filter distortion|
+| `:rev`       | 0.0     | reverb amount |
+|`:lvl-lfo-speed` | 0.0 | level lfo speed |
+|`:lvl-lfo-depth` | 0.0 | level lfo depth |
+|`:lvl-lfo-phase` | 0.0 | level lfo phase |
+|`:mix` | 0.2 | mix  |
+|`:vel` | 0.8 | velocity (think of key velocity on a keyboard) |
+|`:mod-idx` | 0.3 | FM modulation index |
+
+
+## Meow Event
+
+Meow.
+
+**Syntax**: 
+```lisp 
+(meow <pitch> <keyword parameters>)
+```
+
+**Example** 
+```lisp
+(meow 2000) ;; with frequency
+(meow 'a3 :rev 0.1) ;; with note name and reverb
+```
+
+### Parameters
+
+| Parameter | Default | Description |
+|-----------|:-------:|:-----------:|
+|  pitch     | 43     | pitch - might be frequency in hertz or quoted note name |
+| `:lvl`       | 0.3     | gain level |
+| `:pos`       | 0.5     | stereo position (0.5 - center) |
+| `:dur`       | 512      | overall event duration, in ms |
+| `:lp-freq`   | 19000   | lowpass filter frequency  |
+| `:lp-q`      | 0.4     | lowpass filter q factor |
+| `:lp-dist`   | 0.0     | lowpass filter distortion|
+| `:rev`       | 0.0     | reverb amount |
