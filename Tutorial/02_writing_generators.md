@@ -3,9 +3,9 @@
 As we've seen in the last chapter, Mégra is all about *sequence generators*. There's 
 three principal ways to write *sequence generators* in Mégra:
 
-1. Writing generators by hand.
-2. Generating generators.
-3. Learing generators.
+1. [Writing generators by hand](21-writing-generators-by-hand).
+2. [Generating generators](22-generating-generators).
+3. [Learing generators](23-learning-generators).
 
 ## 2.1 Writing Generators by Hand 
 This is the method we've already encountered in the previous chapter. It's a bit tedious, but it's

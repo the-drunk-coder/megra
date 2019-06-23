@@ -3,8 +3,14 @@
 In the last chapters, the main topic was creating generators for musical structures. Now we will look into how to 
 control sound parameters with Mégra.
 
-## Sample Sounds, Part 1
+A list of all sound events available at the current time, plus a list of all their parameters, can be found in **Appendix A**.
 
+* 3.1 - [Sample Sounds](#31-sample-sounds)
+* 3.2 - [Event Streaming](#32-detour-event-streaming)
+* 3.3 - [Synth Sounds](#33-synth-sounds)
+* 3.4 - [Technique: Inhibition and Exhibition](#34-technique-event-inhibition-and-exhibition)
+
+## 3.1 Sample Sounds
 ### Choosing Samples
 
 In the last chapter, we created beats from samples. You might have noticed that the sound changes sometimes when you re-run the code. Before we get deeper into that, first take a look into the `megra-samples` folder inside your Portacle folder. You can see different subfolders named `bd`, `sn`, etc. that look just like the events we use to fill our structures. And in fact, when Mégra is started, it scans through the `megra-samples` folder and creates one event representation for each of the subfolders. Now, when the event is called "as is", Mégra will just choose a random sample from that subfolder.
@@ -61,7 +67,7 @@ There doesn't seem to be room to provide the parameters, right ? Well, that's on
 ```
 For the sound parameters, we need to take a little detour first ...
 
-## Detour: Event Streaming
+## 3.2 Detour: Event Streaming
 
 Mégra is all about events. Events, like a bassdrum or snare event, travel from an event generator, or source, towards an event sink, like you can see in the example below.
 
@@ -83,7 +89,7 @@ On their way, there's a lot of things that can happen to them. for example, we c
   (always (dur 150) (atk 2) (rel 100))  ;; here's the modifier
   (cyc 'vio "violin:'a3 ~ ~ ~ violin:'a4 ~ ~ ~" :dur 300)) ;; <- this is an event source
 ```
-The `always` operator means that those modifications will always be applied. We can also apply them with a certain probablity. Say you want a 30% chance that the sound will be reverberated:
+The `(always ...)` operator means that those modifications will always be applied. We can also apply them with a certain probablity. Say you want a 30% chance that the sound will be reverberated ... the `(prob ...)` function will help you:
 
 ```lisp
 (s 'strings () ;; <- this is an event sink
@@ -108,8 +114,7 @@ You can even mix in other events from another generator:
 In the case above, the first generator (violin) controls the timing, and whenever the second one receives an event,
 it'll mix in its own!
 
-If you only want to apply a modifier to one specific sound, you can filter the event stream for that with the `(for ..)` 
-function:
+If you only want to apply a modifier to one specific type of sound event, you can filter the event stream for that with the `(for ..)` function:
 
 ```lisp
 (s 'strings () ;; <- this is an event sink
@@ -137,4 +142,101 @@ And finally, you can also add modifiers to the modifiers (phew ...):
 So far we have only covered sample sounds, but Mégra has some (admittedly basic) synth sounds as well, as we'll see in the next section.
 
 
-## Synth Sounds
+## 3.3 Synth Sounds
+
+The principal synth sounds that Mégra currently offers are simple one-oscillator sounds. The following example is a simple, pulsing squarewave bass sound:
+
+```lisp
+(s 'bass ()
+  (nuc 'sqare (sqr 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+The `(sqr ...)` function will produce that type of sound event. Just to remind you, another way to write this would be:
+
+```lisp
+(s 'bass ()
+  (always (lp-dist 1.0) (lp-freq 1000) (atk 1) (rel 99) (dur 100) (lvl 0.5))
+  (nuc 'sqare (sqr 90) :dur 200))
+```
+
+Those two variants will produce the same sound. 
+
+It works the same with other types of waves:
+
+* Sawtooth:
+```lisp
+(s 'bass ()
+  (nuc 'wave (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+* Triangle:
+```lisp
+(s 'bass ()
+  (nuc 'wave (tri 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+* Different sine waves:
+```lisp
+(s 'bass () ;; regular sine
+  (nuc 'wave (sine 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+  
+(s 'bass () ;; LFCub sine
+  (nuc 'wave (cub 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+  
+(s 'bass () ;; LFPar sine
+  (nuc 'wave (par 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 200))
+```
+
+## 3.4 Technique: Event Inhibition and Exhibition
+
+One nice technique based on the event streaming idea is the idea of event inhibition and exhibition. Look at the following structure:
+
+```lisp
+(s 'all-in ()
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+A bit massive, isn't it ? Now, would't it be great if we could *inhibit* the snar occasionally, say, with a 30% chance? 
+Here we go:
+
+
+```lisp
+(s 'all-in ()
+  (inh 30 sn) ;; <- the inhibitor! 
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+That seems to make things a bit more interesting, but how about this one:
+
+```lisp
+(s 'all-in ()
+  (inh 30 sn) ;; <- the inhibitor!
+  (inh 30 bd)
+  (inh 30 saw)
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+That already creates quite a complex rhythm. 
+
+There's also the reciprocal function, `(exh ...)`, which inhibits all event types *except* the specified one:
+
+```lisp
+(s 'all-in ()
+  (exh 30 sn) ;; <- the exhibitor!
+  (exh 30 bd)
+  (exh 30 saw)
+  (nuc 'one (list (saw 90 :lp-dist 1.0 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)
+                  (bd 'boom)
+                  (sn 'tschack))
+       :dur 100))
+```
+
+Mixing the two, you can create complex rhythms from a single nucleus.
+
+
