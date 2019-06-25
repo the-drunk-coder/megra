@@ -6,21 +6,27 @@ In alphabetical order.
 
 ## `brownian` - Bounded Brownian Motion 
 
+## `chain` - Create Event Processor Chain
+
+## `clear` - Clear Session
+
+## `ctrl` - Control Functions
+
 ## `cyc` - Cycle Generator
 
 ## `cyc2` - Cycle Generator
 
+## `discourage` - Stir Up Generator
+
 ## `e`, `edge` - Edge Constructor
+
+## `encourage` - Consolidate Generator
 
 ## `env` - Parameter Envelope
 
 ## `exh` - Event Stream Manipulator
 
 ## `fade` - Parameter Fader
-
-## `discourage` - Stir Up Generator
-
-## `encourage` - Consolidate Generator
 
 ## `for` - Event Stream Selector
 
@@ -40,7 +46,7 @@ In alphabetical order.
 
 ## `nuc2` - Nucleus Generator
 
-## `oscil` - Paramter Oscillator
+## `oscil` - Parameter Oscillator
 
 ## `probctrl` - Manipulate Generator
 
@@ -64,6 +70,8 @@ In alphabetical order.
 ## `slearn` - Learn Generator from Distribution
 
 ## `sinfer` - Infer Generator from Rules
+
+## `stop` - Stop Event Processing
 
 
 
