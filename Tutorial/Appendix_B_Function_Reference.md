@@ -4,13 +4,19 @@ In alphabetical order.
 
 ## `always` - Event Stream Manipulator Probablity
 
+## `brownian` - Bounded Brownian Motion 
+
 ## `cyc` - Cycle Generator
 
 ## `cyc2` - Cycle Generator
 
 ## `e`, `edge` - Edge Constructor
 
+## `env` - Parameter Envelope
+
 ## `exh` - Event Stream Manipulator
+
+## `fade` - Parameter Fader
 
 ## `discourage` - Stir Up Generator
 
@@ -33,6 +39,8 @@ In alphabetical order.
 ## `nuc` - Nucleus Generator
 
 ## `nuc2` - Nucleus Generator
+
+## `oscil` - Paramter Oscillator
 
 ## `probctrl` - Manipulate Generator
 
