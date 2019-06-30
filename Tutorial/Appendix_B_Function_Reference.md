@@ -3,12 +3,14 @@
 In alphabetical order.
 
 ## `always` - Event Stream Modificator Probablity
+
 Applies an event stream modificator with probability one.
-**Parameters**
 
-* Modificators (list)
+### Parameters
 
-**Syntax**
+* modificators (list)
+
+### Syntax
 
 ```lisp
 (always <modificators>)
@@ -28,15 +30,16 @@ Always apply reverb to events:
 
 Define a bounded brownian motion on a parameter.
 
-**Paramters**
+### Parameters
 
 * lower boundary (float)
-* upper boundaty (float)
+* upper boundary (float)
 * `:wrap` (boolean) (t) - wrap value if it reaches lower or upper boundary
 * `:limit` (boolean) (nil) - limit value if it reaches upper or lower boundary
 * `:step-size` (float) (0.1) - step that the parameter will be incremented/decremented
 
-**Syntax**
+### Syntax
+
 ```lisp
 (brownian <lower boundary> <upper boundary> :wrap <wrap> :limit <limit> :step-size <step-size>)
 ```
@@ -53,12 +56,13 @@ Define a bounded brownian motion on a parameter.
 
 Creates an event processor chain without dispatching it to sink.
 
-**Parameters**
+### Parameters
 
 * name - chain name
 * generators - event generators
 
-**Syntax**
+### Syntax
+
 ```lisp
 (chain '<name> () 
   <generators>
@@ -66,6 +70,7 @@ Creates an event processor chain without dispatching it to sink.
 ```
 
 ### Example
+
 ```lisp
 ;; first define a chain
 (chain 'some ()
@@ -124,18 +129,23 @@ Stops and deletes all present generators.
 ## `shrink` - Shrink Generator
 
 ## `s`, `sink` - Event Sink
-**Parameters:**
+
+Takes events and turns them into sound.
+
+### Parameters:
+
 * name (symbol)
 * `:sync` (symbol) *optional*
 * `:shift` (integer) *optional*
 
-**Syntax:**
+### Syntax:
 
 ```lisp
 (s '<name> (:sync '<sync> :shift <milliseconds>) 
   <list of generators>
 )
 ```
+
 ## `slearn` - Learn Generator from Distribution
 
 ## `sinfer` - Infer Generator from Rules
