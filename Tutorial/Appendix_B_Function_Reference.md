@@ -86,6 +86,38 @@ Stops and deletes all present generators.
 
 ## `ctrl` - Control Functions
 
+Executes any function, can be used to conduct execution of generators.
+
+### Parameters
+
+* function
+
+### Syntax
+
+```lisp
+(ctrl <function>)
+```
+
+### Example
+
+```lisp
+(chain 'some ()
+  (always (rev 0.1))
+  (nuc 'violin (violin 'a3)))
+
+(chain 'more ()
+  (always (rev 0.1))
+  (nuc 'cello (cello 'c1)))
+
+(s 'controller ()
+  (g 'conductor ()
+    (n 1 (ctrl #'(lambda () (stop 'more) (sink 'some ())))) ;; control function
+    (n 2 (ctrl #'(lambda () (stop 'some) (sink 'more ()))))
+    (e 1 2 :p 100 :d 3000)
+    (e 2 1 :p 100 :d 3000)))
+
+```
+
 ## `cyc` - Cycle Generator
 
 ## `cyc2` - Cycle Generator
