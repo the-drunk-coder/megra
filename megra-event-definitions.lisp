@@ -233,7 +233,7 @@
   :parameters ((lp-freq-lfo-speed event-lp-freq-lfo-speed 0.0 0.0 20000.0)
 	       (lp-freq-lfo-depth event-lp-freq-lfo-depth 0.0 0.0 1.0)
 	       (lp-freq-lfo-phase event-lp-freq-lfo-phase 0.0 0.0 1.0)) 
-  :direct-parameters (lp-freq-fo-speed))
+  :direct-parameters (lp-freq-lfo-speed))
 
 (define-event
   :long-name highpass-frequency-lfo-event
