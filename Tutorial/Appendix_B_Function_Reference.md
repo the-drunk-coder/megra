@@ -120,6 +120,29 @@ Executes any function, can be used to conduct execution of generators.
 
 ## `cyc` - Cycle Generator
 
+Generates a cycle (aka loop) from a simple sequencing language.
+
+### Parameters
+
+* name - generator name
+* sequence - sequence description
+* `:dur` - default space between events 
+* `:rep` - probability of repeating an event
+* `:max-rep` - limits number of repetitions
+* `:rnd` - random connection probability
+
+### Syntax
+
+```lisp
+(cyc <name> <sequence> :dur <duration> :rep <repetition probability> :max-rep <max number of repetitions> :rnd <random connection prob>)
+```
+
+### Example 
+```lisp
+(s 'simple ()
+  (cyc 'beat "bd ~ hats ~ sn ~ hats ~"))
+```
+
 ## `cyc2` - Cycle Generator
 
 ## `discourage` - Stir Up Generator
