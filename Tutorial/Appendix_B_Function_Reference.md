@@ -145,6 +145,29 @@ Generates a cycle (aka loop) from a simple sequencing language.
 
 ## `cyc2` - Cycle Generator
 
+Generates a cycle (aka loop) from a simple sequencing language, using the advanced PFA model. Currently doesn't have the `:rnd` parameter.
+
+### Parameters
+
+* name - generator name
+* sequence - sequence description
+* `:dur` - default space between events 
+* `:rep` - probability of repeating an event
+* `:max-rep` - limits number of repetitions
+
+### Syntax
+
+```lisp
+(cyc2 <name> <sequence> :dur <duration> :rep <repetition probability> :max-rep <max number of repetitions>)
+```
+
+### Example
+
+```lisp
+(s 'simple ()
+  (cyc2 'beat "bd ~ hats ~ sn ~ hats ~" :rep 60 :max-rep 3))
+```
+
 ## `discourage` - Stir Up Generator
 
 ## `e`, `edge` - Edge Constructor
@@ -153,7 +176,49 @@ Generates a cycle (aka loop) from a simple sequencing language.
 
 ## `env` - Parameter Envelope
 
+Define an envelope on any parameter. Length of list of levels must be one more than length of list of durations.
+
+### Paramters
+
+* levels (list) - level points on envelope path
+* durations (list) - transition durations (in steps)
+* `repeat` (boolean) - loop envelope 
+
+### Syntax
+
+```lisp
+(env <levels> <durations> :repeat <t/nil>)
+```
+
+### Example
+
+```lisp
+(s 'simple ()
+  (always (lvl (env '(0.0 0.4 0.0) '(20 30))))
+  (cyc 'beat "bd ~ hats ~ sn ~ hats ~"))
+```
+
 ## `exh` - Event Stream Manipulator
+
+Exhibit event type, that is, mute all other events, with a certain probability.
+
+### Parameters
+
+* probablility (int) - exhibit probablility
+* filter (filter function) - event type filter
+
+### Syntax
+```lisp
+(exh <probability> <filter>)
+```
+
+### Example
+```lisp
+(s 'simple ()
+  (exh 30 hats)
+  (exh 30 bd)
+  (nuc 'beat (~ (bd) (sn) (hats))))
+```
 
 ## `fade` - Parameter Fader
 
@@ -167,15 +232,101 @@ Generates a cycle (aka loop) from a simple sequencing language.
 
 ## `inh` - Event Stream Manipulator
 
+Inhibit event type, that is, mute event of that type, with a certain probability.
+
+### Parameters
+
+* probablility (int) - inhibit probablility
+* filter (filter function) - event type filter
+
+### Syntax
+
+```lisp
+(inh <probability> <filter>)
+```
+
+### Example
+
+```lisp
+(s 'simple ()
+  (inh 30 hats)
+  (inh 30 bd)
+  (inh 30 sn)
+  (nuc 'beat (~ (bd) (sn) (hats))))
+```
+
 ## `lifemodel` - Manipulate Generator 
 
 ## `n`, `node` - Node Constructor
 
 ## `nuc` - Nucleus Generator
 
+Generates a one-node repeating generator, i.e. as a starting point for growing.
+
+### Parameters
+
+* name (symbol)
+* event(s) (event or list of events) - events to be repeated
+* `:dur` - transition duration between events
+
+### Syntax
+
+```lisp
+(nuc <name> <event(s)> :dur <duration>)
+```
+
+### Example
+
+```lisp
+(s 'simple ()
+  (nuc 'beat (bd) :dur 400))
+```
+
 ## `nuc2` - Nucleus Generator
 
+Generates a one-node repeating generator, i.e. as a starting point for growing, based on PFA model.
+
+### Parameters
+
+* name (symbol)
+* event(s) (event or list of events) - events to be repeated
+* `:dur` - transition duration between events
+
+### Syntax
+
+```lisp
+(nuc2 <name> <event(s)> :dur <duration>)
+```
+
+### Example
+
+```lisp
+(s 'simple ()
+  (nuc2 'beat (bd) :dur 400))
+```
+
 ## `oscil` - Parameter Oscillator
+
+Define oscillation on any parameter. The oscillation curve is a bit bouncy, not really sinusoidal.
+
+### Parameters 
+
+* upper limit - upper limit for oscillation 
+* lower limit - lower limit for oscillation 
+* `:cycle` - oscillation cycle length in steps
+
+### Syntax
+
+```lisp
+(oscil <upper limit> <lower limit> :cycle <cycle length in steps>)
+```
+
+### Example
+
+```lisp
+(s 'simple ()
+  (nuc2 'beat (bd) :dur (oscil 200 600 :steps 80)))
+```
 
 ## `probctrl` - Manipulate Generator
 
@@ -206,6 +357,8 @@ Takes events and turns them into sound.
 ## `sinfer` - Infer Generator from Rules
 
 ## `stop` - Stop Event Processing
+
+Stop event processing without deleting generators, thus maintaining current state.
 
 
 
