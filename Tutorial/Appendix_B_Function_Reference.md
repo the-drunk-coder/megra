@@ -172,6 +172,35 @@ Generates a cycle (aka loop) from a simple sequencing language, using the advanc
 
 ## `e`, `edge` - Edge Constructor
 
+Construct an edge between two nodes.
+
+### Parameters
+
+* source - source node (or sequence)
+* destination - destination node
+* `:dur`, `:d` - transition duration
+* `:prob`, `:p` - transition probablity
+
+### Syntax
+
+```lisp
+(e <source> <destination> :p <probability> :d <duration>) ;; short form
+(edge <source> <destination> :prob <probability> :dur <duration>) ;; long form
+```
+
+### Example
+
+```lisp
+(s 'some ()
+  (graph 'nodes ()
+    (node 1 (bd))
+    (node 2 (sn))
+    (e 1 1 :p 80 :d 200) ;; source node is single node
+    (e '(1 1 1 1) 1 :p 80 :d 200) ;; source is sequence 
+    (e 1 2 :p 20 :d 200)
+    (e 2 1 :p 100 :d 200)))
+```
+
 ## `encourage` - Consolidate Generator
 
 ## `env` - Parameter Envelope
