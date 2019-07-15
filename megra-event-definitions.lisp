@@ -727,7 +727,7 @@
                   lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
-  :parent-defaults ((lp-freq 4000) (atk 1) (rel 20) (dur 100))
+  :parent-defaults ((lp-freq 2100) (lvl 0.25) (lp-dist 0.4) (atk 1) (rel 20) (dur 100))
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-saw-event-incu evt))
 	     (if (member 'sc (event-backends evt))
@@ -769,6 +769,7 @@
                   lowpass-q-event
 		  pulsewidth-event
 		  reverb-event)
+  :parent-defaults ((lp-freq 5000) (dur 220) (atk 2) (rel 80) (lvl 0.21))
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-square-event-incu evt))
@@ -990,6 +991,7 @@
                   lowpass-distortion-event
                   lowpass-q-event	          
 		  reverb-event)
+  :parent-defaults ((lvl 0.23))
   :direct-parameters (pitch)
   :handler (progn	     
 	     (if (member 'sc (event-backends evt))
