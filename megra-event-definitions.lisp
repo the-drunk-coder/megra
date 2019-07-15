@@ -727,6 +727,7 @@
                   lowpass-q-event	          
 		  reverb-event)
   :direct-parameters (pitch)
+  :parent-defaults ((lp-freq 4000) (atk 1) (rel 20) (dur 100))
   :handler (progn
 	     (if (member 'inc (event-backends evt)) (handle-saw-event-incu evt))
 	     (if (member 'sc (event-backends evt))

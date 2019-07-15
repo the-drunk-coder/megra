@@ -156,6 +156,8 @@
 	    (format nil ":~a ~a " param-name param-value))	
 	(format nil "~a " value-string))))
 
+(setf (nth 3 '(1 2 3 4)) 5)
+
 ;; creepy macro to faciliate defining events
 ;; defines the event class, the language constructor, and the
 ;; value accessor function ...
@@ -164,6 +166,7 @@
 			  long-name
                           (abstract-event t)
 			  (parent-events nil)
+                          (parent-defaults nil)
 			  (parameters nil)
 			  (direct-parameters nil)
 			  (create-accessors t)
@@ -183,11 +186,17 @@
 				       (remove-if-not #'
 					(lambda (x)
 					  (member (car x) direct-parameters))
-					parent-parameters))) 
-	 (parent-keyword-parameters (remove-if #'(lambda (x)
-						   (member (car x)
-							   direct-parameters)) 
-					       parent-parameters))
+					parent-parameters)))
+         (parent-overwrites (alexandria::flatten parent-defaults)) ;; transform to plist
+	 (parent-keyword-parameters (loop for param in (remove-if #'(lambda (x)
+						                      (member (car x)
+							                      direct-parameters)) 
+					                          parent-parameters)
+                                          collect (if (member (car param) parent-overwrites) ;; check if a parent default is overwritten ...
+                                                      (progn
+                                                        (setf (nth 2 param) (cadr (member (car param) parent-overwrites)))
+                                                        param)
+                                                      param)))
 	 (parameter-names (mapcar #'car parameters))
 	 (accessor-names (mapcar #'cadr parameters)) ;; second is a accessor name 
 	 (keyword-parameter-defaults
@@ -209,7 +218,7 @@
 	 (parent-keyword-pairs (interleave parent-keywords parent-parameter-names))
 	 (class-name-list (make-list (length parameter-names)
 				     :initial-element class-name)))
-    `(progn
+    `(progn      
        ;; define the base class
        (defclass ,class-name ,parent-events ())
        ;; add the parameter slots with accessor ...
