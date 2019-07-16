@@ -697,6 +697,7 @@
 (define-event
   :long-name saw-adsr-event
   :short-name saw-adsr
+  :abstract-event nil
   :parent-events (level-event		 
 		  pan-event
 		  pitch-event
@@ -716,6 +717,7 @@
 (define-event
   :long-name saw-event
   :short-name saw
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -920,6 +922,7 @@
 (define-event
   :long-name par-event
   :short-name par
+  :abstract-event nil
   :parent-events (level-event		 
 		  duration-event
 		  pan-event
@@ -1000,6 +1003,7 @@
 (define-event
   :long-name risset-event-8ch
   :short-name risset-8ch
+  :abstract-event nil
   :parent-events (level-event		  
 		  pan-event
 		  pitch-event
