@@ -28,7 +28,7 @@
 			   "a" (coerce (* (event-attack g) 0.001) 'float)
 			   "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
 			   "r" (coerce (* (event-release g) 0.001) 'float)
-			   "pos" (coerce (- (event-position g) 0.5) 'float)
+			   "pos" (coerce (- (event-position g) 1.0) 'float)
 			   "rev" (coerce (event-reverb g) 'float))
 	(osc:simple-bundle cm::*oscout* timestamp
 			   "/s_new"	    
@@ -52,4 +52,4 @@
 			   "a" (coerce (* (event-attack g) 0.001) 'float)
 			   "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
 			   "r" (coerce (* (event-release g) 0.001) 'float)
-			   "pos" (coerce (- (event-position g) 0.5) 'float)))))
+			   "pos" (coerce (- (event-position g) 1.0) 'float)))))

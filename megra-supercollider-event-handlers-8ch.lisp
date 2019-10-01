@@ -28,7 +28,7 @@
 			   "a" (coerce (* (event-attack g) 0.001) 'float)
 			   "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
 			   "r" (coerce (* (event-release g) 0.001) 'float)
-			   "pos" (coerce (- (event-position g) 0.5) 'float)
+			   "pos" (coerce (- (event-position g) 1.0) 'float)
 			   "rev" (coerce (event-reverb g) 'float))
 	(osc:simple-bundle cm::*oscout* timestamp
 			   "/s_new"	    
@@ -52,7 +52,7 @@
 			   "a" (coerce (* (event-attack g) 0.001) 'float)
 			   "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
 			   "r" (coerce (* (event-release g) 0.001) 'float)
-			   "pos" (coerce (- (event-position g) 0.5) 'float)))))
+			   "pos" (coerce (- (event-position g) 1.0) 'float)))))
 
 (defmethod handle-sine-event-sc-8ch ((s sine-event-8ch) timestamp &key)
   (if (> (event-reverb s) 0)     
@@ -70,7 +70,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "rev" (coerce (event-reverb s) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -86,7 +86,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 )))
 
 (defmethod handle-triangle-event-sc-8ch ((s triangle-event-8ch) timestamp &key)
@@ -105,7 +105,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "rev" (coerce (event-reverb s) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -121,7 +121,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 )))
 
 (defmethod handle-cub-event-sc-8ch ((s cub-event-8ch) timestamp &key)
@@ -140,7 +140,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "rev" (coerce (event-reverb s) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -156,7 +156,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 )))
 
 (defmethod handle-par-event-sc-8ch ((s par-event-8ch) timestamp &key)
@@ -175,7 +175,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "rev" (coerce (event-reverb s) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -191,7 +191,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 )))
 
 (defmethod handle-saw-event-sc-8ch ((s saw-event-8ch) timestamp &key)
@@ -210,7 +210,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "rev" (coerce (event-reverb s) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -226,7 +226,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 )))
 
 (defmethod handle-square-event-sc-8ch ((s square-event-8ch) timestamp &key)
@@ -245,7 +245,7 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "rev" (coerce (event-reverb s) 'float)
 			 "pulsewidth" (coerce (event-pulsewidth s) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
@@ -262,10 +262,9 @@
 			 "a" (coerce (* (event-attack s) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration s) (event-attack s) (event-release s)) 0.001) 'float)
 			 "r" (coerce (* (event-release s) 0.001) 'float)
-			 "pos" (coerce (- (event-position s) 0.5) 'float)
+			 "pos" (coerce (- (event-position s) 1.0) 'float)
 			 "pulsewidth" (coerce (event-pulsewidth s) 'float)
 			 )))
-
 
 (defmethod handle-buzz-event-sc-8ch ((b buzz-event-8ch) timestamp &key)
   (if (> (event-reverb b) 0)     
@@ -283,7 +282,7 @@
 			 "a" (coerce (* (event-attack b) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration b) (event-attack b) (event-release b)) 0.001) 'float)
 			 "r" (coerce (* (event-release b) 0.001) 'float)
-			 "pos" (coerce (- (event-position b) 0.5) 'float)
+			 "pos" (coerce (- (event-position b) 1.0) 'float)
 			 "rev" (coerce (event-reverb b) 'float)
 			 "harm" (coerce (event-harmonies b) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
@@ -300,11 +299,8 @@
 			 "a" (coerce (* (event-attack b) 0.001) 'float)
 			 "length" (coerce (* (- (event-duration b) (event-attack b) (event-release b)) 0.001) 'float)
 			 "r" (coerce (* (event-release b) 0.001) 'float)
-			 "pos" (coerce (- (event-position b) 0.5) 'float)
+			 "pos" (coerce (- (event-position b) 1.0) 'float)
 			 "harm" (coerce (event-harmonies b) 'float))))
-
-
-
 
 (defmethod handle-pluck-event-sc-8ch ((p pluck-event-8ch) timestamp &key)
   (if (> (event-reverb p) 0)     
@@ -320,7 +316,7 @@
 			 "lp_q" (coerce (event-lp-q p) 'float)
 			 "lp_dist" (coerce (event-lp-dist p) 'float)	    
 			 "length" (coerce (* (event-duration p) 0.001) 'float)	 
-			 "pos" (coerce (- (event-position p) 0.5) 'float)
+			 "pos" (coerce (- (event-position p) 1.0) 'float)
 			 "rev" (coerce (event-reverb p) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -334,7 +330,7 @@
 			 "lp_q" (coerce (event-lp-q p) 'float)
 			 "lp_dist" (coerce (event-lp-dist p) 'float)	    
 			 "length" (coerce (* (event-duration p) 0.001) 'float)
-			 "pos" (coerce (- (event-position p) 0.5) 'float))))
+			 "pos" (coerce (- (event-position p) 1.0) 'float))))
 
 (defmethod handle-risset-event-sc-8ch ((r risset-event-8ch) timestamp &key)
   (if (> (event-reverb r) 0)     
@@ -353,7 +349,7 @@
 			 "d" (coerce (* (event-decay r) 0.001) 'float)
 			 "s" (coerce (* (event-sustain r) 0.001) 'float)
 			 "r" (coerce (* (event-release r) 0.001) 'float)
-			 "pos" (coerce (- (event-position r) 0.5) 'float)
+			 "pos" (coerce (- (event-position r) 1.0) 'float)
 			 "rev" (coerce (event-reverb r) 'float))
       (osc:simple-bundle cm::*oscout* timestamp
 			 "/s_new"	    
@@ -370,7 +366,7 @@
 			 "d" (coerce (* (event-decay r) 0.001) 'float)
 			 "s" (coerce (* (event-sustain r) 0.001) 'float)
 			 "r" (coerce (* (event-release r) 0.001) 'float)
-			 "pos" (coerce (- (event-position r) 0.5) 'float))))
+			 "pos" (coerce (- (event-position r) 1.0) 'float))))
 
 (defmethod handle-dx-rhodes-event-sc-8ch ((d dx-rhodes-event-8ch) timestamp &key)
   (if (> (event-reverb d) 0)     
@@ -403,4 +399,4 @@
 			 "lfoDepth" (coerce (event-level-lfo-depth d) 'float)
 			 "modIndex" (coerce (event-mod-index d) 'float)
 			 "vel" (coerce (event-velocity d) 'float)
-			 "pos" (coerce (- (event-position d) 0.5) 'float))))
+			 "pos" (coerce (- (event-position d) 1.0) 'float))))

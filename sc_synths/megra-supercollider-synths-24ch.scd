@@ -24,7 +24,7 @@ SynthDef(\grain_24ch, {
 	var sample_hp = BHiPass.ar(sample, hp_freq, hp_q);
 	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
 	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
-	Out.ar(0, PanAz.ar(24, sample_lp * EnvGen.ar(outenv, doneAction:2), pos * 0.125, orientation: 0));
+	Out.ar(0, PanAz.ar(24, sample_lp * EnvGen.ar(outenv, doneAction:2), pos * 0.08333333333, orientation: 0));
 }).store;
 
 // the typical filtered grain player, for 8 channels, with convolution reverb
@@ -50,5 +50,5 @@ SynthDef(\grain_24ch_rev, {
 	var sample_rev = PartConv.ar(sample_lp, 2048, 1, rev);
 	var sample_out = (sample_lp * (1.0 - rev)) + sample_rev;
 	var revenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2.5, r]);
-	Out.ar(0, PanAz.ar(24, sample_out *  EnvGen.ar(revenv, doneAction:2) , pos * 0.125, orientation: 0));
+	Out.ar(0, PanAz.ar(24, sample_out *  EnvGen.ar(revenv, doneAction:2) , pos * 0.08333333333, orientation: 0));
 }).store;
