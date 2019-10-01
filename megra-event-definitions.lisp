@@ -471,6 +471,87 @@
   :handler (handle-grain-event-sc-8ch evt timestamp))
 
 (define-event
+  :long-name grain-event-16ch
+  :short-name grain-16ch
+  :abstract-event nil
+  :parent-events (level-event
+		  duration-event
+		  pan-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  highpass-frequency-event
+                  highpass-q-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
+		  lowpass-frequency-lfo-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
+		  reverb-event)
+  :parameters ((sample-folder grain-16ch-sample-folder)
+	       (sample-file grain-16ch-sample-file)
+	       (sample-location grain-16ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-16ch evt timestamp))
+
+(define-event
+  :long-name grain-event-24ch
+  :short-name grain-24ch
+  :abstract-event nil
+  :parent-events (level-event
+		  duration-event
+		  pan-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  highpass-frequency-event
+                  highpass-q-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
+		  lowpass-frequency-lfo-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
+		  reverb-event)
+  :parameters ((sample-folder grain-24ch-sample-folder)
+	       (sample-file grain-24ch-sample-file)
+	       (sample-location grain-24ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-24ch evt timestamp))
+
+(define-event
+  :long-name grain-event-32ch
+  :short-name grain-32ch
+  :abstract-event nil
+  :parent-events (level-event
+		  duration-event
+		  pan-event
+		  start-event
+		  rate-event
+		  attack-event
+		  release-event
+		  highpass-frequency-event
+                  highpass-q-event
+		  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
+		  lowpass-frequency-lfo-event
+	          peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
+		  reverb-event)
+  :parameters ((sample-folder grain-32ch-sample-folder)
+	       (sample-file grain-32ch-sample-file)
+	       (sample-location grain-32ch-sample-location)) 
+  :direct-parameters (sample-folder sample-file)
+  :handler (handle-grain-event-sc-32ch evt timestamp))
+
+(define-event
   :long-name grain-event-nores
   :short-name nores
   :abstract-event nil
@@ -601,6 +682,24 @@
   (setf (grain-8ch-sample-location g)
 	(concatenate 'string *sample-root*
 		     (grain-8ch-sample-folder g) "/" (grain-8ch-sample-file g) "." cm::*sample-type* )))
+
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-16ch) &key)
+  (setf (grain-16ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-16ch-sample-folder g) "/" (grain-16ch-sample-file g) "." cm::*sample-type* )))
+
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-24ch) &key)
+  (setf (grain-24ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-24ch-sample-folder g) "/" (grain-24ch-sample-file g) "." cm::*sample-type* )))
+
+;; additional method after grain event initialization ...
+(defmethod initialize-instance :after ((g grain-event-32ch) &key)
+  (setf (grain-32ch-sample-location g)
+	(concatenate 'string *sample-root*
+		     (grain-32ch-sample-folder g) "/" (grain-32ch-sample-file g) "." cm::*sample-type* )))
 
 (defmethod initialize-instance :after ((g grain-event-nores) &key)
   (setf (nores-sample-location g)
