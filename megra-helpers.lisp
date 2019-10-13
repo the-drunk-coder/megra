@@ -23,6 +23,7 @@
 	    (gethash id *group-directory*))
       ;; if it's a chain, stop the chain ...
       (progn
+	(incudine::msg error "clear ~D" id)
 	(stop id)
 	(remhash id *chain-directory*)
 	(remhash id *branch-directory*))))
@@ -55,6 +56,7 @@
 	 do (deactivate chain))
       (mapc #'(lambda (id)
 		(cutall id)
+		(incudine::msg error "stop ~D" id)
 		;; if it's a group, stop the group
 		(if (gethash id *group-directory*)
 		    (mapc #'(lambda (chain)

@@ -190,7 +190,8 @@
 			  'processor-chain
 			  :topmost topmost-proc
 			  :is-active activate
-			  :shift shift)))	  
+			  :shift shift
+                          :name name)))	  
 	  ;; assign chain to a group
 	  (assign-chain-to-group new-chain name group)
 	  ;; handle branching ...	  

@@ -142,7 +142,7 @@
 	       (nconc (synced-chains chain-to-sync-to)
 		      (list chain)))))		      
       (t (unless (or (is-active chain) (wait-for-sync chain))
-	   (incudine::msg error "start chain")
+	   (incudine::msg error "start chain ~D" (name chain))
 	   (activate chain)
            ;; different methods work, unfortunately, better on different operating systems ...
            #-linux (incudine:at (+ (incudine:now) #[(chain-shift chain) ms])
