@@ -93,24 +93,36 @@
          (stack (list))
          (stack-mode nil))
     (loop for token in split 
-          do (cond ((string= token "(")
-                    ;;(format t "found open ~%")
-		    (setf stack-mode t))
-		   ((string= token ")")
-                    ;;(format t "found close ~%")
-                    (setf stack-mode nil)
-                    (setf cycle (nconc cycle (list stack)))
-                    (setf stack (list)))
-		   ((ignore-errors (parse-integer token)) (setf cycle (nconc cycle (list (parse-integer token)))))
-		   (t (if stack-mode
-                          (setf stack (nconc stack (list (let ((f-par (cl-ppcre:split ":" token)))  
-                                                           (eval (read-from-string (format nil "(~{~a~^ ~})" f-par)))))))
-                          (setf cycle (nconc cycle (list (let ((f-par (cl-ppcre:split ":" token)))  
-                                                           (eval (read-from-string (format nil "(~{~a~^ ~})" f-par)))))))))))
+       do (cond ((string= token "(")
+		 ;;(format t "found open ~%")
+		 (setf stack-mode t))
+		((string= token ")")
+		 ;;(format t "found close ~%")
+		 (setf stack-mode nil)
+		 (setf cycle (nconc cycle (list stack)))
+		 (setf stack (list)))
+		((ignore-errors (parse-integer token)) (setf cycle (nconc cycle (list (parse-integer token)))))
+		(t (if stack-mode
+		       (setf stack (nconc stack (list (let ((f-par (cl-ppcre:split ":" token)))  
+							(eval (read-from-string (format nil "(~{~a~^ ~})" f-par)))))))
+		       (setf cycle (nconc cycle (list (let ((f-par (cl-ppcre:split ":" token)))  
+							(eval (read-from-string (format nil "(~{~a~^ ~})" f-par)))))))))))
     cycle))
 
 (defmacro define-filter (tag)
   (let ((name-proc (concatenate 'string (symbol-name tag) "-p")))
     `(funcall (lambda ()	      
-	      (defun ,(read-from-string name-proc) (event)
-		(member ',tag (event-tags event)))))))
+		(defun ,(read-from-string name-proc) (event)
+		  (member ',tag (event-tags event)))))))
+
+
+(defun mon ()
+  (format t "ACTIVE CHAINS: ")
+  (loop for ch being the hash-values of *chain-directory*
+     do (when (is-active ch)
+	  (format t "~D " (name ch))))
+  (format t "~%"))
+	  
+       
+       
+  
