@@ -154,7 +154,7 @@
   :long-name pan-event
   :short-name pos
   :parent-events (event)
-  :parameters ((pos event-position 0.5 -1.5 1.5)) 
+  :parameters ((pos event-position 0.0)) 
   :direct-parameters (pos))
 
 (define-event
