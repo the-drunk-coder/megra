@@ -1,3 +1,11 @@
+
+//s = Server.local
+//o = s.options
+//o.numOutputBusChannels = 16
+//o.numInputBusChannels = 0
+//s.options = o
+//s.boot
+
 // reverb buffer hardcoded to 1 !!
 SynthDef(\grain_8ch, {
 

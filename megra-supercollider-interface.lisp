@@ -26,7 +26,12 @@
   (sleep 0.5)
   ;; prepare part conv
   (osc:message cm::*oscout* "/b_gen" "isii"
-	       *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*))
+	       *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*)
+  (sleep 0.5)
+  (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "reverb_24ch" -1 0 1))
 
 (defun free-sample (bufnum)
   (osc:message cm::*oscout* "/b_free" "i" bufnum))
