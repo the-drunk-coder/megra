@@ -53,7 +53,7 @@ Open a terminal. In the terminal, navigate to the portacle folder (that is, the 
 
 Next, you need to make the installation exectuable and run it. This will download and install all the necessary Lisp code and Lisp dependencies for Mégra:
 
-```chmod +x portacle-boostrap-linux.sh && ./portacle-boostrap-linux.sh```
+```chmod +x portacle-bootstrap-linux.sh && ./portacle-bootstrap-linux.sh```
 
 ### 4. Start Portacle
 Now just run Portacle by executing the `portacle.run` script in the portacle folder:
