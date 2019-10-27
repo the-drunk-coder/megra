@@ -25,10 +25,29 @@
   (osc:message cm::*oscout* "/b_alloc" "iiii" *ir-spectral-bufnum* *chapel-buflength* 1 0)
   (sleep 0.5)
   ;; prepare part conv
-  (osc:message cm::*oscout* "/b_gen" "isii"
-	       *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*)
-  (sleep 0.5)
-  (osc:message cm::*oscout*   
+  (osc:message cm::*oscout* "/b_gen" "isii" *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*)
+  (sleep 0.5))
+
+(defun init-4ch-rev ()
+    (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "reverb_4ch" -1 0 1))
+
+(defun init-8ch-rev ()
+    (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "reverb_8ch" -1 0 1))
+
+(defun init-16ch-rev ()
+    (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "reverb_16ch" -1 0 1))
+
+(defun init-24ch-rev ()
+    (osc:message cm::*oscout*   
 	       "/s_new"	    
 	       "siii"
 	       "reverb_24ch" -1 0 1))
