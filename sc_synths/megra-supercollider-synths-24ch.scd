@@ -1,11 +1,3 @@
-//o = Server.local.options
-//o.numInputBusChannels = 0;
-//o.numOutputBusChannels = 24;
-//o.blockSize = 128;
-//o.memSize = 262144;
-//Server.local.options = o;
-//Server.local.boot;
-
 SynthDef(\reverb_24ch, {
 	var in1, in2, in3, in4, in5, in6, in7, in8, in9, in10, in11, in12, in13, in14, in15, in16, in17, in18, in19, in20, in21, in22, in23, in24;
 	var out1, out2, out3, out4, out5, out6, out7, out8, out9, out10, out11, out12, out13, out14, out15, out16, out17, out18, out19, out20, out21, out22, out23, out24;
@@ -39,9 +31,6 @@ SynthDef(\reverb_24ch, {
 	Out.ar(0, [out1, out2, out3, out4, out5, out6, out7, out8, out9, out10, out11, out12, out13, out14, out15, out16, out17, out18, out19, out20, out21, out22, out23, out24]);
 }).store;
 
-//Bus.audio(Server.local, 24);
-//Synth.new(\reverb_24ch);
-
 // reverb buffer hardcoded to 1 !!
 SynthDef(\grain_24ch, {
 
@@ -71,3 +60,5 @@ SynthDef(\grain_24ch, {
 	Out.ar(0, out * (1.0 - rev));
 	Out.ar(24, out * rev);
 }).store;
+
+0.exit;
