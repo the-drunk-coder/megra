@@ -1,4 +1,15 @@
-// reverb buffer hardcoded to 1 !!
+SynthDef(\reverb_8ch, {
+	var in1, in2, in3, in4;
+	var out1, out2, out3, out4;
+	# in1, in2, in3, in4 = In.ar(4, 4);
+
+	out1 = PartConv.ar(in1, 2048, 1, 1.0);
+	out2 = PartConv.ar(in2, 2048, 1, 1.0);
+	out3 = PartConv.ar(in3, 2048, 1, 1.0);
+	out4 = PartConv.ar(in4, 2048, 1, 1.0);
+
+	Out.ar(0, [out1, out2, out3, out4]);
+}).store;
 
 SynthDef(\grain_4ch, {
 
@@ -15,7 +26,7 @@ SynthDef(\grain_4ch, {
 	hp_freq=20, hp_q=0.3,
 
 	// env
-	a=0.01, length=1, r=0.02, pos=0.0
+	a=0.01, length=1, r=0.02, pos=0.0, rev=0.0
 	|
 
 	var lim_gain = min(lvl, 1.0);
@@ -25,34 +36,9 @@ SynthDef(\grain_4ch, {
 	var sample_hp = BHiPass.ar(sample, hp_freq, hp_q);
 	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
 	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
-	Out.ar(0, PanAz.ar(4, sample_lp * EnvGen.ar(outenv, doneAction:2), pos * 0.25, orientation: 0));
-}).store;
-
-
-// the typical filtered grain player, for two channels, with convolution reverb
-SynthDef(\grain_4ch_rev, {
-	|
-	bufnum=0, lvl=0.5, rate=1.0, start=0.0,
-
-	lp_freq=19000, lp_q=0.1, lp_dist=0.0, lp_freq_lfo_freq=0.8, lp_freq_lfo_depth = 1.0, lp_freq_lfo_phase = 0.5,
-
-	pf_freq=4000, pf_q=0.1, pf_gain=0.0,
-
-	hp_freq=20, hp_q=0.3, a=0.01,
-
-	length=1, r=0.02, pos=0.0, rev=0.0
-	|
-
-	var lim_gain = min(lvl, 1.0);
-	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
-	var sample = PlayBuf.ar(1, bufnum, rate, 1, startPos: BufDur.ir(bufnum) * 44100 * start, loop: 1) * EnvGen.ar(cutenv);
-	var sample_hp = BHiPass.ar(sample, hp_freq, hp_q);
-	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
-	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
-	var sample_rev = PartConv.ar(sample_lp, 2048, 1, rev);
-	var sample_out = (sample_lp * (1.0 - rev)) + sample_rev;
-	var revenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2.5, r]);
-	Out.ar(0, PanAz.ar(4, sample_out *  EnvGen.ar(revenv, doneAction:2) , pos * 0.25, orientation: 0));
+	var out = PanAz.ar(4, sample_lp * EnvGen.ar(cutenv, doneAction:2), pos * 0.5, orientation: 0);
+	Out.ar(0, out * (1.0 - rev));
+	Out.ar(4, out * rev);
 }).store;
 
 0.exit;
