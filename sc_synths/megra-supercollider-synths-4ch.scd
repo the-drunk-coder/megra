@@ -1,4 +1,4 @@
-SynthDef(\reverb_8ch, {
+SynthDef(\reverb_4ch, {
 	var in1, in2, in3, in4;
 	var out1, out2, out3, out4;
 	# in1, in2, in3, in4 = In.ar(4, 4);
