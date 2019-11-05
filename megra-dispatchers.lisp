@@ -156,7 +156,7 @@
 			         it)
            )))))
 
-(defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0)) &body proc-body)
+(defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0) (intro nil)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   `(funcall #'(lambda ()
@@ -238,7 +238,17 @@
 			(t (incudine::msg error "invalid state"))))
 		(incudine::msg info "hopefully built chain ~D ..." ,name)
 		;; if we've reached this point, we should have a valid chain, or left the function ...
-		(inner-dispatch ,name ,sync))))
+                (if ,intro
+                    (progn (handle-event ,intro 0)
+                           (incudine:at (+ (incudine:now) #[(event-duration ,intro) ms])
+			                #'(lambda ()
+                                            (incudine::msg error "lalala ~D ~D ..." ,name ,sync)
+                                            (inner-dispatch
+                                                   ,name 
+                                                   ,sync))
+			                 ))
+                    (inner-dispatch ,name ,sync))
+                )))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
