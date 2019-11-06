@@ -255,3 +255,5 @@
 ;; even shorter, tidal style ... 
 (setf (macro-function 's) (macro-function 'dispatch))
 
+(defun once (event)
+  (handle-event event 0))
