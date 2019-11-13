@@ -95,7 +95,8 @@
 		       (setf (event-tags (car events))
 			     (remove-duplicates
 			      (append (event-tags (car events))
-				      (list (node-color n)))))
+				      (list (node-color n))
+                                      (list (graph-id g)))))
 		       (identify (cdr events) (+ 1 count))))))
 	(identify (node-content n) 0)))
   (setf (gethash (node-id n) (graph-nodes g)) n))

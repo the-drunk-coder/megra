@@ -101,7 +101,8 @@
 			                            :combine-filter #'all-p)))))
 
 ;; nucleus, one node, with one repeating edge ... 
-(defun nuc (name event &key (overlap 0) (dur *global-default-duration*) (reset t))  
+(defun nuc (name event &key (overlap 0) (dur *global-default-duration*) (reset t))
+  (define-filter name)
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
@@ -135,6 +136,7 @@
 
 ;; a cycle ... 
 (defun cyc (name events  &key (dur *global-default-duration*) (overlap 0) (rnd 0) (rep 0) (max-rep 4) (reset t) (cmode 'auto))
+  (define-filter name)
   (let* ((real-events (if (typep events 'string)
 			  (string->cycle-list events)
 			  events))

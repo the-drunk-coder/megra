@@ -83,6 +83,9 @@
 	 (init-sym (car (alexandria::hash-table-keys events))))
     (change-class new-mpfa 'mpfa)
     (setf (mpfa-default-duration new-mpfa) dur)
+    ;; set event tags
+    (loop for ev being the hash-values of events
+          do (push name (event-tags (car ev))))
     (setf (mpfa-event-dictionary new-mpfa) events)
     (if old-proc
         (let ((old-mpfa (source-mpfa old-proc)))
@@ -122,6 +125,9 @@
     (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	(setf (source-mpfa old-proc) new-mpfa))
     (setf (mpfa-default-duration new-mpfa) dur)
+    ;; set event tags
+    (loop for ev being the hash-values of events
+          do (push name (event-tags (car ev))))
     (setf (mpfa-event-dictionary new-mpfa) events)
     (setf (mpfa-last-symbol new-mpfa) init-sym)        
     (setf (gethash name *processor-directory*) new-proc)))
@@ -132,6 +138,7 @@
 					         (epsilon 0.001)
 					         (size 50)
                                                  (cmode ''append))
+  (define-filter name)
   `(funcall (lambda ()
 	      (learn ,name (p-events ,events) (sstring ,sample-string)
 		     :dur ,dur
@@ -149,6 +156,7 @@
 	               :dur ,dur))))
 
 (defun grow2 (name &key (var 0.1) (hist 2) (ord 2) (exit 1) method durs funct)
+  (define-filter name)
   (let* ((proc (gethash name *processor-directory*))
 	 ;; this one needs to be adapted to keep the old methods
 	 ;; alive ! 
@@ -161,7 +169,8 @@
     ;; default duration will be picked for now ...
     ))
 
-(defun cyc2 (name events  &key (dur *global-default-duration*) (rep 0) (max-rep 4) (cmode 'append))
+(defun cyc2 (name events &key (dur *global-default-duration*) (rep 0) (max-rep 4) (cmode 'append))
+  (define-filter name)
   (let ((count 1)
 	(rules (list))
 	(event-mapping (make-hash-table :test #'equal))
