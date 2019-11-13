@@ -191,8 +191,9 @@
   (floor (+ orig (* (* (- 20000 (random 40000)) var)
 	     (/ orig 20000)))))
 
-(defun lifemodel (act growth-cycle lifespan
-	       &rest rest)
+;; lifemodel works more in minimalistic contexts rather than algorave,
+;; i suppose ...
+(defun inner-lifemodel (act growth-cycle lifespan rest)
   (let ((method (find-keyword-val :method rest :default 'triloop))
 	(variance (find-keyword-val :var rest :default 0.2))
 	(autophagia (find-keyword-val :autophagia rest :default t))
@@ -219,7 +220,11 @@
 		   :autophagia autophagia
 		   :apoptosis apoptosis)))
 
+(defun lifemodel (act growth-cycle lifespan &rest rest)
+  (inner-lifemodel act growth-cycle lifespan rest))
 
+(defun lm (act growth-cycle lifespan &rest rest)
+  (inner-lifemodel act growth-cycle lifespan rest))
 
 
 
