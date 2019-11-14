@@ -55,7 +55,7 @@
     ;; and the next evaluation is scheduled ...
     ;; this method works only with SC,
     ;; with INCUDINE itself it'll be imprecise ... 
-    (let* ((trans-time (transition-duration (car (pull-transition chain))))
+    (let* ((trans-time (* *global-tempo-mod* (transition-duration (car (pull-transition chain)))))
 	   (next-osc-time (+ osc-time (* trans-time 0.001)))
 	   (next-incu-time (+ incudine-time
 			      #[(- next-osc-time (incudine::timestamp)) s])))
@@ -108,7 +108,7 @@
 	(incudine::msg error "cannot pull and handle events: ~D" e)))
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...    
-    (let* ((trans-time (transition-duration (car (pull-transition chain))))	   
+    (let* ((trans-time (* *global-tempo-mod* (transition-duration (car (pull-transition chain)))))
 	   (next-incu-time (+ incudine-time #[trans-time ms])))      
       (incudine:aat next-incu-time #'perform-dispatch chain it))))
 

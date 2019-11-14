@@ -46,6 +46,11 @@
 ;; make int a little bit longer, because the first one or two elements will be dropped
 (defparameter *global-trace-length* 10)
 
+(defvar *global-tempo-mod* 1.0)
+
+(defun tmod (mod)
+  (setf *global-tempo-mod* mod))
+
 (defvar *encourage-percentage* 5)
 ;; what might be the justification for this split ?
 ;; "Un-Learning" things is harder for humans, but for machines ?
