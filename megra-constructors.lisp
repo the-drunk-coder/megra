@@ -193,6 +193,15 @@
     (setf (source-graph graph-proc) src-graph)
     (setf (gethash name *processor-directory*) graph-proc)))
 
+;; brownian spread on something
+(defmacro bspread (sel)
+  `(for ,sel (always (pos (brownian -1.0 1.0)))))
+
+;; parameter sequence
+(defmacro pseq (param &rest rest)
+  (let ((p-events (loop for val in rest
+                        collect `(,param ,val))))
+    `(funcall (lambda () (cyc ',(gensym) (list ,@p-events))))))
 
 ;; star
 ;; tstar

@@ -1,3 +1,5 @@
+(in-package :megra)
+
 (defparameter *global-resources* 35.0) ;; just guessing ...
 (defparameter *global-regain* 0.2) ;; just guessing ...
 (defparameter *global-regain-time* 15) ;; SECONDS ! guess the global regain is the only thing working in seconds 
@@ -10,4 +12,7 @@
 (defparameter *dont-let-die* t) ;; always keep at least one node ...  
 
 (defun global-resources (res)
+  (setf *global-resources* res))
+
+(defun globres (res)
   (setf *global-resources* res))
