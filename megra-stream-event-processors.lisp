@@ -161,7 +161,9 @@
                        when (funcall (event-filter c) event)
                        do (setf (event-position event) cur-pos-r)
                        when (funcall (event-filter c) event)
-                       collect (let ((ev-copy (deepcopy event :imprecision (ps-var c))))
+                          collect (let ((ev-copy (deepcopy event :imprecision (if (typep (ps-var c) 'param-mod-object)
+                                                                                  (evaluate (ps-var c))
+                                                                                  (ps-var c)))))
                                  (setf (event-position event) cur-pos-l)
                                  ev-copy)))))
 
@@ -184,7 +186,9 @@
     new-inst))
 
 (defmacro pulspread (cycle var &body selector)
-  `(for ,@selector (pulse-spreader ,cycle)))
+  (if selector
+      `(for ,@selector (pulse-spreader ,cycle ,var))
+      `(pulse-spreader ,cycle ,var)))
 
 ;; the constructor ... if store is set, it'll be stored in the processor directory,
 ;; if not, it'll be stored in the processor directory by the chain building
@@ -338,13 +342,16 @@
 
 ;; more practical version
 (defmacro inh (prob &body selectors)
-  `(for ,@selectors (prob ,prob (lvl 0.0))))
+  (if selectors
+      `(for ,@selectors (prob ,prob (lvl 0.0)))
+      `(prob ,prob (lvl 0.0))))
 
 (defmacro exh (prob &body selectors)
-  `(notfor ,@selectors (prob ,prob (lvl 0.0))))
+  (if selectors `(notfor ,@selectors (prob ,prob (lvl 0.0)))))
 
 (defmacro inexh (prob &body selectors)
-  `(notfor ,@selectors (prob ,prob (lvl 0.0))))
+  `(notfor ,@selectors (prob ,prob (lvl 0.0)))
+  `(for ,@selectors (prob ,prob (lvl 0.0))))
 
 (defclass parameter-limiter (stream-event-processor)
   ((upper :accessor limiter-upper-limit :initarg :upper)
