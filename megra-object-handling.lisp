@@ -2,7 +2,7 @@
 
 ;; the slots of the basic event class should of course not be overwritten ...
 ;; manual makeshift solution
-(defparameter *protected-slots* '(source value-combine-function tags backends))
+(defparameter *protected-slots* '(source value-combine-function tags backends abstract))
 
 ;; GENERIC
 
