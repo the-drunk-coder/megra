@@ -149,6 +149,43 @@
 		events))
   events)
 
+(defclass pulse-spreader (stream-event-processor)
+  ((pos-l :accessor ps-pos-l)
+   (pos-r :accessor ps-pos-r)
+   (variance :accessor ps-var :initarg :var)))
+
+(defmethod apply-self ((c pulse-spreader) events &key)
+  (let ((cur-pos-r (evaluate (ps-pos-r c)))
+        (cur-pos-l (evaluate (ps-pos-l c))))
+      (nconc events (loop for event in events
+                       when (funcall (event-filter c) event)
+                       do (setf (event-position event) cur-pos-r)
+                       when (funcall (event-filter c) event)
+                       collect (let ((ev-copy (deepcopy event :imprecision (ps-var c))))
+                                 (setf (event-position event) cur-pos-l)
+                                 ev-copy)))))
+
+(defun pulse-spreader (cycle variance &key (filter #'all-p) (store nil))
+  (let* ((name (gensym))
+         (new-inst (make-instance 'pulse-spreader
+				  :name name
+                                  :var variance
+				  :track-state nil
+				  :mod-prop nil
+				  :affect-transition nil
+				  :event-filter filter))
+	 (old-inst (gethash name *processor-directory*)))
+    (setf (ps-pos-l new-inst) (oscil -1.0 0 :cycle cycle))
+    (setf (ps-pos-r new-inst) (oscil 0.0 1.0 :cycle cycle))
+    (when old-inst
+      (setf (chain-bound new-inst) (chain-bound old-inst)))
+    (when store
+      (setf (gethash name *processor-directory*) new-inst))
+    new-inst))
+
+(defmacro pulspread (cycle var &body selector)
+  `(for ,@selector (pulse-spreader ,cycle)))
+
 ;; the constructor ... if store is set, it'll be stored in the processor directory,
 ;; if not, it'll be stored in the processor directory by the chain building
 ;; routine
@@ -189,7 +226,6 @@
 (defmacro multi-filter-not (filters)
   #'(lambda (event)
       (> (loop for f in filters summing (if (not (member f (event-tags event))) 1 0)) 0)))
-
 
 (defmacro for (&rest filters)
   (let ((filter-names
