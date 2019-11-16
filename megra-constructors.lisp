@@ -193,9 +193,9 @@
     (setf (source-graph graph-proc) src-graph)
     (setf (gethash name *processor-directory*) graph-proc)))
 
-;; brownian spread on something
-(defmacro bspread (sel)
-  `(for ,sel (always (pos (brownian -1.0 1.0)))))
+;; brownian pan on something
+(defmacro bpan (&body selector)
+  `(for ,@selector (always (pos (brownian -1.0 1.0)))))
 
 ;; parameter sequence
 (defmacro pseq (param &rest rest)
