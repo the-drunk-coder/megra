@@ -184,19 +184,35 @@
 
 (defmacro multi-filter (filters)
   #'(lambda (event)
-    (> (loop for f in filters
-	  summing (if (member f (event-tags event)) 1 0))
-	 0)))
+      (> (loop for f in filters summing (if (member f (event-tags event)) 1 0)) 0)))
+
+(defmacro multi-filter-not (filters)
+  #'(lambda (event)
+      (> (loop for f in filters summing (if (not (member f (event-tags event))) 1 0)) 0)))
+
 
 (defmacro for (&rest filters)
   (let ((filter-names
-	 (loop for filter in filters
-	    when (typep filter 'symbol)
-	    collect  filter))
+	  (loop for filter in filters
+	        when (typep filter 'symbol)
+	        collect  filter))
 	(_proc (car (reverse filters))))
     `(funcall (lambda ()
 		(let ((proc ,_proc))
 		  (setf (event-filter proc) (multi-filter ,filter-names))
+		  (when (member 'transition ',filter-names)
+		    (setf (affect-transition proc) t))
+		  proc)))))
+
+(defmacro notfor (&rest filters)
+  (let ((filter-names
+	  (loop for filter in filters
+	        when (typep filter 'symbol)
+	        collect  filter))
+	(_proc (car (reverse filters))))
+    `(funcall (lambda ()
+		(let ((proc ,_proc))
+		  (setf (event-filter proc) (multi-filter-not ,filter-names))
 		  (when (member 'transition ',filter-names)
 		    (setf (affect-transition proc) t))
 		  proc)))))
@@ -284,50 +300,15 @@
 		 events)
       events))
 
-(defclass inhibit-events (stream-event-processor)
-  ((prob :accessor inhibit-events-prob :initarg :prob)))
+;; more practical version
+(defmacro inh (prob &body selectors)
+  `(for ,@selectors (prob ,prob (lvl 0.0))))
 
-;; make inhibit accessible to live modifications
-;; the create-accessor only works within a macro ... pretty hacky, all in all ... 
-(eval (create-accessor 'inhibit-events 'inhibit-events-prob 'prob))
+(defmacro exh (prob &body selectors)
+  `(notfor ,@selectors (prob ,prob (lvl 0.0))))
 
-(defmacro inh (prob filter)
-  (let ((filter-name (intern (concatenate 'string (symbol-name filter) "-" (symbol-name 'p)))))
-    `(funcall (lambda () (make-instance 'inhibit-events 
-				   :prob ,prob
-				   :name (gensym)
-				   :mod-prop nil		 
-				   :affect-transition nil
-				   :event-filter #',filter-name)))))
-
-;; make state-tracking switchable ??? 
-(defmethod apply-self ((i inhibit-events) events &key) 
-  (if (< (random 100) (inhibit-events-prob i))
-      (remove-if (event-filter i) events)
-      events))
-
-
-(defclass exhibit-events (stream-event-processor)
-  ((prob :accessor exhibit-events-prob :initarg :prob)))
-
-;; make inhibit accessible to live modifications
-;; the create-accessor only works within a macro ... pretty hacky, all in all ... 
-(eval (create-accessor 'exhibit-events 'exhibit-events-prob 'prob))
-
-(defmacro exh (prob filter)
-  (let ((filter-name (intern (concatenate 'string (symbol-name filter) "-" (symbol-name 'p)))))
-    `(funcall (lambda () (make-instance 'exhibit-events 
-				   :prob ,prob
-				   :name (gensym)
-				   :mod-prop nil		 
-				   :affect-transition nil
-				   :event-filter #',filter-name)))))
-
-;; make state-tracking switchable ??? 
-(defmethod apply-self ((e exhibit-events) events &key) 
-  (if (< (random 100) (exhibit-events-prob e))
-      (remove-if-not (event-filter e) events)
-      events))
+(defmacro inexh (prob &body selectors)
+  `(notfor ,@selectors (prob ,prob (lvl 0.0))))
 
 (defclass parameter-limiter (stream-event-processor)
   ((upper :accessor limiter-upper-limit :initarg :upper)
