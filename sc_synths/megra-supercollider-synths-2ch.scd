@@ -265,7 +265,7 @@ SynthDef(\buzz_2ch, {| freq=1000, lvl=0.5, harm=3, lp_freq=19000,
 	var lim_gain = min(lvl, 1.0);
 	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
 	var outenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2.5, r]);
-	var sample =  Blip.ar(freq, harm) * EnvGen.ar(cutenv);
+	var sample = Blip.ar(freq, harm) * EnvGen.ar(cutenv);
 	var sample_lp = LPF18.ar(sample, lp_freq, lp_q, lp_dist);
 	Out.ar(0, Pan2.ar(sample_lp * EnvGen.ar(outenv, doneAction:2), pos));
 }).store;
@@ -330,7 +330,7 @@ SynthDef.new(\saw_adsr_2ch_rev, { | freq, lvl, a, d, s, r, lp_freq, lp_q, lp_dis
 	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos))
 }).store;
 
-SynthDef.new(\saw_2ch_rev, { | freq=440, lvl=0.5, a=0.3, length, r, lp_freq, lp_q, lp_dist, pos, rev |
+SynthDef.new(\saw_2ch_rev, { | freq=110, lvl=0.25, a=0.001, length=0.3, r=0.3, lp_freq=1000, lp_q=0.8, lp_dist=0.0, pos=0.0, rev=0.0 |
 	var lim_cutoff = min(lp_freq,15000);
 	var lim_freq = min(freq, 15000);
 	var lim_gain = min(lvl, 1.1);
@@ -339,9 +339,10 @@ SynthDef.new(\saw_2ch_rev, { | freq=440, lvl=0.5, a=0.3, length, r, lp_freq, lp_
 	var snd = LPF18.ar(LFSaw.ar(freq), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
 	var revsnd = PartConv.ar(snd, 2048, 1, rev);
 	var mixsnd = (snd * (1.0 - rev)) + revsnd;
-	var outenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2, r]);
+	var outenv = Env.new([0, 1.0, 1.0, 0], [a, length + 2, r]);
 	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos));
 }).store;
+
 
 SynthDef.new(\sqr_2ch_rev, { | freq=440, lvl=0.5, a=0.3, length, r, lp_freq, lp_q, lp_dist, pos, rev, pulsewidth |
 	var lim_cutoff = min(lp_freq,15000);
@@ -352,7 +353,7 @@ SynthDef.new(\sqr_2ch_rev, { | freq=440, lvl=0.5, a=0.3, length, r, lp_freq, lp_
 	var snd = LPF18.ar(LFPulse.ar(freq, width:pulsewidth), EnvGen.ar(filterenv), lp_q, lp_dist) * EnvGen.ar(ampenv);
 	var revsnd = PartConv.ar(snd, 2048, 1, rev);
 	var mixsnd = (snd * (1.0 - rev)) + revsnd;
-	var outenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 2, r]);
+	var outenv = Env.new([0, 1.0, 1.0, 0], [a, length + 2, r]);
 	Out.ar(0, Pan2.ar(mixsnd *  EnvGen.ar(outenv, doneAction:2), pos));
 }).store;
 
