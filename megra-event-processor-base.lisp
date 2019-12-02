@@ -144,19 +144,19 @@
 			   (typep proc 'mpfa-event-processor))
 		       proc)
 		      ))
-	    proc-list)))
+	    (remove nil proc-list))))
 
 (defmacro chain (name (&key (activate nil) (shift 0.0) (group nil))
 		 &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors
-		       (gen-proc-list ,name (list ,@proc-body))))
-		(chain-from-list
-		 ,name
-		 event-processors		 
-		 :activate ,activate
-		 :shift ,shift
-		 :group ,group)))))
+		        (gen-proc-list ,name (list ,@proc-body))))                  
+		  (chain-from-list
+		   ,name
+		   event-processors		 
+		   :activate ,activate
+		   :shift ,shift
+		   :group ,group)))))
 
 ;; if no group is given, the current group will be used ... 
 (defun assign-chain-to-group (chain chain-name group)
