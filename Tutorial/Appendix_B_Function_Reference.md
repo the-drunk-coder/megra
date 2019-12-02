@@ -25,6 +25,15 @@ Always apply reverb to events:
   (always (rev 0.1))
   (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~"))
 ```
+## `bpan` - Apply Browninan Stereo Panning to Event Stream
+
+### Examples
+
+```lisp
+(s 'some ()
+  (bpan beat)
+  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~"))
+```
 
 ## `brownian` - Bounded Brownian Motion 
 
@@ -403,6 +412,12 @@ Define oscillation on any parameter. The oscillation curve is a bit bouncy, not 
 
 ## `prob` - Event Stream Manipulator Probablity
 
+## `pseq` - Event Sequence Generated from Parameters
+
+## `pulspread` - Pulsating Stereo Spread
+```lisp
+(pulspread <pulse cycle> <variance> <selectors>)
+```
 ## `shrink` - Shrink Generator
 
 ## `s`, `sink` - Event Sink
