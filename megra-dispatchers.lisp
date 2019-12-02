@@ -19,20 +19,20 @@
     ;; here, the events are produced and handled ...
     (when (synced-chains chain)
       (loop for synced-chain in (synced-chains chain)	     
-	 ;; don't check if it's active, as only deactivated procs
-	 ;; are added to sync list
-	 do (let ((sync-shift (chain-shift synced-chain)))	        
-	      (activate synced-chain)	      
-	      (setf (chain-shift synced-chain) 0)
-	      ;; secure this to ensure smooth operation in case of
-	      ;; forgotten graphs ... 	        
-	      (handler-case		    
-		  (incudine:aat (+ incudine-time #[sync-shift ms])
-				#'perform-dispatch-sep-times
-				synced-chain
-				(+ osc-time (* sync-shift 0.001))
-				it)		  		
-		(simple-error (e) (incudine::msg error "~D" e)))))
+	    ;; don't check if it's active, as only deactivated procs
+	    ;; are added to sync list
+	    do (let ((sync-shift (chain-shift synced-chain)))	        
+	         (activate synced-chain)	      
+	         (setf (chain-shift synced-chain) 0)
+	         ;; secure this to ensure smooth operation in case of
+	         ;; forgotten graphs ... 	        
+	         (handler-case		    
+		     (incudine:aat (+ incudine-time #[sync-shift ms])
+				   #'perform-dispatch-sep-times
+				   synced-chain
+				   (+ osc-time (* sync-shift 0.001))
+				   it)		  		
+		   (simple-error (e) (incudine::msg error "~D" e)))))
       ;; reset all synced processors
       (setf (synced-chains chain) nil))
     (handler-case
@@ -55,7 +55,8 @@
     ;; and the next evaluation is scheduled ...
     ;; this method works only with SC,
     ;; with INCUDINE itself it'll be imprecise ... 
-    (let* ((trans-time (* *global-tempo-mod* (transition-duration (car (pull-transition chain)))))
+    (let* ((trans-time (* (if (typep *global-tempo-mod* 'param-mod-object) (evaluate *global-tempo-mod*) *global-tempo-mod*)
+                          (transition-duration (car (pull-transition chain)))))
 	   (next-osc-time (+ osc-time (* trans-time 0.001)))
 	   (next-incu-time (+ incudine-time
 			      #[(- next-osc-time (incudine::timestamp)) s])))
@@ -77,20 +78,20 @@
     ;; here, the events are produced and handled ...
     (when (synced-chains chain)
       (loop for synced-chain in (synced-chains chain)	     
-	 ;; don't check if it's active, as only deactivated procs
-	 ;; are added to sync list
-	 do (let ((sync-shift (chain-shift synced-chain)))	        
-	      (activate synced-chain)
-	      (setf (wait-for-sync synced-chain) nil)
-	      (setf (chain-shift synced-chain) 0)
-	      ;; secure this to ensure smooth operation in case of
-	      ;; forgotten graphs ... 	        
-	      (handler-case		    
-		  (incudine:aat (+ incudine-time #[sync-shift ms])
-				#'perform-dispatch
-			        synced-chain
-				it)		  		
-		(simple-error (e) (incudine::msg error "~D" e)))))
+	    ;; don't check if it's active, as only deactivated procs
+	    ;; are added to sync list
+	    do (let ((sync-shift (chain-shift synced-chain)))	        
+	         (activate synced-chain)
+	         (setf (wait-for-sync synced-chain) nil)
+	         (setf (chain-shift synced-chain) 0)
+	         ;; secure this to ensure smooth operation in case of
+	         ;; forgotten graphs ... 	        
+	         (handler-case		    
+		     (incudine:aat (+ incudine-time #[sync-shift ms])
+				   #'perform-dispatch
+			           synced-chain
+				   it)		  		
+		   (simple-error (e) (incudine::msg error "~D" e)))))
       ;; reset all synced processors
       (setf (synced-chains chain) nil))
     (handler-case
@@ -108,7 +109,8 @@
 	(incudine::msg error "cannot pull and handle events: ~D" e)))
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...    
-    (let* ((trans-time (* *global-tempo-mod* (transition-duration (car (pull-transition chain)))))
+    (let* ((trans-time (* (if (typep *global-tempo-mod* 'param-mod-object) (evaluate *global-tempo-mod*) *global-tempo-mod*)
+                          (transition-duration (car (pull-transition chain)))))
 	   (next-incu-time (+ incudine-time #[trans-time ms])))      
       (incudine:aat next-incu-time #'perform-dispatch chain it))))
 
@@ -153,8 +155,7 @@
            #+linux (incudine:aat (+ (incudine:now) #[(chain-shift chain) ms])
 			         #'perform-dispatch
 			         chain				     
-			         it)
-           )))))
+			         it))))))
 
 (defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0) (intro nil)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
@@ -164,12 +165,12 @@
 		(when ,branch
 		  (incudine:nrt-funcall  
 		   (loop for proc-id being the hash-keys of *processor-directory*
-		      do (setf (gethash proc-id *prev-processor-directory*)
-			       (clone proc-id proc-id :track nil :store nil)))))
+		         do (setf (gethash proc-id *prev-processor-directory*)
+			          (clone proc-id proc-id :track nil :store nil)))))
 		(let* ((event-processors
-			;; replace symbols by instances,
-			;; generate proper names, insert into proc directory
-			(gen-proc-list ,name (list ,@proc-body)))
+			 ;; replace symbols by instances,
+			 ;; generate proper names, insert into proc directory
+			 (gen-proc-list ,name (list ,@proc-body)))
 		       (old-chain (gethash ,name *chain-directory*)))
 		  ;; first, construct the chain ...
 		  (cond ((and ,branch old-chain)
@@ -241,14 +242,11 @@
                 (if ,intro
                     (progn (handle-event ,intro 0)
                            (incudine:at (+ (incudine:now) #[(event-duration ,intro) ms])
-			                #'(lambda ()
-                                            (incudine::msg error "lalala ~D ~D ..." ,name ,sync)
+			                #'(lambda ()                                            
                                             (inner-dispatch
-                                                   ,name 
-                                                   ,sync))
-			                 ))
-                    (inner-dispatch ,name ,sync))
-                )))
+                                             ,name 
+                                             ,sync))))
+                    (inner-dispatch ,name ,sync)))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
