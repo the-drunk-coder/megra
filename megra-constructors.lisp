@@ -203,6 +203,21 @@
                         collect `(,param ,val))))
     `(funcall (lambda () (cyc ',(gensym) (list ,@p-events))))))
 
+(defmacro chop (name template num)
+  (let ((p-events (loop for val from 0 to num
+		        collect `(let ((cur-ev ,template))                                   
+                                   (setf (event-start cur-ev) (* ,val (coerce (/ 1 ,num) 'float)))
+                                   cur-ev))))
+    `(funcall (lambda () (cyc ',name (list ,@p-events))))))
+
+(defmacro chop2 (name template num)
+  (let ((p-events (loop for val from 0 to num
+		        collect `(let ((cur-ev ,template))                                   
+                                   (setf (event-start cur-ev) (* ,val (coerce (/ 1 ,num) 'float)))
+                                   cur-ev))))
+    `(funcall (lambda () (cyc2 ',name (list ,@p-events))))))
+
+
 ;; star
 ;; tstar
 ;; bstar
