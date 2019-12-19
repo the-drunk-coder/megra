@@ -226,6 +226,34 @@
 (defun lm (act growth-cycle lifespan &rest rest)
   (inner-lifemodel act growth-cycle lifespan rest))
 
+;; count
+(defclass count-wrapper (event-processor-wrapper)
+  ((on-count :accessor on-count :initarg :on-count)
+   (function :accessor count-control-function :initarg :function)
+   (function-args :accessor function-args :initarg :args)
+   (counter :accessor control-counter :initform 1)))
+
+(defmethod post-processing ((c count-wrapper) &key)
+  (incf (control-counter c))
+  ;;(format t )
+  (when (eql (control-counter c) (on-count c))
+    (funcall (count-control-function c) (function-args c) (wrapper-wrapped-processor c))
+    (setf (control-counter c) 1)))
+
+(defmacro every (act count fun-with-args proc)
+  (let ((fun (car fun-with-args))
+        (args (cdr fun-with-args)))
+    `(make-instance 'count-wrapper
+                    :act ,act
+                    :name (gensym)
+                    :on-count ,count 
+                    :function ',fun
+                    :args ',args
+                    :wrapped-processor ,proc)))
 
 
-
+(defun skip (args proc)
+  (loop for a from 0 to (- (car args) 1)
+        do (progn                              
+             (pull-events proc :skip-successor t)
+             (pull-transition proc :skip-successor t))))

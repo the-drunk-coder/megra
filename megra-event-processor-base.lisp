@@ -15,10 +15,12 @@
    (affect-transition :accessor affect-transition :initarg :affect-transition :initform nil)
    (update-clones :accessor update-clones :initarg :update-clones :initform nil)))
 
-(defmethod pull-events ((e event-processor) &key)
-  (if (successor e)
-      (apply-self e (pull-events (successor e)))
-      (current-events e)))
+(defmethod pull-events ((e event-processor) &key (skip-successor nil))
+  (if skip-successor
+      (current-events e)
+      (if (successor e)
+          (apply-self e (pull-events (successor e)))
+          (current-events e))))
 
 ;; events are the successor events 
 (defmethod apply-self ((g event-processor) events &key)
@@ -27,13 +29,15 @@
 (defmethod apply-self-transition ((g event-processor) current-transition transition &key)
   (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
 
-(defmethod pull-transition ((e event-processor) &key)
-  (if (successor e)
-      (let ((cur-trans (current-transition e)))
-	(if (affect-transition e)
-	    (apply-self-transition e cur-trans (pull-transition (successor g)))
-	    (pull-transition (successor e))))
-      (current-transition e)))
+(defmethod pull-transition ((e event-processor) &key (skip-successor nil))
+  (if skip-successor
+      (current-transition e)
+      (if (successor e)
+          (let ((cur-trans (current-transition e)))
+	    (if (affect-transition e)
+	        (apply-self-transition e cur-trans (pull-transition (successor g)))
+	        (pull-transition (successor e))))
+          (current-transition e))))
 
 ;; pass -- default 
 (defmethod current-transition ((m event-processor) &key))
