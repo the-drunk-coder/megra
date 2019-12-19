@@ -260,7 +260,7 @@
                     :args ',args
                     :wrapped-processor ,proc)))
 
-;; count
+;; prob
 (defclass prob-wrapper (event-processor-wrapper)
   ((prob :accessor prob-wrapper-prob :initarg :prob)
    (function :accessor prob-control-function :initarg :function)
@@ -276,16 +276,32 @@
     `(make-instance 'prob-wrapper
                     :act ,act
                     :name (gensym)
-                    :on-count ,count 
+                    :prob ,prob 
                     :function ',fun
                     :args ',args
                     :wrapped-processor ,proc)))
 
 
+;; dup - duplicate .. (new wrapper)
+;; (dup t 3 (cyc ..)
+;;     (lm t 20 20 :var 0.2) ;; recursive application necessary ! 
+;;     (every t 4 (skip 2))
+
+
 ;; FUNCTIONS 
 (defun skip (args proc)
-  (format t "SKIP")
   (loop for a from 0 to (- (car args) 1)
         do (progn                              
              (pull-events proc :skip-successor t)
              (pull-transition proc :skip-successor t))))
+
+
+;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
+;; relax 4 0.5 - apply tempo mod for the next n times (only on base proc)
+;; needs a list of tempo modifiers at dispatcher level ...
+;; access to base proc ?
+
+;; rew 3 - rewind (set to state n back in traced path)
+;; needs traced path for pfa and state setter method, ideally for both ... 
+
+;; appl (dur 200) - apply event to output 
