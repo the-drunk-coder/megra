@@ -20,6 +20,16 @@
 	(pull-transition (successor w)))
       (current-transition (wrapper-wrapped-processor w))))
 
+(defmethod current-events ((w event-processor-wrapper) &key)
+  (current-events (wrapper-wrapped-processor w)))
+
+(defmethod current-transition ((w event-processor-wrapper) &key)
+  (current-transition (wrapper-wrapped-processor w)))
+
+(defmethod combine-filter ((w event-processor-wrapper))
+  (combine-filter (wrapper-wrapped-processor w)))
+
+
 ;;;;;;;;;;;;;;;; GENERIC Population Control ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; population here refers to the number of nodes in a graph ...
@@ -231,14 +241,13 @@
   ((on-count :accessor on-count :initarg :on-count)
    (function :accessor count-control-function :initarg :function)
    (function-args :accessor function-args :initarg :args)
-   (counter :accessor control-counter :initform 1)))
+   (counter :accessor control-counter :initform 0)))
 
 (defmethod post-processing ((c count-wrapper) &key)
   (incf (control-counter c))
-  ;;(format t )
   (when (eql (control-counter c) (on-count c))
     (funcall (count-control-function c) (function-args c) (wrapper-wrapped-processor c))
-    (setf (control-counter c) 1)))
+    (setf (control-counter c) 0)))
 
 (defmacro every (act count fun-with-args proc)
   (let ((fun (car fun-with-args))
@@ -251,8 +260,31 @@
                     :args ',args
                     :wrapped-processor ,proc)))
 
+;; count
+(defclass prob-wrapper (event-processor-wrapper)
+  ((prob :accessor prob-wrapper-prob :initarg :prob)
+   (function :accessor prob-control-function :initarg :function)
+   (function-args :accessor function-args :initarg :args)))
 
+(defmethod post-processing ((p prob-wrapper) &key)
+  (when (< (random 100) (prob-wrapper-prob p))
+    (funcall (prob-control-function p) (function-args p) (wrapper-wrapped-processor p))))
+
+(defmacro pprob (act prob fun-with-args proc)
+  (let ((fun (car fun-with-args))
+        (args (cdr fun-with-args)))
+    `(make-instance 'prob-wrapper
+                    :act ,act
+                    :name (gensym)
+                    :on-count ,count 
+                    :function ',fun
+                    :args ',args
+                    :wrapped-processor ,proc)))
+
+
+;; FUNCTIONS 
 (defun skip (args proc)
+  (format t "SKIP")
   (loop for a from 0 to (- (car args) 1)
         do (progn                              
              (pull-events proc :skip-successor t)
