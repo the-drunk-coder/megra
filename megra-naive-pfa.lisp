@@ -260,7 +260,11 @@
 
 ;; fetch the first inbound edge of a node ... 
 (defmethod get-first-inbound-edge-source ((g graph) node-id &key (order 1))
-  (edge-source (car (gethash node-id  (gethash order (graph-incoming-edges g))))))
+  (edge-source (car (gethash node-id (gethash order (graph-incoming-edges g))))))
+
+;; fetch the first inbound edge of a node ... 
+(defmethod get-first-outbound-edge ((g graph) node-id &key (order 1))
+  (car (gethash (list node-id) (gethash order (graph-outgoing-edges g)))))
 
 (defmethod insert-edge ((g graph) (e edge) &key)
   (let ((edge-source-list (if (typep (edge-source e) 'list)

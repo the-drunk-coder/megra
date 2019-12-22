@@ -13,6 +13,8 @@
     (when (wrapper-act w) (post-processing w))
     ev))
 
+;; pass through apply-self ?
+
 (defmethod pull-transition ((w event-processor-wrapper) &key)
   (if (successor w)
       (progn
@@ -183,8 +185,8 @@
 	   (or (and *dont-let-die* (> (graph-size (source-graph (wrapper-wrapped-processor l))) 1))
 	       (not *dont-let-die*))	       
 	   (> (node-age cur-node)
-		  (add-var (lmc-node-lifespan l)
-			   (lmc-node-lifespan-var l))))
+	      (add-var (lmc-node-lifespan l)
+		       (lmc-node-lifespan-var l))))
       (unless (eql cur-node-id eaten-node)
 	(prune-graph (wrapper-wrapped-processor l) :node-id cur-node-id)    
 	(setf (lmc-local-resources l)
@@ -199,7 +201,7 @@
 
 (defun add-var (orig var)
   (floor (+ orig (* (* (- 20000 (random 40000)) var)
-	     (/ orig 20000)))))
+	            (/ orig 20000)))))
 
 ;; lifemodel works more in minimalistic contexts rather than algorave,
 ;; i suppose ...
@@ -240,47 +242,79 @@
 (defclass count-wrapper (event-processor-wrapper)
   ((on-count :accessor on-count :initarg :on-count)
    (function :accessor count-control-function :initarg :function)
-   (function-args :accessor function-args :initarg :args)
    (counter :accessor control-counter :initform 0)))
 
 (defmethod post-processing ((c count-wrapper) &key)
   (incf (control-counter c))
   (when (eql (control-counter c) (on-count c))
-    (funcall (count-control-function c) (function-args c) (wrapper-wrapped-processor c))
+    (funcall (count-control-function c) (wrapper-wrapped-processor c))
     (setf (control-counter c) 0)))
 
-(defmacro every (act count fun-with-args proc)
+(defun every (act count fun proc)
   (let ((fun (car fun-with-args))
         (args (cdr fun-with-args)))
-    `(make-instance 'count-wrapper
-                    :act ,act
-                    :name (gensym)
-                    :on-count ,count 
-                    :function ',fun
-                    :args ',args
-                    :wrapped-processor ,proc)))
+    (make-instance 'count-wrapper
+                   :act act
+                   :name (gensym)
+                   :on-count count 
+                   :function fun
+                   :wrapped-processor proc)))
 
 ;; prob
 (defclass prob-wrapper (event-processor-wrapper)
   ((prob :accessor prob-wrapper-prob :initarg :prob)
-   (function :accessor prob-control-function :initarg :function)
-   (function-args :accessor function-args :initarg :args)))
+   (function :accessor prob-control-function :initarg :function)))
 
 (defmethod post-processing ((p prob-wrapper) &key)
   (when (< (random 100) (prob-wrapper-prob p))
-    (funcall (prob-control-function p) (function-args p) (wrapper-wrapped-processor p))))
+    (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
-(defmacro pprob (act prob fun-with-args proc)
+(defun pprob (act prob fun proc)
   (let ((fun (car fun-with-args))
         (args (cdr fun-with-args)))
-    `(make-instance 'prob-wrapper
-                    :act ,act
-                    :name (gensym)
-                    :prob ,prob 
-                    :function ',fun
-                    :args ',args
-                    :wrapped-processor ,proc)))
+    (make-instance 'prob-wrapper
+                   :act act
+                   :name (gensym)
+                   :prob prob 
+                   :function 'fun                
+                   :wrapped-processor proc)))
 
+(defclass duplicator (event-processor-wrapper)
+  ((duplicates :accessor duplicates :initarg :duplicates)))
+
+(defmethod post-processing ((d duplicator) &key)
+  (loop for dup in (duplicates d)
+        do (pull-transition dup)))
+
+(defmethod pull-events ((w duplicator) &key)
+  (if (not (wrapper-act w))
+      (let ((ev (if (successor w)
+		    (apply-self (wrapper-wrapped-processor w)
+			        (pull-events (successor w)))
+		    (current-events (wrapper-wrapped-processor w)))))
+        (when (wrapper-act w) (post-processing w))
+        ev)
+      (let ((ev (if (successor w)
+		    (nconc (apply-self (wrapper-wrapped-processor w)
+			               (pull-events (successor w)))
+                           (loop for dup in (duplicates w)
+                                 collect (pull-events dup)))
+		    (nconc (current-events (wrapper-wrapped-processor w))
+                           (loop for dup in (duplicates w)
+                                 collect (pull-events dup))))))
+        (when (wrapper-act w) (post-processing w))
+        ;; this can be assembled more elegantly, i guess ... 
+        (alexandria::flatten ev))))
+
+(defun dup (act num proc)
+  (let ((duplicates
+          (loop for p from 1 to num
+                collect (deepcopy proc))))    
+    (make-instance 'duplicator
+                   :act act
+                   :name (gensym)
+                   :duplicates duplicates
+                   :wrapped-processor proc)))
 
 ;; dup - duplicate .. (new wrapper)
 ;; (dup t 3 (cyc ..)
@@ -288,13 +322,38 @@
 ;;     (every t 4 (skip 2))
 
 
+
 ;; FUNCTIONS 
-(defun skip (args proc)
-  (loop for a from 0 to (- (car args) 1)
+;; SKIP
+(defun pskip (num proc)
+  (loop for a from 0 to (- num 1)
         do (progn                              
              (pull-events proc :skip-successor t)
-             (pull-transition proc :skip-successor t))))
+             (pull-transition proc :skip-successor t)))
+  proc)
 
+(defun skip (num)
+  (lambda (proc) (pskip num proc)))
+
+;; GROW
+(defun pgrown (n var method proc)  
+  (loop for a from 0 to (nth 0 args)
+        do (grow proc :var var :method method))
+  proc)
+
+(defun pgrown2 (n var method proc)  
+  (loop for a from 0 to (nth 0 args)
+        do (grow2 proc :var var :method method))
+  proc)
+
+(defun grown (n var method)
+  (lambda (proc) (pgrown n var method proc)))
+
+(defun grown2 (n var method)
+  (lambda (proc) (pgrown2 n var method proc)))
+
+
+  
 
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
 ;; relax 4 0.5 - apply tempo mod for the next n times (only on base proc)

@@ -155,9 +155,12 @@
 	               (rules ((1) 1 1.0))
 	               :dur ,dur))))
 
+;; mod - if wrapper, apply to underlying graph .. .
 (defun grow2 (name &key (var 0.1) (hist 2) (ord 2) (exit 1) method durs funct)
   (define-filter name)
-  (let* ((proc (gethash name *processor-directory*))
+  (let* ((proc (if (typep name 'mpfa-event-processor)
+                   name
+                   (gethash name *processor-directory*)))
 	 ;; this one needs to be adapted to keep the old methods
 	 ;; alive ! 
 	 (growth-result (vom::grow-st-pfa (source-mpfa proc) hist ord exit))

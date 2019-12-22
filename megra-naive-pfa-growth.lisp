@@ -22,6 +22,15 @@
     (randomize-edges g rnd)
     (rebalance-edges g)))
 
+(defun get-appropiate-duration (graph reverse-path node-id)
+  (let* ((an-edge (get-edge graph
+	                   (list (cadr reverse-path))
+	                   (car reverse-path)))
+         (actually-an-edge (if an-edge
+                               an-edge
+                               (get-first-outbound-edge graph node-id))))    
+    (transition-duration (car (edge-content actually-an-edge)))))
+
 ;; idea:
 ;; pick node from path
 ;; this is, of course, only one possbility to grow a graph ... 
@@ -40,11 +49,7 @@
 	 (new-node (make-instance 'node :id new-id :content nil :color 'white))
 	 (new-dur (if durs
 		      (nth (random (length durs)) durs)
-		      (transition-duration
-		       (car (edge-content
-			     (get-edge (source-graph g)
-				       (list (cadr reverse-path))
-				       (car reverse-path))))))))
+		      (get-appropiate-duration (source-graph g) reverse-path node-id))))
     ;; inject new content, with some variation 
     (setf (node-content new-node)
 	  (deepcopy-list (node-content picked-node)
@@ -94,13 +99,9 @@
 	 (picked-node (gethash node-id (graph-nodes (source-graph g))))	 
 	 (new-id (+ (graph-max-id (source-graph g)) 1))
 	 (new-node (make-instance 'node :id new-id :content nil :color 'white))
-	 (new-dur (if durs
+         (new-dur (if durs
 		      (nth (random (length durs)) durs)
-		      (transition-duration
-		       (car (edge-content
-			     (get-edge (source-graph g)
-				       (list (cadr reverse-path))
-				       (car reverse-path))))))))
+		      (get-appropiate-duration (source-graph g) reverse-path node-id))))
     ;;(incudine::msg error "new-id: ~D ~%" new-id)
     ;; inject new content, with some variation 
     (setf (node-content new-node)
@@ -136,13 +137,9 @@
 	 (picked-node (gethash node-id (graph-nodes (source-graph g))))	 
 	 (new-id (+ (graph-max-id (source-graph g)) 1))
 	 (new-node (make-instance 'node :id new-id :content nil :color 'white))
-	 (new-dur (if durs
+         (new-dur (if durs
 		      (nth (random (length durs)) durs)
-		      (transition-duration
-		       (car (edge-content
-			     (get-edge (source-graph g)
-				       (list (cadr reverse-path))
-				       (car reverse-path))))))))
+		      (get-appropiate-duration (source-graph g) reverse-path node-id))))
     ;;(incudine::msg error "new-id: ~D ~%" new-id)
     ;; inject new content, with some variation 
     (setf (node-content new-node)
@@ -179,13 +176,9 @@
 	 (picked-node (gethash node-id (graph-nodes (source-graph g))))	 
 	 (new-id (+ (graph-max-id (source-graph g)) 1))
 	 (new-node (make-instance 'node :id new-id :content nil :color 'white))
-	 (new-dur (if durs
+         (new-dur (if durs
 		      (nth (random (length durs)) durs)
-		      (transition-duration
-		       (car (edge-content
-			     (get-edge (source-graph g)
-				       (list (cadr reverse-path))
-				       (car reverse-path))))))))    
+		      (get-appropiate-duration (source-graph g) reverse-path node-id))))    
     (setf (node-content new-node)
 	  (deepcopy-list (node-content picked-node)
 			 :imprecision var
