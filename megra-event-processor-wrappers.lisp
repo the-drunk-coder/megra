@@ -334,12 +334,12 @@
                                 (combine-single-events aev (nth i other-events)))))
         other-events)))
 
-(defun pear (act events proc)
+(defun pear (act &rest events-and-proc)
   (make-instance 'applicator
                  :act act
                  :name (gensym)
-                 :events events
-                 :wrapped-processor proc))
+                 :events (butlast events-and-proc)
+                 :wrapped-processor (car (last events-and-proc))))
 
 ;; FUNCTIONS 
 ;; SKIP
