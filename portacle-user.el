@@ -41,7 +41,14 @@
                           ("exh" . font-lock-keyword-face)
                           ("inexh" . font-lock-keyword-face)
                           ("slearn" . font-lock-keyword-face)
-                          ("sinfer" . font-lock-keyword-face)))
+                          ("sinfer" . font-lock-keyword-face)
+                          ("pseq" . font-lock-keyword-face)
+                          ("tmod" . font-lock-keyword-face)
+                          ("fade" . font-lock-keyword-face)
+                          ("oscil" . font-lock-keyword-face)
+                          ("env" . font-lock-keyword-face)
+                          ("clear" . font-lock-keyword-face)
+                          ("stop" . font-lock-keyword-face)))
 
 ;;(menu-bar-mode -1)
 
