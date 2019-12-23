@@ -33,6 +33,9 @@
 (defmethod apply-self ((g event-processor) events &key)
   (combine-events (current-events g) events :mode (combine-mode g) :filter (combine-filter g)))
 
+(defmethod apply-self-2 ((g event-processor) other-events events &key)
+  (combine-events other-events events :mode (combine-mode g) :filter (combine-filter g)))
+
 (defmethod apply-self-transition ((g event-processor) current-transition transition &key)
   (combine-events current-transition transition :mode (combine-mode g) :filter (combine-filter g)))
 

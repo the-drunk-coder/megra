@@ -13,8 +13,7 @@
 
 (defmethod pull-events ((w event-processor-wrapper) &key)
   (let ((ev (if (successor w)
-		(apply-self (wrapper-wrapped-processor w)
-			    (pull-events (successor w)))
+		(apply-self w (pull-events (successor w)))
 		(current-events w))))
     (when (wrapper-act w) (post-processing w))
     ev))
@@ -120,8 +119,7 @@
    (local-apoptosis-regain :accessor lmc-local-apoptosis-regain :initarg :apoptosis-regain :initform *apoptosis-regain*)
    (local-autophagia-regain :accessor lmc-local-autophagia-regain :initarg :autophagia-regain :initform *autophage-regain*)))
 
-(defmethod post-processing ((l lifemodel-control) &key)
-  (incudine::msg error "call lm pp")
+(defmethod post-processing ((l lifemodel-control) &key)  
   (incf (lmc-lifecycle-count l))  
   ;; growth point reached
   (let* ((src (graph-id (source-graph (wrapper-wrapped-processor l))))
@@ -321,29 +319,20 @@
 
 (defmethod pull-events ((w applicator) &key)
   (if (successor w)
-      (apply-self-applicate (wrapper-wrapped-processor w)
-                            (wrapper-act w)
-                            (applicator-events w)
-		            (pull-events (successor w)))
       (if (wrapper-act w)
-          (let ((cur-ev (pull-events (wrapper-wrapped-processor w))))
+          (let ((other-events (current-events w)))
             (loop for aev in (applicator-events w)
-                  do (loop for i from 0 to (- (length cur-ev) 1)
-                           do (combine-single-events aev (nth i cur-ev))))
-            cur-ev)
-          (pull-events (wrapper-wrapped-processor w)))))
-
-;; events are the successor events 
-(defmethod apply-self-applicate ((g event-processor) act applicator-events events &key)
-  (combine-events
-   (if act
-       (let ((cur-ev (current-events g)))
-         (loop for aev in applicator-events
-               do (loop for i from 0 to (- (length cur-ev) 1)
-                        do (combine-single-events aev (nth i cur-ev))))
-         cur-ev)       
-       (current-events g))
-   events :mode (combine-mode g) :filter (combine-filter g)))
+                  do (loop for i from 0 to (- (length other-events) 1)
+                           do (setf (nth i other-events)
+                                    (combine-single-events aev (nth i other-events)))))
+            (apply-self-2 w other-events (pull-events (successor w))))
+          (apply-self w (pull-events (successor w))))
+      (let ((other-events (current-events w)))
+        (loop for aev in (applicator-events w)
+              do (loop for i from 0 to (- (length other-events) 1)
+                       do (setf (nth i other-events)
+                                (combine-single-events aev (nth i other-events)))))
+        other-events)))
 
 (defun pear (act events proc)
   (make-instance 'applicator
@@ -391,10 +380,9 @@
 (defun relax (num mod &optional proc)  
   (if proc
       (progn (loop for a from 0 to (- num 1)
-                   do (push-tmod (coerce (/ 1.0 mod) 'float) proc))
+                   do (push-tmod proc (coerce (/ 1.0 mod) 'float)))
              proc)
       (lambda (nproc) (relax num mod nproc))))
-
 
 
 ;; rew 3 - rewind (set to state n back in traced path)
