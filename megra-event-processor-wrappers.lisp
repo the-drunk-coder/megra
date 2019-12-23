@@ -5,28 +5,26 @@
    (wrapped-processor :accessor wrapper-wrapped-processor
 		      :initarg :wrapped-processor)))
 
+(defmethod push-tmod ((w event-processor-wrapper) tmod &key)
+  (push-tmod (wrapper-wrapped-processor w) tmod))
+
+(defmethod pop-tmod ((w event-processor-wrapper) &key)
+  (pop-tmod (wrapper-wrapped-processor w)))
+
 (defmethod pull-events ((w event-processor-wrapper) &key)
   (let ((ev (if (successor w)
 		(apply-self (wrapper-wrapped-processor w)
 			    (pull-events (successor w)))
-		(current-events (wrapper-wrapped-processor w)))))
+		(current-events w))))
     (when (wrapper-act w) (post-processing w))
     ev))
 
 ;; pass through apply-self ?
-
-(defmethod pull-transition ((w event-processor-wrapper) &key)
-  (if (successor w)
-      (progn
-	(current-transition (wrapper-wrapped-processor w))
-	(pull-transition (successor w)))
-      (current-transition (wrapper-wrapped-processor w))))
-
 (defmethod current-events ((w event-processor-wrapper) &key)
-  (current-events (wrapper-wrapped-processor w)))
+  (pull-events (wrapper-wrapped-processor w)))
 
 (defmethod current-transition ((w event-processor-wrapper) &key)
-  (current-transition (wrapper-wrapped-processor w)))
+  (pull-transition (wrapper-wrapped-processor w)))
 
 (defmethod combine-filter ((w event-processor-wrapper))
   (combine-filter (wrapper-wrapped-processor w)))
@@ -123,6 +121,7 @@
    (local-autophagia-regain :accessor lmc-local-autophagia-regain :initarg :autophagia-regain :initform *autophage-regain*)))
 
 (defmethod post-processing ((l lifemodel-control) &key)
+  (incudine::msg error "call lm pp")
   (incf (lmc-lifecycle-count l))  
   ;; growth point reached
   (let* ((src (graph-id (source-graph (wrapper-wrapped-processor l))))
@@ -250,15 +249,13 @@
     (funcall (count-control-function c) (wrapper-wrapped-processor c))
     (setf (control-counter c) 0)))
 
-(defun every (act count fun proc)
-  (let ((fun (car fun-with-args))
-        (args (cdr fun-with-args)))
-    (make-instance 'count-wrapper
-                   :act act
-                   :name (gensym)
-                   :on-count count 
-                   :function fun
-                   :wrapped-processor proc)))
+(defun evr (act count fun proc)
+  (make-instance 'count-wrapper
+                 :act act
+                 :name (gensym)
+                 :on-count count 
+                 :function fun
+                 :wrapped-processor proc))
 
 ;; prob
 (defclass prob-wrapper (event-processor-wrapper)
@@ -269,15 +266,13 @@
   (when (< (random 100) (prob-wrapper-prob p))
     (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
-(defun pprob (act prob fun proc)
-  (let ((fun (car fun-with-args))
-        (args (cdr fun-with-args)))
-    (make-instance 'prob-wrapper
-                   :act act
-                   :name (gensym)
-                   :prob prob 
-                   :function 'fun                
-                   :wrapped-processor proc)))
+(defun pprob (act prob fun proc) 
+  (make-instance 'prob-wrapper
+                 :act act
+                 :name (gensym)
+                 :prob prob 
+                 :function fun                
+                 :wrapped-processor proc))
 
 (defclass duplicator (event-processor-wrapper)
   ((duplicates :accessor duplicates :initarg :duplicates)))
@@ -296,7 +291,7 @@
         ev)
       (let ((ev (if (successor w)
 		    (nconc (apply-self (wrapper-wrapped-processor w)
-			               (pull-events (successor w)))
+ 			               (pull-events (successor w)))
                            (loop for dup in (duplicates w)
                                  collect (pull-events dup)))
 		    (nconc (current-events (wrapper-wrapped-processor w))
@@ -321,46 +316,88 @@
 ;;     (lm t 20 20 :var 0.2) ;; recursive application necessary ! 
 ;;     (every t 4 (skip 2))
 
+(defclass applicator (event-processor-wrapper)
+  ((events-to-apply :accessor applicator-events :initarg :events)))
 
+(defmethod pull-events ((w applicator) &key)
+  (if (successor w)
+      (apply-self-applicate (wrapper-wrapped-processor w)
+                            (wrapper-act w)
+                            (applicator-events w)
+		            (pull-events (successor w)))
+      (if (wrapper-act w)
+          (let ((cur-ev (pull-events (wrapper-wrapped-processor w))))
+            (loop for aev in (applicator-events w)
+                  do (loop for i from 0 to (- (length cur-ev) 1)
+                           do (combine-single-events aev (nth i cur-ev))))
+            cur-ev)
+          (pull-events (wrapper-wrapped-processor w)))))
+
+;; events are the successor events 
+(defmethod apply-self-applicate ((g event-processor) act applicator-events events &key)
+  (combine-events
+   (if act
+       (let ((cur-ev (current-events g)))
+         (loop for aev in applicator-events
+               do (loop for i from 0 to (- (length cur-ev) 1)
+                        do (combine-single-events aev (nth i cur-ev))))
+         cur-ev)       
+       (current-events g))
+   events :mode (combine-mode g) :filter (combine-filter g)))
+
+(defun pear (act events proc)
+  (make-instance 'applicator
+                 :act act
+                 :name (gensym)
+                 :events events
+                 :wrapped-processor proc))
 
 ;; FUNCTIONS 
 ;; SKIP
-(defun pskip (num proc)
-  (loop for a from 0 to (- num 1)
-        do (progn                              
-             (pull-events proc :skip-successor t)
-             (pull-transition proc :skip-successor t)))
-  proc)
+(defun skip (num &optional proc)    
+  (if proc
+      (progn
+        (loop for a from 0 to (- num 1)
+              do (progn                              
+                   (pull-events proc :skip-successor t)
+                   (pull-transition proc :skip-successor t)))
+        proc)
+      (lambda (nproc) (skip num nproc))))
 
-(defun skip (num)
-  (lambda (proc) (pskip num proc)))
+;; GROWN
+(defun grown (n var method &optional proc)  
+  (if proc
+      (progn (loop for a from 0 to (nth 0 args)
+                   do (grow proc :var var :method method))
+             proc)
+      (lambda (nproc) (grown n var method nproc))))
 
-;; GROW
-(defun pgrown (n var method proc)  
-  (loop for a from 0 to (nth 0 args)
-        do (grow proc :var var :method method))
-  proc)
-
-(defun pgrown2 (n var method proc)  
-  (loop for a from 0 to (nth 0 args)
-        do (grow2 proc :var var :method method))
-  proc)
-
-(defun grown (n var method)
-  (lambda (proc) (pgrown n var method proc)))
-
-(defun grown2 (n var method)
-  (lambda (proc) (pgrown2 n var method proc)))
-
-
-  
+(defun grown2 (n var method &optional proc)  
+  (if proc
+      (progn (loop for a from 0 to (nth 0 args)
+                   do (grow2 proc :var var :method method))
+             proc)
+      (lambda (nproc) (grown2 n var method nproc))))
 
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
+(defun haste (num mod &optional proc)  
+  (if proc
+      (progn (loop for a from 0 to (- num 1)
+                   do (push-tmod proc mod))
+             proc)
+      (lambda (nproc) (haste num mod nproc))))
+
 ;; relax 4 0.5 - apply tempo mod for the next n times (only on base proc)
-;; needs a list of tempo modifiers at dispatcher level ...
-;; access to base proc ?
+(defun relax (num mod &optional proc)  
+  (if proc
+      (progn (loop for a from 0 to (- num 1)
+                   do (push-tmod (coerce (/ 1.0 mod) 'float) proc))
+             proc)
+      (lambda (nproc) (relax num mod nproc))))
+
+
 
 ;; rew 3 - rewind (set to state n back in traced path)
 ;; needs traced path for pfa and state setter method, ideally for both ... 
 
-;; appl (dur 200) - apply event to output 
+

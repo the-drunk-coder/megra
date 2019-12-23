@@ -49,8 +49,7 @@
       (simple-error (e)
 	(incudine::msg error "cannot pull and handle events: ~D" e)
 	;;(setf (is-active chain) nil)
-	))
-    
+	))   
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...
     ;; this method works only with SC,
