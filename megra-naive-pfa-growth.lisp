@@ -243,12 +243,12 @@
 	(setf (current-node g) replacement-id))
       (remove-node (source-graph g) prune-id :rebalance t))))
 
-(defun grow (graph-or-id &key (var 0)		        
-			   durs
-			   functors
-			   (method 'old)
-			   (rnd 0)
-			   higher-order)
+(defmethod grow (graph-or-id &key (var 0)		        
+			      durs
+			      functors
+			      (method 'old)
+			      (rnd 0)
+			      higher-order)
   (let ((resolved-graph (if (typep graph-or-id 'symbol)
 			    (gethash graph-or-id *processor-directory*)
 			    graph-or-id)))
