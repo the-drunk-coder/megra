@@ -28,6 +28,15 @@
 (defmethod combine-filter ((w event-processor-wrapper))
   (combine-filter (wrapper-wrapped-processor w)))
 
+(defmethod grow ((w event-processor-wrapper)
+                 &key (var 0)		        
+		      durs
+		      functors
+		      (method 'old)
+		      (rnd 0)
+		      higher-order)
+  (grow (wrapper-wrapped-processor w) :var var :durs durs :functors functors
+                                      :method method :rnd rnd :higher-order higher-order))
 
 ;;;;;;;;;;;;;;;; GENERIC Population Control ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -84,7 +93,7 @@
 		   :hoe-max hoe-max
 		   :exclude exclude)))
 
-(defmethod post-processing((g probability-population-control) &key)
+(defmethod post-processing ((g probability-population-control) &key)
   (when (< (random 100) (population-control-pgrowth g))
     (let ((order (if (< (random 100)
 			(population-control-higher-order-probability g))
@@ -235,6 +244,26 @@
 (defun lm (act growth-cycle lifespan &rest rest)
   (inner-lifemodel act growth-cycle lifespan rest))
 
+(defun life (act growth-cycle lifespan var method &optional proc)
+  (if proc
+      (if (typep proc 'function)
+          (lambda (pproc) (life act growth-cycle lifespan var method (funcall proc pproc)))
+          (make-instance 'lifemodel-control
+		         :name (gensym)
+		         :act act
+		         :wrapped-processor proc
+		         :growth-cycle growth-cycle		 
+		         :variance var		 
+		         :method method
+		         :durs nil
+		         :phoe 4
+		         :node-lifespan lifespan
+		         :hoe-max 4
+		         :exclude nil
+		         :autophagia t
+		         :apoptosis nil))
+      (lambda (pproc) (life act growth-cycle lifespan var method pproc)))
+  )
 ;; count
 (defclass count-wrapper (event-processor-wrapper)
   ((on-count :accessor on-count :initarg :on-count)
@@ -247,13 +276,17 @@
     (funcall (count-control-function c) (wrapper-wrapped-processor c))
     (setf (control-counter c) 0)))
 
-(defun evr (act count fun proc)
-  (make-instance 'count-wrapper
-                 :act act
-                 :name (gensym)
-                 :on-count count 
-                 :function fun
-                 :wrapped-processor proc))
+(defun evr (act count fun &optional proc)
+  (if proc
+      (if (typep proc 'function)
+          (lambda (pproc) (evr act count fun (funcall proc pproc)))
+          (make-instance 'count-wrapper
+                         :act act
+                         :name (gensym)
+                         :on-count count 
+                         :function fun
+                         :wrapped-processor proc))
+      (lambda (pproc) (evr act count fun pproc))))
 
 ;; prob
 (defclass prob-wrapper (event-processor-wrapper)
@@ -264,13 +297,17 @@
   (when (< (random 100) (prob-wrapper-prob p))
     (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
-(defun pprob (act prob fun proc) 
-  (make-instance 'prob-wrapper
-                 :act act
-                 :name (gensym)
-                 :prob prob 
-                 :function fun                
-                 :wrapped-processor proc))
+(defun pprob (act prob fun &optional proc)
+  (if proc
+      (if (typep proc 'function)
+          (lambda (pproc) (pprob act prob fun (funcall proc pproc)))
+          (make-instance 'prob-wrapper
+                         :act act
+                         :name (gensym)
+                         :prob prob 
+                         :function fun                
+                         :wrapped-processor proc))
+      (lambda (pproc) (pprob act prob fun pproc))))
 
 (defclass duplicator (event-processor-wrapper)
   ((duplicates :accessor duplicates :initarg :duplicates)))
@@ -299,10 +336,11 @@
         ;; this can be assembled more elegantly, i guess ... 
         (alexandria::flatten ev))))
 
-(defun dup (act num proc)
-  (let ((duplicates
-          (loop for p from 1 to num
-                collect (deepcopy proc))))    
+(defun dup (act &rest funs-and-proc)
+  (let* ((funs (butlast funs-and-proc))
+         (proc (car (last funs-and-proc)))
+         (duplicates (loop for p from 0 to (- (length funs) 1)
+                           collect (funcall (nth p funs) (deepcopy proc)))))
     (make-instance 'duplicator
                    :act act
                    :name (gensym)
@@ -335,35 +373,43 @@
         other-events)))
 
 (defun pear (act &rest events-and-proc)
-  (make-instance 'applicator
-                 :act act
-                 :name (gensym)
-                 :events (butlast events-and-proc)
-                 :wrapped-processor (car (last events-and-proc))))
+  (cond ((typep (car (last events-and-proc)) 'event-processor)
+         (make-instance 'applicator
+                        :act act
+                        :name (gensym)
+                        :events (butlast events-and-proc)
+                        :wrapped-processor (car (last events-and-proc))))
+        ((typep (car (last events-and-proc)) 'function)
+         (lambda (pproc) (apply 'pear (nconc (list act) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
+        (t (lambda (pproc) (apply 'pear (nconc (list act) events-and-proc (list pproc)))))))
 
 ;; FUNCTIONS 
 ;; SKIP
 (defun skip (num &optional proc)    
   (if proc
-      (progn
-        (loop for a from 0 to (- num 1)
-              do (progn                              
-                   (pull-events proc :skip-successor t)
-                   (pull-transition proc :skip-successor t)))
-        proc)
+      (if (typep proc 'function)
+          (lambda (nproc) (skip num (funcall proc nproc)))
+          (progn
+            (loop for a from 0 to (- num 1)
+                  do (progn                              
+                       (pull-events proc :skip-successor t)
+                       (pull-transition proc :skip-successor t)))
+            proc))
       (lambda (nproc) (skip num nproc))))
 
 ;; GROWN
 (defun grown (n var method &optional proc)  
-  (if proc
-      (progn (loop for a from 0 to (nth 0 args)
-                   do (grow proc :var var :method method))
-             proc)
+  (if proc      
+      (if (typep proc 'function)
+          (lambda (nproc) (grown n var method (funcall proc nproc)))
+          (progn (loop for a from 0 to n
+                       do (grow proc :var var :method method))
+                 proc))
       (lambda (nproc) (grown n var method nproc))))
 
 (defun grown2 (n var method &optional proc)  
   (if proc
-      (progn (loop for a from 0 to (nth 0 args)
+      (progn (loop for a from 0 to n
                    do (grow2 proc :var var :method method))
              proc)
       (lambda (nproc) (grown2 n var method nproc))))
