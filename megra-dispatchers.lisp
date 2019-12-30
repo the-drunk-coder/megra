@@ -255,7 +255,7 @@
 (defun once (event)
   (handle-event event 0))
 
-(defun sx (basename act &rest procs)
+(defun sx (basename act sync &rest procs)
   (if (not act)
       (loop for name in (gethash basename *multichain-directory*)
             do (clear name))
@@ -268,13 +268,15 @@
                   do (unless (member name names) (clear name))))
         (setf (gethash basename *multichain-directory*) names)
         (loop for n from 0 to (- (length fprocs) 1)              
-              do (let ((sync-to (if (gethash (nth n names) *chain-directory*)                                               
-                                    nil
-                                    (if (> n 0)
-                                        (nth 0 names)
-                                        nil))))                   
+              do (let ((sync-to (if sync
+                                    sync
+                                    (if (gethash (nth n names) *chain-directory*)                                               
+                                        nil
+                                        (if (> n 0)
+                                            (nth 0 names)
+                                            nil)))))                   
                    (dispatch (nth n names) (:sync sync-to)
-                    (nth n fprocs)))))))
+                     (nth n fprocs)))))))
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))
