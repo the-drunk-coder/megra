@@ -409,25 +409,31 @@
 
 (defun grown2 (n var method &optional proc)  
   (if proc
-      (progn (loop for a from 0 to n
-                   do (grow2 proc :var var :method method))
-             proc)
+      (if (typep proc 'function)
+          (lambda (nproc) (grown2 n var method (funcall proc nproc)))
+          (progn (loop for a from 0 to n
+                    do (grow2 proc :var var :method method))
+              proc))
       (lambda (nproc) (grown2 n var method nproc))))
 
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
 (defun haste (num mod &optional proc)  
   (if proc
-      (progn (loop for a from 0 to (- num 1)
-                   do (push-tmod proc mod))
-             proc)
+      (if (typep proc 'function)
+          (lambda (nproc) (haste num mod (funcall proc nproc)))
+          (progn (loop for a from 0 to (- num 1)
+                    do (push-tmod proc mod))
+              proc))
       (lambda (nproc) (haste num mod nproc))))
 
 ;; relax 4 0.5 - apply tempo mod for the next n times (only on base proc)
 (defun relax (num mod &optional proc)  
   (if proc
-      (progn (loop for a from 0 to (- num 1)
-                   do (push-tmod proc (coerce (/ 1.0 mod) 'float)))
-             proc)
+      (if (typep proc 'function)
+          (lambda (nproc) (relax num mod (funcall proc nproc)))
+          (progn (loop for a from 0 to (- num 1)
+                       do (push-tmod proc (coerce (/ 1.0 mod) 'float)))
+                 proc))
       (lambda (nproc) (relax num mod nproc))))
 
 

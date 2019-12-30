@@ -123,7 +123,7 @@
 	(chain-to-sync-to (gethash sync-to *chain-directory*))
 	(clock-to-sync-to (gethash sync-to *clock-directory*)))
     ;; now, if we want to sync the current chain to :sync-to,
-    ;; and :sync-to denotes a chain that is actually present,
+    ;; and :sync-to denotes a chain that is actually present,    
     (cond
       (clock-to-sync-to
        (unless (wait-for-sync chain)
@@ -254,3 +254,31 @@
 
 (defun once (event)
   (handle-event event 0))
+
+(defun sx (basename act &rest procs)
+  (if (not act)
+      (loop for name in (gethash basename *multichain-directory*)
+            do (clear name))
+      (let* ((fprocs (alexandria::flatten procs))
+             (names (loop for n from 0 to (- (length fprocs) 1)
+                          collect (intern (format nil "~D-~D" basename n)))))
+        ;; check if anything else is running under this name ... 
+        (if (gethash basename *multichain-directory*)
+            (loop for name in (gethash basename *multichain-directory*)
+                  do (unless (member name names) (clear name))))
+        (setf (gethash basename *multichain-directory*) names)
+        (loop for n from 0 to (- (length fprocs) 1)              
+              do (let ((sync-to (if (gethash (nth n names) *chain-directory*)                                               
+                                    nil
+                                    (if (> n 0)
+                                        (nth 0 names)
+                                        nil))))                   
+                   (dispatch (nth n names) (:sync sync-to)
+                    (nth n fprocs)))))))
+
+(defun xdup (&rest funs-and-proc)
+  (let* ((funs (butlast funs-and-proc))
+         (proc (car (last funs-and-proc)))
+         (duplicates (loop for p from 0 to (- (length funs) 1)
+                           collect (funcall (nth p funs) (deepcopy proc)))))
+    (nconc duplicates (list proc))))

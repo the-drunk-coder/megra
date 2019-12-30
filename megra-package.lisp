@@ -71,6 +71,7 @@
 (defparameter *chain-directory* (make-hash-table :test 'eql))
 (defparameter *branch-directory* (make-hash-table :test 'eql))
 (defparameter *clock-directory* (make-hash-table :test 'eql))
+(defparameter *multichain-directory* (make-hash-table :test 'eql))
 
 ;; chain groups ... 
 (defparameter *group-directory* (make-hash-table :test 'eql))

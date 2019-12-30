@@ -11,6 +11,7 @@
   (setf *chain-directory* (make-hash-table :test 'eql))
   (setf *group-directory* (make-hash-table :test 'eql))
   (setf *branch-directory* (make-hash-table :test 'eql))
+  (setf *multichain-directory* (make-hash-table :test 'eql))
   (setf *current-group* 'DEFAULT))
 
 (defun clear-single (id)
