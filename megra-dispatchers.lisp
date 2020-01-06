@@ -285,6 +285,6 @@
          (duplicates (loop for p from 0 to (- (length funs) 1)
                            collect (let ((proc-dup (funcall (nth p funs) (deepcopy proc))))
                                      (setf (name proc-dup)
-                                           (intern (format nil "~D-~D" (name proc) (gensym))))
+                                           (intern (format nil "~D-~D" (name proc-dup) p)))
                                      proc-dup))))
     (nconc duplicates (list proc))))

@@ -83,7 +83,7 @@
     (make-instance 'probability-population-control
 		   :wrapped-processor wrapped-processor
 		   :act act
-		   :name (gensym)		   		   
+		   :name (intern (format nil "~D-probctrl" (name wrapped-processor)))
 		   :variance variance
 		   :pgrowth pgrowth
 		   :pprune pprune
@@ -224,7 +224,7 @@
 			       (gethash (last rest) *processor-directory*)
 			       (car (last rest)))))
     (make-instance 'lifemodel-control
-		   :name (gensym)
+		   :name (intern (format nil "~D-lifemodel" (name wrapped-processor)))
 		   :act act
 		   :wrapped-processor wrapped-processor
 		   :growth-cycle growth-cycle		 
@@ -249,7 +249,7 @@
       (if (typep proc 'function)
           (lambda (pproc) (life act growth-cycle lifespan var method (funcall proc pproc)))
           (make-instance 'lifemodel-control
-		         :name (gensym)
+		         :name (intern (format nil "~D-lifemodel" (name proc)))
 		         :act act
 		         :wrapped-processor proc
 		         :growth-cycle growth-cycle		 
@@ -282,7 +282,7 @@
           (lambda (pproc) (evr act count fun (funcall proc pproc)))
           (make-instance 'count-wrapper
                          :act act
-                         :name (gensym)
+                         :name (intern (format nil "~D-evr" (name proc)))
                          :on-count count 
                          :function fun
                          :wrapped-processor proc))
@@ -303,7 +303,7 @@
           (lambda (pproc) (pprob act prob fun (funcall proc pproc)))
           (make-instance 'prob-wrapper
                          :act act
-                         :name (gensym)
+                         :name (intern (format nil "~D-pprob" (name proc)))
                          :prob prob 
                          :function fun                
                          :wrapped-processor proc))
@@ -343,7 +343,7 @@
                            collect (funcall (nth p funs) (deepcopy proc)))))
     (make-instance 'duplicator
                    :act act
-                   :name (gensym)
+                   :name (intern (format nil "~D-duplicator" (name proc)))
                    :duplicates duplicates
                    :wrapped-processor proc)))
 
@@ -376,7 +376,7 @@
   (cond ((typep (car (last events-and-proc)) 'event-processor)
          (make-instance 'applicator
                         :act act
-                        :name (gensym)
+                        :name (intern (format nil "~D-pear" (name (car (last events-and-proc)))))
                         :events (butlast events-and-proc)
                         :wrapped-processor (car (last events-and-proc))))
         ((typep (car (last events-and-proc)) 'function)
