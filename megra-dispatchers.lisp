@@ -156,96 +156,102 @@
 			         chain				     
 			         it))))))
 
+
+
 (defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0) (intro nil)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   `(funcall #'(lambda ()
-		;; copy current state to make branching possible ...
-		(when ,branch
-		  (incudine:nrt-funcall  
-		   (loop for proc-id being the hash-keys of *processor-directory*
-		         do (setf (gethash proc-id *prev-processor-directory*)
-			          (clone proc-id proc-id :track nil :store nil)))))
-		(let* ((event-processors
-			 ;; replace symbols by instances,
-			 ;; generate proper names, insert into proc directory
-			 (gen-proc-list ,name (list ,@proc-body)))
-		       (old-chain (gethash ,name *chain-directory*)))
-		  ;; first, construct the chain ...
-		  (cond ((and ,branch old-chain)
-			 ;; if we're branching, move the current chain to the branch directory
-			 ;; and replace the one in the chain-directory by a copy ...
-			 (incudine::msg info "branching chain ~D" ,name)			 
-			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
-				(old-chain-id (intern (concatenate
-						       'string
-						       (symbol-name ,name)
-						       "-"
-						       (symbol-name (gensym)))))
-				;; build a chain from the previous states of the event processors ...			        
-				(real-old-chain (chain-from-list old-chain-id
-								 (mapcar #'(lambda (proc)									
-									     (gethash (name proc) *prev-processor-directory*))
-									 event-processors)
-								 :activate (is-active old-chain)
-								 :shift shift-diff
-								 :group ,group))
-				;; build the new chain from the current states 
-				(new-chain (chain-from-list ,name
-							    (mapcar #'(lambda (proc)									
-									(clone (name proc) (gensym (symbol-name (name proc))) :track nil))
-								    event-processors)
-							    :activate nil
-							    :shift shift-diff
-							    :group ,group)))
-			   (if (not new-chain)
-			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
-			   ;; in that case, the syncing chain will do the
-			   (deactivate old-chain) ;; dactivate old chain and set anschluss
-			   (setf (anschluss-kette old-chain) real-old-chain)
-			   (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list old-chain-id)))))
-			((and old-chain (wait-for-sync old-chain))			 
-			 (incudine::msg info "chain ~D waiting for sync ..." ,name))
-			((and old-chain (>= 0 (length event-processors)))
-			 ;; this (probably) means that the chain has been constructed by the chain macro
-			 ;; OR that the chain would be faulty and thus, was not built (i.e. if it contained a proc
-			 ;; that doesn't exist)		     
-			 ;; if chain is active, do nothing, otherwise activate
-			 (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
-			 ;; assign to group in case chain macro hasn't done this ...
-			 (when ,group (assign-chain-to-group ,name ,group))
-			 (incudine::msg info "chain ~D already present (maybe the attempt to rebuild was faulty ?), handling it ..." ,name))			    
-			((and old-chain (< 0 (length event-processors)))
-			 ;; this means that the chain will be replaced ... 
-			 (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
-			 ;; rebuild chain, activate, create "anschluss" to old chain (means s.th. flange or continuity)
-			 (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
-				(new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff :group ,group)))
-			   (if (not new-chain)
-			       (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
-			   ;; in that case, the syncing chain will do the anschluss ...
-			   (unless (gethash ,sync *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
-			   (deactivate old-chain))) 
-			((>= 0 (length event-processors))
-			 ;; if there's no chain present under this name, and no material to build one,
-			 ;; it's an error condition ...
-			 (incudine::msg error "cannot build chain ~D from nothing" ,name))
-			((< 0 (length event-processors))
-			 (incudine::msg info "new chain ~D, trying to build it ..." ,name)
-			 ;; build chain, activate
-			 (unless (chain-from-list ,name event-processors :shift ,shift :group ,group)
-			   (incudine::msg error "couldn't build chain ~D" ,name)))
-			(t (incudine::msg error "invalid state"))))
-		(incudine::msg info "hopefully built chain ~D ..." ,name)
-		;; if we've reached this point, we should have a valid chain, or left the function ...
-                (if ,intro
-                    (progn (handle-event ,intro 0)
-                           (incudine:at (+ (incudine:now) #[(event-duration ,intro) ms])
-			                #'(lambda ()                                            
-                                            (inner-dispatch
-                                             ,name 
-                                             ,sync))))
-                    (inner-dispatch ,name ,sync)))))
+                (let ((act-sync (cond ((gethash ,sync *chain-directory*) sync)
+                                      ((gethash ,sync *multichain-directory*) (car (last (gethash ,sync *multichain-directory*))) )
+                                      (t ,sync))))
+                  ;;(incudine::msg error "~D" act-sync)
+		  ;; copy current state to make branching possible ...
+		  (when ,branch
+		    (incudine:nrt-funcall  
+		     (loop for proc-id being the hash-keys of *processor-directory*
+		           do (setf (gethash proc-id *prev-processor-directory*)
+			            (clone proc-id proc-id :track nil :store nil)))))
+		  (let* ((event-processors
+			   ;; replace symbols by instances,
+			   ;; generate proper names, insert into proc directory
+			   (gen-proc-list ,name (list ,@proc-body)))
+		         (old-chain (gethash ,name *chain-directory*)))
+		    ;; first, construct the chain ...
+		    (cond ((and ,branch old-chain)
+			   ;; if we're branching, move the current chain to the branch directory
+			   ;; and replace the one in the chain-directory by a copy ...
+			   (incudine::msg info "branching chain ~D" ,name)			 
+			   (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
+				  (old-chain-id (intern (concatenate
+						         'string
+						         (symbol-name ,name)
+						         "-"
+						         (symbol-name (gensym)))))
+				  ;; build a chain from the previous states of the event processors ...			        
+				  (real-old-chain (chain-from-list old-chain-id
+								   (mapcar #'(lambda (proc)									
+									       (gethash (name proc) *prev-processor-directory*))
+									   event-processors)
+								   :activate (is-active old-chain)
+								   :shift shift-diff
+								   :group ,group))
+				  ;; build the new chain from the current states 
+				  (new-chain (chain-from-list ,name
+							      (mapcar #'(lambda (proc)									
+									  (clone (name proc) (gensym (symbol-name (name proc))) :track nil))
+								      event-processors)
+							      :activate nil
+							      :shift shift-diff
+							      :group ,group)))
+			     (if (not new-chain)
+			         (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
+			     ;; in that case, the syncing chain will do the
+			     (deactivate old-chain) ;; dactivate old chain and set anschluss
+			     (setf (anschluss-kette old-chain) real-old-chain)
+			     (setf (gethash ,name *branch-directory*) (append (gethash ,name *branch-directory*) (list old-chain-id)))))
+			  ((and old-chain (wait-for-sync old-chain))			 
+			   (incudine::msg info "chain ~D waiting for sync ..." ,name))
+			  ((and old-chain (>= 0 (length event-processors)))
+			   ;; this (probably) means that the chain has been constructed by the chain macro
+			   ;; OR that the chain would be faulty and thus, was not built (i.e. if it contained a proc
+			   ;; that doesn't exist)		     
+			   ;; if chain is active, do nothing, otherwise activate
+			   (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
+			   ;; assign to group in case chain macro hasn't done this ...
+			   (when ,group (assign-chain-to-group ,name ,group))
+			   (incudine::msg info "chain ~D already present (maybe the attempt to rebuild was faulty ?), handling it ..." ,name))			    
+			  ((and old-chain (< 0 (length event-processors)))
+			   ;; this means that the chain will be replaced ... 
+			   (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
+			   ;; rebuild chain, activate, create "anschluss" to old chain (means s.th. flange or continuity)
+			   (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
+				  (new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff :group ,group)))
+			     (if (not new-chain)
+			         (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
+			     ;; in that case, the syncing chain will do the anschluss ...
+			     (unless (gethash act-sync *chain-directory*) (setf (anschluss-kette old-chain) new-chain))
+			     (deactivate old-chain))) 
+			  ((>= 0 (length event-processors))
+			   ;; if there's no chain present under this name, and no material to build one,
+			   ;; it's an error condition ...
+			   (incudine::msg error "cannot build chain ~D from nothing" ,name))
+			  ((< 0 (length event-processors))
+			   (incudine::msg info "new chain ~D, trying to build it ..." ,name)
+			   ;; build chain, activate
+			   (unless (chain-from-list ,name event-processors :shift ,shift :group ,group)
+			     (incudine::msg error "couldn't build chain ~D" ,name)))
+			  (t (incudine::msg error "invalid state"))))
+		  (incudine::msg info "hopefully built chain ~D ..." ,name)
+		  ;; if we've reached this point, we should have a valid chain, or left the function ...
+                  (if ,intro
+                      (progn (handle-event ,intro 0)
+                             (incudine:at (+ (incudine:now) #[(event-duration ,intro) ms])
+			                  #'(lambda ()                                            
+                                              (inner-dispatch
+                                               ,name 
+                                               act-sync))))
+                      (inner-dispatch ,name act-sync))))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
 (setf (macro-function 'sink) (macro-function 'dispatch))
