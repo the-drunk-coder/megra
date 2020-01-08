@@ -162,7 +162,7 @@
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
   `(funcall #'(lambda ()
-                (let ((act-sync (cond ((gethash ,sync *chain-directory*) sync)
+                (let ((act-sync (cond ((gethash ,sync *chain-directory*) ,sync)
                                       ((gethash ,sync *multichain-directory*) (car (last (gethash ,sync *multichain-directory*))) )
                                       (t ,sync))))
                   ;;(incudine::msg error "~D" act-sync)
@@ -268,20 +268,21 @@
       (let* ((fprocs (alexandria::flatten procs))
              (names (loop for n from 0 to (- (length fprocs) 1)
                           collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
-        (incudine::msg error "~D" names)
+        ;;(incudine::msg error "~D" names)
         ;; check if anything else is running under this name ... 
         (if (gethash basename *multichain-directory*)
             (loop for name in (gethash basename *multichain-directory*)
                   do (unless (member name names) (clear name))))
         (setf (gethash basename *multichain-directory*) names)
-        (loop for n from 0 to (- (length fprocs) 1)              
+        (loop for n from (- (length fprocs) 1) downto 0              
               do (let ((sync-to (if sync
                                     sync
                                     (if (gethash (nth n names) *chain-directory*)                                               
                                         nil
-                                        (if (> n 0)
-                                            (nth 0 names)
-                                            nil)))))                   
+                                        (if (< n (- (length fprocs) 1) )
+                                            (car (last names))
+                                            nil)))))
+                   ;;(incudine::msg error " >>>>>> PROC ~D ----- SYNC ~D" (nth n names) sync-to)
                    (dispatch (nth n names) (:sync sync-to)
                      (nth n fprocs)))))))
 
