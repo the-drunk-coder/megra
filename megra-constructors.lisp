@@ -208,14 +208,14 @@
 		        collect `(let ((cur-ev ,template))                                   
                                    (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
                                    cur-ev))))
-    `(funcall (lambda () (cyc ',name (list ,@p-events))))))
+    `(funcall (lambda () (cyc ,name (list ,@p-events))))))
 
 (defmacro chop2 (name template num &key (start 0.0))
   (let ((p-events (loop for val from 0 to num
 		        collect `(let ((cur-ev ,template))
                                    (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
                                    cur-ev))))
-    `(funcall (lambda () (cyc2 ',name (list ,@p-events))))))
+    `(funcall (lambda () (cyc2 ,name (list ,@p-events))))))
 
 
 ;; star
