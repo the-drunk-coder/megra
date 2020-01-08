@@ -262,8 +262,8 @@
 		         :exclude nil
 		         :autophagia t
 		         :apoptosis nil))
-      (lambda (pproc) (life act growth-cycle lifespan var method pproc)))
-  )
+      (lambda (pproc) (life act growth-cycle lifespan var method pproc))))
+
 ;; count
 (defclass count-wrapper (event-processor-wrapper)
   ((on-count :accessor on-count :initarg :on-count)
@@ -435,7 +435,6 @@
                        do (push-tmod proc (coerce (/ 1.0 mod) 'float)))
                  proc))
       (lambda (nproc) (relax num mod nproc))))
-
 
 ;; rew 3 - rewind (set to state n back in traced path)
 ;; needs traced path for pfa and state setter method, ideally for both ... 
