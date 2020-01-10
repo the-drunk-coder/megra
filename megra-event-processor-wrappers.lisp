@@ -383,6 +383,46 @@
          (lambda (pproc) (apply 'pear (nconc (list act) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
         (t (lambda (pproc) (apply 'pear (nconc (list act) events-and-proc (list pproc)))))))
 
+(defclass prob-applicator (event-processor-wrapper)
+  ((prob :accessor applicator-prob :initarg :prob)
+   (events-to-apply :accessor applicator-events :initarg :events)))
+
+(defmethod pull-events ((w prob-applicator) &key)
+  (if (successor w)
+      (if (wrapper-act w)
+          (if (< (random 100) (applicator-prob w))
+              (let ((other-events (current-events w)))
+                (loop for aev in (applicator-events w)
+                      do (loop for i from 0 to (- (length other-events) 1)
+                               do (setf (nth i other-events)
+                                        (combine-single-events aev (nth i other-events)))))
+                (apply-self-2 w other-events (pull-events (successor w))))
+              (apply-self w (pull-events (successor w))))
+          (apply-self w (pull-events (successor w))))
+      (if (wrapper-act w)
+          (if (< (random 100) (applicator-prob w))
+              (let ((other-events (current-events w)))
+                (loop for aev in (applicator-events w)
+                      do (loop for i from 0 to (- (length other-events) 1)
+                               do (setf (nth i other-events)
+                                        (combine-single-events aev (nth i other-events)))))
+                other-events)
+              (current-events w))
+          (current-events w))))
+
+(defun ppear (act prob &rest events-and-proc)
+  (cond ((typep (car (last events-and-proc)) 'event-processor)
+         (make-instance 'prob-applicator
+                        :act act
+                        :prob prob
+                        :name (intern (format nil "~D-ppear" (name (car (last events-and-proc)))))
+                        :events (butlast events-and-proc)
+                        :wrapped-processor (car (last events-and-proc))))
+        ((typep (car (last events-and-proc)) 'function)
+         (lambda (pproc) (apply 'ppear (nconc (list act) (list prob) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
+        (t (lambda (pproc) (apply 'ppear (nconc (list act) (list prob) events-and-proc (list pproc)))))))
+
+
 ;; FUNCTIONS 
 ;; SKIP
 (defun skip (num &optional proc)    
