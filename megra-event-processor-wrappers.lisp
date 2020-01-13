@@ -476,6 +476,21 @@
                  proc))
       (lambda (nproc) (relax num mod nproc))))
 
+(defun rew (num &optional proc)  
+  (if proc
+      (if (typep proc 'function)
+          (lambda (nproc) (rew num (funcall proc nproc)))
+          (progn            
+            (setf (current-node proc) (list (nth (- (trace-length proc) (+ num 1)) (traced-path proc))))
+            (setf (traced-path proc) (append (traced-path proc) (current-node proc)))
+            (when (> (list-length (traced-path proc)) (trace-length proc))
+              (setf (traced-path proc)
+	            (delete (car (traced-path proc)) (traced-path proc) :count 1)))
+            proc)
+          ))
+      (lambda (nproc) (rew num nproc))))
+
+
 ;; rew 3 - rewind (set to state n back in traced path)
 ;; needs traced path for pfa and state setter method, ideally for both ... 
 

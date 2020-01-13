@@ -17,11 +17,11 @@
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
 (defmacro graph (name (&key		       
-		       (combine-mode ''append)
-		       (affect-transition nil)
-		       (combine-filter #'all-p)
-		       (update-clones t) ;; what's this ???
-		       (rand 0))
+		         (combine-mode ''append)
+		         (affect-transition nil)
+		         (combine-filter #'all-p)
+		         (update-clones t) ;; what's this ???
+		         (rand 0))
 		 &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
 		      (setf (graph-id new-graph) ,name)    
@@ -43,7 +43,7 @@
 			    (when ,update-clones
 			      (mapc #'(lambda (proc-id)
 					(let ((my-clone
-					       (gethash proc-id *processor-directory*)))
+					        (gethash proc-id *processor-directory*)))
 					  (setf (source-graph my-clone)
 						(deepcopy new-graph))
 					  (setf (affect-transition my-clone) ,affect-transition)
@@ -55,11 +55,11 @@
 			    cur-instance)			    
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
-					       :graph new-graph :copy-events t
-					       :current-node 1 :combine-mode ,combine-mode
-					       :affect-transition ,affect-transition
-					       :combine-filter ,combine-filter
-					       :update-clones ,update-clones)))))))
+					                              :graph new-graph :copy-events t
+					                              :current-node 1 :combine-mode ,combine-mode
+					                              :affect-transition ,affect-transition
+					                              :combine-filter ,combine-filter
+					                              :update-clones ,update-clones)))))))
 
 ;;  shorthand for graph
 (setf (macro-function 'g) (macro-function 'graph))
@@ -103,16 +103,16 @@
 	  (print-function-name (combine-filter g))	 
 	  ;; might save hashtable access here ... 
 	  (loop for key being the hash-keys of (graph-nodes (source-graph g))
-	     collect (format nil "~C~a~%"
-			     #\tab
-			     (print-node
-			      (gethash key (graph-nodes (source-graph g))))))	  
+	        collect (format nil "~C~a~%"
+			        #\tab
+			        (print-node
+			         (gethash key (graph-nodes (source-graph g))))))	  
 	  (loop for order being the hash-keys of (graph-outgoing-edges (source-graph g))
-	     append (let ((order-edges (gethash order (graph-outgoing-edges (source-graph g)))))
-		      (loop for key being the hash-keys of order-edges
-			 append (mapcar
-				 #'(lambda (edge) (format nil "~C~a~%" #\tab (print-edge edge)))
-				 (gethash key order-edges)))))))
+	        append (let ((order-edges (gethash order (graph-outgoing-edges (source-graph g)))))
+		         (loop for key being the hash-keys of order-edges
+			       append (mapcar
+				       #'(lambda (edge) (format nil "~C~a~%" #\tab (print-edge edge)))
+				       (gethash key order-edges)))))))
 
 ;; output helpers ... 
 ;; should i find a better name for this function ??
@@ -148,20 +148,20 @@
 ;; eventually the event-sources are not considered,
 ;; but this shouldn't pose a problem so far ... 
 (defmethod copy-instance (object)
-   (let ((copy (allocate-instance (class-of object))))
-     (loop for slot in (class-slots (class-of object))
-	do (when (slot-boundp-using-class (class-of object) object slot)
-	     (setf (slot-value copy (slot-definition-name slot))	   
-		   ;; if told so, evaluate slots while copying ...
-		   ;; should make some things easier ...
-		   (if (and *eval-on-copy*
-			    (not (member (slot-definition-name slot) *protected-slots*)))
-		       (let ((val (slot-value object (slot-definition-name slot))))
-			 (cond ((typep val 'param-mod-object) (evaluate val))
-			       ((typep val 'function) (funcall val))
-			       (t val)))		       
+  (let ((copy (allocate-instance (class-of object))))
+    (loop for slot in (class-slots (class-of object))
+	  do (when (slot-boundp-using-class (class-of object) object slot)
+	       (setf (slot-value copy (slot-definition-name slot))	   
+		     ;; if told so, evaluate slots while copying ...
+		     ;; should make some things easier ...
+		     (if (and *eval-on-copy*
+			      (not (member (slot-definition-name slot) *protected-slots*)))
+		         (let ((val (slot-value object (slot-definition-name slot))))
+			   (cond ((typep val 'param-mod-object) (evaluate val))
+			         ((typep val 'function) (funcall val))
+			         (t val)))		       
 
-		       (slot-value object (slot-definition-name slot)))))) copy))
+		         (slot-value object (slot-definition-name slot)))))) copy))
 
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
@@ -181,16 +181,16 @@
       (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
 (defun match-trace (path pattern)
-	 (let ((ldiff (- (length path) (length pattern))))
-	   (if (>= ldiff 0)
-	       (equal (nthcdr ldiff path) pattern))))
+  (let ((ldiff (- (length path) (length pattern))))
+    (if (>= ldiff 0)
+	(equal (nthcdr ldiff path) pattern))))
 
 ;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
       ((choice-list (edge counter)
 	 (loop repeat (edge-probability edge)
-	    collect counter))
+	       collect counter))
        (collect-choices (edges counter)
 	 (if edges
 	     (append (choice-list (car edges) counter)
@@ -199,28 +199,28 @@
     ;; prioritize higher-order edges ...
     ;; this loop construction is creepy ...
     (loop named order-loop for order from
-	 (graph-highest-edge-order (source-graph g)) downto 1
-       ;; iterate over the edge orders ...
-       if (gethash order (graph-outgoing-edges (source-graph g)))
-       do (let ((edges-for-order (gethash order (graph-outgoing-edges (source-graph g))))) 
-	    ;;(incudine::msg info "edge order: ~D" order)
-	    (loop for pattern being the hash-keys of edges-for-order
-	       ;; now, not only single nodes but also paths can serve as "source"
-	       do (when (match-trace (traced-path g) pattern)
-		    ;;(incudine::msg info "found edge ! pattern ~D" pattern)
-		    (let* ((current-edges (gethash pattern edges-for-order))
-			   (current-choices (collect-choices current-edges 0))
-			   (chosen-edge-id (nth (random (length current-choices))
-						current-choices))
-			   (chosen-edge (nth chosen-edge-id current-edges)))
-		      ;;(incudine::msg info "current-choices ~D" current-choices)
-		      ;;(incudine::msg info "chosen edge id ~D" chosen-edge-id)
-		      ;;(incudine::msg info "possible edges ~D" current-edges)
-		      ;;(incudine::msg info "found edge ~D" chosen-edge)
-		      (setf (current-node g) (edge-destination chosen-edge))
-		      ;; if a valid transition has been found, jump out ... 
-		      (if (copy-events g)
-			  (return-from order-loop
-			    (mapcar #'copy-instance (edge-content chosen-edge)))
-			  (return-from order-loop (edge-content chosen-edge))
-			  ))))))))
+	  (graph-highest-edge-order (source-graph g)) downto 1
+          ;; iterate over the edge orders ...
+          if (gethash order (graph-outgoing-edges (source-graph g)))
+          do (let ((edges-for-order (gethash order (graph-outgoing-edges (source-graph g))))) 
+	       ;;(incudine::msg info "edge order: ~D" order)
+	       (loop for pattern being the hash-keys of edges-for-order
+	             ;; now, not only single nodes but also paths can serve as "source"
+	             do (when (match-trace (traced-path g) pattern)
+		          ;;(incudine::msg info "found edge ! pattern ~D" pattern)
+		          (let* ((current-edges (gethash pattern edges-for-order))
+			         (current-choices (collect-choices current-edges 0))
+			         (chosen-edge-id (nth (random (length current-choices))
+						      current-choices))
+			         (chosen-edge (nth chosen-edge-id current-edges)))
+		            ;;(incudine::msg info "current-choices ~D" current-choices)
+		            ;;(incudine::msg info "chosen edge id ~D" chosen-edge-id)
+		            ;;(incudine::msg info "possible edges ~D" current-edges)
+		            ;;(incudine::msg info "found edge ~D" chosen-edge)
+		            (setf (current-node g) (edge-destination chosen-edge))
+		            ;; if a valid transition has been found, jump out ... 
+		            (if (copy-events g)
+			        (return-from order-loop
+			          (mapcar #'copy-instance (edge-content chosen-edge)))
+			        (return-from order-loop (edge-content chosen-edge))
+			        ))))))))
