@@ -16,8 +16,7 @@
 ;; This macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
-(defmacro graph (name (&key
-		       (perma nil) ;; what's this ???
+(defmacro graph (name (&key		       
 		       (combine-mode ''append)
 		       (affect-transition nil)
 		       (combine-filter #'all-p)
@@ -40,7 +39,7 @@
 			    (setf (combine-mode cur-instance) ,combine-mode)
 			    (setf (combine-filter cur-instance) ,combine-filter)
 			    (setf (update-clones cur-instance) ,update-clones)
-			    (setf (copy-events cur-instance) (not ,perma))
+			    (setf (copy-events cur-instance) t)
 			    (when ,update-clones
 			      (mapc #'(lambda (proc-id)
 					(let ((my-clone
@@ -51,12 +50,12 @@
 					  (setf (combine-mode my-clone) ,combine-mode)
 					  (setf (combine-filter my-clone) ,combine-filter)
 					  (setf (update-clones my-clone) ,update-clones)
-					  (setf (copy-events my-clone) (not ,perma))))
+					  (setf (copy-events my-clone) t)))
 				    (clones cur-instance)))
 			    cur-instance)			    
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
-					       :graph new-graph :copy-events (not ,perma)
+					       :graph new-graph :copy-events t
 					       :current-node 1 :combine-mode ,combine-mode
 					       :affect-transition ,affect-transition
 					       :combine-filter ,combine-filter
@@ -98,9 +97,8 @@
 
 ;; turn back to textual representation ...
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
-  (format out-stream "(graph '~a (:perma ~a :combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
+  (format out-stream "(graph '~a (:combine-mode '~a :combine-filter #'~a)~%~{~a~}~{~a~})"
 	  (graph-id (source-graph g))
-	  (copy-events g)
 	  (combine-mode g)
 	  (print-function-name (combine-filter g))	 
 	  ;; might save hashtable access here ... 
