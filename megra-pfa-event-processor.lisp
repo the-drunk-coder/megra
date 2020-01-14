@@ -3,13 +3,10 @@
 ;; graph-based event-generator, the main one ...
 (defclass mpfa-event-processor (event-processor)
   ((source-mpfa :accessor source-mpfa :initarg :mpfa)
-   (copy-events :accessor copy-events :initarg :copy-events :initform t)
    (combine-filter :accessor combine-filter :initarg :combine-filter :initform #'all-p)))
 
 (defmethod current-events ((m mpfa-event-processor) &key)
-  (if (copy-events m)
-      (deepcopy (current-events (source-mpfa m)))
-      (current-events (source-mpfa m))))
+  (deepcopy (current-events (source-mpfa m))))
 
 (defmethod current-transition ((m mpfa-event-processor) &key)
   (list (current-transition (source-mpfa m))))
@@ -38,9 +35,10 @@
  			  (progn
 			    (setf key m)
 			    (setf (gethash key mapping) (list)))
-			  (let ((me (eval m))
-				(le (gethash key mapping)))			    
-			    (setf (gethash key mapping) (nconc le (list me))))))
+			  (let ((me (eval m)))			    
+                            (if (typep me 'list)
+                                (loop for ev in me do (push ev (gethash key mapping)))
+                                (push me (gethash key mapping))))))
 		mapping))))
 
 ;; data transformation macro to define transition rules more easily
@@ -85,7 +83,7 @@
     (setf (mpfa-default-duration new-mpfa) dur)
     ;; set event tags
     (loop for ev being the hash-values of events
-          do (push name (event-tags (car ev))))
+          do (loop for sev in ev do (push name (event-tags sev))))
     (setf (mpfa-event-dictionary new-mpfa) events)
     (if old-proc
         (let ((old-mpfa (source-mpfa old-proc)))
@@ -125,13 +123,12 @@
     (if (and old-proc (typep old-proc 'mpfa-event-processor))
 	(setf (source-mpfa old-proc) new-mpfa))
     (setf (mpfa-default-duration new-mpfa) dur)
-    ;; set event tags
+    ;; set event tags   
     (loop for ev being the hash-values of events
-          do (push name (event-tags (car ev))))
+          do (loop for sev in ev do (push name (event-tags sev))))
     (setf (mpfa-event-dictionary new-mpfa) events)
     (setf (mpfa-last-symbol new-mpfa) init-sym)        
     (setf (gethash name *processor-directory*) new-proc)))
-
 
 (defmacro slearn (name events sample-string &key (dur *global-default-duration*)
 					         (bound 3)
