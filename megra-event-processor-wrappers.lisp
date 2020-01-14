@@ -11,6 +11,21 @@
 (defmethod pop-tmod ((w event-processor-wrapper) &key)
   (pop-tmod (wrapper-wrapped-processor w)))
 
+(defmethod set-current-node ((w event-processor-wrapper) cnode &key)
+  (set-current-node (wrapper-wrapped-processor w) cnode))
+
+(defmethod set-traced-path ((w event-processor-wrapper) tpath &key)
+  (set-traced-path (wrapper-wrapped-processor w) tpath))
+
+(defmethod current-node ((w event-processor-wrapper))
+  (current-node (wrapper-wrapped-processor w)))
+
+(defmethod traced-path ((w event-processor-wrapper))
+  (traced-path (wrapper-wrapped-processor w)))
+
+(defmethod trace-length ((w event-processor-wrapper))
+  (trace-length (wrapper-wrapped-processor w)))
+
 (defmethod pull-events ((w event-processor-wrapper) &key)
   (let ((ev (if (successor w)
 		(apply-self w (pull-events (successor w)))
@@ -476,22 +491,21 @@
                  proc))
       (lambda (nproc) (relax num mod nproc))))
 
+;; rew 3 - rewind (set to state n back in traced path)
 (defun rew (num &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (nproc) (rew num (funcall proc nproc)))
           (progn            
-            (setf (current-node proc) (list (nth (- (trace-length proc) (+ num 1)) (traced-path proc))))
-            (setf (traced-path proc) (append (traced-path proc) (current-node proc)))
+            (set-current-node proc (list (nth (- (trace-length proc) (+ num 1)) (traced-path proc))))
+            (set-traced-path proc(append (traced-path proc) (current-node proc))) 
             (when (> (list-length (traced-path proc)) (trace-length proc))
-              (setf (traced-path proc)
-	            (delete (car (traced-path proc)) (traced-path proc) :count 1)))
-            proc)
-          ))
-      (lambda (nproc) (rew num nproc))))
+              (set-traced-path proc
+	                       (delete (car (traced-path proc)) (traced-path proc) :count 1)))
+            proc)))
+      (lambda (nproc) (rew num nproc)))
 
 
-;; rew 3 - rewind (set to state n back in traced path)
 ;; needs traced path for pfa and state setter method, ideally for both ... 
 
 

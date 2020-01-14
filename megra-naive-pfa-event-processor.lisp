@@ -13,6 +13,12 @@
    (trace-length :accessor trace-length :initarg :trace-length
 		 :initform *global-trace-length*)))
 
+(defmethod set-current-node ((w graph-event-processor) cnode &key)
+  (setf (current-node w) cnode))
+
+(defmethod set-traced-path ((w graph-event-processor) tpath &key)
+  (setf (traced-path w) tpath))
+
 ;; This macro is basically just a wrapper for the (original) function,
 ;; so that i can mix keyword arguments and an arbitrary number of
 ;; ensuing graph elements ... 
