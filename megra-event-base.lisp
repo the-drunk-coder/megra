@@ -286,8 +286,8 @@
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
 		 (print-cfun (value-combine-function evt)))))
-       ;; define arithmitic
-       (when ,arithmitic
+       ;; define arithmetic
+       (when ,arithmetic
          (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-mul")) (val)
            (,short-name val :cfun #'mul))
          (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-add")) (val)
