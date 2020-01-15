@@ -170,7 +170,8 @@
 			  (parameters nil)
 			  (direct-parameters nil)
 			  (create-accessors t)
-			  (handler nil))
+			  (handler nil)
+                          (arithmetic nil))
   (let* ((class-name (intern (format nil "~A" long-name)))
 	 (keyword-parameters  (remove-if #'
 			       (lambda (x)
@@ -285,6 +286,16 @@
 			 ',(mapcar #'cadr parent-keyword-parameters))
 		 (print-tags (event-tags evt))
 		 (print-cfun (value-combine-function evt)))))
+       ;; define arithmitic
+       (when ,arithmitic
+         (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-mul")) (val)
+           (,short-name val :cfun #'mul))
+         (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-add")) (val)
+           (,short-name val :cfun #'add))
+         (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-sub")) (val)
+           (,short-name val :cfun #'sub))
+         (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-div")) (val)
+           (,short-name val :cfun #'div)))       
        ;; define event predicate for filters
        (defun ,(read-from-string (concatenate 'string (symbol-name short-name) "-" (symbol-name 'p))) (event)
 	 (typep event ',class-name )))))

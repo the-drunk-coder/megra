@@ -24,6 +24,7 @@
 (define-event
   :long-name pitch-event
   :short-name pitch
+  :arithmetic t
   :parent-events (event)
   :parameters ((pitch event-pitch 43 1 19000)) 
   :direct-parameters (pitch))
@@ -153,6 +154,7 @@
 (define-event
   :long-name pan-event
   :short-name pos
+  :arithmetic t
   :parent-events (event)
   :parameters ((pos event-position 0.0)) 
   :direct-parameters (pos))
@@ -169,6 +171,7 @@
 (define-event
   :long-name rate-event
   :short-name rate
+  :arithmetic t
   :parent-events (event)
   :parameters ((rate event-rate 1.0)) 
   :direct-parameters (rate))
@@ -176,6 +179,7 @@
 (define-event
   :long-name attack-event
   :short-name atk
+  :arithmetic t
   :parent-events (event)
   :parameters ((atk event-attack 5 1)) 
   :direct-parameters (atk))
@@ -183,6 +187,7 @@
 (define-event
   :long-name decay-event
   :short-name dec
+  :arithmetic t
   :parent-events (event)
   :parameters ((dec event-decay 20 1)) 
   :direct-parameters (dec))
@@ -190,6 +195,7 @@
 (define-event
   :long-name sustain-event
   :short-name sus
+  :arithmetic t
   :parent-events (event)
   :parameters ((sus event-sustain 50 1)) 
   :direct-parameters (sus))
@@ -197,6 +203,7 @@
 (define-event
   :long-name release-event
   :short-name rel
+  :arithmetic t
   :parent-events (event)
   :parameters ((rel event-release 5 1)) 
   :direct-parameters (rel))
@@ -204,6 +211,7 @@
 (define-event
   :long-name pulsewidth-event
   :short-name pw
+  :arithmetic t
   :parent-events (event)
   :parameters ((pw event-pulsewidth 0.5 0.01 0.09)) 
   :direct-parameters (pw))
@@ -272,6 +280,7 @@
 (define-event
   :long-name velocity-event
   :short-name vel
+  :arithmetic t
   :parent-events (event)
   :parameters ((vel event-velocity 0.8 0.0 1.0)) 
   :direct-parameters (vel))
@@ -293,6 +302,7 @@
 (define-event
   :long-name reverb-event
   :short-name rev
+  :arithmetic t
   :parent-events (event)
   :parameters ((rev event-reverb 0.0 0.0 0.4)) 
   :direct-parameters (rev))
@@ -300,6 +310,7 @@
 (define-event
   :long-name highpass-frequency-event
   :short-name hp-freq
+  :arithmetic t
   :parent-events (event)
   :parameters ((hp-freq event-hp-freq 10 5 19000)) 
   :direct-parameters (hp-freq))
@@ -307,6 +318,7 @@
 (define-event
   :long-name highpass-q-event
   :short-name hp-q
+  :arithmetic t
   :parent-events (event)
   :parameters ((hp-q event-hp-q 0.4 0.09 0.9)) 
   :direct-parameters (hp-q))
@@ -314,6 +326,7 @@
 (define-event
   :long-name lowpass-frequency-event
   :short-name lp-freq
+  :arithmetic t
   :parent-events (event)
   :parameters ((lp-freq event-lp-freq 19000 10 19000)) 
   :direct-parameters (lp-freq))
@@ -321,6 +334,7 @@
 (define-event
   :long-name lowpass-distortion-event
   :short-name lp-dist
+  :arithmetic t
   :parent-events (event)
   :parameters ((lp-dist event-lp-dist 0.0 0.0 1.0)) 
   :direct-parameters (lp-dist))
@@ -328,6 +342,7 @@
 (define-event
   :long-name lowpass-q-event
   :short-name lp-q
+  :arithmetic t
   :parent-events (event)
   :parameters ((lp-q event-lp-q 0.1 0.07 0.9)) 
   :direct-parameters (lp-q))
@@ -335,6 +350,7 @@
 (define-event
   :long-name peak-frequency-event
   :short-name pf-freq
+  :arithmetic t
   :parent-events (event)
   :parameters ((pf-freq event-pf-freq 1000 10 19000)) 
   :direct-parameters (pf-freq))
@@ -342,6 +358,7 @@
 (define-event
   :long-name peak-gain-event
   :short-name pf-gain
+  :arithmetic t
   :parent-events (event)
   :parameters ((pf-gain event-pf-gain 0.0 -10.0 10.0)) 
   :direct-parameters (pf-gain))
@@ -349,6 +366,7 @@
 (define-event
   :long-name peak-q-event
   :short-name pf-q
+  :arithmetic t
   :parent-events (event)
   :parameters ((pf-q event-pf-q 10 1 40)) 
   :direct-parameters (pf-q))

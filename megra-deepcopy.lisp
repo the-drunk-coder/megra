@@ -24,9 +24,10 @@
   (cm::note (add-imprecision (cm::hertz pitch) imprecision) :hz))
 
 (defun is-note-name (symbol)
-  (handler-case		    
-      (cm::hertz symbol)
-      (simple-error (e) nil)))
+  (when (typep symbol 'symbol)
+    (handler-case		    
+        (cm::hertz symbol)
+      (simple-error (e) nil))))
 
 (defun deepcopy-list (list &key
 			     (imprecision 0.0)
