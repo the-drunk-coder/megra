@@ -23,6 +23,9 @@
 (defmethod traced-path ((w event-processor-wrapper))
   (traced-path (wrapper-wrapped-processor w)))
 
+(defmethod source-graph ((w event-processor-wrapper))
+  (source-graph (wrapper-wrapped-processor w)))
+
 (defmethod trace-length ((w event-processor-wrapper))
   (trace-length (wrapper-wrapped-processor w)))
 
