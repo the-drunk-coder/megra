@@ -9,7 +9,7 @@
     (osc:simple-bundle cm::*oscout* timestamp  
 		       "/s_new"	    
 		       "siiisisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
-		       "grain_4ch_rev" -1 0 1
+		       "grain_4ch" -1 0 1
 		       "bufnum" bufnum
 		       "lvl" (coerce (event-level g) 'float)
 		       "rate" (coerce (event-rate g) 'float)
@@ -28,6 +28,6 @@
 		       "a" (coerce (* (event-attack g) 0.001) 'float)
 		       "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
 		       "r" (coerce (* (event-release g) 0.001) 'float)
-		       "pos" (coerce (- (event-position g) 0.5) 'float)
+		       "pos" (coerce (- (event-position g) 1.0) 'float)
 		       "rev" (coerce (event-reverb g) 'float))))
 
