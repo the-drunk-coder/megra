@@ -1,8 +1,7 @@
 (in-package :megra)
 
 (defclass event-processor-wrapper (event-processor)
-  ((act :accessor wrapper-act :initarg :act :initform t)
-   (wrapped-processor :accessor wrapper-wrapped-processor
+  ((wrapped-processor :accessor wrapper-wrapped-processor
 		      :initarg :wrapped-processor)))
 
 (defmethod push-tmod ((w event-processor-wrapper) tmod &key)
@@ -30,11 +29,12 @@
   (trace-length (wrapper-wrapped-processor w)))
 
 (defmethod pull-events ((w event-processor-wrapper) &key)
-  (let ((ev (if (successor w)
-		(apply-self w (pull-events (successor w)))
-		(current-events w))))
-    (when (wrapper-act w) (post-processing w))
-    ev))
+  (if (successor w)
+      (apply-self w (pull-events (successor w)))
+      (current-events w)))
+
+(defmethod pull-events :after ((w event-processor-wrapper) &key)
+  (post-processing w))
 
 ;; pass through apply-self ?
 (defmethod current-events ((w event-processor-wrapper) &key)
@@ -87,8 +87,7 @@
 	val)
       default))
 
-(defun probctrl (act pgrowth pprune
-		 &rest rest)
+(defun probctrl (pgrowth pprune &rest rest)
   (let ((method (find-keyword-val :method rest :default 'triloop))
 	(variance (find-keyword-val :var rest :default 0.2))
 	(durs (find-keyword-val :durs rest :default nil))
@@ -99,8 +98,7 @@
 			       (gethash (last rest) *processor-directory*)
 			       (car (last rest)))))
     (make-instance 'probability-population-control
-		   :wrapped-processor wrapped-processor
-		   :act act
+		   :wrapped-processor wrapped-processor		   
 		   :name (intern (format nil "~D-probctrl" (name wrapped-processor)))
 		   :variance variance
 		   :pgrowth pgrowth
@@ -229,7 +227,7 @@
 
 ;; lifemodel works more in minimalistic contexts rather than algorave,
 ;; i suppose ...
-(defun inner-lifemodel (act growth-cycle lifespan rest)
+(defun inner-lifemodel (growth-cycle lifespan rest)
   (let ((method (find-keyword-val :method rest :default 'triloop))
 	(variance (find-keyword-val :var rest :default 0.2))
 	(autophagia (find-keyword-val :autophagia rest :default t))
@@ -243,7 +241,6 @@
 			       (car (last rest)))))
     (make-instance 'lifemodel-control
 		   :name (intern (format nil "~D-lifemodel" (name wrapped-processor)))
-		   :act act
 		   :wrapped-processor wrapped-processor
 		   :growth-cycle growth-cycle		 
 		   :variance variance		 
@@ -256,19 +253,18 @@
 		   :autophagia autophagia
 		   :apoptosis apoptosis)))
 
-(defun lifemodel (act growth-cycle lifespan &rest rest)
-  (inner-lifemodel act growth-cycle lifespan rest))
+(defun lifemodel (growth-cycle lifespan &rest rest)
+  (inner-lifemodel growth-cycle lifespan rest))
 
-(defun lm (act growth-cycle lifespan &rest rest)
-  (inner-lifemodel act growth-cycle lifespan rest))
+(defun lm (growth-cycle lifespan &rest rest)
+  (inner-lifemodel growth-cycle lifespan rest))
 
-(defun life (act growth-cycle lifespan var method &optional proc)
+(defun life (growth-cycle lifespan var method &optional proc)
   (if proc
       (if (typep proc 'function)
-          (lambda (pproc) (life act growth-cycle lifespan var method (funcall proc pproc)))
+          (lambda (pproc) (life growth-cycle lifespan var method (funcall proc pproc)))
           (make-instance 'lifemodel-control
 		         :name (intern (format nil "~D-lifemodel" (name proc)))
-		         :act act
 		         :wrapped-processor proc
 		         :growth-cycle growth-cycle		 
 		         :variance var		 
@@ -280,7 +276,7 @@
 		         :exclude nil
 		         :autophagia t
 		         :apoptosis nil))
-      (lambda (pproc) (life act growth-cycle lifespan var method pproc))))
+      (lambda (pproc) (life growth-cycle lifespan var method pproc))))
 
 ;; count
 (defclass count-wrapper (event-processor-wrapper)
@@ -294,17 +290,16 @@
     (funcall (count-control-function c) (wrapper-wrapped-processor c))
     (setf (control-counter c) 0)))
 
-(defun evr (act count fun &optional proc)
+(defun evr (count fun &optional proc)
   (if proc
       (if (typep proc 'function)
-          (lambda (pproc) (evr act count fun (funcall proc pproc)))
+          (lambda (pproc) (evr count fun (funcall proc pproc)))
           (make-instance 'count-wrapper
-                         :act act
                          :name (intern (format nil "~D-evr" (name proc)))
                          :on-count count 
                          :function fun
                          :wrapped-processor proc))
-      (lambda (pproc) (evr act count fun pproc))))
+      (lambda (pproc) (evr count fun pproc))))
 
 ;; prob
 (defclass prob-wrapper (event-processor-wrapper)
@@ -315,17 +310,16 @@
   (when (< (random 100) (prob-wrapper-prob p))
     (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
-(defun pprob (act prob fun &optional proc)
+(defun pprob (prob fun &optional proc)
   (if proc
       (if (typep proc 'function)
-          (lambda (pproc) (pprob act prob fun (funcall proc pproc)))
+          (lambda (pproc) (pprob prob fun (funcall proc pproc)))
           (make-instance 'prob-wrapper
-                         :act act
                          :name (intern (format nil "~D-pprob" (name proc)))
                          :prob prob 
                          :function fun                
                          :wrapped-processor proc))
-      (lambda (pproc) (pprob act prob fun pproc))))
+      (lambda (pproc) (pprob prob fun pproc))))
 
 (defclass duplicator (event-processor-wrapper)
   ((duplicates :accessor duplicates :initarg :duplicates)))
@@ -335,32 +329,23 @@
         do (pull-transition dup)))
 
 (defmethod pull-events ((w duplicator) &key)
-  (if (not (wrapper-act w))
-      (let ((ev (if (successor w)
-		    (apply-self (wrapper-wrapped-processor w)
-			        (pull-events (successor w)))
-		    (current-events (wrapper-wrapped-processor w)))))
-        (when (wrapper-act w) (post-processing w))
-        ev)
-      (let ((ev (if (successor w)
-		    (nconc (apply-self (wrapper-wrapped-processor w)
- 			               (pull-events (successor w)))
-                           (loop for dup in (duplicates w)
-                                 collect (pull-events dup)))
-		    (nconc (current-events (wrapper-wrapped-processor w))
-                           (loop for dup in (duplicates w)
-                                 collect (pull-events dup))))))
-        (when (wrapper-act w) (post-processing w))
-        ;; this can be assembled more elegantly, i guess ... 
-        (alexandria::flatten ev))))
+  ;; this can be assembled more elegantly, i guess ... 
+  (alexandria::flatten
+   (if (successor w)
+       (nconc (apply-self (wrapper-wrapped-processor w) (pull-events (successor w)))
+              (loop for dup in (duplicates w) collect (pull-events dup)))
+       (nconc (current-events (wrapper-wrapped-processor w))
+              (loop for dup in (duplicates w) collect (pull-events dup))))))
 
-(defun dup (act &rest funs-and-proc)
+(defmethod pull-events :after ((w duplicator) &key)
+  (post-processing w))
+
+(defun dup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))
          (proc (car (last funs-and-proc)))
          (duplicates (loop for p from 0 to (- (length funs) 1)
                            collect (funcall (nth p funs) (deepcopy proc)))))
     (make-instance 'duplicator
-                   :act act
                    :name (intern (format nil "~D-duplicator" (name proc)))
                    :duplicates duplicates
                    :wrapped-processor proc)))
@@ -375,14 +360,12 @@
 
 (defmethod pull-events ((w applicator) &key)
   (if (successor w)
-      (if (wrapper-act w)
-          (let ((other-events (current-events w)))
-            (loop for aev in (applicator-events w)
-                  do (loop for i from 0 to (- (length other-events) 1)
-                           do (setf (nth i other-events)
-                                    (combine-single-events aev (nth i other-events)))))
-            (apply-self-2 w other-events (pull-events (successor w))))
-          (apply-self w (pull-events (successor w))))
+      (let ((other-events (current-events w)))
+        (loop for aev in (applicator-events w)
+              do (loop for i from 0 to (- (length other-events) 1)
+                       do (setf (nth i other-events)
+                                (combine-single-events aev (nth i other-events)))))
+        (apply-self-2 w other-events (pull-events (successor w))))      
       (let ((other-events (current-events w)))
         (loop for aev in (applicator-events w)
               do (loop for i from 0 to (- (length other-events) 1)
@@ -390,16 +373,15 @@
                                 (combine-single-events aev (nth i other-events)))))
         other-events)))
 
-(defun pear (act &rest events-and-proc)
+(defun pear (&rest events-and-proc)
   (cond ((typep (car (last events-and-proc)) 'event-processor)
          (make-instance 'applicator
-                        :act act
                         :name (intern (format nil "~D-pear" (name (car (last events-and-proc)))))
                         :events (butlast events-and-proc)
                         :wrapped-processor (car (last events-and-proc))))
         ((typep (car (last events-and-proc)) 'function)
-         (lambda (pproc) (apply 'pear (nconc (list act) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
-        (t (lambda (pproc) (apply 'pear (nconc (list act) events-and-proc (list pproc)))))))
+         (lambda (pproc) (apply 'pear (nconc (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
+        (t (lambda (pproc) (apply 'pear (nconc events-and-proc (list pproc)))))))
 
 (defclass prob-applicator (event-processor-wrapper)
   ((prob :accessor applicator-prob :initarg :prob)
@@ -407,38 +389,33 @@
 
 (defmethod pull-events ((w prob-applicator) &key)
   (if (successor w)
-      (if (wrapper-act w)
-          (if (< (random 100) (applicator-prob w))
-              (let ((other-events (current-events w)))
-                (loop for aev in (applicator-events w)
-                      do (loop for i from 0 to (- (length other-events) 1)
-                               do (setf (nth i other-events)
-                                        (combine-single-events aev (nth i other-events)))))
-                (apply-self-2 w other-events (pull-events (successor w))))
-              (apply-self w (pull-events (successor w))))
+      (if (< (random 100) (applicator-prob w))
+          (let ((other-events (current-events w)))
+            (loop for aev in (applicator-events w)
+                  do (loop for i from 0 to (- (length other-events) 1)
+                           do (setf (nth i other-events)
+                                    (combine-single-events aev (nth i other-events)))))
+            (apply-self-2 w other-events (pull-events (successor w))))
           (apply-self w (pull-events (successor w))))
-      (if (wrapper-act w)
-          (if (< (random 100) (applicator-prob w))
-              (let ((other-events (current-events w)))
-                (loop for aev in (applicator-events w)
-                      do (loop for i from 0 to (- (length other-events) 1)
-                               do (setf (nth i other-events)
-                                        (combine-single-events aev (nth i other-events)))))
-                other-events)
-              (current-events w))
+      (if (< (random 100) (applicator-prob w))
+          (let ((other-events (current-events w)))
+            (loop for aev in (applicator-events w)
+                  do (loop for i from 0 to (- (length other-events) 1)
+                           do (setf (nth i other-events)
+                                    (combine-single-events aev (nth i other-events)))))
+            other-events)
           (current-events w))))
 
-(defun ppear (act prob &rest events-and-proc)
+(defun ppear (prob &rest events-and-proc)
   (cond ((typep (car (last events-and-proc)) 'event-processor)
-         (make-instance 'prob-applicator
-                        :act act
+         (make-instance 'prob-applicator              
                         :prob prob
                         :name (intern (format nil "~D-ppear" (name (car (last events-and-proc)))))
                         :events (butlast events-and-proc)
                         :wrapped-processor (car (last events-and-proc))))
         ((typep (car (last events-and-proc)) 'function)
-         (lambda (pproc) (apply 'ppear (nconc (list act) (list prob) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
-        (t (lambda (pproc) (apply 'ppear (nconc (list act) (list prob) events-and-proc (list pproc)))))))
+         (lambda (pproc) (apply 'ppear (nconc (list prob) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
+        (t (lambda (pproc) (apply 'ppear (nconc (list prob) events-and-proc (list pproc)))))))
 
 
 ;; FUNCTIONS 
