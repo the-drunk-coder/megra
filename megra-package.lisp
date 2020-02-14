@@ -132,6 +132,7 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-event-processor")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-pfa-event-processor")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-direct-modifiers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-disencourage")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-dispatchers")))
