@@ -9,6 +9,12 @@
                  acc)))
     (if rest (cmp-inner (car rest) (cdr rest)))))
 
+(defmacro tie (name &body rest)
+  `(funcall (lambda () (chain ,name ()
+                    ,@rest))))
+
+
+
 ;;
 ;;
 ;;
