@@ -156,8 +156,6 @@
 			         chain				     
 			         it))))))
 
-
-
 (defmacro dispatch (name (&key (sync nil) (branch nil) (group nil) (shift 0.0) (intro nil)) &body proc-body)
   ;; when we're branching the chain, we temporarily save the state of all processor
   ;; directories (as we cannot be sure which ones are used ...)
@@ -261,7 +259,19 @@
 (defun once (event)
   (handle-event event 0))
 
-(defun sx (basename act sync &rest procs)
+(defun sx-inner (fprocs names sync)
+  (loop for n from (- (length fprocs) 1) downto 0
+        do (let ((sync-to (if sync
+                              sync
+                              (if (gethash (nth n names) *chain-directory*)                                               
+                                  nil
+                                  (if (< n (- (length fprocs) 1) )
+                                      (car (last names))
+                                      nil)))))
+             ;;(incudine::msg error " >>>>>> PROC ~D ----- SYNC ~D" (nth n fprocs) sync-to)                              
+             (dispatch (nth n names) (:sync sync-to) (nth n fprocs)))))
+
+(defun sx (basename act sync intro &rest procs)
   (if (not act)
       (loop for name in (gethash basename *multichain-directory*)
             do (clear name))
@@ -274,17 +284,11 @@
             (loop for name in (gethash basename *multichain-directory*)
                   do (unless (member name names) (clear name))))
         (setf (gethash basename *multichain-directory*) names)
-        (loop for n from (- (length fprocs) 1) downto 0              
-              do (let ((sync-to (if sync
-                                    sync
-                                    (if (gethash (nth n names) *chain-directory*)                                               
-                                        nil
-                                        (if (< n (- (length fprocs) 1) )
-                                            (car (last names))
-                                            nil)))))
-                   ;;(incudine::msg error " >>>>>> PROC ~D ----- SYNC ~D" (nth n names) sync-to)
-                   (dispatch (nth n names) (:sync sync-to)
-                     (nth n fprocs)))))))
+        (if intro
+            (progn (handle-event intro 0)
+                   (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
+			        #'(lambda () (sx-inner fprocs names sync))))
+            (sx-inner fprocs names sync)))))
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))
