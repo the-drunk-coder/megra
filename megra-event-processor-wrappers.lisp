@@ -56,6 +56,7 @@
   (grow (wrapper-wrapped-processor w) :var var :durs durs :functors functors
                                       :method method :rnd rnd :higher-order higher-order))
 
+(defmethod post-processing ((w event-processor-wrapper) &key))
 ;;;;;;;;;;;;;;;; GENERIC Population Control ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; population here refers to the number of nodes in a graph ...
