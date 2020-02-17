@@ -127,7 +127,6 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-dispatchers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-deepcopy")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-constructors")))
-;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-controllers-interfaces")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-filters")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualize")))
