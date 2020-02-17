@@ -6,11 +6,8 @@
   (setf *processor-directory* (make-hash-table :test 'eql))
   (loop for chain being the hash-values of *chain-directory*
      do (deactivate chain))       
-  ;;(loop for branch being the hash-values of *branch-directory*
-  ;;   do (mapc #'deactivate branch))       
   (setf *chain-directory* (make-hash-table :test 'eql))
-  (setf *group-directory* (make-hash-table :test 'eql))
-  (setf *branch-directory* (make-hash-table :test 'eql))
+  (setf *group-directory* (make-hash-table :test 'eql))  
   (setf *multichain-directory* (make-hash-table :test 'eql))
   (setf *current-group* 'DEFAULT))
 
@@ -26,29 +23,12 @@
       (progn
 	(incudine::msg error "clear ~D" id)
 	(stop id)
-	(remhash id *chain-directory*)
-	(remhash id *branch-directory*))))
+	(remhash id *chain-directory*))))
 
 (defun clear (&rest chains)
   (if (<= (length chains) 0)
       (clear-all)
       (mapc #'clear-single chains)))
-
-(defun cutall (chain-or-group-id)
-  "cut all branches"
-  (if (gethash chain-or-group-id *group-directory*)
-      (mapc #'cutall (gethash chain-or-group-id *group-directory*))  
-      (progn
-	(mapc #'(lambda (id) (deactivate (gethash id *chain-directory*)))
-	      (gethash chain-or-group-id *branch-directory*))
-	(setf (gethash chain-or-group-id *branch-directory*) nil))))
-
-(defun cut (chain-id)
-  "cut the latest branch"
-  (let* ((branches (gethash chain-id *branch-directory*))
-	 (last (car (reverse branches))))
-    (deactivate (gethash last *chain-directory*))
-    (setf (gethash chain-id *branch-directory*) (delete last branches))))
 
 (defun stop (&rest chains)
   "stop a chain or (if no argument given) everything"

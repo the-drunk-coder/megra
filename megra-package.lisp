@@ -48,29 +48,23 @@
 
 (defvar *global-tempo-mod* 1.0)
 
-(defun tmod (mod)
-  (setf *global-tempo-mod* mod))
+(defun tmod (mod) (setf *global-tempo-mod* mod))
 
 (defvar *encourage-percentage* 5)
+
 ;; what might be the justification for this split ?
 ;; "Un-Learning" things is harder for humans, but for machines ?
-;;(in-package :megra)
 (defvar *discourage-percentage* 5)
 
 (in-package :megra)
 
-;; main storage for emvent processors (a processor can be used without
+;; main storage for stateful event processors (a processor can be used without
 ;; being kept here, but at least historically it has been practical
 ;; to keep track of certain things)
 (defparameter *processor-directory* (make-hash-table :test 'eql))
 
-;; when branching, keep the previous states ... 
-(defparameter *prev-processor-directory* (make-hash-table :test 'eql))
-
-;; chains and branches 
+;; chains 
 (defparameter *chain-directory* (make-hash-table :test 'eql))
-(defparameter *branch-directory* (make-hash-table :test 'eql))
-(defparameter *clock-directory* (make-hash-table :test 'eql))
 (defparameter *multichain-directory* (make-hash-table :test 'eql))
 
 ;; chain groups ... 

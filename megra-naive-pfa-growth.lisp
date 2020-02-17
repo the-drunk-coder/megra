@@ -284,38 +284,3 @@
   (prune-graph (gethash graph-id *processor-directory*)
 	       :exclude exclude
 	       :node-id node-id))
-
-(defun branch (chain-id &key (shift 0) (var 0.1) sync-to functors)
-  (incudine::msg info "branching chain ~D" chain-id)			 
-  ;; get the old chain ... 
-  (let* ((current-chain (gethash chain-id *chain-directory*))
-	 (current-procs (collect-chain current-chain))
-	 (shift-diff (max 0 (- shift (chain-shift current-chain))))
-	 (new-chain-id (intern (concatenate
-				'string
-				(symbol-name chain-id)
-				"-"
-				(symbol-name (gensym)))))
-	 ;; in contrast to the dispatcher branch method,
-	 ;; here the new chain is pushed to the branch stack ...
-	 (idx 0)
-	 (new-chain (chain-from-list new-chain-id
-				     (mapcar #'(lambda (proc)
-						 (incf idx)
-						 (clone
-						  (name proc)
-						  (gen-proc-name
-						   new-chain-id
-						   proc
-						   idx)
-						  :variance var
-						  :functors functors
-						  :track nil))
-					     current-procs)
-				     :activate nil
-				     :shift shift-diff
-				     :group (chain-group current-chain)
-				     :branch chain-id)))    
-    ;;(incudine::msg error "start branch" )
-    (inner-dispatch new-chain sync-to)))
-

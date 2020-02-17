@@ -1390,45 +1390,6 @@
 		(incudine::msg
 		 error "something went wrong executing shrink:~% ~D" e)))))
 
-(define-event
-  :long-name stack-push-event
-  :short-name stack-push
-  :parent-events (event)
-  :parameters ((chain-id event-stack-push-chain-id 'self)
-	       (variance event-stack-push-variance 0.001)
-	       (shift event-stack-push-shift 0))
-  :direct-parameters (chain-id variance)
-  :handler (incudine:nrt-funcall
-	    (handler-case 
-	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
-				       (let ((graph-id (car (event-source evt))))
-					 (chain-bound
-					  (gethash graph-id *processor-directory*)))
-				       (event-stack-push-chain-id evt))))
-		  (branch resolved-id
-			  :variance (event-stack-push-variance evt)
-			  :shift (event-stack-push-variance evt)))
-	      (simple-error (e)
-		(incudine::msg
-		 error "something went wrong executing stack-push ~D" e)))))
-
-(define-event
-  :long-name stack-pop-event
-  :short-name stack-pop
-  :parent-events (event)
-  :parameters ((chain-id event-stack-pop-chain-id))
-  :handler (incudine:nrt-funcall
-	    (handler-case 
-	        (let ((resolved-id (if (eql (event-stack-push-chain-id evt) 'self)
-				       (let ((graph-id (car (event-source evt))))
-					 (chain-bound
-					  (gethash graph-id *processor-directory*)))
-				       (event-stack-push-chain-id evt))))
-		  (dq resolved-id))
-	      (simple-error (e)
-		(incudine::msg
-		 error "something went wrong executing stack-pop ~D" e)))))
-
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 
 (define-event

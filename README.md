@@ -14,6 +14,16 @@ Emacs installation, please find some hints here:
 
 https://github.com/the-drunk-coder/megra/blob/master/Tutorial/old/00b_Installation_old.md
 
+## Differences between 1.x and 2.x
+Some features didn't make it over to 2.x because they were too complicated, or caused too much clutter.
+
+Amongst those are:
+
+* The branch feature. There's more intuitive and concise methods that do something very similar (xdup).
+
+In the very unlikely case that you were an early Mégra user and are missing one of the features,
+please tell me and I'll see if I can bring them back.
+
 ## Learning
 
 Currently, there are two Tutorials. 
