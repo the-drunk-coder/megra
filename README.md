@@ -22,6 +22,7 @@ Amongst those are:
 * The branch/cut feature. There's more intuitive and concise methods like `(xdup)`that do something very similar.
 * The chain group feature. I only used it once, it hasn't even been documented, and the `(sx)` environment does a better job.git 
 * Controller input. This has been obsolete for a long time ...
+* Manual cloning. Never documented, never used.
 
 In the very unlikely case that you were an early Mégra user and are missing one of the features, please tell me and I'll see if
 I can bring them back, or think about a good alternative. Otherwise, you can still use the 1.x branch.

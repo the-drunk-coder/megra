@@ -10,11 +10,9 @@
    (current-transition)  ;; abstract   
    (chain-bound :accessor chain-bound :initform nil)   
    (name :accessor name :initarg :name)
-   (clones :accessor clones :initform nil)
    (tempo-mod-stack :accessor tmods :initform nil)
    (combine-mode :accessor combine-mode :initarg :combine-mode :initform 'auto)
-   (affect-transition :accessor affect-transition :initarg :affect-transition :initform nil)
-   (update-clones :accessor update-clones :initarg :update-clones :initform nil)))
+   (affect-transition :accessor affect-transition :initarg :affect-transition :initform nil)))
 
 (defmethod pull-events ((e event-processor) &key (skip-successor nil))
   (if skip-successor

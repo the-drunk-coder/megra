@@ -10,8 +10,7 @@
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
    (traced-path :accessor traced-path :initform nil) ;; trace the last events
    ;; length of the trace ...
-   (trace-length :accessor trace-length :initarg :trace-length
-		 :initform *global-trace-length*)))
+   (trace-length :accessor trace-length :initarg :trace-length :initform *global-trace-length*)))
 
 (defmethod set-current-node ((w graph-event-processor) cnode &key)
   (setf (current-node w) cnode))
@@ -25,8 +24,7 @@
 (defmacro graph (name (&key		       
 		         (combine-mode ''append)
 		         (affect-transition nil)
-		         (combine-filter #'all-p)
-		         (update-clones t) ;; what's this ???
+		         (combine-filter #'all-p)		         
 		         (rand 0))
 		 &body graphdata)
   `(funcall #'(lambda () (let ((new-graph (make-instance 'graph)))		      
@@ -43,29 +41,15 @@
 			    (setf (source-graph cur-instance) new-graph)
 			    (setf (affect-transition cur-instance) ,affect-transition)
 			    (setf (combine-mode cur-instance) ,combine-mode)
-			    (setf (combine-filter cur-instance) ,combine-filter)
-			    (setf (update-clones cur-instance) ,update-clones)
-			    (setf (copy-events cur-instance) t)
-			    (when ,update-clones
-			      (mapc #'(lambda (proc-id)
-					(let ((my-clone
-					        (gethash proc-id *processor-directory*)))
-					  (setf (source-graph my-clone)
-						(deepcopy new-graph))
-					  (setf (affect-transition my-clone) ,affect-transition)
-					  (setf (combine-mode my-clone) ,combine-mode)
-					  (setf (combine-filter my-clone) ,combine-filter)
-					  (setf (update-clones my-clone) ,update-clones)
-					  (setf (copy-events my-clone) t)))
-				    (clones cur-instance)))
+			    (setf (combine-filter cur-instance) ,combine-filter)			    
+			    (setf (copy-events cur-instance) t)			    
 			    cur-instance)			    
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
 					                              :graph new-graph :copy-events t
 					                              :current-node 1 :combine-mode ,combine-mode
 					                              :affect-transition ,affect-transition
-					                              :combine-filter ,combine-filter
-					                              :update-clones ,update-clones)))))))
+					                              :combine-filter ,combine-filter)))))))
 
 ;;  shorthand for graph
 (setf (macro-function 'g) (macro-function 'graph))
@@ -84,22 +68,6 @@
 	    (cond ((typep obj 'edge) (insert-edge graph obj))
 		  ((typep obj 'node) (insert-node graph obj))))
 	new-content))
-
-;; clone a graph event processor ... 
-(defun clone (original-id clone-id &key (variance 0.0) (track t) (store t) functors)
-  (let ((original (gethash original-id *processor-directory*)))
-    (when original
-      (let ((clone (deepcopy original :imprecision variance :functors functors)))
-	(when (typep original 'graph-event-processor)
-	  (update-graph-name (source-graph clone) clone-id))	
-	(setf (name clone) clone-id)
-	(setf (chain-bound clone) nil)	
-	(when store
-	  (setf (gethash clone-id *processor-directory*) clone))
-	(when track
-	  (unless (member clone-id (clones original))
-	    (setf (clones original) (append (clones original) (list clone-id)))))
-	clone))))
 
 ;; turn back to textual representation ...
 (defmethod print-graph ((g graph-event-processor) &key (out-stream nil))
@@ -149,25 +117,6 @@
 ;; initialize counter hash table ...
 (defmethod initialize-instance :after ((g graph-event-processor) &key)
   (setf (node-steps g) (make-hash-table :test 'eql)))
-
-;; strange mop-method to allow cloning events
-;; eventually the event-sources are not considered,
-;; but this shouldn't pose a problem so far ... 
-(defmethod copy-instance (object)
-  (let ((copy (allocate-instance (class-of object))))
-    (loop for slot in (class-slots (class-of object))
-	  do (when (slot-boundp-using-class (class-of object) object slot)
-	       (setf (slot-value copy (slot-definition-name slot))	   
-		     ;; if told so, evaluate slots while copying ...
-		     ;; should make some things easier ...
-		     (if (and *eval-on-copy*
-			      (not (member (slot-definition-name slot) *protected-slots*)))
-		         (let ((val (slot-value object (slot-definition-name slot))))
-			   (cond ((typep val 'param-mod-object) (evaluate val))
-			         ((typep val 'function) (funcall val))
-			         (t val)))		       
-
-		         (slot-value object (slot-definition-name slot)))))) copy))
 
 ;; get the current events as a copy, so that the originals won't change
 ;; as the events are pumped through the modifier chains ...
