@@ -9,7 +9,6 @@
   :short-name incomplete
   :parent-events (event))
 
-
 (define-event
   :long-name silent-event
   :short-name silence
@@ -400,7 +399,6 @@
 	       (sample-location grain-sample-location)) 
   :direct-parameters (sample-folder sample-file)
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc evt timestamp))))
 
 (define-event
@@ -428,8 +426,7 @@
 	       (sample-file grain-ambi-sample-file)
 	       (sample-location grain-ambi-sample-location)) 
   :direct-parameters (sample-folder sample-file)
-  :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu evt))
+  :handler (progn	     
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-ambi evt timestamp))))
 
 
@@ -594,7 +591,6 @@
 	       (sample-location nores-sample-location)) 
   :direct-parameters (sample-folder sample-file)
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-nores evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-nores evt timestamp))))
 
 (define-event
@@ -648,7 +644,6 @@
 	       (sample-location twofourdb-sample-location)) 
   :direct-parameters (sample-folder sample-file)
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-grain-event-incu-24db evt))
 	     (if (member 'sc (event-backends evt)) (handle-grain-event-sc-24db evt timestamp))))
 
 (define-event
@@ -766,7 +761,6 @@
   :direct-parameters (pitch)
   :parent-defaults ((atk 1) (rel 80) (dur 100))
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-buzz-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-buzz-event-sc evt timestamp))))
 
@@ -849,7 +843,6 @@
   :direct-parameters (pitch)
   :parent-defaults ((lp-freq 2100) (lvl 0.25) (lp-dist 0.4) (atk 1) (rel 20) (dur 100))
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-saw-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-saw-event-sc evt timestamp))))
 
@@ -892,7 +885,6 @@
   :parent-defaults ((lp-freq 5000) (dur 220) (atk 2) (rel 80) (lvl 0.21))
   :direct-parameters (pitch)
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-square-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-square-event-sc evt timestamp))))
 
@@ -933,7 +925,6 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
-	     (if (member 'inc (event-backends evt)) (handle-sine-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-sine-event-sc evt timestamp))))
 
@@ -972,8 +963,6 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
-	     (if (member 'inc (event-backends evt))
-		 (handle-triangle-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-triangle-event-sc evt timestamp))))
 
@@ -1013,8 +1002,6 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
-	     (if (member 'inc (event-backends evt))
-		 (handle-cub-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-cub-event-sc evt timestamp))))
 
@@ -1053,8 +1040,6 @@
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
-	     (if (member 'inc (event-backends evt))
-		 (handle-par-event-incu evt))
 	     (if (member 'sc (event-backends evt))
 		 (handle-par-event-sc evt timestamp))))
 
@@ -1172,7 +1157,6 @@
 	     (if (member 'sc (event-backends evt))
 		 (handle-pluck-event-sc-8ch evt timestamp))))
 
-
 (define-event
   :long-name dx-rhodes-event
   :short-name dx-rhodes
@@ -1207,7 +1191,6 @@
 	     (if (member 'sc (event-backends evt))
 		 (handle-dx-rhodes-event-sc-8ch evt timestamp))))
 
-
 (define-event
   :long-name frequency-range-event
   :short-name freq-range
@@ -1215,72 +1198,6 @@
   :parameters ((freq-min event-freq-min 410 20 19000)
 	       (freq-max event-freq-max 420 20 19000))
   :direct-parameters (freq-min freq-max))
-
-;; gendy-based event ... extremly cpu-intensive ... 
-;; not available in supercollider backend at the moment ... 
-(define-event
-  :long-name gendy-event
-  :short-name gendy
-  :abstract-event nil
-  :parent-events (level-event
-		  duration-event
-		  lowpass-frequency-event
-                  lowpass-distortion-event
-                  lowpass-q-event
-		  frequency-range-event
-		  attack-event
-		  release-event
-		  pan-event
-		  reverb-event)
-  :parameters ((adstr event-amp-distr 1 1 2)
-	       (ddstr event-dur-distr 1 1 2 )
-	       (adstr-par event-amp-distr-param 1 1 2)
-	       (ddstr-par event-dur-distr-param 1 1 2)	       
-	       (a-scl event-amp-scale 0.01 0.01 0.02)
-	       (d-scl event-dur-scale 0.01 0.01 0.02)) 
-  :direct-parameters (freq-min freq-max)
-  :handler
-  (cond ((not (event-ambi-p evt))
-	 (scratch::gendy-stereo-rev
-	  (event-amp-distr evt)
-	  (event-dur-distr evt)
-	  (event-amp-distr-param evt)
-	  (event-dur-distr-param evt)
-	  (event-freq-min evt)
-	  (event-freq-max evt)
-	  (event-amp-scale evt)
-	  (event-dur-scale evt)
-	  (event-level evt)
-	  (event-lp-freq evt)
-	  (event-lp-q evt)
-	  (event-lp-dist evt)
-	  (* (event-attack evt) 0.001)
-	  (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
-	  (* (event-release evt) 0.001)
-	  (event-position evt)
-	  (event-reverb evt)
-	  scratch::*rev-chapel*))
-	((event-ambi-p evt)
-	 (scratch::gendy-stereo-rev
-	  (event-amp-distr evt)
-	  (event-dur-distr evt)
-	  (event-amp-distr-param evt)
-	  (event-dur-distr-param evt)
-	  (event-freq-min evt)
-	  (event-freq-max evt)
-	  (event-amp-scale evt)
-	  (event-dur-scale evt)
-	  (event-level evt)
-	  (event-lp-freq evt)
-	  (event-lp-q evt)
-	  (event-lp-dist evt)
-	  (* (event-attack evt) 0.001)
-	  (* (- (event-duration evt) (event-attack evt) (event-release evt)) 0.001)
-	  (* (event-release evt) 0.001)
-	  (event-azimuth evt)
-	  (event-elevation evt)
-	  (event-reverb evt)
-	  scratch::*rev-chapel*))))
 
 (define-event
   :long-name control-event

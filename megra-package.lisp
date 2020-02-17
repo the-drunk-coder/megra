@@ -34,7 +34,6 @@
   buffer-frames)
 
 ;; storage for sample buffers 
-(defparameter *incu-buffer-directory* (make-hash-table :test 'equal))
 (defparameter *sc-buffer-directory* (make-hash-table :test 'equal))
 
 ;; consecutive buffer numbers for scsynth
@@ -96,7 +95,7 @@
 ;; redefine sample root in megra package ...
 (defparameter *sample-root* cm::*sample-root*)
 
-;;(defparameter *default-dsp-backend* 'inc)
+;; only option for now ...
 (defparameter *default-dsp-backend* 'sc)
 
 ;; load the megra stuff except for dsp ...
@@ -112,7 +111,6 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-24ch")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-32ch")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-ambi")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-helpers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-pfa")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa")))
