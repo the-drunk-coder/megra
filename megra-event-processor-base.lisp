@@ -81,8 +81,7 @@
    (anschluss-kette :accessor anschluss-kette :initform nil) 
    (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
-   (shift :accessor chain-shift :initform 0.0 :initarg :shift)
-   (group :accessor chain-group :initform nil :initarg :group)))
+   (shift :accessor chain-shift :initform 0.0 :initarg :shift)))
 
 (defun activate (chain)
   (incudine::msg info "activating ~D" chain)
@@ -158,12 +157,10 @@
 			 (setf (gethash proc-name *processor-directory*) proc)))
 		      ((or (typep proc 'graph-event-processor)
 			   (typep proc 'mpfa-event-processor))
-		       proc)
-		      ))
+		       proc)))
 	    (remove nil proc-list))))
 
-(defmacro chain (name (&key (activate nil) (shift 0.0) (group nil))
-		 &body proc-body)
+(defmacro chain (name (&key (activate nil) (shift 0.0)) &body proc-body)
   `(funcall #'(lambda ()
 		(let ((event-processors
 		        (gen-proc-list ,name (list ,@proc-body))))                  
@@ -171,18 +168,7 @@
 		   ,name
 		   event-processors		 
 		   :activate ,activate
-		   :shift ,shift
-		   :group ,group)))))
-
-;; if no group is given, the current group will be used ... 
-(defun assign-chain-to-group (chain chain-name group)
-  ;; if no groupname is given, use current group ... 
-  (let* ((groupname (if group group *current-group*))
-	 (group-list (gethash groupname *group-directory*)))
-    (when (not (member chain-name group-list))
-      (setf (chain-group chain) group)
-      (setf (gethash groupname *group-directory*)
-	      (append group-list (list chain-name))))))
+		   :shift ,shift)))))
 
 (defmethod collect-chain ((c processor-chain) &key)
   (labels ((append-next (proc-list proc)	     
@@ -191,7 +177,7 @@
 		 (append proc-list (list proc)))))
     (append-next '() (topmost-processor c))))
 
-(defun chain-from-list (name event-processors &key (activate nil) (shift 0.0) (group nil))  
+(defun chain-from-list (name event-processors &key (activate nil) (shift 0.0))  
   (connect event-processors name)
   ;; assume the chaining went well 
   (let ((topmost-proc (car event-processors)))
@@ -202,7 +188,5 @@
 			  :is-active activate
 			  :shift shift
                           :name name)))	  
-	  ;; assign chain to a group
-	  (assign-chain-to-group new-chain name group)	  
 	  (setf (gethash name *chain-directory*) new-chain))
 	(incudine::msg error "chain-building went wrong, seemingly ..."))))

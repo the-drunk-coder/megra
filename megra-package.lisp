@@ -67,9 +67,6 @@
 (defparameter *chain-directory* (make-hash-table :test 'eql))
 (defparameter *multichain-directory* (make-hash-table :test 'eql))
 
-;; chain groups ... 
-(defparameter *group-directory* (make-hash-table :test 'eql))
-
 (defparameter *pi* 3.14159265359)
 
 (defparameter *midi-responders* (make-hash-table :test 'eql))
@@ -81,8 +78,6 @@
 (defparameter *global-midi-delay* 0.16)
 
 (defparameter *global-osc-delay* 0.24)
-
-(defparameter *current-group* 'DEFAULT)
 
 (defparameter *global-default-duration* 200)
 

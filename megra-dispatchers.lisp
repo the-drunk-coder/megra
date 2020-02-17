@@ -156,7 +156,7 @@
 			         chain				     
 			         it))))))
 
-(defmacro dispatch (name (&key (sync nil) (group nil) (shift 0.0) (intro nil)) &body proc-body)
+(defmacro dispatch (name (&key (sync nil) (shift 0.0) (intro nil)) &body proc-body)
   `(funcall #'(lambda ()
                 (let ((act-sync (cond ((gethash ,sync *chain-directory*) ,sync)
                                       ((gethash ,sync *multichain-directory*) (car (last (gethash ,sync *multichain-directory*))) )
@@ -175,15 +175,13 @@
 			   ;; that doesn't exist)		     
 			   ;; if chain is active, do nothing, otherwise activate
 			   (setf (chain-shift old-chain) (max 0 (- ,shift (chain-shift old-chain))))
-			   ;; assign to group in case chain macro hasn't done this ...
-			   (when ,group (assign-chain-to-group ,name ,group))
 			   (incudine::msg info "chain ~D already present (maybe the attempt to rebuild was faulty ?), handling it ..." ,name))			    
 			  ((and old-chain (< 0 (length event-processors)))
 			   ;; this means that the chain will be replaced ... 
 			   (incudine::msg info "chain ~D already present (active: ~D), rebuilding it ..." ,name (is-active old-chain))
 			   ;; rebuild chain, activate, create "anschluss" to old chain (means s.th. flange or continuity)
 			   (let* ((shift-diff (max 0 (- ,shift (chain-shift old-chain))))
-				  (new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff :group ,group)))
+				  (new-chain (chain-from-list ,name event-processors :activate (is-active old-chain) :shift shift-diff)))
 			     (if (not new-chain)
 			         (incudine::msg error "couldn't rebuild chain ~D, active: ~D" ,name (is-active old-chain)))
 			     ;; in that case, the syncing chain will do the anschluss ...
@@ -196,7 +194,7 @@
 			  ((< 0 (length event-processors))
 			   (incudine::msg info "new chain ~D, trying to build it ..." ,name)
 			   ;; build chain, activate
-			   (unless (chain-from-list ,name event-processors :shift ,shift :group ,group)
+			   (unless (chain-from-list ,name event-processors :shift ,shift)
 			     (incudine::msg error "couldn't build chain ~D" ,name)))
 			  (t (incudine::msg error "invalid state"))))
 		  (incudine::msg info "hopefully built chain ~D ..." ,name)

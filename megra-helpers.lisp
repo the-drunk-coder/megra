@@ -6,24 +6,14 @@
   (setf *processor-directory* (make-hash-table :test 'eql))
   (loop for chain being the hash-values of *chain-directory*
      do (deactivate chain))       
-  (setf *chain-directory* (make-hash-table :test 'eql))
-  (setf *group-directory* (make-hash-table :test 'eql))  
-  (setf *multichain-directory* (make-hash-table :test 'eql))
-  (setf *current-group* 'DEFAULT))
+  (setf *chain-directory* (make-hash-table :test 'eql))  
+  (setf *multichain-directory* (make-hash-table :test 'eql)))
 
 (defun clear-single (id)
-  (cutall id)
-  ;; if it's a group, stop the group
-  (if (gethash id *group-directory*)
-      (mapc #'(lambda (chain)
-		(stop chain)
-		(remhash chain *chain-directory*))
-	    (gethash id *group-directory*))
-      ;; if it's a chain, stop the chain ...
-      (progn
-	(incudine::msg error "clear ~D" id)
-	(stop id)
-	(remhash id *chain-directory*))))
+  ;; if it's a chain, stop the chain ...  
+  (incudine::msg error "clear ~D" id)
+  (stop id)
+  (remhash id *chain-directory*))
 
 (defun clear (&rest chains)
   (if (<= (length chains) 0)
@@ -36,15 +26,9 @@
       (loop for chain being the hash-values of *chain-directory*
 	 do (deactivate chain))
       (mapc #'(lambda (id)
-		(cutall id)
 		(incudine::msg error "stop ~D" id)
-		;; if it's a group, stop the group
-		(if (gethash id *group-directory*)
-		    (mapc #'(lambda (chain)
-			      (deactivate (gethash chain *chain-directory*)))
-			  (gethash id *group-directory*))
-		    ;; if it's a chain, stop the chain ...
-		    (deactivate (gethash id *chain-directory*))))
+		;; if it's a chain, stop the chain ...
+		(deactivate (gethash id *chain-directory*)))
 	    chains)))
 
 ;; convenience functions to set params in some object ...
@@ -58,10 +42,6 @@
 		    (setf (synced-progns chain)
 			  (append (synced-progns chain)
 				  (list (lambda () ,@funcs)))))))))
-
-;; set the default group
-(defun group (groupname)
-  (setf *current-group* groupname))
 
 (defmacro ~ (&body li) `(funcall #'(lambda () (list ,@li))))
 
