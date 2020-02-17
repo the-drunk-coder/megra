@@ -23,24 +23,16 @@ Amongst those are:
 * The chain group feature. I only used it once, it hasn't even been documented, and the `(sx)` environment does a better job.git 
 * Controller input. This has been obsolete for a long time ...
 * Manual cloning. Never documented, never used.
+* The old tutorial. Megra has changed a lot, it didn't make sense any longer.
 
 In the very unlikely case that you were an early Mégra user and are missing one of the features, please tell me and I'll see if
 I can bring them back, or think about a good alternative. Otherwise, you can still use the 1.x branch.
 
 ## Learning
 
-Currently, there are two Tutorials. 
-
-The *new*, main tutorial is in the making. It provides more in-depth explanations
-about the inner workings of Mégra. Please find it in:
+Please find the work-in-progress tutorial it in:
 
 https://github.com/the-drunk-coder/megra/blob/master/Tutorial/
-
-The historical, *old* tutorial was written as the language
-evolved. It covers a good lot of the language, but the order in which things are explained might not be 
-all that reasonable. You can find it in:
-
-https://github.com/the-drunk-coder/megra/blob/master/Tutorial/old
 
 ## Technicalities
 
