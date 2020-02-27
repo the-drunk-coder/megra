@@ -27,7 +27,7 @@
 			  (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
-						                      :graph new-graph :copy-events t
+						                      :graph new-graph 
 						                      :current-node 1 :combine-mode ,combine-mode
 						                      :affect-transition ,affect-transition
 						                      :combine-filter #'all-p)))))))
@@ -63,7 +63,7 @@
 		      (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 		      (setf (gethash ,name *processor-directory*)
 			    (make-instance 'graph-event-processor :name ,name
-					                          :graph new-graph :copy-events t
+					                          :graph new-graph
 					                          :current-node 1 :combine-mode ,combine-mode
 					                          :affect-transition ,affect-transition
 					                          :combine-filter #'all-p)))))))
@@ -96,7 +96,7 @@
 	(setf (source-graph (gethash name *processor-directory*)) new-graph)
 	(setf (gethash name *processor-directory*)
 	      (make-instance 'graph-event-processor :name name
-			                            :graph new-graph :copy-events t
+			                            :graph new-graph 
 			                            :current-node 1 :combine-mode 'append
 			                            :combine-filter #'all-p)))))
 
@@ -106,7 +106,7 @@
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
-					                       :graph nil :copy-events t
+					                       :graph nil 
 					                       :current-node 1 :combine-mode 'append
 					                       :combine-filter #'all-p
 					                       :affect-transition nil)))
@@ -143,7 +143,7 @@
 	 (graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
-					                       :graph nil :copy-events t
+					                       :graph nil 
 					                       :current-node 1 :combine-mode cmode
 					                       :combine-filter #'all-p
 					                       :affect-transition nil)))

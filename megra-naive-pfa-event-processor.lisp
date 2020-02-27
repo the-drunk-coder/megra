@@ -3,8 +3,7 @@
 ;; graph-based event-generator, the main one ...
 (defclass graph-event-processor (event-processor)
   ((source-graph :accessor source-graph :initarg :graph)
-   (current-node :accessor current-node :initarg :current-node)
-   (copy-events :accessor copy-events :initarg :copy-events :initform t)
+   (current-node :accessor current-node :initarg :current-node)   
    (combine-filter :accessor combine-filter :initarg :combine-filter)
    (affect-transition :accessor affect-transition :initarg :affect-transition)
    (node-steps :accessor node-steps) ;; count how often each node has been evaluated ...
@@ -42,11 +41,10 @@
 			    (setf (affect-transition cur-instance) ,affect-transition)
 			    (setf (combine-mode cur-instance) ,combine-mode)
 			    (setf (combine-filter cur-instance) ,combine-filter)			    
-			    (setf (copy-events cur-instance) t)			    
 			    cur-instance)			    
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
-					                              :graph new-graph :copy-events t
+					                              :graph new-graph 
 					                              :current-node 1 :combine-mode ,combine-mode
 					                              :affect-transition ,affect-transition
 					                              :combine-filter ,combine-filter)))))))
@@ -127,13 +125,8 @@
     (when (> (list-length (traced-path g)) (trace-length g))
       (setf (traced-path g)
 	    (delete (car (traced-path g)) (traced-path g) :count 1))))
-  (incf (node-age (gethash (current-node g)
-			   (graph-nodes (source-graph g)))))
-  (if (copy-events g)
-      (mapcar #'copy-instance
-	      (node-content (gethash (current-node g)
-				     (graph-nodes (source-graph g)))))
-      (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
+  (incf (node-age (gethash (current-node g) (graph-nodes (source-graph g)))))
+  (mapcar #'copy-instance (node-content (gethash (current-node g) (graph-nodes (source-graph g))))))
 
 (defun match-trace (path pattern)
   (let ((ldiff (- (length path) (length pattern))))
@@ -188,9 +181,5 @@
 		            ;;(incudine::msg info "possible edges ~D" current-edges)
 		            ;;(incudine::msg info "found edge ~D" chosen-edge)
 		            (setf (current-node g) (edge-destination chosen-edge))
-		            ;; if a valid transition has been found, jump out ... 
-		            (if (copy-events g)
-			        (return-from order-loop
-			          (mapcar #'copy-instance (edge-content chosen-edge)))
-			        (return-from order-loop (edge-content chosen-edge))
-			        ))))))))
+		            ;; if a valid transition has been found, jump out ... 		            
+			    (return-from order-loop (mapcar #'copy-instance (edge-content chosen-edge))))))))))
