@@ -23,9 +23,9 @@
   (gethash (mpfa-last-symbol m) (mpfa-event-dictionary m)))
 
 (defmethod current-transition ((m mpfa) &key)
-  (let* ((next-symbol (vom::pfa-next-symbol m))
+  (let* ((trans (vom::next-transition m))
 	 (dur (gethash (list (mpfa-last-symbol m)
-			     (setf (mpfa-last-symbol m) next-symbol))
+			     (setf (mpfa-last-symbol m) (query-result-symbol trans)))
 		       (mpfa-transition-durations m))))
     (make-instance 'transition-event
 		   :dur (if dur dur (mpfa-default-duration m))
@@ -38,7 +38,7 @@
 		   n
 		   sample-string-with-durations
 		   default-duration)
-  "learn an mpfa from an alphabet and a number od samples ..."
+  "learn an mpfa from an alphabet and a number of samples ..."
   (let* ((alphabet (mapcar #'car alphabet-with-payload))
 	 (sample-string (mapcar #'car sample-string-with-durations))
 	 (new-pfa (vom::learn-pfa alphabet bound epsilon n sample-string)))

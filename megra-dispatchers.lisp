@@ -120,19 +120,10 @@
   (let ((chain (if (typep chain-or-id 'symbol)
 		   (gethash chain-or-id *chain-directory*)
 		   chain-or-id))
-	(chain-to-sync-to (gethash sync-to *chain-directory*))
-	(clock-to-sync-to (gethash sync-to *clock-directory*)))
+	(chain-to-sync-to (gethash sync-to *chain-directory*)))
     ;; now, if we want to sync the current chain to :sync-to,
     ;; and :sync-to denotes a chain that is actually present,    
-    (cond
-      (clock-to-sync-to
-       (unless (wait-for-sync chain)
-	 (deactivate chain)
-	 (setf (wait-for-sync chain) t)
-	 ;;(incudine::msg info "syncing ~D to ~D, ~D will start at next dispatch of ~D" name sync-to name sync-to)
-	 (setf (clock-sync-synced-chains clock-to-sync-to)
-	       (nconc (clock-sync-synced-chains clock-to-sync-to)
-		      (list chain)))))
+    (cond      
       ((and chain-to-sync-to (is-active chain-to-sync-to))
        ;; when the current chain is NOT yet synced to chain-to-sync-to ...		      
        (unless (wait-for-sync chain)

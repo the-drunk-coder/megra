@@ -140,6 +140,21 @@
     (if (>= ldiff 0)
 	(equal (nthcdr ldiff path) pattern))))
 
+(defmethod copy-instance (object)
+  (let ((copy (allocate-instance (class-of object))))
+    (loop for slot in (class-slots (class-of object))
+          do (when (slot-boundp-using-class (class-of object) object slot)
+               (setf (slot-value copy (slot-definition-name slot))	   
+                     ;; if told so, evaluate slots while copying ...
+                     ;; should make some things easier ...
+                     (if (and *eval-on-copy*
+                              (not (member (slot-definition-name slot) *protected-slots*)))
+                         (let ((val (slot-value object (slot-definition-name slot))))
+                           (cond ((typep val 'param-mod-object) (evaluate val))
+                                 ((typep val 'function) (funcall val))
+                                 (t val)))		                                
+                         (slot-value object (slot-definition-name slot)))))) copy))
+
 ;; get the transition and set next current node ...
 (defmethod current-transition ((g graph-event-processor) &key)
   (labels
