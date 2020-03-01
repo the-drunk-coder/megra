@@ -57,7 +57,7 @@
         ((equal type 'pfa) (infer-st-pfa name mapping default-dur rules))
         (t (infer-naive name mapping default-dur rules))))
 
-(defun infer-from-rules (&key type name events rules (default-dur *global-default-duration*))  
+(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*))  
   "infer a generator from rules"
   (define-filter name)
   (let* ((event-mapping (alexandria::plist-hash-table events))

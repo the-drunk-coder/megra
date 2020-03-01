@@ -1,5 +1,15 @@
 (in-package :megra)
 
+;; knuth shuffle, needed as helper ...
+(defun shuffle-list (l)
+  (loop for i from (- (list-length l) 1) downto 1
+        do (let* ((current-elem-idx (random i))
+	          (random-elem (nth current-elem-idx l)))	  
+	     (setf (nth current-elem-idx l) (nth i l))
+	     (setf (nth i l) random-elem)))
+  ;; return shuffled list ... somewhat imperative, again .. 
+  l)
+
 (defun clear-all ()
   ;; first of all stop all events already passed to incudine ...
   (incudine::flush-pending)

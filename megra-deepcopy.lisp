@@ -97,30 +97,6 @@
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
-
-(defmethod deepcopy-object ((n node) &key (imprecision 0.0)
-				       exclude-keywords
-				       precise-keywords
-				       functors)
-  (deepcopy-generic-object n
-			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords '(global-id id age))
-			   :precise-keywords precise-keywords
-			   :functors functors))
-
-(defmethod deepcopy-object ((e edge) &key (imprecision 0.0)
-				       exclude-keywords
-				       precise-keywords
-				       functors)
-  (deepcopy-generic-object e
-			   :imprecision imprecision
-			   :exclude-keywords (append exclude-keywords
-						     '(source destination))
-			   :precise-keywords (append precise-keywords
-						     '(probability))
-			   :functors functors))
-
 (defmethod deepcopy-object ((tr transition-event)
 			    &key (imprecision 0.0)
 			      exclude-keywords
@@ -132,23 +108,6 @@
 			   :precise-keywords (append precise-keywords
 						     '(dur))
 			   :functors functors))
-
-(defmethod deepcopy-object ((g graph) &key (imprecision 0.0)
-					exclude-keywords
-					precise-keywords
-					functors)
-  (deepcopy-generic-object g
-			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords
-					      '(id
-						max-id
-						highest-edge-order
-						source))
-			   :precise-keywords precise-keywords
-			   :functors functors))
-
-
 
 (defmethod deepcopy-object ((e event-processor) &key (imprecision 0.0)
 						  exclude-keywords
@@ -200,22 +159,6 @@
     (setf (gethash (name (wrapper-wrapped-processor clone)) *processor-directory*)
 	  (wrapper-wrapped-processor clone))
     clone))
-
-(defmethod deepcopy-object ((g graph-event-processor) &key (imprecision 0.0)
-							exclude-keywords
-							precise-keywords
-							functors)
-  (deepcopy-generic-object g
-			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords
-					      '(successor predecessor))
-			   :precise-keywords (append precise-keywords
-						     '(current-node
-						       node-steps
-						       traced-path
-						       trace-length))
-			   :functors functors))
 
 (defmethod deepcopy-object ((e shrink-event) &key (imprecision 0.0)
 					       exclude-keywords
