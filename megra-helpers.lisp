@@ -47,29 +47,6 @@
 
 (defmacro % (&body li) `(funcall #'(lambda () (list ,@li))))
 
-;; primitive and inefficient pattern string parser ...
-(defun string->cycle-list (str)
-  (let* ((split (cl-ppcre:split "\\s+" (cl-ppcre:regex-replace-all "\\]" (cl-ppcre:regex-replace-all "\\[" (cl-ppcre:regex-replace-all "\\~" str "silence") "( ") " )")))
-         (cycle (list))
-         (stack (list))
-         (stack-mode nil))
-    (loop for token in split 
-       do (cond ((string= token "(")
-		 ;;(format t "found open ~%")
-		 (setf stack-mode t))
-		((string= token ")")
-		 ;;(format t "found close ~%")
-		 (setf stack-mode nil)
-		 (setf cycle (nconc cycle (list stack)))
-		 (setf stack (list)))
-		((ignore-errors (parse-integer token)) (setf cycle (nconc cycle (list (parse-integer token)))))
-		(t (if stack-mode
-		       (setf stack (nconc stack (list (let ((f-par (cl-ppcre:split ":" token)))  
-							(eval (read-from-string (format nil "(~{~a~^ ~})" f-par)))))))
-		       (setf cycle (nconc cycle (list (let ((f-par (cl-ppcre:split ":" token)))  
-							(eval (read-from-string (format nil "(~{~a~^ ~})" f-par)))))))))))
-    cycle))
-
 (defmacro define-filter (tag)
   (let ((name-proc (concatenate 'string (symbol-name tag) "-p")))
     `(funcall (lambda ()	      
