@@ -14,7 +14,9 @@
 
 (defmethod current-events ((g generator) &key)
   ;; add name, type etc as tags ??
-  (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g))))
+  (let ((cev (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g)))))
+    (loop for ev in cev do (push (name g) (event-tags ev)))
+    cev))
 
 (defmethod current-transition ((g generator) &key)
   (setf (last-transition g) (vom::next-transition (inner-generator g)))
@@ -60,7 +62,7 @@
 (defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*))  
   "infer a generator from rules"
   (define-filter name)
-  (let* ((event-mapping (alexandria::plist-hash-table events))
+  (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence
          (g (infer-generator name type event-mapping default-dur rules)))
     (setf (gethash name *processor-directory*) g)
     g))
