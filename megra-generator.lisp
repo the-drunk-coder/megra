@@ -66,7 +66,12 @@
   "infer a generator from rules"
   (define-filter name)
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence
-         (g (infer-generator name type event-mapping default-dur rules)))
+         (g (infer-generator name type event-mapping default-dur rules))
+         (g-old (gethash name *processor-directory*)))
+    ;; state preservation, if possible
+    (when g-old
+        (setf (last-transition g) (last-transition g-old))
+        (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
     (setf (gethash name *processor-directory*) g)
     g))
 
@@ -74,9 +79,10 @@
 (defun create-duration-mapping (transitions found-durations)  
   (let ((duration-map (make-hash-table :test 'equal)))
     (mapc #'(lambda (tr)
-              (let ((key (cons (car (last (car tr))) (caadr tr))))
-                
+              (let ((key (cons (car (last (car tr))) (caadr tr))))                
                 (when (gethash key found-durations)
                   (setf (gethash tr duration-map) (gethash key found-durations)))))
           transitions)    
     duration-map))
+
+
