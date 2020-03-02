@@ -79,11 +79,19 @@
 
 (defun cyc (name cyc-def &key (rep 0) (max-rep 2))
   (let ((gen-ev (parse-cycle cyc-def)))
-    (infer-from-rules :type 'naive :name name :events (car gen-ev) :rules (cadr gen-ev))))
+    (infer-from-rules :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev))))
 
 (defun cyc2 (name cyc-def &key (rep 0) (max-rep 2))
   (let ((gen-ev (parse-cycle cyc-def)))
-    (infer-from-rules :type 'pfa :name name :events (car gen-ev) :rules (cadr gen-ev))))
+    (infer-from-rules :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev))))
+
+(defun nuc (name event &key (dur *global-default-duration*))  
+  (infer-from-rules :type 'naive
+                    :name name
+                    :events (list 1 event)
+	            :rules (list '((1) 1 1.0 dur))
+	            :default-dur dur))
+
 
 
 
