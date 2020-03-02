@@ -29,23 +29,28 @@
         (cm::hertz symbol)
       (simple-error (e) nil))))
 
+
+
 (defun deepcopy-list (list &key
 			     (imprecision 0.0)
 			     exclude-keywords
 			     precise-keywords
 			     functors)
-  (remove nil ;; in case an element wasn't copied ...
-	  (mapcar #'(lambda (thing)	      
-		      (deepcopy thing
-				:imprecision imprecision
-				:exclude-keywords exclude-keywords
-				:precise-keywords precise-keywords
-				:functors functors)) list)))
+  (if (not (listp (cdr list))) ;; special dotted pair case
+      (cons (deepcopy (car list)) (deepcopy (cdr list)))
+      (remove nil ;; in case an element wasn't copied ...
+	      (mapcar #'(lambda (thing)	      
+		          (deepcopy thing
+				    :imprecision imprecision
+				    :exclude-keywords exclude-keywords
+				    :precise-keywords precise-keywords
+				    :functors functors))
+                      list))))
 
 (defun deepcopy-hash-table (orig &key (imprecision 0.0)
-				   exclude-keywords
-				   precise-keywords
-				   functors)
+				      exclude-keywords
+				      precise-keywords
+				      functors)
   (let ((new-table (make-hash-table :test (hash-table-test orig))))
     (loop for key being the hash-keys of orig
        do (setf (gethash key new-table)
@@ -56,6 +61,13 @@
 			  :functors functors)))
     new-table))
 
+(defmethod deepcopy-query-result ((q vom::query-result)  &key (imprecision 0.0)
+				                              exclude-keywords
+				                              precise-keywords
+				                              functors)
+  (vom::make-query-result :last-state (vom::query-result-last-state q)
+                          :current-state (vom::query-result-current-state q)
+                          :symbol (vom::query-result-symbol q)))
 
 (defmethod deepcopy-generic-object (object
 				    &key (imprecision 0.0)
@@ -238,6 +250,12 @@
 			  :functors functors))
     ((typep object 'string)
      (copy-seq object))
+    ((typep object 'vom::query-result) 
+     (deepcopy-query-result object
+		            :imprecision imprecision
+		            :exclude-keywords exclude-keywords
+		            :precise-keywords precise-keywords
+		            :functors functors))
     ((typep object 'standard-object) 
      (deepcopy-object object
 		      :imprecision imprecision

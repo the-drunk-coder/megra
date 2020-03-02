@@ -8,7 +8,7 @@
    (transition-durations :accessor transition-durations :initform (make-hash-table :test #'equal))
    (event-dictionary :accessor event-dictionary :initarg :events :initform (make-hash-table :test #'equal))   
    (default-duration :accessor default-duration :initarg :default-duration :initform 0)
-   (last-transition :accessor last-transition)))
+   (last-transition :accessor last-transition :initarg :last-transition :initform (vom::make-query-result))))
 
 ;; tagging - this would need a name for the generator ? - also, the symbol could be added to the tags
 
