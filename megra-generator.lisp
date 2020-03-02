@@ -12,18 +12,21 @@
 
 ;; tagging - this would need a name for the generator ? - also, the symbol could be added to the tags
 
-(defmethod current-events ((g generator) &key)
-  ;; add name, type etc as tags ??
+(defmethod current-events ((g generator) &key)  
   (let ((cev (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g)))))
     (loop for ev in cev do (push (name g) (event-tags ev)))
+    ;; unique source id, as n old graphs ??
     cev))
 
 (defmethod current-transition ((g generator) &key)
   (setf (last-transition g) (vom::next-transition (inner-generator g)))
-  (let ((dur (gethash (cons (vom::query-result-last-state (last-transition g))
+  (let* ((dur (gethash (cons (vom::query-result-last-state (last-transition g))
                             (vom::query-result-current-state (last-transition g)))
-                      (transition-durations g))))
-    (list (make-instance 'transition-event :dur (if dur dur (default-duration g)) :tags '(transition)))))
+                      (transition-durations g)))
+        (tr (make-instance 'transition-event :dur (if dur dur (default-duration g)) :tags '(transition))))
+    ;; add tag
+    (push (name g) (event-tags tr))
+    (list tr)))
 
 (defun infer-naive (name mapping default-dur rules)
   (let* ((normalized-rules (mapc #'(lambda (r) (if (floatp (nth 2 r)) (setf (nth 2 r) (floor (* (nth 2 r) 100))))) rules))
