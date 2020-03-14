@@ -15,7 +15,7 @@
 (defmethod current-events ((g generator) &key)  
   (let ((cev (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g)))))
     (loop for ev in cev do (push (name g) (event-tags ev)))
-    ;; unique source id, as n old graphs ??
+    ;; unique source id, as in old graphs ??
     cev))
 
 (defmethod current-transition ((g generator) &key)
@@ -42,13 +42,14 @@
               (nth 3 rule)))
     g))
 
-(defun infer-st-pfa (name mapping default-dur rules)
+(defun infer-adj-pfa (name mapping default-dur rules)
   (let* ((normalized-rules (mapc #'(lambda (r) (if (integerp (nth 2 r)) (setf (nth 2 r) (coerce (/ (nth 2 r) 100) 'float)))) rules))
-         (g (make-instance 'generator :name name :generator (vom::infer-st-pfa-list normalized-rules) :events mapping :default-duration default-dur)))
-    (vom::pfa-set-current-state (inner-generator g) (caar rules))
+         (g (make-instance 'generator :name name :generator (vom::infer-adj-list-pfa-list normalized-rules) :events mapping :default-duration default-dur)))    
+    (setf (vom::current-state (inner-generator g)) (caar rules))
     (setf (last-transition g) (vom::make-query-result :symbol (caar rules)))
     ;; keep track of symbol ages ...
     (mapc #'(lambda (s) (setf (gethash s (ages g)) 0)) (vom::alphabet (inner-generator g)))
+    ;; generate durations ...
     (loop for rule in rules 
           when (nth 3 rule)
           do (setf
@@ -59,7 +60,7 @@
 
 (defun infer-generator (name type mapping default-dur rules)
   (cond ((equal type 'naive) (infer-naive name mapping default-dur rules))
-        ((equal type 'pfa) (infer-st-pfa name mapping default-dur rules))
+        ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules))
         (t (infer-naive name mapping default-dur rules))))
 
 (defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*))  
