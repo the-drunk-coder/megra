@@ -29,8 +29,6 @@
         (cm::hertz symbol)
       (simple-error (e) nil))))
 
-
-
 (defun deepcopy-list (list &key
 			     (imprecision 0.0)
 			     exclude-keywords
@@ -53,13 +51,25 @@
 				      functors)
   (let ((new-table (make-hash-table :test (hash-table-test orig))))
     (loop for key being the hash-keys of orig
-       do (setf (gethash key new-table)
-		(deepcopy (gethash key orig)
-			  :imprecision imprecision
-			  :exclude-keywords exclude-keywords
-			  :precise-keywords precise-keywords
-			  :functors functors)))
+          do (setf (gethash key new-table)
+		   (deepcopy (gethash key orig)
+			     :imprecision imprecision
+			     :exclude-keywords exclude-keywords
+			     :precise-keywords precise-keywords
+			     :functors functors)))
     new-table))
+
+(defmethod deepcopy-object ((o standard-object)
+			    &key (imprecision 0.0)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
+  (deepcopy-generic-object o
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords precise-keywords
+			   :functors functors))
+
 
 (defmethod deepcopy-query-result ((q vom::query-result)  &key (imprecision 0.0)
 				                              exclude-keywords
@@ -100,9 +110,9 @@
 
 (defmethod deepcopy-object ((o standard-object)
 			    &key (imprecision 0.0)
-			      exclude-keywords
-			      precise-keywords
-			      functors)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
   (deepcopy-generic-object o
 			   :imprecision imprecision
 			   :exclude-keywords exclude-keywords
