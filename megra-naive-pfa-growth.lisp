@@ -244,21 +244,21 @@
       (remove-node (source-graph g) prune-id :rebalance t))))
 
 (defmethod grow (graph-or-id &key (var 0)		        
-			      durs
-			      functors
-			      (method 'old)
-			      (rnd 0)
-			      higher-order)
+			          durs
+			          functors
+			          (method 'old)
+			          (rnd 0)
+			          higher-order)
   (let ((resolved-graph (if (typep graph-or-id 'symbol)
 			    (gethash graph-or-id *processor-directory*)
 			    graph-or-id)))
     (cond ((eql method 'triloop)
 	   (grow-graph-triloop resolved-graph
-	    :var var
-	    :durs durs
-	    :functors functors
-	    :rnd rnd
-	    :higher-order higher-order))
+	                       :var var
+	                       :durs durs
+	                       :functors functors
+	                       :rnd rnd
+	                       :higher-order higher-order))
 	  ((eql method 'quadloop)
 	   (grow-graph-quadloop resolved-graph
 				:var var
