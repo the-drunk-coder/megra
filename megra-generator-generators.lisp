@@ -77,18 +77,25 @@
 	(setf rules (nconc rules (list (list (list count) 1 1.0)))))
     (list event-mapping rules)))
 
-(defun cyc (name cyc-def &key (rep 0) (max-rep 2))
-  (let ((gen-ev (parse-cycle cyc-def)))
-    (infer-from-rules :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev))))
+(defun cyc (name cyc-def &key (rep 0) (max-rep 2) (dur *global-default-duration*))
+  (let ((gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
+    (infer-from-rules :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur)))
 
-(defun cyc2 (name cyc-def &key (rep 0) (max-rep 2))
-  (let ((gen-ev (parse-cycle cyc-def)))
-    (infer-from-rules :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev))))
+(defun cyc2 (name cyc-def &key (rep 0) (max-rep 2) (dur *global-default-duration*))
+  (let ((gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
+    (infer-from-rules :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur)))
 
 (defun nuc (name event &key (dur *global-default-duration*))  
   (infer-from-rules :type 'naive
                     :name name
-                    :events (list 1 event)
+                    :mapping (alexandria::plist-hash-table (list 1 (list event)))
+	            :rules (list '((1) 1 100 dur))
+	            :default-dur dur))
+
+(defun nuc2 (name event &key (dur *global-default-duration*))  
+  (infer-from-rules :type 'pfa
+                    :name name
+                    :mapping (alexandria::plist-hash-table (list 1 (list event)))
 	            :rules (list '((1) 1 1.0 dur))
 	            :default-dur dur))
 
