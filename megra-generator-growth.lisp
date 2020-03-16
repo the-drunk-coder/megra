@@ -7,8 +7,8 @@
 			          (rnd 0)
 			          (higher-order 0))
   (let* ((g (if (typep graph-or-id 'symbol)
-			    (gethash graph-or-id *processor-directory*)
-			    graph-or-id))
+		(gethash graph-or-id *processor-directory*)
+		graph-or-id))
          (result (cond ((eql method 'triloop)
 	                (vom::grow-triloop (inner-generator g) 
 	                              :rnd rnd
@@ -29,7 +29,8 @@
           (deepcopy-list (gethash (vom::growth-result-template-symbol result) (event-dictionary g))
 			 :imprecision var
 			 :functors functors))
-    ;; now for the durations ... 
+    ;; now for the durations ...
+    ;; could be more sophisticated ...
     (let ((appropiate-duration            
             (gethash (car (vom::growth-result-removed-transitions result)) (transition-durations g))))
       (if appropiate-duration
@@ -37,7 +38,9 @@
                 do (setf (gethash added (transition-durations g)) appropiate-duration)))
       (list result appropiate-duration))))
 
-(defun prune (graph-id &key exclude node-id)
-  (prune-graph (gethash graph-id *processor-directory*)
-	       :exclude exclude
-               :node-id node-id))
+(defun prune (graph-or-id &key exclude node-id)
+  (let ((g (if (typep graph-or-id 'symbol)
+	       (gethash graph-or-id *processor-directory*)
+	       graph-or-id)))
+    (vom::prune-pfa (inner-generator g) :exclude exclude
+                                        :node-id node-id)))

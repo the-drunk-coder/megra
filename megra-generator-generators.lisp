@@ -12,10 +12,8 @@
          (stack-mode nil))
     (loop for token in split 
           do (cond ((string= token "(")
-		    ;;(format t "found open ~%")
 		    (setf stack-mode t))
 		   ((string= token ")")
-		    ;;(format t "found close ~%")
 		    (setf stack-mode nil)
 		    (setf cycle (nconc cycle (list stack)))
 		    (setf stack (list)))
