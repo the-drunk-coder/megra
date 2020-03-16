@@ -131,6 +131,5 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-filters")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
 ;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualize")))
-;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-growth")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-compose")))
 (load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))
