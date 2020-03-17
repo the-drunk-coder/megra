@@ -12,7 +12,9 @@
 
 ;; tagging - this would need a name for the generator ? - also, the symbol could be added to the tags
 
-(defmethod current-events ((g generator) &key)  
+(defmethod current-events ((g generator) &key)
+  ;; increment symbol age ...
+  (incf (gethash (vom::query-result-symbol (last-transition g)) (ages g)))
   (let ((cev (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g)))))
     (loop for ev in cev do (push (name g) (event-tags ev)))
     ;; unique source id, as in old graphs ??

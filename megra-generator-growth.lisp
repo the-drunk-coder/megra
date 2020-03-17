@@ -29,6 +29,8 @@
           (deepcopy-list (gethash (vom::growth-result-template-symbol result) (event-dictionary g))
 			 :imprecision var
 			 :functors functors))
+    ;; set symbol age to zero ...
+    (setf (gethash (vom::growth-result-added-symbol result) (ages g)) 0)
     ;; now for the durations ...
     ;; could be more sophisticated ...
     (let ((appropiate-duration            
@@ -43,5 +45,6 @@
   (let ((g (if (typep graph-or-id 'symbol)
 	       (gethash graph-or-id *processor-directory*)
 	       graph-or-id)))
+    ;; remove symbol from ages !!!
     (vom::prune-pfa (inner-generator g) :exclude exclude
                                         :node-id node-id)))
