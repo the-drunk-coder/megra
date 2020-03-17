@@ -32,7 +32,8 @@
     ;; now for the durations ...
     ;; could be more sophisticated ...
     (let ((appropiate-duration            
-            (gethash (car (vom::growth-result-removed-transitions result)) (transition-durations g))))
+            (cond (durs (alexandria::random-elt durs))
+                  ((vom::growth-result-removed-transitions result) (gethash (car (vom::growth-result-removed-transitions result)) (transition-durations g))))))
       (if appropiate-duration
           (loop for added in (vom::growth-result-added-transitions result)
                 do (setf (gethash added (transition-durations g)) appropiate-duration)))
