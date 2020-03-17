@@ -118,6 +118,7 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-generators")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-lifemodel")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-probctrl")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-direct-modifiers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
 ;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-disencourage")))

@@ -69,16 +69,18 @@
         ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules))
         (t (infer-naive name mapping default-dur rules))))
 
-(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*))  
+(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset)  
   "infer a generator from rules"
   (define-filter name)
-  (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence
-         (g (infer-generator name type event-mapping default-dur rules))
-         (g-old (gethash name *processor-directory*)))
+  (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
+         (g-old (gethash name *processor-directory*))
+         (g (if (or (not g-old) (and g-old reset))
+                (infer-generator name type event-mapping default-dur rules))))    
     ;; state preservation, if possible
-    (when g-old
+    (when (and g g-old)
         (setf (last-transition g) (last-transition g-old))
         (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
-    (setf (gethash name *processor-directory*) g)
-    g))
+    (if g
+        (progn (setf (gethash name *processor-directory*) g) g)
+        g-old)))
 
