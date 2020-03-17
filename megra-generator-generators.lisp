@@ -87,14 +87,14 @@
   (infer-from-rules :type 'naive
                     :name name
                     :mapping (alexandria::plist-hash-table (list 1 (list event)))
-	            :rules (list '((1) 1 100 dur))
+	            :rules (list (list '(1) 1 100 dur))
 	            :default-dur dur))
 
 (defun nuc2 (name event &key (dur *global-default-duration*))  
   (infer-from-rules :type 'pfa
                     :name name
                     :mapping (alexandria::plist-hash-table (list 1 (list event)))
-	            :rules (list '((1) 1 1.0 dur))
+	            :rules (list (list '(1) 1 1.0 dur))
 	            :default-dur dur))
 
 
