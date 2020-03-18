@@ -75,7 +75,8 @@
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
          (g-old (gethash name *processor-directory*))
          (g (if (or (not g-old) (and g-old reset))
-                (infer-generator name type event-mapping default-dur rules))))    
+                (infer-generator name type event-mapping default-dur rules))))
+    (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
       (setf (last-transition g) (last-transition g-old))
@@ -99,13 +100,17 @@
                                                       size
                                                       sample)
                                           :events mapping
-                                          :default-duration default-dur))))    
+                                          :default-duration default-dur))))
+    (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
       (setf (last-transition g) (last-transition g-old))
       (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
     (if g
-        (mapc #'(lambda (s) (setf (gethash s (ages g)) 0)) (vom::alphabet (inner-generator g)))
-        (progn (setf (gethash name *processor-directory*) g) g)
+        (progn
+          (setf (last-transition g) (vom::make-query-result :symbol (car (vom::alphabet (inner-generator g)))))
+          (mapc #'(lambda (s) (setf (gethash s (ages g)) 0)) (vom::alphabet (inner-generator g)))
+          (setf (gethash name *processor-directory*) g)
+          g)
         g-old)))
 

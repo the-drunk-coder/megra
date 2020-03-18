@@ -62,6 +62,8 @@
 ;; to keep track of certain things)
 (defparameter *processor-directory* (make-hash-table :test 'eql))
 
+(defparameter *global-silence-symbol* '~)
+
 ;; chains 
 (defparameter *chain-directory* (make-hash-table :test 'eql))
 (defparameter *multichain-directory* (make-hash-table :test 'eql))
