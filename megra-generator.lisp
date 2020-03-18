@@ -114,3 +114,11 @@
           g)
         g-old)))
 
+(defun to-svg (graph-or-id)
+  (let* ((g (if (typep graph-or-id 'symbol)
+	       (gethash graph-or-id *processor-directory*)
+	       graph-or-id))
+         (ig (inner-generator g)))
+    (if (typep ig 'vom::adj-list-pfa)
+        (vom::adj-list-pfa->svg ig (symbol-name (name g)))
+        (vom::graph->svg ig (symbol-name (name g))))))
