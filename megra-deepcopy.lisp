@@ -98,8 +98,12 @@
 		      :exclude-keywords exclude-keywords
 		      :precise-keywords precise-keywords
 		      :object-name (slot-definition-name slot)
-		      :functors functors))		    
-		    (t (deepcopy
+		      :functors functors))
+                    ;; this is pretty rough and i want something better, but that way we can make sure the
+                    ;; right thing is sent out 
+                    ((typep (slot-value object (slot-definition-name slot)) 'param-mod-object)
+                     (eval-slot-value (slot-value object (slot-definition-name slot))))
+                    (t (deepcopy
 			(slot-value object (slot-definition-name slot))
 			:imprecision imprecision
 			:exclude-keywords exclude-keywords
