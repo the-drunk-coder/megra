@@ -100,7 +100,9 @@
 		      :object-name (slot-definition-name slot)
 		      :functors functors))
                     ;; this is pretty rough and i want something better, but that way we can make sure the
-                    ;; right thing is sent out 
+                    ;; right thing is sent out
+                    ;; this is kind dirty because the deepcopy operation modifies the copied object's state.
+                    ;; on the other hand, that's exactly what we need here
                     ((typep (slot-value object (slot-definition-name slot)) 'param-mod-object)
                      (eval-slot-value (slot-value object (slot-definition-name slot))))
                     (t (deepcopy
