@@ -78,9 +78,34 @@
                 (infer-generator name type event-mapping default-dur rules))))    
     ;; state preservation, if possible
     (when (and g g-old)
-        (setf (last-transition g) (last-transition g-old))
-        (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
+      (setf (last-transition g) (last-transition g-old))
+      (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
     (if g
+        (progn (setf (gethash name *processor-directory*) g) g)
+        g-old)))
+
+
+(defun learn-generator (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t))  
+  "infer a generator from rules"
+  (define-filter name)
+  (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
+         (g-old (gethash name *processor-directory*))
+         (g (if (or (not g-old) (and g-old reset))
+                (make-instance 'generator :name name
+                                          :generator (vom::learn-adj-list-pfa
+                                                      (delete-duplicates sample)
+                                                      bound
+                                                      epsilon
+                                                      size
+                                                      sample)
+                                          :events mapping
+                                          :default-duration default-dur))))    
+    ;; state preservation, if possible
+    (when (and g g-old)
+      (setf (last-transition g) (last-transition g-old))
+      (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
+    (if g
+        (mapc #'(lambda (s) (setf (gethash s (ages g)) 0)) (vom::alphabet (inner-generator g)))
         (progn (setf (gethash name *processor-directory*) g) g)
         g-old)))
 

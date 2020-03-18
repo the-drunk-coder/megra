@@ -99,6 +99,67 @@
 	            :default-dur dur
                     :reset reset))
 
+(defun find-keyword-list (keyword seq)
+  (when (and
+         (member keyword seq)
+         (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
+         (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
+    (let* ((pos (position keyword seq))
+	   (vals (loop for val in (cdr (member keyword seq))
+                       while (not (keywordp val))
+                       collect val)))
+      vals)))
+
+(defun p-events-list (event-plist)  
+  (let ((mapping (make-hash-table :test #'equal))
+	(key))    
+    (loop for m in event-plist 
+	  do (if (or (typep m 'symbol) (typep m 'number))
+ 		 (progn
+		   (setf key m)
+		   (setf (gethash key mapping) (list)))
+		 
+                 (if (typep m 'list)
+                     (loop for ev in m do (push ev (gethash key mapping)))
+                     (push m (gethash key mapping)))))
+    mapping))
+
+(defun infer (name &rest params)
+  "infer a generator from rules"
+  (let ((events (find-keyword-list :events params))
+        (rules (find-keyword-list :rules params))
+        (dur (find-keyword-val :dur params :default *global-default-duration*))
+        (type (find-keyword-val :type params :default 'pfa))
+        (reset (find-keyword-val :reset params :default t)))
+    (infer-from-rules :type type 
+                      :name name
+                      :mapping (p-events-list events)
+	              :rules rules
+	              :default-dur dur
+                      :reset reset)))
+
+(defun sstring (string-as-sym)
+  "convenience method to enter sample strings without spaces"
+  (let ((sname (if (typep string-as-sym 'string)
+		   string-as-sym
+		   (symbol-name string-as-sym))))
+    (loop for c in (coerce sname 'list)
+          collecting (intern (string-upcase (string c))))))
+
+(defun learn (name &rest params)
+  "lear a generator from a sample"
+  (let* ((sample (alexandria::lastcar params))
+         (type (find-keyword-val :type params :default 'pfa))
+         (reset (find-keyword-val :reset params :default t))
+         (bound (find-keyword-val :bound params :default 3))
+         (size (find-keyword-val :size params :default 40))
+         (epsilon (find-keyword-val :epsilon params :default 0.01))
+         (dur (find-keyword-val :dur params :default *global-default-duration*))
+         (events (delete sample (find-keyword-list :events params) :test 'equal)))
+    (learn-generator :name name
+                     :sample (if (listp sample) sample (sstring sample))
+                     :mapping (p-events-list events)
+                     :default-dur dur)))
 
 
 
