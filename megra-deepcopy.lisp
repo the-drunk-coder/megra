@@ -173,10 +173,7 @@
 		   'string
 		   (symbol-name proc-name)
 		   "-"
-		   (symbol-name (gensym)))))
-    ;; this is sooo legacy ..
-    (when (typep (wrapper-wrapped-processor clone) 'graph-event-processor)
-      (update-graph-name (source-graph (wrapper-wrapped-processor clone)) (name (wrapper-wrapped-processor clone))))    
+		   (symbol-name (gensym)))))    
     ;; store reference in global processor directory
     (setf (gethash (name (wrapper-wrapped-processor clone)) *processor-directory*)
 	  (wrapper-wrapped-processor clone))
