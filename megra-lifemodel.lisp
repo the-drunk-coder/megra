@@ -122,9 +122,9 @@
 
 (defun life (growth-cycle lifespan var &rest opt-params)
   (let* ((proc (if (or (typep (alexandria::lastcar opt-params) 'event-processor)
-                      (typep (alexandria::lastcar opt-params) 'function))
-                  (alexandria::lastcar opt-params)
-                  nil))
+                       (typep (alexandria::lastcar opt-params) 'function))
+                   (alexandria::lastcar opt-params)
+                   nil))
          (params (nconc (list :var var) (if proc (butlast opt-params) opt-params))))
     (if proc        
         (inner-lifemodel growth-cycle lifespan params proc)

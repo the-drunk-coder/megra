@@ -15,24 +15,29 @@
             proc))
       (lambda (nproc) (skip num nproc))))
 
-;; GROWN
-(defun grown (n var method &optional proc)  
-  (if proc      
-      (if (typep proc 'function)
-          (lambda (nproc) (grown n var method (funcall proc nproc)))
-          (progn (loop for a from 0 to n
-                       do (grow proc :var var :method method))
-                 proc))
-      (lambda (nproc) (grown n var method nproc))))
+(defun inner-grown (n var rest proc)
+  (if (typep proc 'function)
+      (lambda (nproc) (inner-grown n var rest (funcall proc nproc)))
+      (let ((method (find-keyword-val :method rest :default 'triloop))
+	    (variance (find-keyword-val :var rest :default 0.2))	    
+	    (durs (find-keyword-val :durs rest :default nil))
+	    (hoe-max (find-keyword-val :hoe-max rest :default 0))
+	    ;;(hoe (find-keyword-val :hoe rest :default 4))
+            (rnd (find-keyword-val :rnd rest :default 0)))
+        (progn (loop for a from 0 to n
+                     do (grow proc :higher-order hoe-max :rnd rnd :var variance :method method :durs durs))
+               proc))))
 
-(defun grown2 (n var method &optional proc)  
-  (if proc
-      (if (typep proc 'function)
-          (lambda (nproc) (grown2 n var method (funcall proc nproc)))
-          (progn (loop for a from 0 to n
-                       do (grow2 proc :var var :method method))
-                 proc))
-      (lambda (nproc) (grown2 n var method nproc))))
+;; GROWN
+(defun grown (n var &rest opt-params)
+  (let* ((proc (if (or (typep (alexandria::lastcar opt-params) 'event-processor)
+                       (typep (alexandria::lastcar opt-params) 'function))
+                   (alexandria::lastcar opt-params)
+                   nil))
+         (params (if proc (butlast opt-params) opt-params)))
+    (if proc
+        (inner-grown n var params proc)
+        (lambda (pproc) (inner-grown n var params pproc)))))
 
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
 (defun haste (num mod &optional proc)  
@@ -61,7 +66,7 @@
           (lambda (nproc) (rew num (funcall proc nproc)))
           (progn            
             (set-current-node proc (list (nth (- (trace-length proc) (+ num 1)) (traced-path proc))))
-            (set-traced-path proc(append (traced-path proc) (current-node proc))) 
+            (set-traced-path proc (append (traced-path proc) (current-node proc))) 
             (when (> (list-length (traced-path proc)) (trace-length proc))
               (set-traced-path proc
 	                       (delete (car (traced-path proc)) (traced-path proc) :count 1)))
