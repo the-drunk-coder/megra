@@ -4,6 +4,7 @@
   ((wrapped-processor :accessor wrapper-wrapped-processor
 		      :initarg :wrapped-processor)))
 
+;; pass everything on to inner processor 
 (defmethod push-tmod ((w event-processor-wrapper) tmod &key)
   (push-tmod (wrapper-wrapped-processor w) tmod))
 
@@ -61,7 +62,6 @@
 		      higher-order)
   (grow (wrapper-wrapped-processor w) :var var :durs durs :functors functors
                                       :method method :rnd rnd :higher-order higher-order))
-
 
 (defmethod prune ((w event-processor-wrapper) &key exclude node-id)
   (prune (wrapper-wrapped-processor w) :exclude exclude :node-id node-id))
@@ -201,36 +201,54 @@
         (t (lambda (pproc) (apply 'pear (nconc events-and-proc (list pproc)))))))
 
 (defclass prob-applicator (event-processor-wrapper)
-  ((prob :accessor applicator-prob :initarg :prob)
-   (events-to-apply :accessor applicator-events :initarg :events)))
+  ((prob-event-mapping :accessor prob-mapping :initarg :mapping)))
 
 (defmethod pull-events ((w prob-applicator) &key)
-  (if (successor w)
-      (if (< (random 100) (applicator-prob w))
-          (let ((other-events (current-events w)))
-            (loop for aev in (applicator-events w)
-                  do (loop for i from 0 to (- (length other-events) 1)
-                           do (setf (nth i other-events)
-                                    (combine-single-events aev (nth i other-events)))))
-            (apply-self-2 w other-events (pull-events (successor w))))
-          (apply-self w (pull-events (successor w))))
-      (if (< (random 100) (applicator-prob w))
-          (let ((other-events (current-events w)))
-            (loop for aev in (applicator-events w)
-                  do (loop for i from 0 to (- (length other-events) 1)
-                           do (setf (nth i other-events)
-                                    (combine-single-events aev (nth i other-events)))))
-            other-events)
-          (current-events w))))
+  (if (successor w)    
+      (let ((other-events (current-events w)))
+        (loop for prob being the hash-keys of (prob-mapping w) using (hash-value events)
+              when (< (random 100) prob)
+              do (loop for aev in events
+                       do (loop for i from 0 to (- (length other-events) 1)
+                                do (setf (nth i other-events)
+                                         (combine-single-events aev (nth i other-events))))))      
+        (apply-self-2 w other-events (pull-events (successor w))))
+      (let ((other-events (current-events w)))
+        (loop for prob being the hash-keys of (prob-mapping w) using (hash-value events)
+              when (< (random 100) prob)
+              do (loop for aev in events
+                       do (loop for i from 0 to (- (length other-events) 1)
+                                do (setf (nth i other-events)
+                                         (combine-single-events aev (nth i other-events))))))
+        other-events)))
 
-(defun ppear (prob &rest events-and-proc)
-  (cond ((typep (car (last events-and-proc)) 'event-processor)
-         (make-instance 'prob-applicator              
-                        :prob prob
-                        :name (intern (format nil "~D-ppear" (name (car (last events-and-proc)))))
-                        :events (butlast events-and-proc)
-                        :wrapped-processor (car (last events-and-proc))))
-        ((typep (car (last events-and-proc)) 'function)
-         (lambda (pproc) (apply 'ppear (nconc (list prob) (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
-        (t (lambda (pproc) (apply 'ppear (nconc (list prob) events-and-proc (list pproc)))))))
+(defun probability-list-hash-table (seq)
+  (let ((key)
+        (events (make-hash-table)))
+    (loop for item in seq
+          when (numberp item)
+          do (setf key item)
+          and do (setf (gethash key events) (list))
+          when (typep item 'event)
+          do (setf (gethash key events) (nconc (gethash key events) (list item)) ))
+    events))
+
+(defun inner-ppear (mapping proc)
+  (if (typep proc 'function)
+      (lambda (nproc) (inner-ppear mapping (funcall proc nproc)))
+      (make-instance 'prob-applicator              
+                     :mapping mapping
+                     :name (intern (format nil "~D-ppear" (name proc)))
+                     :wrapped-processor proc)))
+
+(defun ppear (&rest params)
+  (let* ((proc (if (or (typep (alexandria::lastcar params) 'event-processor)
+                       (typep (alexandria::lastcar params) 'function))
+                   (alexandria::lastcar params)
+                   nil))
+         (mapping (probability-list-hash-table
+                   (if proc (butlast params) params))))
+    (if proc
+        (inner-ppear mapping proc)
+        (lambda (pproc) (inner-ppear mapping pproc)))))
 
