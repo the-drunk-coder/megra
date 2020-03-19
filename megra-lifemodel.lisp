@@ -96,27 +96,29 @@
 ;; lifemodel works more in minimalistic contexts rather than algorave,
 ;; i suppose ...
 (defun inner-lifemodel (growth-cycle lifespan rest wrapped-processor)
-  (let ((method (find-keyword-val :method rest :default 'triloop))
-	(variance (find-keyword-val :var rest :default 0.2))
-	(autophagia (find-keyword-val :autophagia rest :default t))
-	(apoptosis (find-keyword-val :apoptosis rest :default t))        
-	(durs (find-keyword-val :durs rest :default nil))
-	(hoe-max (find-keyword-val :hoe-max rest :default 4))
-	(hoe (find-keyword-val :hoe rest :default 4))
-	(exclude (find-keyword-val :exclude rest :default nil)))
-    (make-instance 'lifemodel-control
-		   :name (intern (format nil "~D-lifemodel" (name wrapped-processor)))
-		   :wrapped-processor wrapped-processor
-		   :growth-cycle growth-cycle		 
-		   :variance variance		 
-		   :method method
-		   :durs durs
-		   :phoe hoe
-		   :node-lifespan lifespan
-		   :hoe-max hoe-max
-		   :exclude exclude
-		   :autophagia autophagia
-		   :apoptosis apoptosis)))
+    (if (typep wrapped-processor 'function)
+        (lambda (proc) (inner-lifemodel growth-cycle lifespan rest (funcall wrapped-processor proc)))
+        (let ((method (find-keyword-val :method rest :default 'triloop))
+	      (variance (find-keyword-val :var rest :default 0.2))
+	      (autophagia (find-keyword-val :autophagia rest :default t))
+	      (apoptosis (find-keyword-val :apoptosis rest :default t))        
+	      (durs (find-keyword-val :durs rest :default nil))
+	      (hoe-max (find-keyword-val :hoe-max rest :default 4))
+	      (hoe (find-keyword-val :hoe rest :default 4))
+	      (exclude (find-keyword-val :exclude rest :default nil)))
+          (make-instance 'lifemodel-control
+		         :name (intern (format nil "~D-lifemodel" (name wrapped-processor)))
+		         :wrapped-processor wrapped-processor
+		         :growth-cycle growth-cycle		 
+		         :variance variance		 
+		         :method method
+		         :durs durs
+		         :phoe hoe
+		         :node-lifespan lifespan
+		         :hoe-max hoe-max
+		         :exclude exclude
+		         :autophagia autophagia
+		         :apoptosis apoptosis))))
 
 (defun life (growth-cycle lifespan var &rest opt-params)
   (let* ((proc (if (or (typep (alexandria::lastcar opt-params) 'event-processor)
@@ -124,8 +126,6 @@
                   (alexandria::lastcar opt-params)
                   nil))
          (params (nconc (list :var var) (if proc (butlast opt-params) opt-params))))
-    (if proc
-        (if (typep proc 'function)
-            (lambda (pproc) (inner-lifemodel growth-cycle lifespan params (funcall proc pproc)))
-            (inner-lifemodel growth-cycle lifespan params proc))
+    (if proc        
+        (inner-lifemodel growth-cycle lifespan params proc)
         (lambda (pproc) (inner-lifemodel growth-cycle lifespan params pproc)))))
