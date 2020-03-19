@@ -41,7 +41,7 @@
                 do (setf (gethash added (transition-durations g)) appropiate-duration)))
       (list result appropiate-duration))))
 
-(defun prune (graph-or-id &key exclude node-id)
+(defmethod prune (graph-or-id &key exclude node-id)
   (let ((g (if (typep graph-or-id 'symbol)
 	       (gethash graph-or-id *processor-directory*)
 	       graph-or-id)))

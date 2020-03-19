@@ -56,6 +56,10 @@
   (grow (wrapper-wrapped-processor w) :var var :durs durs :functors functors
                                       :method method :rnd rnd :higher-order higher-order))
 
+
+(defmethod prune ((w event-processor-wrapper) &key exclude node-id)
+  (prune (wrapper-wrapped-processor w) :exclude exclude :node-id node-id))
+
 (defmethod post-processing ((w event-processor-wrapper) &key))
 
 ;;;;;;;;;;;;;;;; GENERIC Population Control ;;;;;;;;;;;;;;;;;;;;;;;;;;
