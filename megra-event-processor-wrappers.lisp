@@ -25,6 +25,12 @@
 (defmethod last-transition ((w event-processor-wrapper))
   (last-transition (wrapper-wrapped-processor w)))
 
+(defmethod inner-generator ((w event-processor-wrapper))
+  (inner-generator (wrapper-wrapped-processor w)))
+
+(defmethod ages ((w event-processor-wrapper))
+  (ages (wrapper-wrapped-processor w)))
+
 (defmethod trace-length ((w event-processor-wrapper))
   (trace-length (wrapper-wrapped-processor w)))
 
