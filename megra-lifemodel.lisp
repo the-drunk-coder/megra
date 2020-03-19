@@ -72,24 +72,27 @@
 	  (when (and (lmc-autophagia l) (> (length (vom::alphabet (inner-generator (wrapper-wrapped-processor l)))) 1))
 	    ;; send prune/shrink
 	    (let ((rnd-symbol (alexandria::random-elt (vom::alphabet (inner-generator (wrapper-wrapped-processor l))))))
-	      (prune (wrapper-wrapped-processor l) :node-id rnd-symbol)
+              ;;(incudine::msg error "AUTOPHAGIA: ~D~%" rnd-symbol)
+              (prune (wrapper-wrapped-processor l) :node-id rnd-symbol)
 	      (setf eaten-node rnd-symbol))	    
 	    ;; add regain to local	    
 	    (setf (lmc-local-resources l)
 		  (+ (lmc-local-resources l)
 		     (lmc-local-autophagia-regain l)))))
-    ;; handle apoptosis:    
-    (when (and
-	   (lmc-apoptosis l) ;; first, check if apoptosis is even specified ...
-           ;; then, check if the whole generator can die (run out of symbols) or not ...
-	   (or (and *dont-let-die* (> (length (vom::alphabet (inner-generator (wrapper-wrapped-processor l)))) 1)) (not *dont-let-die*))
-           ;; then, check if the symbol has ages enough ... 
-	   (> (gethash cur-symbol (ages (wrapper-wrapped-processor l))) (add-var (lmc-node-lifespan l) (lmc-node-lifespan-var l))))
-      ;; unless the current symbol has randomly been eaten before, remove it ...
-      (unless (eql cur-symbol eaten-node)
-	(prune (wrapper-wrapped-processor l) :node-id cur-symbol)
-        ;; add gained resources back ... 
-	(setf (lmc-local-resources l) (+ (lmc-local-resources l) (lmc-local-apoptosis-regain l))))))))
+      ;; handle apoptosis:
+      ;;(incudine::msg error "PRE APOP ALPH ~D~%" (vom::alphabet (inner-generator (wrapper-wrapped-processor l))))
+      (when (and
+	     (lmc-apoptosis l) ;; first, check if apoptosis is even specified ...
+             ;; then, check if the whole generator can die (run out of symbols) or not ...
+	     (or (> (length (vom::alphabet (inner-generator (wrapper-wrapped-processor l)))) 1) (not *dont-let-die*))
+             ;; then, check if the symbol has ages enough ... 
+	     (> (gethash cur-symbol (ages (wrapper-wrapped-processor l))) (add-var (lmc-node-lifespan l) (lmc-node-lifespan-var l))))
+        ;; unless the current symbol has randomly been eaten before, remove it ...
+        (unless (eql cur-symbol eaten-node)
+          ;;(incudine::msg error "APOPTOSIS: ~D ~D~%" (name l) cur-symbol)
+          (prune (wrapper-wrapped-processor l) :node-id cur-symbol)
+          ;; add gained resources back ... 
+	  (setf (lmc-local-resources l) (+ (lmc-local-resources l) (lmc-local-apoptosis-regain l))))))))
 
 
 
