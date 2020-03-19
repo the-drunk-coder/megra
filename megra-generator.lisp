@@ -79,7 +79,8 @@
     (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
-      (setf (last-transition g) (last-transition g-old))
+      (when (member (vom::query-result-symbol (last-transition g-old)) (vom::alphabet (inner-generator g)))
+        (setf (last-transition g) (last-transition g-old)))
       (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
     (if g
         (progn (setf (gethash name *processor-directory*) g) g)
@@ -104,7 +105,8 @@
     (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
-      (setf (last-transition g) (last-transition g-old))
+      (when (member (vom::query-result-symbol (last-transition g-old)) (vom::alphabet (inner-generator g)))
+        (setf (last-transition g) (last-transition g-old)))
       (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
     (if g
         (progn
