@@ -11,19 +11,23 @@
 		graph-or-id))
          (result (cond ((eql method 'triloop)
 	                (vom::grow-triloop (inner-generator g) 
-	                              :rnd rnd
-	                              :higher-order higher-order))
+	                                   :rnd rnd
+	                                   :higher-order higher-order))
 	               ((eql method 'quadloop)
 	                (vom::grow-quadloop (inner-generator g)
-				       :rnd rnd
-				       :higher-order higher-order))
+				            :rnd rnd
+				            :higher-order higher-order))
 	               ((eql method 'loop)
 	                (vom::grow-loop (inner-generator g)
-			           :rnd rnd
-			           :higher-order higher-order))
+			                :rnd rnd
+			                :higher-order higher-order))
+                       ((eql method 'flower)
+	                (vom::grow-flower (inner-generator g)
+			                  :rnd rnd
+			                  :higher-order higher-order))
 	               (t (vom::grow-old (inner-generator g)
-		                    :rnd rnd
-		                    :higher-order higher-order)))))
+		                         :rnd rnd
+		                         :higher-order higher-order)))))
     ;; set the new event ...
     (setf (gethash (vom::growth-result-added-symbol result) (event-dictionary g))
           (deepcopy-list (gethash (vom::growth-result-template-symbol result) (event-dictionary g))
