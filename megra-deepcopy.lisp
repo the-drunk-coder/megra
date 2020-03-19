@@ -127,15 +127,32 @@
 
 (defmethod deepcopy-object ((tr transition-event)
 			    &key (imprecision 0.0)
-			      exclude-keywords
-			      precise-keywords
-			      functors)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
   (deepcopy-generic-object tr
 			   :imprecision imprecision
 			   :exclude-keywords  exclude-keywords
 			   :precise-keywords (append precise-keywords
 						     '(dur))
 			   :functors functors))
+
+(defmethod deepcopy-object ((g vom::adj-list-pfa)
+			    &key (imprecision 0.0)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
+  (let ((gc (deepcopy-generic-object g
+			             :imprecision imprecision
+			             :exclude-keywords  exclude-keywords
+			             :precise-keywords (append precise-keywords
+						               '(dur))
+			             :functors functors)))
+    (format t "~D~%" gc)
+    (setf (vom::pst-root gc) (vom::make-pst-node :label nil :children (make-hash-table :test 'equal) :child-prob (make-hash-table :test 'equal)))
+    (format t "~D~%" (vom::pst-root gc))
+    (mapc #'(lambda (k) (vom::add-node (vom::pst-root gc) k)) (alexandria::hash-table-keys (vom::children gc)))
+    gc))
 
 (defmethod deepcopy-object ((e event-processor) &key (imprecision 0.0)
 						  exclude-keywords
