@@ -65,14 +65,19 @@
       (if (typep proc 'function)
           (lambda (nproc) (rew num (funcall proc nproc)))
           (progn            
-            (set-current-node proc (list (nth (- (trace-length proc) (+ num 1)) (traced-path proc))))
-            (set-traced-path proc (append (traced-path proc) (current-node proc))) 
-            (when (> (list-length (traced-path proc)) (trace-length proc))
-              (set-traced-path proc
-	                       (delete (car (traced-path proc)) (traced-path proc) :count 1)))
+            (if (typep (inner-generator proc) 'vom::adj-list-pfa) 
+                (progn
+                  (setf (vom::current-state (inner-generator proc))
+                        (list (nth (- (vom::history-length (inner-generator proc)) (+ num 1)) (vom::history (inner-generator proc)))))
+                  (setf (vom::history (inner-generator proc))
+                        (append (vom::history (inner-generator proc)) (vom::current-state (inner-generator proc)))))
+                (progn
+                  (setf (vom::current-node (inner-generator proc))
+                        (nth (- (vom::history-length (inner-generator proc)) (+ num 1)) (vom::history (inner-generator proc))))
+                  (setf (vom::history (inner-generator proc))
+                        (append (vom::history (inner-generator proc)) (list (vom::current-node (inner-generator proc)))))))                        
             proc)))
   (lambda (nproc) (rew num nproc)))
-
 
 ;; needs traced path for pfa and state setter method, ideally for both ... 
 
