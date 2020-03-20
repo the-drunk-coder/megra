@@ -76,8 +76,10 @@
                         (nth (- (vom::history-length (inner-generator proc)) (+ num 1)) (vom::history (inner-generator proc))))
                   (setf (vom::history (inner-generator proc))
                         (append (vom::history (inner-generator proc)) (list (vom::current-node (inner-generator proc)))))))                        
-            proc)))
-  (lambda (nproc) (rew num nproc)))
+            proc))
+      (lambda (nproc) (rew num nproc))
+      )
+)
 
 (defun rep (prob max &optional proc)  
   (if proc
