@@ -79,5 +79,15 @@
             proc)))
   (lambda (nproc) (rew num nproc)))
 
-;; needs traced path for pfa and state setter method, ideally for both ... 
-
+(defun rep (prob max &optional proc)  
+  (if proc
+      (if (typep proc 'function)
+          (lambda (nproc) (rep prob max (funcall proc nproc)))
+          (progn (loop for sym in (vom::alphabet (inner-generator proc))
+                       when (and (not (vom::has-transition (inner-generator proc) (list sym) sym))
+                                 (< (random 100) prob))
+                       do (vom::insert-rule (inner-generator proc) (list (list sym) sym (* prob 0.01)))
+                       and do (vom::insert-rule (inner-generator proc) (list (make-list max :initial-element sym) sym 1.0))
+                       and do (vom::rebalance-state (inner-generator proc) (list sym)))                 
+                 proc))
+      (lambda (nproc) (rep prob max nproc))))
