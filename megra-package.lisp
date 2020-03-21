@@ -115,6 +115,7 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-ambi")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-helpers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-base")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-chain")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-growth")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-generators")))
