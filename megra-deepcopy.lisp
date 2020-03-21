@@ -178,29 +178,6 @@
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
-(defmethod deepcopy-object ((e event-processor-wrapper) &key (imprecision 0.0)
-							  exclude-keywords
-							  precise-keywords
-							  functors)
-  (let ((clone (deepcopy-generic-object e
-					:imprecision imprecision
-					:exclude-keywords (append
-							   exclude-keywords
-							   '(successor predecessor))
-					:precise-keywords precise-keywords
-					:functors functors))
-	(proc-name (name (wrapper-wrapped-processor e))))
-    ;; give copied wrapped processor a new name 
-    (setf (name (wrapper-wrapped-processor clone))
-	  (intern (concatenate
-		   'string
-		   (symbol-name proc-name)
-		   "-"
-		   (symbol-name (gensym)))))    
-    ;; store reference in global processor directory
-    (setf (gethash (name (wrapper-wrapped-processor clone)) *processor-directory*)
-	  (wrapper-wrapped-processor clone))
-    clone))
 
 (defmethod deepcopy-object ((e shrink-event) &key (imprecision 0.0)
 					       exclude-keywords
