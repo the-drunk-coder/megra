@@ -15,6 +15,7 @@ Emacs installation, please find some hints here:
 https://github.com/the-drunk-coder/megra/blob/master/Tutorial/old/00b_Installation_old.md
 
 ## Differences between 1.x and 2.x
+Megra 2.x is a different beast than 1.x, event though most of the core concepts made it over.
 Some features didn't make it over to 2.x because they were too complicated, or caused too much clutter.
 
 Amongst those are:
@@ -24,6 +25,7 @@ Amongst those are:
 * Controller input. This has been obsolete for a long time ...
 * Manual cloning. Never documented, never used.
 * The old tutorial. Megra has changed a lot, it didn't make sense any longer.
+* The old chain macro. Use cmp instead.
 
 In the very unlikely case that you were an early Mégra user and are missing one of the features, please tell me and I'll see if
 I can bring them back, or think about a good alternative. Otherwise, you can still use the 1.x branch.
