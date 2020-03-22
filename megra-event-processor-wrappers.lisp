@@ -1,8 +1,7 @@
 (in-package :megra)
 
 (defclass event-processor-wrapper (event-processor)
-  ((wrapped-processor :accessor wrapper-wrapped-processor
-		      :initarg :wrapped-processor)))
+  ((wrapped-processor :accessor wrapper-wrapped-processor :initarg :wrapped-processor)))
 
 ;; pass everything on to inner processor 
 (defmethod push-tmod ((w event-processor-wrapper) tmod &key)
@@ -31,6 +30,9 @@
 
 (defmethod ages ((w event-processor-wrapper))
   (ages (wrapper-wrapped-processor w)))
+
+(defmethod name ((w event-processor-wrapper))
+  (name (wrapper-wrapped-processor w)))
 
 (defmethod trace-length ((w event-processor-wrapper))
   (trace-length (wrapper-wrapped-processor w)))
@@ -112,7 +114,6 @@
       (if (typep proc 'function)
           (lambda (pproc) (evr count fun (funcall proc pproc)))
           (make-instance 'count-wrapper
-                         :name (intern (format nil "~D-evr" (name proc)))
                          :on-count count 
                          :function fun
                          :wrapped-processor proc))
@@ -131,8 +132,7 @@
   (if proc
       (if (typep proc 'function)
           (lambda (pproc) (pprob prob fun (funcall proc pproc)))
-          (make-instance 'prob-wrapper
-                         :name (intern (format nil "~D-pprob" (name proc)))
+          (make-instance 'prob-wrapper                         
                          :prob prob 
                          :function fun                
                          :wrapped-processor proc))
@@ -157,21 +157,6 @@
 (defmethod pull-events :after ((w duplicator) &key)
   (post-processing w))
 
-(defun dup (&rest funs-and-proc)
-  (let* ((funs (butlast funs-and-proc))
-         (proc (car (last funs-and-proc)))
-         (duplicates (loop for p from 0 to (- (length funs) 1)
-                           collect (funcall (nth p funs) (deepcopy proc)))))
-    (make-instance 'duplicator
-                   :name (intern (format nil "~D-duplicator" (name proc)))
-                   :duplicates duplicates
-                   :wrapped-processor proc)))
-
-;; dup - duplicate .. (new wrapper)
-;; (dup t 3 (cyc ..)
-;;     (lm t 20 20 :var 0.2) ;; recursive application necessary ! 
-;;     (every t 4 (skip 2))
-
 (defclass applicator (event-processor-wrapper)
   ((events-to-apply :accessor applicator-events :initarg :events)))
 
@@ -192,8 +177,7 @@
 
 (defun pear (&rest events-and-proc)
   (cond ((typep (car (last events-and-proc)) 'event-processor)
-         (make-instance 'applicator
-                        :name (intern (format nil "~D-pear" (name (car (last events-and-proc)))))
+         (make-instance 'applicator                        
                         :events (butlast events-and-proc)
                         :wrapped-processor (car (last events-and-proc))))
         ((typep (car (last events-and-proc)) 'function)
@@ -238,7 +222,6 @@
       (lambda (nproc) (inner-ppear mapping (funcall proc nproc)))
       (make-instance 'prob-applicator              
                      :mapping mapping
-                     :name (intern (format nil "~D-ppear" (name proc)))
                      :wrapped-processor proc)))
 
 (defun ppear (&rest params)

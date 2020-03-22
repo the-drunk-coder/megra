@@ -7,9 +7,7 @@
    (successor :accessor successor :initform nil)
    (predecessor :accessor predecessor :initform nil)   
    (current-events)      ;; abstract
-   (current-transition)  ;; abstract   
-   (chain-bound :accessor chain-bound :initform nil)   
-   (name :accessor name :initarg :name)
+   (current-transition)  ;; abstract     
    (tempo-mod-stack :accessor tmods :initform nil)
    (combine-mode :accessor combine-mode :initarg :combine-mode :initform 'auto)
    (affect-transition :accessor affect-transition :initarg :affect-transition :initform nil)))

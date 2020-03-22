@@ -109,8 +109,7 @@
 	      (hoe-max (find-keyword-val :hoe-max rest :default 4))
 	      (hoe (find-keyword-val :hoe rest :default 4))
 	      (exclude (find-keyword-val :exclude rest :default nil)))
-          (make-instance 'lifemodel-control
-		         :name (intern (format nil "~D-lifemodel" (name wrapped-processor)))
+          (make-instance 'lifemodel-control		         
 		         :wrapped-processor wrapped-processor
 		         :growth-cycle growth-cycle		 
 		         :variance variance		 

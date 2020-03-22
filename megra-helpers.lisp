@@ -14,16 +14,16 @@
   ;; first of all stop all events already passed to incudine ...
   (incudine::flush-pending)
   (setf *processor-directory* (make-hash-table :test 'eql))
-  (loop for chain being the hash-values of *chain-directory*
+  (loop for chain being the hash-values of *global-syncs*
      do (deactivate chain))       
-  (setf *chain-directory* (make-hash-table :test 'eql))  
-  (setf *multichain-directory* (make-hash-table :test 'eql)))
+  (setf *global-syncs* (make-hash-table :test 'eql))  
+  (setf *multiglobal-syncs* (make-hash-table :test 'eql)))
 
 (defun clear-single (id)
   ;; if it's a chain, stop the chain ...  
   (incudine::msg error "clear ~D" id)
   (stop id)
-  (remhash id *chain-directory*))
+  (remhash id *global-syncs*))
 
 (defun clear (&rest chains)
   (if (<= (length chains) 0)
@@ -33,12 +33,12 @@
 (defun stop (&rest chains)
   "stop a chain or (if no argument given) everything"
   (if (<= (length chains) 0)
-      (loop for chain being the hash-values of *chain-directory*
+      (loop for chain being the hash-values of *global-syncs*
 	 do (deactivate chain))
       (mapc #'(lambda (id)
 		(incudine::msg error "stop ~D" id)
 		;; if it's a chain, stop the chain ...
-		(deactivate (gethash id *chain-directory*)))
+		(deactivate (gethash id *global-syncs*)))
 	    chains)))
 
 ;; convenience functions to set params in some object ...
@@ -47,7 +47,7 @@
 
 (defmacro sync-progn (ch &body funcs)
   `(funcall #'(lambda ()
-		(let ((chain (gethash ,ch *chain-directory*)))
+		(let ((chain (gethash ,ch *global-syncs*)))
 		  (when chain		    
 		    (setf (synced-progns chain)
 			  (append (synced-progns chain)
@@ -66,7 +66,7 @@
 
 (defun mon ()
   (format t "ACTIVE CHAINS: ")
-  (loop for ch being the hash-values of *chain-directory*
+  (loop for ch being the hash-values of *global-syncs*
      do (when (is-active ch)
 	  (format t "~D " (name ch))))
   (format t "~%"))

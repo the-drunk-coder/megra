@@ -35,7 +35,6 @@
 			       (car (last rest)))))
     (make-instance 'probability-population-control
 		   :wrapped-processor wrapped-processor		   
-		   :name (intern (format nil "~D-probctrl" (name wrapped-processor)))
 		   :variance variance
 		   :pgrowth pgrowth
 		   :pprune pprune
@@ -50,8 +49,7 @@
       (if (typep proc 'function)
           (lambda (pproc) (pctrl pgrowth pprune var method (funcall proc pproc)))
           (make-instance 'probability-population-control
-		         :wrapped-processor proc	   
-		         :name (intern (format nil "~D-probctrl" (name proc)))
+		         :wrapped-processor proc		         
 		         :variance var
 		         :pgrowth pgrowth
 		         :pprune pprune

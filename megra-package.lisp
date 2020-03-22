@@ -65,7 +65,7 @@
 (defparameter *global-silence-symbol* '~)
 
 ;; chains 
-(defparameter *chain-directory* (make-hash-table :test 'eql))
+(defparameter *global-syncs* (make-hash-table :test 'eql))
 (defparameter *multichain-directory* (make-hash-table :test 'eql))
 
 (defparameter *pi* 3.14159265359)
@@ -115,7 +115,6 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-ambi")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-helpers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-base")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-chain")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-growth")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-generators")))
@@ -123,13 +122,12 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-lifemodel")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-probctrl")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-direct-modifiers")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
+;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
 ;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-disencourage")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-dispatchers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-deepcopy")))
 ;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-constructors")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-filters")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
-;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualize")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-compose")))
 (load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))
