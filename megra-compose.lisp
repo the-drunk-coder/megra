@@ -3,12 +3,14 @@
 ;; compose function allows for convenient application
 ;; of higher-order functions ...
 (defun cmp (&rest rest)
-  (labels ((cmp-inner (acc rest)
-             (if rest
-                 (cmp-inner (funcall acc (car rest)) (cdr rest))
-                 acc)))
-    (if rest (cmp-inner (car rest) (cdr rest)))))
-
+  (if (cdr rest)
+      (let ((rev (reverse rest)))
+        (labels ((accum (acc r)
+                   (if r
+                       (accum (funcall (car r) acc) (cdr r))
+                       acc)))
+          (accum (funcall (cadr rev) (car rev)) (cddr rev))))      
+      (car rest)))
 
 
 
