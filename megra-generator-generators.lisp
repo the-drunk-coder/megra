@@ -75,29 +75,55 @@
 	(setf rules (nconc rules (list (list (list count) 1 1.0)))))
     (list event-mapping rules)))
 
-(defun cyc (name cyc-def &key (rep 0) (max-rep 2) (dur *global-default-duration*) (reset t))
-  (let ((gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
-    (infer-from-rules :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset)))
+(defun cyc (name cyc-def &rest rest)
+  (let* ((rep (find-keyword-val :rep rest :default 0))
+         (max-rep (find-keyword-val :max-rep rest :default 2))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (reset (find-keyword-val :reset rest :default t))         
+         (successor (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                            (typep (alexandria::lastcar rest) 'function))
+                        (alexandria::lastcar rest)))
+         (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
+    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset :successor successor)))
 
-(defun cyc2 (name cyc-def &key (rep 0) (max-rep 2) (dur *global-default-duration*) (reset t))
-  (let ((gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
-    (infer-from-rules :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset)))
+(defun cyc2 (name cyc-def &rest rest)
+  (let* ((rep (find-keyword-val :rep rest :default 0))
+         (max-rep (find-keyword-val :max-rep rest :default 2))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (reset (find-keyword-val :reset rest :default t))         
+         (successor (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                            (typep (alexandria::lastcar rest) 'function))
+                        (alexandria::lastcar rest)))
+         (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
+    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset :successor successor)))
 
-(defun nuc (name event &key (dur *global-default-duration*) (reset t))  
-  (infer-from-rules :type 'naive
-                    :name name
-                    :mapping (alexandria::plist-hash-table (list 1 (list event)))
-	            :rules (list (list '(1) 1 100 dur))
-	            :default-dur dur
-                    :reset reset))
+(defun nuc (name event &rest rest)
+  (let ((dur (find-keyword-val :dur rest :default *global-default-duration*))
+        (reset (find-keyword-val :reset rest :default t))         
+        (successor (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                           (typep (alexandria::lastcar rest) 'function))
+                       (alexandria::lastcar rest))))
+    (infer-from-rules-fun :type 'naive
+                          :name name
+                          :mapping (alexandria::plist-hash-table (list 1 (list event)))
+	                  :rules (list (list '(1) 1 100 dur))
+	                  :default-dur dur
+                          :reset reset
+                          :successor successor)))
 
-(defun nuc2 (name event &key (dur *global-default-duration*) (reset t))  
-  (infer-from-rules :type 'pfa
-                    :name name
-                    :mapping (alexandria::plist-hash-table (list 1 (list event)))
-	            :rules (list (list '(1) 1 1.0 dur))
-	            :default-dur dur
-                    :reset reset))
+(defun nuc2 (name event &rest rest)
+  (let ((dur (find-keyword-val :dur rest :default *global-default-duration*))
+        (reset (find-keyword-val :reset rest :default t))         
+        (successor (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                           (typep (alexandria::lastcar rest) 'function))
+                       (alexandria::lastcar rest))))
+    (infer-from-rules-fun :type 'pfa
+                          :name name
+                          :mapping (alexandria::plist-hash-table (list 1 (list event)))
+	                  :rules (list (list '(1) 1 100 dur))
+	                  :default-dur dur
+                          :reset reset
+                          :successor successor)))
 
 (defun find-keyword-list (keyword seq)
   (when (and
@@ -130,13 +156,17 @@
         (rules (find-keyword-list :rules params))
         (dur (find-keyword-val :dur params :default *global-default-duration*))
         (type (find-keyword-val :type params :default 'pfa))
-        (reset (find-keyword-val :reset params :default t)))
-    (infer-from-rules :type type 
-                      :name name
-                      :mapping (p-events-list events)
-	              :rules rules
-	              :default-dur dur
-                      :reset reset)))
+        (reset (find-keyword-val :reset params :default t))
+        (successor (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                           (typep (alexandria::lastcar rest) 'function))
+                       (alexandria::lastcar rest))))
+    (infer-from-rules-fun :type type 
+                          :name name
+                          :mapping (p-events-list events)
+	                  :rules rules
+	                  :default-dur dur
+                          :reset reset
+                          :successor successor)))
 
 (defun sstring (string-as-sym)
   "convenience method to enter sample strings without spaces"
@@ -155,32 +185,51 @@
          (size (find-keyword-val :size params :default 40))
          (epsilon (find-keyword-val :epsilon params :default 0.01))
          (dur (find-keyword-val :dur params :default *global-default-duration*))
-         (events (delete sample (find-keyword-list :events params) :test 'equal)))
-    (learn-generator :name name
-                     :sample (if (listp sample) sample (sstring sample))
-                     :mapping (p-events-list events)
-                     :default-dur dur)))
+         (events (delete sample (find-keyword-list :events params) :test 'equal))
+         (successor (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                            (typep (alexandria::lastcar rest) 'function))
+                        (alexandria::lastcar rest))))
+    (learn-generator-fun :name name
+                         :sample (if (listp sample) sample (sstring sample))
+                         :size size
+                         :epsilon epsilon
+                         :bound bound
+                         :reset reset                     
+                         :mapping (p-events-list events)
+                         :default-dur dur
+                         :successor successor)))
 
 ;;;;;;;;;;;;; SOME SHORTHANDS ;;;;;;;;;;;;;;;;;;;
 
 ;; parameter sequence
-(defmacro pseq (param &rest rest)
-  (let ((p-events (loop for val in rest
-                        collect `(,param ,val))))
-    `(funcall (lambda () (cyc ',(gensym) (list ,@p-events))))))
+(defmacro pseq (name param &rest rest)
+  (let ((p-events (loop for val in rest collect `(,param ,val))))
+    `(funcall (lambda ()
+                (let* ((raw-succ ,(alexandria::lastcar rest))
+                       (successor (if (or (typep raw-succ 'event-processor) (typep raw-succ 'function)) successor)))
+                  (cyc ,name (list ,@p-events) successor))))))
 
 ;; chop a sample
-(defmacro chop (name template num &key (start 0.0))
-  (let ((p-events (loop for val from 0 to num
-		        collect `(let ((cur-ev ,template))                                   
-                                   (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
-                                   cur-ev))))
-    `(funcall (lambda () (cyc ,name (list ,@p-events))))))
+(defmacro chop (name template num &rest rest)
+  (let* ((start (find-keyword-val :start rest :default 0.0))
+         (p-events (loop for val from 0 to num
+		         collect `(let ((cur-ev ,template))                                   
+                                    (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
+                                    cur-ev))))
+    `(funcall (lambda ()
+                (let* ((raw-succ ,(alexandria::lastcar rest))
+                       (successor (if (or (typep raw-succ 'event-processor) (typep raw-succ 'function)) successor)))
+                  (cyc ,name (list ,@p-events) successor))))))
 
-(defmacro chop2 (name template num &key (start 0.0))
-  (let ((p-events (loop for val from 0 to num
-		        collect `(let ((cur-ev ,template))
-                                   (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
-                                   cur-ev))))
-    `(funcall (lambda () (cyc2 ,name (list ,@p-events))))))
+(defmacro chop2 (name template num &rest rest)
+  (let* ((start (find-keyword-val :start rest :default 0.0))
+         (p-events (loop for val from 0 to num
+		         collect `(let ((cur-ev ,template))                                   
+                                    (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
+                                    cur-ev))))
+    `(funcall (lambda ()
+                (let* ((raw-succ ,(alexandria::lastcar rest))
+                       (successor (if (or (typep raw-succ 'event-processor) (typep raw-succ 'function)) successor)))
+                  (cyc2 ,name (list ,@p-events) successor))))))
+
 

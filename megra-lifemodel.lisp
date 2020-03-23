@@ -98,19 +98,23 @@
 
 ;; lifemodel works more in minimalistic contexts rather than algorave,
 ;; i suppose ...
-(defun inner-lifemodel (growth-cycle lifespan rest wrapped-processor)
-    (if (typep wrapped-processor 'function)
-        (lambda (proc) (inner-lifemodel growth-cycle lifespan rest (funcall wrapped-processor proc)))
-        (let ((method (find-keyword-val :method rest :default 'triloop))
-	      (variance (find-keyword-val :var rest :default 0.2))
-	      (autophagia (find-keyword-val :autophagia rest :default t))
-	      (apoptosis (find-keyword-val :apoptosis rest :default t))        
-	      (durs (find-keyword-val :durs rest :default nil))
-	      (hoe-max (find-keyword-val :hoe-max rest :default 4))
-	      (hoe (find-keyword-val :hoe rest :default 4))
-	      (exclude (find-keyword-val :exclude rest :default nil)))
+(defun life (growth-cycle lifespan var &rest rest)
+  (let* ((method (find-keyword-val :method rest :default 'triloop))
+	 (variance (find-keyword-val :var rest :default 0.2))
+	 (autophagia (find-keyword-val :autophagia rest :default t))
+	 (apoptosis (find-keyword-val :apoptosis rest :default t))        
+	 (durs (find-keyword-val :durs rest :default nil))
+	 (hoe-max (find-keyword-val :hoe-max rest :default 4))
+	 (hoe (find-keyword-val :hoe rest :default 4))
+	 (exclude (find-keyword-val :exclude rest :default nil))
+         (proc (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                       (typep (alexandria::lastcar rest) 'function))
+                   (alexandria::lastcar rest)
+                   nil)))
+    (if proc
+        (lambda ()
           (make-instance 'lifemodel-control		         
-		         :wrapped-processor wrapped-processor
+		         :wrapped-processor (if (typep proc 'event-processor) proc (funcall proc))
 		         :growth-cycle growth-cycle		 
 		         :variance variance		 
 		         :method method
@@ -120,14 +124,5 @@
 		         :hoe-max hoe-max
 		         :exclude exclude
 		         :autophagia autophagia
-		         :apoptosis apoptosis))))
-
-(defun life (growth-cycle lifespan var &rest opt-params)
-  (let* ((proc (if (or (typep (alexandria::lastcar opt-params) 'event-processor)
-                       (typep (alexandria::lastcar opt-params) 'function))
-                   (alexandria::lastcar opt-params)
-                   nil))
-         (params (nconc (list :var var) (if proc (butlast opt-params) opt-params))))
-    (if proc        
-        (inner-lifemodel growth-cycle lifespan params proc)
-        (lambda (pproc) (inner-lifemodel growth-cycle lifespan params pproc)))))
+		         :apoptosis apoptosis))
+        (lambda (pproc) (apply 'life growth-cycle lifespan var (nconc rest (list pproc)))))))

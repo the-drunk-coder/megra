@@ -4,8 +4,7 @@
 (defclass event-processor ()
   ((pull-events)
    (pull-transition)       
-   (successor :accessor successor :initform nil)
-   (predecessor :accessor predecessor :initform nil)   
+   (successor :accessor successor :initform nil :initarg :successor)
    (current-events)      ;; abstract
    (current-transition)  ;; abstract     
    (tempo-mod-stack :accessor tmods :initform nil)
@@ -37,7 +36,9 @@
 
 (defmethod pull-transition ((e event-processor) &key (skip-successor nil))
   (if skip-successor
-      (current-transition e)
+      (let ((cur-trans (current-transition e)))
+        (when (tmods e)
+          (setf (transition-duration (car cur-trans)) (* (transition-duration (car cur-trans)) (pop-tmod e)))))      
       (let ((cur-trans (current-transition e)))
         (when (tmods e)
           (setf (transition-duration (car cur-trans)) (* (transition-duration (car cur-trans)) (pop-tmod e))))

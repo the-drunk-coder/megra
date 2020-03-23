@@ -6,7 +6,7 @@
 (defun skip (num &optional proc)    
   (if proc
       (if (typep proc 'function)
-          (lambda (nproc) (skip num (funcall proc nproc)))
+          (lambda (&optional nproc) (skip num (funcall proc nproc)))
           (progn
             (loop for a from 0 to (- num 1)
                   do (progn                              
@@ -17,7 +17,7 @@
 
 (defun inner-grown (n var rest proc)
   (if (typep proc 'function)
-      (lambda (nproc) (inner-grown n var rest (funcall proc nproc)))
+      (lambda (&optional nproc) (inner-grown n var rest (funcall proc nproc)))
       (let ((method (find-keyword-val :method rest :default 'triloop))
 	    (variance (find-keyword-val :var rest :default 0.2))	    
 	    (durs (find-keyword-val :durs rest :default nil))
@@ -43,7 +43,7 @@
 (defun haste (num mod &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (nproc) (haste num mod (funcall proc nproc)))
+          (lambda (&optional nproc) (haste num mod (funcall proc nproc)))
           (progn (loop for a from 0 to (- num 1)
                        do (push-tmod proc mod))
                  proc))
@@ -53,7 +53,7 @@
 (defun relax (num mod &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (nproc) (relax num mod (funcall proc nproc)))
+          (lambda (&optional nproc) (relax num mod (funcall proc nproc)))
           (progn (loop for a from 0 to (- num 1)
                        do (push-tmod proc (coerce (/ 1.0 mod) 'float)))
                  proc))
@@ -63,7 +63,7 @@
 (defun rew (num &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (nproc) (rew num (funcall proc nproc)))
+          (lambda (&optional nproc) (rew num (funcall proc nproc)))
           (progn            
             (if (typep (inner-generator proc) 'vom::adj-list-pfa) 
                 (progn
@@ -77,14 +77,12 @@
                   (setf (vom::history (inner-generator proc))
                         (append (vom::history (inner-generator proc)) (list (vom::current-node (inner-generator proc)))))))                        
             proc))
-      (lambda (nproc) (rew num nproc))
-      )
-)
+      (lambda (nproc) (rew num nproc))))
 
 (defun rep (prob max &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (nproc) (rep prob max (funcall proc nproc)))         
+          (lambda (&optional nproc) (rep prob max (funcall proc nproc)))         
           (progn
             (loop for sym in (vom::alphabet (inner-generator proc))
                   do (let ((next (if (cadr (member sym (vom::alphabet (inner-generator proc))))

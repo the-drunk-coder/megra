@@ -4,8 +4,8 @@
 (in-package :megra)
 
 ;; activate if debugging ...
-;;(incudine::set-sharp-square-bracket-syntax)
-;;(incudine::add-sharp-square-bracket-syntax)
+(incudine::set-sharp-square-bracket-syntax)
+(incudine::add-sharp-square-bracket-syntax)
 
 ;; helper to store sync informations, wraps around the event generator
 (defclass processor-sync ()
@@ -169,8 +169,8 @@
     (cond ((and old-sync (wait-for-sync old-sync))) ;; don't do anything, as there's a sync for this already ...  
 	  (old-sync	   	   
            (setf (sync-shift old-sync) (max 0 (- shift (sync-shift old-sync))))
-           (setf (processor old-sync) proc)) 	  
-	  (t (let ((new-sync (make-instance 'processor-sync :name name :shift shift :processor proc :is-active nil)))
+           (setf (processor old-sync) (if (functionp proc) (funcall proc) proc))) 	  
+	  (t (let ((new-sync (make-instance 'processor-sync :name name :shift shift :processor (if (functionp proc) (funcall proc) proc) :is-active nil)))
                ;; store sync flag 
                (setf (gethash name *global-syncs*) new-sync)
                (if intro
@@ -201,7 +201,7 @@
   (if (not act)
       (loop for name in (gethash basename *multichain-directory*)
             do (clear name))
-      (let* ((fprocs (alexandria::flatten procs))
+      (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
              (names (loop for n from 0 to (- (length fprocs) 1)
                           collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
         ;;(incudine::msg error "~D" names)

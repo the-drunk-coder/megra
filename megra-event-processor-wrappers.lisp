@@ -112,7 +112,7 @@
 (defun evr (count fun &optional proc)
   (if proc
       (if (typep proc 'function)
-          (lambda (pproc) (evr count fun (funcall proc pproc)))
+          (lambda (&optional pproc) (evr count fun (funcall proc pproc)))
           (make-instance 'count-wrapper
                          :on-count count 
                          :function fun
@@ -131,31 +131,12 @@
 (defun pprob (prob fun &optional proc)
   (if proc
       (if (typep proc 'function)
-          (lambda (pproc) (pprob prob fun (funcall proc pproc)))
+          (lambda (&optional pproc) (pprob prob fun (funcall proc pproc)))
           (make-instance 'prob-wrapper                         
                          :prob prob 
                          :function fun                
                          :wrapped-processor proc))
       (lambda (pproc) (pprob prob fun pproc))))
-
-(defclass duplicator (event-processor-wrapper)
-  ((duplicates :accessor duplicates :initarg :duplicates)))
-
-(defmethod post-processing ((d duplicator) &key)
-  (loop for dup in (duplicates d)
-        do (pull-transition dup)))
-
-(defmethod pull-events ((w duplicator) &key)
-  ;; this can be assembled more elegantly, i guess ... 
-  (alexandria::flatten
-   (if (successor w)
-       (nconc (apply-self (wrapper-wrapped-processor w) (pull-events (successor w)))
-              (loop for dup in (duplicates w) collect (pull-events dup)))
-       (nconc (current-events (wrapper-wrapped-processor w))
-              (loop for dup in (duplicates w) collect (pull-events dup))))))
-
-(defmethod pull-events :after ((w duplicator) &key)
-  (post-processing w))
 
 (defclass applicator (event-processor-wrapper)
   ((events-to-apply :accessor applicator-events :initarg :events)))
@@ -176,13 +157,18 @@
         other-events)))
 
 (defun pear (&rest events-and-proc)
-  (cond ((typep (car (last events-and-proc)) 'event-processor)
-         (make-instance 'applicator                        
-                        :events (butlast events-and-proc)
-                        :wrapped-processor (car (last events-and-proc))))
-        ((typep (car (last events-and-proc)) 'function)
-         (lambda (pproc) (apply 'pear (nconc (butlast events-and-proc) (list (funcall (car (last events-and-proc)) pproc))))))
-        (t (lambda (pproc) (apply 'pear (nconc events-and-proc (list pproc)))))))
+  (let ((proc (if (or (typep (car (last events-and-proc)) 'function)
+                      (typep (car (last events-and-proc)) 'event-processor))
+                  (car (last events-and-proc)))))
+    (if proc        
+        (lambda ()
+          (make-instance 'applicator                        
+                         :events (butlast events-and-proc)
+                         :wrapped-processor (if (typep proc 'event-processor)
+                                                proc
+                                                (funcall proc))))
+        (lambda (wproc)
+          (apply 'pear (nconc events-and-proc (list wproc)))))))
 
 (defclass prob-applicator (event-processor-wrapper)
   ((prob-event-mapping :accessor prob-mapping :initarg :mapping)))
@@ -219,7 +205,7 @@
 
 (defun inner-ppear (mapping proc)
   (if (typep proc 'function)
-      (lambda (nproc) (inner-ppear mapping (funcall proc nproc)))
+      (lambda (&optional nproc) (inner-ppear mapping (funcall proc nproc)))
       (make-instance 'prob-applicator              
                      :mapping mapping
                      :wrapped-processor proc)))
@@ -228,7 +214,7 @@
   (let* ((proc (if (or (typep (alexandria::lastcar params) 'event-processor)
                        (typep (alexandria::lastcar params) 'function))
                    (alexandria::lastcar params)
-                   nil))
+                   nil))         
          (mapping (probability-list-hash-table
                    (if proc (butlast params) params))))
     (if proc

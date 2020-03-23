@@ -177,7 +177,7 @@
 			   :imprecision imprecision
 			   :exclude-keywords (append
 					      exclude-keywords
-					      '(successor predecessor))
+					      '(successor))
 			   :precise-keywords precise-keywords
 			   :functors functors))
 

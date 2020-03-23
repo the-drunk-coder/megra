@@ -197,27 +197,6 @@
 (defmacro bpan (&body selector)
   `(for ,@selector (always (pos (brownian -1.0 1.0)))))
 
-;; parameter sequence
-(defmacro pseq (param &rest rest)
-  (let ((p-events (loop for val in rest
-                        collect `(,param ,val))))
-    `(funcall (lambda () (cyc ',(gensym) (list ,@p-events))))))
-
-(defmacro chop (name template num &key (start 0.0))
-  (let ((p-events (loop for val from 0 to num
-		        collect `(let ((cur-ev ,template))                                   
-                                   (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
-                                   cur-ev))))
-    `(funcall (lambda () (cyc ,name (list ,@p-events))))))
-
-(defmacro chop2 (name template num &key (start 0.0))
-  (let ((p-events (loop for val from 0 to num
-		        collect `(let ((cur-ev ,template))
-                                   (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
-                                   cur-ev))))
-    `(funcall (lambda () (cyc2 ,name (list ,@p-events))))))
-
-
 ;; star
 ;; tstar
 ;; bstar
