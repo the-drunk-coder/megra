@@ -1,5 +1,9 @@
 (in-package :megra)
 
+;; helper ...
+(defun radians (numberOfDegrees) 
+  (* pi (/ numberOfDegrees 180.0)))
+
 ;; knuth shuffle, needed as helper ...
 (defun shuffle-list (l)
   (loop for i from (- (list-length l) 1) downto 1
@@ -63,14 +67,25 @@
 		(defun ,(read-from-string name-proc) (event)
 		  (member ',tag (event-tags event)))))))
 
-
 (defun mon ()
   (format t "ACTIVE CHAINS: ")
   (loop for ch being the hash-values of *global-syncs*
      do (when (is-active ch)
 	  (format t "~D " (name ch))))
   (format t "~%"))
-	  
+
+;; compose function allows for convenient application
+;; of higher-order functions ...
+(defun cmp (&rest rest)
+  (if (cdr rest)
+      (let ((rev (reverse rest)))
+        (labels ((accum (acc r)
+                   (if r
+                       (accum (funcall (car r) acc) (cdr r))
+                       acc)))
+          (accum (funcall (cadr rev) (car rev)) (cddr rev))))      
+      (car rest)))
+
        
        
   
