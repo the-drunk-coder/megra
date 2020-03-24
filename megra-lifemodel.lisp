@@ -111,18 +111,16 @@
                        (typep (alexandria::lastcar rest) 'function))
                    (alexandria::lastcar rest)
                    nil)))
-    (if proc
-        (lambda ()
-          (make-instance 'lifemodel-control		         
-		         :wrapped-processor (if (typep proc 'event-processor) proc (funcall proc))
-		         :growth-cycle growth-cycle		 
-		         :variance variance		 
-		         :method method
-		         :durs durs
-		         :phoe hoe
-		         :node-lifespan lifespan
-		         :hoe-max hoe-max
-		         :exclude exclude
-		         :autophagia autophagia
-		         :apoptosis apoptosis))
+    (if proc (lambda () (make-instance 'lifemodel-control		         
+		                  :wrapped-processor (if (typep proc 'event-processor) proc (funcall proc))
+		                  :growth-cycle growth-cycle		 
+		                  :variance variance		 
+		                  :method method
+		                  :durs durs
+		                  :phoe hoe
+		                  :node-lifespan lifespan
+		                  :hoe-max hoe-max
+		                  :exclude exclude
+		                  :autophagia autophagia
+		                  :apoptosis apoptosis))
         (lambda (pproc) (apply 'life growth-cycle lifespan var (nconc rest (list pproc)))))))

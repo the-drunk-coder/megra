@@ -23,39 +23,25 @@
   (when (< (random 100) (population-control-pprune g))
     (prune (wrapper-wrapped-processor g) :exclude (population-control-exclude g))))
 
-(defun probctrl (pgrowth pprune &rest rest)
+(defun pctrl (pgrowth pprune &rest rest)
   (let ((method (find-keyword-val :method rest :default 'triloop))
 	(variance (find-keyword-val :var rest :default 0.2))
 	(durs (find-keyword-val :durs rest :default nil))
 	(hoe-max (find-keyword-val :hoe-max rest :default 4))
 	(hoe (find-keyword-val :hoe rest :default 4))
 	(exclude (find-keyword-val :exclude rest :default nil))
-	(wrapped-processor (if (typep (last rest) 'symbol)
-			       (gethash (last rest) *processor-directory*)
-			       (car (last rest)))))
-    (make-instance 'probability-population-control
-		   :wrapped-processor wrapped-processor		   
-		   :variance variance
-		   :pgrowth pgrowth
-		   :pprune pprune
-		   :method method
-		   :durs durs
-		   :phoe hoe
-		   :hoe-max hoe-max
-		   :exclude exclude)))
-
-(defun pctrl (pgrowth pprune var method &optional proc)
-  (if proc
-      (if (typep proc 'function)
-          (lambda (pproc) (pctrl pgrowth pprune var method (funcall proc pproc)))
-          (make-instance 'probability-population-control
-		         :wrapped-processor proc		         
-		         :variance var
-		         :pgrowth pgrowth
-		         :pprune pprune
-		         :method method
-		         :durs nil
-		         :phoe 4
-		         :hoe-max 2
-		         :exclude '()))
-      (lambda (pproc) (pctrl pgrowth pprune var method pproc))))
+        (proc (if (or (typep (alexandria::lastcar rest) 'event-processor)
+                      (typep (alexandria::lastcar rest) 'function))
+                  (alexandria::lastcar rest))))
+    (if proc
+        (lambda () (make-instance 'probability-population-control
+		             :wrapped-processor (if (functionp proc) (funcall proc) proc)
+		             :variance variance
+		             :pgrowth pgrowth
+		             :pprune pprune
+		             :method method
+		             :durs durs
+		             :phoe hoe
+		             :hoe-max hoe-max
+		             :exclude exclude))
+        (lambda (pproc) (apply 'pctrl pgrowth pprune (nconc rest (list pproc)))))))

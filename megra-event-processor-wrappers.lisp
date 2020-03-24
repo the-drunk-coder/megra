@@ -160,15 +160,13 @@
   (let ((proc (if (or (typep (car (last events-and-proc)) 'function)
                       (typep (car (last events-and-proc)) 'event-processor))
                   (car (last events-and-proc)))))
-    (if proc        
-        (lambda ()
-          (make-instance 'applicator                        
-                         :events (butlast events-and-proc)
-                         :wrapped-processor (if (typep proc 'event-processor)
-                                                proc
-                                                (funcall proc))))
-        (lambda (wproc)
-          (apply 'pear (nconc events-and-proc (list wproc)))))))
+    (if proc
+        (lambda () (make-instance 'applicator                        
+                             :events (butlast events-and-proc)
+                             :wrapped-processor (if (typep proc 'event-processor)
+                                                    proc
+                                                    (funcall proc))))
+        (lambda (wproc) (apply 'pear (nconc events-and-proc (list wproc)))))))
 
 (defclass prob-applicator (event-processor-wrapper)
   ((prob-event-mapping :accessor prob-mapping :initarg :mapping)))
@@ -203,21 +201,12 @@
           do (setf (gethash key events) (nconc (gethash key events) (list item)) ))
     events))
 
-(defun inner-ppear (mapping proc)
-  (if (typep proc 'function)
-      (lambda (&optional nproc) (inner-ppear mapping (funcall proc nproc)))
-      (make-instance 'prob-applicator              
-                     :mapping mapping
-                     :wrapped-processor proc)))
-
 (defun ppear (&rest params)
   (let* ((proc (if (or (typep (alexandria::lastcar params) 'event-processor)
                        (typep (alexandria::lastcar params) 'function))
-                   (alexandria::lastcar params)
-                   nil))         
-         (mapping (probability-list-hash-table
-                   (if proc (butlast params) params))))
+                   (alexandria::lastcar params)))         
+         (mapping (probability-list-hash-table (if proc (butlast params) params))))
     (if proc
-        (inner-ppear mapping proc)
-        (lambda (pproc) (inner-ppear mapping pproc)))))
+        (lambda () (make-instance 'prob-applicator :mapping mapping :wrapped-processor (if (functionp proc) (funcall proc) proc)))
+        (lambda (pproc) (apply 'ppear (nconc params (list pproc)))))))
 
