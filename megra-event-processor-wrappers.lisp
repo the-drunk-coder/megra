@@ -110,13 +110,11 @@
     (setf (control-counter c) 0)))
 
 (defun evr (count fun &optional proc)
-  (if proc
-      (if (typep proc 'function)
-          (lambda (&optional pproc) (evr count fun (funcall proc pproc)))
-          (make-instance 'count-wrapper
-                         :on-count count 
-                         :function fun
-                         :wrapped-processor proc))
+  (if proc            
+      (make-instance 'count-wrapper
+                     :on-count count 
+                     :function fun
+                     :wrapped-processor (if (functionp proc) (funcall proc) proc))
       (lambda (pproc) (evr count fun pproc))))
 
 ;; prob

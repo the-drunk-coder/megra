@@ -61,9 +61,6 @@
 ;; oscillate a parameter between different values in a stream
 (defclass stream-oscillate-between (generic-oscillate-between stream-event-processor) ())
 
-;; helper ...
-(defun radians (numberOfDegrees) 
-  (* pi (/ numberOfDegrees 180.0)))
 
 (defmethod apply-self ((o stream-oscillate-between) events &key)
   (mapc #'(lambda (event)

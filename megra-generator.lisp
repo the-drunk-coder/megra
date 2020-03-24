@@ -126,6 +126,7 @@
           :name name
           :events events
           :mapping mapping
+          :rules rules
           :default-dur default-dur
           :reset reset
           :finalize (not proc)
