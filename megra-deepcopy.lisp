@@ -82,7 +82,7 @@
 			             :precise-keywords precise-keywords
 			             :functors functors)))
     ;; this dirty little trick helps us keeping the state of the copied gen ...
-    (setf (name ng) (intern (concatenate 'string (symbol-name (name g)) "-" (symbol-name (gensym)))))
+    (setf (generator-name ng) (intern (concatenate 'string (symbol-name (name g)) "-" (symbol-name (gensym)))))
     (setf (gethash (name ng) *processor-directory*) ng)))
 
 
