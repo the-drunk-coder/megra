@@ -191,17 +191,6 @@
                                          (combine-single-events aev (nth i other-events))))))
         other-events)))
 
-(defun probability-list-hash-table (seq)
-  (let ((key)
-        (events (make-hash-table)))
-    (loop for item in seq
-          when (numberp item)
-          do (setf key item)
-          and do (setf (gethash key events) (list))
-          when (typep item 'event)
-          do (setf (gethash key events) (nconc (gethash key events) (list item)) ))
-    events))
-
 (defun ppear (&rest params)
   (let* ((proc (if (or (typep (alexandria::lastcar params) 'event-processor)
                        (typep (alexandria::lastcar params) 'function))

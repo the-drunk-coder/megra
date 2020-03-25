@@ -1,5 +1,41 @@
 (in-package :megra)
 
+(defun probability-list-hash-table (seq)
+  (let ((key)
+        (events (make-hash-table)))
+    (loop for item in seq
+          when (numberp item)
+          do (setf key item)
+          and do (setf (gethash key events) (list))
+          when (typep item 'event)
+          do (setf (gethash key events) (nconc (gethash key events) (list item)) ))
+    events))
+
+(defun find-keyword-list (keyword seq)
+  (when (and
+         (member keyword seq)
+         (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
+         (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
+    (let* ((pos (position keyword seq))
+	   (vals (loop for val in (cdr (member keyword seq))
+                       while (not (keywordp val))
+                       collect val)))
+      vals)))
+
+(defun p-events-list (event-plist)  
+  (let ((mapping (make-hash-table :test #'equal))
+	(key))    
+    (loop for m in event-plist 
+	  do (if (or (typep m 'symbol) (typep m 'number))
+ 		 (progn
+		   (setf key m)
+		   (setf (gethash key mapping) (list)))
+		 
+                 (if (typep m 'list)
+                     (loop for ev in m do (push ev (gethash key mapping)))
+                     (push m (gethash key mapping)))))
+    mapping))
+
 ;; helper ...
 (defun radians (numberOfDegrees) 
   (* pi (/ numberOfDegrees 180.0)))

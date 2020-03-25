@@ -125,31 +125,6 @@
                           :reset reset
                           :successor successor)))
 
-(defun find-keyword-list (keyword seq)
-  (when (and
-         (member keyword seq)
-         (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
-         (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
-    (let* ((pos (position keyword seq))
-	   (vals (loop for val in (cdr (member keyword seq))
-                       while (not (keywordp val))
-                       collect val)))
-      vals)))
-
-(defun p-events-list (event-plist)  
-  (let ((mapping (make-hash-table :test #'equal))
-	(key))    
-    (loop for m in event-plist 
-	  do (if (or (typep m 'symbol) (typep m 'number))
- 		 (progn
-		   (setf key m)
-		   (setf (gethash key mapping) (list)))
-		 
-                 (if (typep m 'list)
-                     (loop for ev in m do (push ev (gethash key mapping)))
-                     (push m (gethash key mapping)))))
-    mapping))
-
 (defun infer (name &rest params)
   "infer a generator from rules"
   (let ((events (find-keyword-list :events params))
