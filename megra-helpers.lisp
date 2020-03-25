@@ -21,7 +21,7 @@
   (loop for chain being the hash-values of *global-syncs*
      do (deactivate chain))       
   (setf *global-syncs* (make-hash-table :test 'eql))  
-  (setf *multiglobal-syncs* (make-hash-table :test 'eql)))
+  (setf *multichain-directory* (make-hash-table :test 'eql)))
 
 (defun clear-single (id)
   ;; if it's a chain, stop the chain ...  
