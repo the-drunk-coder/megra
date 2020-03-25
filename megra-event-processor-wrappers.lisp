@@ -126,15 +126,18 @@
   (when (< (random 100) (prob-wrapper-prob p))
     (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
-(defun pprob (prob fun &optional proc)
-  (if proc
-      (if (typep proc 'function)
-          (lambda (&optional pproc) (pprob prob fun (funcall proc pproc)))
-          (make-instance 'prob-wrapper                         
-                         :prob prob 
-                         :function fun                
-                         :wrapped-processor proc))
-      (lambda (pproc) (pprob prob fun pproc))))
+(defun pprob (prob fun &optional aproc)
+  (let ((proc (if (or (typep aproc 'function)
+                      (typep aproc 'event-processor))
+                  aproc)))
+    (if proc
+        (lambda () (make-instance 'prob-wrapper                         
+                             :prob prob 
+                             :function fun                
+                             :wrapped-processor (if (typep proc 'event-processor)
+                                                    proc
+                                                    (funcall proc))))
+        (lambda (wproc) (pprob prob fun wproc)))))
 
 (defclass applicator (event-processor-wrapper)
   ((events-to-apply :accessor applicator-events :initarg :events)))
