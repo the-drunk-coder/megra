@@ -175,9 +175,7 @@
 						  functors)
   (deepcopy-generic-object e
 			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords
-					      '(successor))
+			   :exclude-keywords exclude-keywords
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
