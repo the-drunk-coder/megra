@@ -44,5 +44,5 @@
 		            :phoe hoe
 		            :hoe-max hoe-max
 		            :exclude exclude))
-            (proc (funcall proc (apply 'pctrl pgrowth pprune (nconc (butlast rest) (list next)))))
+            (proc  (apply 'pctrl pgrowth pprune (nconc (butlast rest) (list (funcall proc next)))))
             (t (apply 'ptrl pgrowth pprune (nconc rest (list next))))))))

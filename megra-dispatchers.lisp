@@ -199,12 +199,10 @@
 
 (defun sx (basename act sync intro &rest procs)
   (if (not act)
-      (loop for name in (gethash basename *multichain-directory*)
-            do (clear name))
+      (loop for name in (gethash basename *multichain-directory*) do (clear name))
       (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
              (names (loop for n from 0 to (- (length fprocs) 1)
                           collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
-        ;;(incudine::msg error "~D" names)
         ;; check if anything else is running under this name ... 
         (if (gethash basename *multichain-directory*)
             (loop for name in (gethash basename *multichain-directory*)
@@ -217,11 +215,23 @@
             (sx-inner fprocs names sync)))))
 
 (defun xdup (&rest funs-and-proc)
-  (let* ((funs (butlast funs-and-proc))
-         (proc (car (last funs-and-proc)))
+  (let* ((funs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (butlast funs-and-proc)))
+         (proc (if (functionp (car (last funs-and-proc)))
+                   (funcall (car (last funs-and-proc)))
+                   (car (last funs-and-proc))))
          (duplicates (loop for p from 0 to (- (length funs) 1)
-                           collect (let ((proc-dup (funcall (nth p funs) (deepcopy proc))))
-                                     (setf (name proc-dup)
-                                           (intern (format nil "~D-~D" (name proc-dup) p)))
-                                     proc-dup))))
+                           collect (let ((proc-dup (deepcopy proc))
+                                         (pp (nth p funs)))
+                                     (when (typep pp 'event-processor-wrapper)
+                                       
+                                       (setf (wrapper-wrapped-processor pp)
+                                             proc-dup)
+
+                                       )
+                                     (when (typep pp 'generator)
+                                       
+                                       (setf (successor pp) proc-dup)
+
+                                       )
+                                     pp))))
     (nconc duplicates (list proc))))

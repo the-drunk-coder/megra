@@ -105,7 +105,7 @@
                           :on-count count 
                           :function fun
                           :wrapped-processor (if proc (funcall proc))))
-          (proc (funcall proc (evr count fun next)))
+          (proc (evr count fun (funcall proc next)))
           (t (evr count fun next)))))
 
 ;; prob
@@ -125,7 +125,7 @@
                             :prob prob 
                             :function fun                
                             :wrapped-processor (if proc (funcall proc))))
-            (proc (funcall proc (pprob prob fun next)))
+            (proc (pprob prob fun (funcall proc next)))
             (t (pprob prob fun next))))))
 
 (defclass applicator (event-processor-wrapper)
@@ -150,11 +150,11 @@
   (let ((proc (if (functionp (car (last events-and-proc)))                      
                   (car (last events-and-proc)))))
     (lambda (&optional next)      
-      (cond ((not next)
+      (cond ((not next)             
              (make-instance 'applicator                        
-                            :events (butlast events-and-proc)
+                            :events events-and-proc
                             :wrapped-processor (if proc (funcall proc))))
-            (proc (funcall proc (apply 'pear (nconc (butlast events-and-proc) (list next)))))
+            (proc (apply 'pear (nconc (butlast events-and-proc) (list (funcall proc next)))))
             (t (apply 'pear (nconc events-and-proc (list next))))))))
 
 (defclass prob-applicator (event-processor-wrapper)
@@ -188,6 +188,6 @@
              (make-instance 'prob-applicator
                             :mapping mapping
                             :wrapped-processor (if proc (funcall proc))))
-            (proc (funcall proc (apply 'ppear (nconc (butlast params) (list next)))))
+            (proc (apply 'ppear (nconc (butlast params) (list (funcall proc next)))))
             (t (apply 'ppear (nconc params (list next))))))))
 

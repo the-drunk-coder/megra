@@ -76,7 +76,7 @@
     (list event-mapping rules)))
 
 (defun cyc (name cyc-def &rest rest)
-  (let ((rep (find-keyword-val :rep rest :default 0))
+  (let* ((rep (find-keyword-val :rep rest :default 0))
         (max-rep (find-keyword-val :max-rep rest :default 2))
         (dur (find-keyword-val :dur rest :default *global-default-duration*))
         (reset (find-keyword-val :reset rest :default t))         
@@ -86,7 +86,7 @@
     (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset :successor successor)))
 
 (defun cyc2 (name cyc-def &rest rest)
-  (let ((rep (find-keyword-val :rep rest :default 0))
+  (let* ((rep (find-keyword-val :rep rest :default 0))
         (max-rep (find-keyword-val :max-rep rest :default 2))
         (dur (find-keyword-val :dur rest :default *global-default-duration*))
         (reset (find-keyword-val :reset rest :default t))         

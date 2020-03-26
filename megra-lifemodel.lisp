@@ -122,5 +122,5 @@
 		            :exclude exclude
 		            :autophagia autophagia
 		            :apoptosis apoptosis))
-            (proc (funcall proc (apply 'life growth-cycle lifespan var (nconc (butlast params) (list next)))))
-            (t (apply 'life growth-cycle lifespan var (nconc params (list next))))))))
+            (proc (apply 'life growth-cycle lifespan var (nconc (butlast rest) (list (funcall proc next)))))
+            (t (apply 'life growth-cycle lifespan var (nconc rest (list next))))))))

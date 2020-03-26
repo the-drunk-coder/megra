@@ -111,14 +111,14 @@
                              :default-dur default-dur
                              :reset reset
                              :successor (if successor (funcall successor))))
-          (successor (funcall successor (infer-from-rules-fun :type type
-                                                              :name name
-                                                              :events events
-                                                              :mapping mapping
-                                                              :rules rules
-                                                              :default-dur default-dur
-                                                              :reset reset
-                                                              :successor next)))
+          (successor (infer-from-rules-fun :type type
+                                           :name name
+                                           :events events
+                                           :mapping mapping
+                                           :rules rules
+                                           :default-dur default-dur
+                                           :reset reset
+                                           :successor (funcall successor next)))
           (t (infer-from-rules-fun :type type
                                    :name name
                                    :events events
@@ -169,15 +169,15 @@
                             :mapping mapping
                             :default-dur default-dur
                             :successor (if successor (funcall successor))))
-          (successor (funcall successor (learn-generator-fun :name name
-                                                             :sample sample
-                                                             :size size
-                                                             :epsilon epsilon
-                                                             :bound bound
-                                                             :reset reset                     
-                                                             :mapping mapping
-                                                             :default-dur default-dur
-                                                             :successor next)))
+          (successor (learn-generator-fun :name name
+                                          :sample sample
+                                          :size size
+                                          :epsilon epsilon
+                                          :bound bound
+                                          :reset reset                     
+                                          :mapping mapping
+                                          :default-dur default-dur
+                                          :successor (funcall successor next)))
           (t (learn-generator-fun :name name
                                   :sample sample
                                   :size size
