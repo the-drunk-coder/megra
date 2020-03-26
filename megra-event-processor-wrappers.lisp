@@ -83,17 +83,6 @@
    (hoe-max :accessor population-control-higher-order-max-order :initarg :hoe-max)
    (exclude :accessor population-control-exclude :initarg :exclude)))
 
-;; helper function for shorthands ...
-(defun find-keyword-val (keyword seq &key default)
-  (if (and
-       (member keyword seq)
-       (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
-       (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
-      (let* ((pos (position keyword seq))
-	     (val (nth (+ pos 1) seq)))
-	val)
-      default))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; SOME RANDOM PROCESSOR WRAPPERS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;         NEEDS CLEAN-UP          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -110,12 +99,14 @@
     (setf (control-counter c) 0)))
 
 (defun evr (count fun &optional proc)
-  (if proc            
-      (make-instance 'count-wrapper
-                     :on-count count 
-                     :function fun
-                     :wrapped-processor (if (functionp proc) (funcall proc) proc))
-      (lambda (pproc) (evr count fun pproc))))
+  (lambda (&optional next)      
+    (cond ((not next)
+           (make-instance 'count-wrapper
+                          :on-count count 
+                          :function fun
+                          :wrapped-processor (if proc (funcall proc))))
+          (proc (funcall proc (evr count fun next)))
+          (t (evr count fun next)))))
 
 ;; prob
 (defclass prob-wrapper (event-processor-wrapper)
@@ -127,17 +118,15 @@
     (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
 (defun pprob (prob fun &optional aproc)
-  (let ((proc (if (or (typep aproc 'function)
-                      (typep aproc 'event-processor))
-                  aproc)))
-    (if proc
-        (lambda () (make-instance 'prob-wrapper                         
-                             :prob prob 
-                             :function fun                
-                             :wrapped-processor (if (typep proc 'event-processor)
-                                                    proc
-                                                    (funcall proc))))
-        (lambda (wproc) (pprob prob fun wproc)))))
+  (let ((proc (if (typep aproc 'function) aproc)))
+    (lambda (&optional next)      
+      (cond ((not next)
+             (make-instance 'prob-wrapper
+                            :prob prob 
+                            :function fun                
+                            :wrapped-processor (if proc (funcall proc))))
+            (proc (funcall proc (pprob prob fun next)))
+            (t (pprob prob fun next))))))
 
 (defclass applicator (event-processor-wrapper)
   ((events-to-apply :accessor applicator-events :initarg :events)))
@@ -158,16 +147,15 @@
         other-events)))
 
 (defun pear (&rest events-and-proc)
-  (let ((proc (if (or (typep (car (last events-and-proc)) 'function)
-                      (typep (car (last events-and-proc)) 'event-processor))
+  (let ((proc (if (functionp (car (last events-and-proc)))                      
                   (car (last events-and-proc)))))
-    (if proc
-        (lambda () (make-instance 'applicator                        
-                             :events (butlast events-and-proc)
-                             :wrapped-processor (if (typep proc 'event-processor)
-                                                    proc
-                                                    (funcall proc))))
-        (lambda (wproc) (apply 'pear (nconc events-and-proc (list wproc)))))))
+    (lambda (&optional next)      
+      (cond ((not next)
+             (make-instance 'applicator                        
+                            :events (butlast events-and-proc)
+                            :wrapped-processor (if proc (funcall proc))))
+            (proc (funcall proc (apply 'pear (nconc (butlast events-and-proc) (list next)))))
+            (t (apply 'pear (nconc events-and-proc (list next))))))))
 
 (defclass prob-applicator (event-processor-wrapper)
   ((prob-event-mapping :accessor prob-mapping :initarg :mapping)))
@@ -192,11 +180,14 @@
         other-events)))
 
 (defun ppear (&rest params)
-  (let* ((proc (if (or (typep (alexandria::lastcar params) 'event-processor)
-                       (typep (alexandria::lastcar params) 'function))
+  (let* ((proc (if (typep (alexandria::lastcar params) 'function)
                    (alexandria::lastcar params)))         
          (mapping (probability-list-hash-table (if proc (butlast params) params))))
-    (if proc
-        (lambda () (make-instance 'prob-applicator :mapping mapping :wrapped-processor (if (functionp proc) (funcall proc) proc)))
-        (lambda (pproc) (apply 'ppear (nconc params (list pproc)))))))
+    (lambda (&optional next)      
+      (cond ((not next)
+             (make-instance 'prob-applicator
+                            :mapping mapping
+                            :wrapped-processor (if proc (funcall proc))))
+            (proc (funcall proc (apply 'ppear (nconc (butlast params) (list next)))))
+            (t (apply 'ppear (nconc params (list next))))))))
 

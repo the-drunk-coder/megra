@@ -11,6 +11,7 @@
           do (setf (gethash key events) (nconc (gethash key events) (list item)) ))
     events))
 
+;; helper functions for shorthands ...
 (defun find-keyword-list (keyword seq)
   (when (and
          (member keyword seq)
@@ -21,6 +22,16 @@
                        while (not (keywordp val))
                        collect val)))
       vals)))
+
+(defun find-keyword-val (keyword seq &key default)
+  (if (and
+       (member keyword seq)
+       (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
+       (not (eql (type-of (cadr (member keyword seq))) 'keyword)))
+      (let* ((pos (position keyword seq))
+	     (val (nth (+ pos 1) seq)))
+	val)
+      default))
 
 (defun p-events-list (event-plist)  
   (let ((mapping (make-hash-table :test #'equal))
