@@ -100,37 +100,33 @@
         (progn (setf (gethash name *processor-directory*) g) g)
         g-old)))
 
-(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset finalize successor)
-  (cond
-    (finalize (infer-from-rules :type type
-                                :name name
-                                :events events
-                                :mapping mapping
-                                :rules rules
-                                :default-dur default-dur
-                                :reset reset
-                                :successor successor))
-    (successor (lambda () (infer-from-rules :type type
-                                       :name name
-                                       :events events
-                                       :mapping mapping
-                                       :rules rules
-                                       :default-dur default-dur
-                                       :reset reset
-                                       :successor (if (functionp successor)
-                                                      (funcall successor)
-                                                      successor))))
-    (t (lambda (&optional proc)
-         (infer-from-rules-fun
-          :type type
-          :name name
-          :events events
-          :mapping mapping
-          :rules rules
-          :default-dur default-dur
-          :reset reset
-          :finalize (not proc)
-          :successor proc)))))
+(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor)
+  (lambda (&optional next)      
+    (cond ((not next)
+           (infer-from-rules :type type
+                             :name name
+                             :events events
+                             :mapping mapping
+                             :rules rules
+                             :default-dur default-dur
+                             :reset reset
+                             :successor (if successor (funcall successor))))
+          (successor (funcall successor (infer-from-rules-fun :type type
+                                                              :name name
+                                                              :events events
+                                                              :mapping mapping
+                                                              :rules rules
+                                                              :default-dur default-dur
+                                                              :reset reset
+                                                              :successor next)))
+          (t (infer-from-rules-fun :type type
+                                   :name name
+                                   :events events
+                                   :mapping mapping
+                                   :rules rules
+                                   :default-dur default-dur
+                                   :reset reset
+                                   :successor next)))))
   
 (defun learn-generator (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t))  
   "infer a generator from rules"
@@ -161,40 +157,36 @@
           g)
         g-old)))
 
-(defun learn-generator-fun (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t) finalize successor)
-  (cond
-    (finalize (learn-generator :name name
-                               :sample (if (listp sample) sample (sstring sample))
-                               :size size
-                               :epsilon epsilon
-                               :bound bound
-                               :reset reset                     
-                               :mapping mapping
-                               :default-dur default-dur
-                               :successor successor))
-    (successor (lambda ()
-                 (learn-generator :name name
-                                  :sample (if (listp sample) sample (sstring sample))
+(defun learn-generator-fun (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t) successor)
+  (lambda (&optional next)      
+    (cond ((not next)
+           (learn-generator :name name
+                            :sample (if (listp sample) sample (sstring sample))
+                            :size size
+                            :epsilon epsilon
+                            :bound bound
+                            :reset reset                     
+                            :mapping mapping
+                            :default-dur default-dur
+                            :successor (if successor (funcall successor))))
+          (successor (funcall successor (learn-generator-fun :name name
+                                                             :sample sample
+                                                             :size size
+                                                             :epsilon epsilon
+                                                             :bound bound
+                                                             :reset reset                     
+                                                             :mapping mapping
+                                                             :default-dur default-dur
+                                                             :successor next)))
+          (t (learn-generator-fun :name name
+                                  :sample sample
                                   :size size
                                   :epsilon epsilon
                                   :bound bound
                                   :reset reset                     
                                   :mapping mapping
                                   :default-dur default-dur
-                                  :successor (if (functionp successor)
-                                                 (funcall successor)
-                                                 successor))))
-    (t (lambda (&optional proc)
-         (learn-generator :name name
-                          :sample (if (listp sample) sample (sstring sample))
-                          :size size
-                          :epsilon epsilon
-                          :bound bound
-                          :reset reset                     
-                          :mapping mapping
-                          :default-dur default-dur
-                          :finalize (not proc)
-                          :successor proc)))))  
+                                  :successor next)))))  
 
 (defun to-svg (graph-or-id)
   (let* ((g (if (typep graph-or-id 'symbol)
