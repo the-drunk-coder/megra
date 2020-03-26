@@ -83,7 +83,7 @@
 			             :functors functors)))
     ;; this dirty little trick helps us keeping the state of the copied gen ...
     (setf (generator-name ng) (intern (concatenate 'string (symbol-name (name g)) "-" (symbol-name (gensym)))))
-    (setf (gethash (name ng) *processor-directory*) ng)))
+    (setf (gethash (generator-name ng) *processor-directory*) ng)))
 
 
 (defmethod deepcopy-query-result ((q vom::query-result)  &key (imprecision 0.0)
