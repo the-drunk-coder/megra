@@ -99,28 +99,28 @@
 ;; lifemodel works more in minimalistic contexts rather than algorave,
 ;; i suppose ...
 (defun life (growth-cycle lifespan var &rest rest)
-  (let* ((method (find-keyword-val :method rest :default 'triloop))
-	 (variance (find-keyword-val :var rest :default 0.2))
-	 (autophagia (find-keyword-val :autophagia rest :default t))
-	 (apoptosis (find-keyword-val :apoptosis rest :default t))        
-	 (durs (find-keyword-val :durs rest :default nil))
-	 (hoe-max (find-keyword-val :hoe-max rest :default 4))
-	 (hoe (find-keyword-val :hoe rest :default 4))
-	 (exclude (find-keyword-val :exclude rest :default nil))
-         (proc (if (or (typep (alexandria::lastcar rest) 'event-processor)
-                       (typep (alexandria::lastcar rest) 'function))
-                   (alexandria::lastcar rest)
-                   nil)))
-    (if proc (lambda () (make-instance 'lifemodel-control		         
-		                  :wrapped-processor (if (typep proc 'event-processor) proc (funcall proc))
-		                  :growth-cycle growth-cycle		 
-		                  :variance variance		 
-		                  :method method
-		                  :durs durs
-		                  :phoe hoe
-		                  :node-lifespan lifespan
-		                  :hoe-max hoe-max
-		                  :exclude exclude
-		                  :autophagia autophagia
-		                  :apoptosis apoptosis))
-        (lambda (pproc) (apply 'life growth-cycle lifespan var (nconc rest (list pproc)))))))
+  (let ((method (find-keyword-val :method rest :default 'triloop))
+	(variance (find-keyword-val :var rest :default 0.2))
+	(autophagia (find-keyword-val :autophagia rest :default t))
+	(apoptosis (find-keyword-val :apoptosis rest :default t))        
+	(durs (find-keyword-val :durs rest :default nil))
+	(hoe-max (find-keyword-val :hoe-max rest :default 4))
+	(hoe (find-keyword-val :hoe rest :default 4))
+	(exclude (find-keyword-val :exclude rest :default nil))
+        (proc (if (typep (alexandria::lastcar rest) 'function) (alexandria::lastcar rest))))
+    (lambda (&optional next)      
+      (cond ((not next)
+             (make-instance 'lifemodel-control		         
+		            :wrapped-processor (if proc (funcall proc))
+		            :growth-cycle growth-cycle		 
+		            :variance variance		 
+		            :method method
+		            :durs durs
+		            :phoe hoe
+		            :node-lifespan lifespan
+		            :hoe-max hoe-max
+		            :exclude exclude
+		            :autophagia autophagia
+		            :apoptosis apoptosis))
+            (proc (funcall proc (apply 'life growth-cycle lifespan var (nconc (butlast params) (list next)))))
+            (t (apply 'life growth-cycle lifespan var (nconc params (list next))))))))

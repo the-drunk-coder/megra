@@ -30,18 +30,19 @@
 	(hoe-max (find-keyword-val :hoe-max rest :default 4))
 	(hoe (find-keyword-val :hoe rest :default 4))
 	(exclude (find-keyword-val :exclude rest :default nil))
-        (proc (if (or (typep (alexandria::lastcar rest) 'event-processor)
-                      (typep (alexandria::lastcar rest) 'function))
+        (proc (if (typep (alexandria::lastcar rest) 'function)
                   (alexandria::lastcar rest))))
-    (if proc
-        (lambda () (make-instance 'probability-population-control
-		             :wrapped-processor (if (functionp proc) (funcall proc) proc)
-		             :variance variance
-		             :pgrowth pgrowth
-		             :pprune pprune
-		             :method method
-		             :durs durs
-		             :phoe hoe
-		             :hoe-max hoe-max
-		             :exclude exclude))
-        (lambda (pproc) (apply 'pctrl pgrowth pprune (nconc rest (list pproc)))))))
+    (lambda (&optional next)      
+      (cond ((not next)
+             (make-instance 'probability-population-control
+		            :wrapped-processor (if proc (funcall proc))
+		            :variance variance
+		            :pgrowth pgrowth
+		            :pprune pprune
+		            :method method
+		            :durs durs
+		            :phoe hoe
+		            :hoe-max hoe-max
+		            :exclude exclude))
+            (proc (funcall proc (apply 'pctrl pgrowth pprune (nconc (butlast rest) (list next)))))
+            (t (apply 'ptrl pgrowth pprune (nconc rest (list next))))))))
