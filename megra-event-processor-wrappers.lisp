@@ -117,7 +117,7 @@
   (when (< (random 100) (prob-wrapper-prob p))
     (funcall (prob-control-function p) (wrapper-wrapped-processor p))))
 
-(defun pprob (prob fun &optional aproc)
+(defun apple (prob fun &optional aproc)
   (let ((proc (if (typep aproc 'function) aproc)))
     (lambda (&optional next)      
       (cond ((not next)
@@ -125,11 +125,12 @@
                             :prob prob 
                             :function fun                
                             :wrapped-processor (if proc (funcall proc))))
-            (proc (pprob prob fun (funcall proc next)))
-            (t (pprob prob fun next))))))
+            (proc (apple prob fun (funcall proc next)))
+            (t (apple prob fun next))))))
 
 (defclass applicator (event-processor-wrapper)
-  ((events-to-apply :accessor applicator-events :initarg :events)))
+  ((filters :accessor applicator-filter :initarg :filter)
+   (events-to-apply :accessor applicator-events :initarg :events)))
 
 (defmethod pull-events ((w applicator) &key)
   (if (successor w)
@@ -152,10 +153,13 @@
     (lambda (&optional next)      
       (cond ((not next)             
              (make-instance 'applicator                        
-                            :events events-and-proc
+                            :events (if proc (butlast events-and-proc) events-and-proc)
                             :wrapped-processor (if proc (funcall proc))))
             (proc (apply 'pear (nconc (butlast events-and-proc) (list (funcall proc next)))))
             (t (apply 'pear (nconc events-and-proc (list next))))))))
+
+;; more sane alias ..
+(setf (fdefinition 'always) #'pear)
 
 (defclass prob-applicator (event-processor-wrapper)
   ((prob-event-mapping :accessor prob-mapping :initarg :mapping)))
@@ -191,3 +195,4 @@
             (proc (apply 'ppear (nconc (butlast params) (list (funcall proc next)))))
             (t (apply 'ppear (nconc params (list next))))))))
 
+(setf (fdefinition 'prob) #'ppear)
