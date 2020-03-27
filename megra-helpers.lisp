@@ -23,6 +23,18 @@
                        collect val)))
       vals)))
 
+;; helper functions for shorthands ...
+(defun find-keyword-symbol-list (keyword seq)
+  (when (and
+         (member keyword seq)
+         (> (length (member keyword seq)) 0) ;; check if there's chance the keyword has a value ...
+         (symbolp (cadr (member keyword seq))))
+    (let* ((pos (position keyword seq))
+	   (vals (loop for val in (cdr (member keyword seq))
+                       while (symbolp val)
+                       collect val)))
+      vals)))
+
 (defun find-keyword-val (keyword seq &key default)
   (if (and
        (member keyword seq)
