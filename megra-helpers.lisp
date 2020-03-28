@@ -4,7 +4,7 @@
   (let ((key)
         (events (make-hash-table)))
     (loop for item in seq
-          when (numberp item)
+          when (or (typep item 'param-mod-object) (numberp item))
           do (setf key item)
           and do (setf (gethash key events) (list))
           when (typep item 'event)

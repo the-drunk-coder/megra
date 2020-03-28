@@ -35,7 +35,7 @@
 
 (defmethod name ((w event-processor-wrapper))
   (name (wrapper-wrapped-processor w)))
-
+s
 (defmethod trace-length ((w event-processor-wrapper))
   (trace-length (wrapper-wrapped-processor w)))
 
@@ -187,19 +187,19 @@
          (rem-events (remove-if #'(lambda (ev) (member ev filtered-events)) other-events)))
     (if (successor w)            
         (progn (loop for prob being the hash-keys of (prob-mapping w) using (hash-value events)
-                     when (< (random 100) prob)
+                     when (< (random 100) (if (numberp prob) prob (evaluate prob)))
                      do (loop for aev in events
-                              do (loop for i from 0 to (- (length other-events) 1)
-                                       do (setf (nth i other-events)
-                                                (combine-single-events aev (nth i other-events))))))      
-               (apply-self-2 w (nconc rem-events other-events) (pull-events (successor w))))
+                              do (loop for i from 0 to (- (length filtered-events) 1)
+                                       do (setf (nth i filtered-events)
+                                                (combine-single-events aev (nth i filtered-events))))))      
+               (apply-self-2 w (nconc rem-events filtered-events) (pull-events (successor w))))
         (progn (loop for prob being the hash-keys of (prob-mapping w) using (hash-value events)
-                     when (< (random 100) prob)
+                     when (< (random 100) (if (numberp prob) prob (evaluate prob)))
                      do (loop for aev in events
-                              do (loop for i from 0 to (- (length other-events) 1)
-                                       do (setf (nth i other-events)
-                                                (combine-single-events aev (nth i other-events))))))
-               (nconc rem-events other-events)))))
+                              do (loop for i from 0 to (- (length filtered-events) 1)
+                                       do (setf (nth i filtered-events)
+                                                (combine-single-events aev (nth i filtered-events))))))
+               (nconc rem-events filtered-events)))))
 
 (defun ppear (&rest params)
   (let* ((filters-incl (find-keyword-symbol-list :for params))
