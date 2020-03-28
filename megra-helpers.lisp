@@ -120,6 +120,14 @@
 
 (defmacro % (&body li) `(funcall #'(lambda () (list ,@li))))
 
+(defun multi-filter (filters)
+  (lambda (event)
+    (> (loop for f in filters summing (if (member f (event-tags event)) 1 0)) 0)))
+
+(defun multi-filter-not (filters)
+  (lambda (event)
+    (> (loop for f in filters summing (if  (member f (event-tags event)) 0 1)) 0)))
+
 (defmacro define-filter (tag)
   (let ((name-proc (concatenate 'string (symbol-name tag) "-p")))
     `(funcall (lambda ()	      
