@@ -134,8 +134,7 @@
 (defmethod pull-transition ((w applicator) &key)
   (if (affect-transition w)
       (let ((cur-trans (car (current-transition w))))
-        (loop for aev in (applicator-events w)
-              do (combine-single-events aev cur-trans))
+        (loop for aev in (applicator-events w) do (combine-single-events aev cur-trans))
         (list cur-trans))      
       (current-transition w)))
 
@@ -184,8 +183,7 @@
       (let ((cur-trans (car (current-transition w))))
         (loop for prob being the hash-keys of (prob-mapping w) using (hash-value events)
               when (< (random 100) (if (numberp prob) prob (evaluate prob)))
-              do (loop for aev in events
-                       do (combine-single-events aev cur-trans)))        
+              do (loop for aev in events do (combine-single-events aev cur-trans)))        
         (list cur-trans))      
       (current-transition w)))
 
