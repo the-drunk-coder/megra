@@ -197,22 +197,26 @@
              ;;(incudine::msg error " >>>>>> PROC ~D ----- SYNC ~D" (nth n fprocs) sync-to)                              
              (dispatch (nth n names) (nth n fprocs) :sync sync-to))))
 
-(defun sx (basename act sync intro &rest procs)
-  (if (not act)
-      (loop for name in (gethash basename *multichain-directory*) do (clear name))
-      (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
-             (names (loop for n from 0 to (- (length fprocs) 1)
-                          collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
-        ;; check if anything else is running under this name ... 
-        (if (gethash basename *multichain-directory*)
-            (loop for name in (gethash basename *multichain-directory*)
-                  do (unless (member name names) (clear name))))
-        (setf (gethash basename *multichain-directory*) names)
-        (if intro
-            (progn (handle-event intro 0)
-                   (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
-			        #'(lambda () (sx-inner fprocs names sync))))
-            (sx-inner fprocs names sync)))))
+(defun sx (basename act &rest rest)
+  (let* ((intro (find-keyword-val :intro rest :default nil))
+         (sync (find-keyword-val :sync rest :default nil))
+         (shift (find-keyword-val :shift rest  :default nil))
+         (procs (delete-if #'(lambda (i) (member i (list :sync :shift :intro sync shift intro))) rest)))) ;; remove found args      
+      (if (not act)
+       (loop for name in (gethash basename *multichain-directory*) do (clear name))
+       (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
+              (names (loop for n from 0 to (- (length fprocs) 1)
+                           collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
+         ;; check if anything else is running under this name ... 
+         (if (gethash basename *multichain-directory*)
+             (loop for name in (gethash basename *multichain-directory*)
+                   do (unless (member name names) (clear name))))
+         (setf (gethash basename *multichain-directory*) names)
+         (if intro
+             (progn (handle-event intro 0)
+                    (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
+			         #'(lambda () (sx-inner fprocs names sync))))
+             (sx-inner fprocs names sync))))))
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (butlast funs-and-proc)))
