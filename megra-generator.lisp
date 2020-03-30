@@ -188,7 +188,7 @@
                                   :default-dur default-dur
                                   :successor next)))))  
 
-(defun to-svg (graph-or-id)
+(defun to-svg (graph-or-id &key (renderer 'neato))
   (let* ((g (if (typep graph-or-id 'symbol)
 	       (gethash graph-or-id *processor-directory*)
 	       graph-or-id))
