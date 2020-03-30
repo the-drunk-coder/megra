@@ -142,7 +142,8 @@
                                                       size
                                                       sample)
                                           :events mapping
-                                          :default-duration default-dur))))
+                                          :default-duration default-dur
+                                          :successor successor))))
     (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
