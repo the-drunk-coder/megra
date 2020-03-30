@@ -2,7 +2,10 @@
 
 Welcome to the Mégra tutorial ! Assuming you've got everything up and running, we can start to make some sound !
 
-In this first part, we'll cover the very basic concepts of Mégra. 
+In this first part, we'll cover the very basic concepts of Mégra. It'll make you familiar with the terminology and some
+of the underlying theory. It'll cover the first and fundamental way how to write music in Mégra. It's a bit tedious, but there's
+more concise methods later on, so bear with me here. There's a file with commented examples named `For_The_Impatient.megra`, if
+that's your preference.
 
 ## 1.1 Soundcheck!
 Make sure your headphones are not too lound. 
@@ -50,10 +53,6 @@ Lisp to play with Mégra. Here's just a few basic hints:
 3. Named parameters start with a colon: `(my-function <unnamed param> :name <named param>)`
 4. Symbols, that are used here to identify things, are *quoted* with a single quote: `(my-function 'some-name :par <some param>)`.
 5. Lists are also quoted: `(my-function 'some-name-param :list-param '(1 2 3 4))`.
-
-### Tutorial Outline
-There's several ways to create and modify event generators in Mégra, and we'll obviously start with the most tedious one, because it
-explains the underlying concepts best. That part isn't too long, don't worry ...
 
 ## 1.3 Markov Chains
 If you're into generative music, you probably know already what a *Markov Chain* is, as it is a fairly common structure in that domain. 
@@ -159,6 +158,9 @@ We can add even more options:
            '((snare) bassdrum 100 400)           
            '((hihat) bassdrum 100 400)))
 ```
+
+Now it looks like this:
+![A beat](./megra_beat1.svg) 
 
 The labels are arbitrary, so we can reduce the amount of writing (and even more, as we can see later on):
 
