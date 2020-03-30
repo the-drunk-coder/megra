@@ -128,8 +128,8 @@
         (dur (find-keyword-val :dur params :default *global-default-duration*))
         (type (find-keyword-val :type params :default 'pfa))
         (reset (find-keyword-val :reset params :default t))
-        (successor (if (typep (alexandria::lastcar rest) 'function)
-                       (alexandria::lastcar rest))))
+        (successor (if (typep (alexandria::lastcar params) 'function)
+                       (alexandria::lastcar params))))
     (infer-from-rules-fun :type type 
                           :name name
                           :mapping (p-events-list events)
