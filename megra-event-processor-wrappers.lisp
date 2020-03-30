@@ -131,6 +131,14 @@
                             (combine-single-events aev (nth i filtered-events)))))
     (nconc rem-events filtered-events)))
 
+(defmethod pull-transition ((w applicator) &key)
+  (if (affect-transition w)
+      (let ((cur-trans (car (current-transition w))))
+        (loop for aev in (applicator-events w)
+              do (combine-single-events aev cur-trans))
+        (list cur-trans))      
+      (current-transition w)))
+
 (defun pear (&rest events-and-proc)
   (let ((filters-incl (find-keyword-symbol-list :for events-and-proc))
         (filters-excl (find-keyword-symbol-list :notfor events-and-proc))        
@@ -171,6 +179,16 @@
                                      (combine-single-events aev (nth i filtered-events))))))
     (nconc rem-events filtered-events)))
 
+(defmethod pull-transition ((w prob-applicator) &key)
+  (if (affect-transition w)
+      (let ((cur-trans (car (current-transition w))))
+        (loop for prob being the hash-keys of (prob-mapping w) using (hash-value events)
+              when (< (random 100) (if (numberp prob) prob (evaluate prob)))
+              do (loop for aev in events
+                       do (combine-single-events aev cur-trans)))        
+        (list cur-trans))      
+      (current-transition w)))
+
 (defun ppear (&rest params)
   (let* ((filters-incl (find-keyword-symbol-list :for params))
          (filters-excl (find-keyword-symbol-list :notfor params))     
@@ -185,6 +203,8 @@
              (make-instance 'prob-applicator
                             :filters-incl (if filters-incl (multi-filter filters-incl))
                             :filters-excl (if filters-excl (multi-filter filters-excl))
+                            :affect-transition (and (not (member 'transition filters-excl))
+                                                    (member 'transition filters-incl))
                             :mapping mapping
                             :wrapped-processor (if proc (funcall proc))))
             (proc (apply 'ppear (nconc (butlast params) (list (funcall proc next)))))
