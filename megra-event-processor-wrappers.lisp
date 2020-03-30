@@ -210,3 +210,10 @@
 
 ;; more sane but less cute ...
 (setf (fdefinition 'prob) #'ppear)
+
+;; some shorthands
+(defun inh (p &rest filters)
+  (apply 'prob (nconc (list :for) filters (list p (lvl 0.0)))))
+
+(defun exh (p &rest filters)
+  (apply 'prob (nconc (list :notfor) filters (list p (lvl 0.0)))))
