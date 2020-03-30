@@ -12,18 +12,6 @@
 (defmethod pop-tmod ((w event-processor-wrapper) &key)
   (pop-tmod (wrapper-wrapped-processor w)))
 
-(defmethod set-current-node ((w event-processor-wrapper) cnode &key)
-  (set-current-node (wrapper-wrapped-processor w) cnode))
-
-(defmethod set-traced-path ((w event-processor-wrapper) tpath &key)
-  (set-traced-path (wrapper-wrapped-processor w) tpath))
-
-(defmethod current-node ((w event-processor-wrapper))
-  (current-node (wrapper-wrapped-processor w)))
-
-(defmethod traced-path ((w event-processor-wrapper))
-  (traced-path (wrapper-wrapped-processor w)))
-
 (defmethod last-transition ((w event-processor-wrapper))
   (last-transition (wrapper-wrapped-processor w)))
 
@@ -150,7 +138,6 @@
                               do (setf (nth i filtered-events)
                                        (combine-single-events aev (nth i filtered-events)))))
                (nconc rem-events filtered-events)))))
-
 
 
 (defun pear (&rest events-and-proc)
