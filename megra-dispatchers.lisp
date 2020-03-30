@@ -185,7 +185,7 @@
 (defun once (event)
   (handle-event event 0))
 
-(defun sx-inner (fprocs names sync)
+(defun sx-inner (fprocs names sync shift)
   (loop for n from (- (length fprocs) 1) downto 0
         do (let ((sync-to (if sync
                               sync
@@ -195,13 +195,13 @@
                                       (car (last names))
                                       nil)))))
              ;;(incudine::msg error " >>>>>> PROC ~D ----- SYNC ~D" (nth n fprocs) sync-to)                              
-             (dispatch (nth n names) (nth n fprocs) :sync sync-to))))
+             (dispatch (nth n names) (nth n fprocs) :sync sync-to :shift shift))))
 
 (defun sx (basename act &rest rest)
   (let* ((intro (find-keyword-val :intro rest :default nil))
          (sync (find-keyword-val :sync rest :default nil))
          (shift (find-keyword-val :shift rest  :default nil))
-         (procs (delete-if #'(lambda (i) (member i (list :sync :shift :intro sync shift intro))) rest)))) ;; remove found args      
+         (procs (delete-if #'(lambda (i) (member i (list :sync :shift :intro sync shift intro))) rest))) ;; remove found args      
       (if (not act)
        (loop for name in (gethash basename *multichain-directory*) do (clear name))
        (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
