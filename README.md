@@ -3,6 +3,8 @@
 Mégra is a mini-language to make music with variable-order markov chains
 and some other stochastic shenanigans.
 
+**This is Mégra 1.x ! Mégra 2.x is in the making and will bring some breaking changes, so stay tuned !**
+
 ## Installation
 There are currently two ways to install. One uses **Portacle** as the underlying editor 
 and is comparatively easy. You can find the instructions here:
