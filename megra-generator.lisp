@@ -21,7 +21,7 @@
   ;; increment symbol age ...
   (incf (gethash (vom::query-result-symbol (last-transition g)) (ages g)))
   (let ((cev (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g)))))
-    (loop for ev in cev do (push (name g) (event-tags ev)))
+    (loop for ev in cev do (push (generator-name g) (event-tags ev)))
     ;; unique source id, as in old graphs ??
     cev))
 
@@ -128,7 +128,7 @@
                                    :reset reset
                                    :successor next)))))
   
-(defun learn-generator (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t))  
+(defun learn-generator (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t) successor)  
   "infer a generator from rules"
   (define-filter name)
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         

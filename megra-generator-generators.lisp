@@ -155,8 +155,8 @@
          (epsilon (find-keyword-val :epsilon params :default 0.01))
          (dur (find-keyword-val :dur params :default *global-default-duration*))
          (events (delete sample (find-keyword-list :events params) :test 'equal))
-         (successor (if (typep (alexandria::lastcar rest) 'function)
-                        (alexandria::lastcar rest))))
+         (successor (if (typep (alexandria::lastcar params) 'function)
+                        (alexandria::lastcar params))))
     (learn-generator-fun :name name
                          :sample (if (listp sample) sample (sstring sample))
                          :size size
