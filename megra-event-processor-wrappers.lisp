@@ -35,7 +35,7 @@
 
 (defmethod name ((w event-processor-wrapper))
   (name (wrapper-wrapped-processor w)))
-s
+
 (defmethod trace-length ((w event-processor-wrapper))
   (trace-length (wrapper-wrapped-processor w)))
 
