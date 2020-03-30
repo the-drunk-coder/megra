@@ -217,3 +217,10 @@
 
 (defun exh (p &rest filters)
   (apply 'prob (nconc (list :notfor) filters (list p (lvl 0.0)))))
+
+(defun inexh (p &rest filters)
+  (cmp
+   (apply 'prob (nconc (list :for) filters (list p (lvl 0.0))))
+   (apply 'prob (nconc (list :notfor) filters (list p (lvl 0.0))))))
+
+
