@@ -14,7 +14,7 @@ Now, type the following lines of code into Portacle (or copy/paste them), move t
 parenthesis and hit `Ctrl-<return>` to run them:
 
 ```lisp
-(sx 'first t nil nil
+(sx 'first t
     (infer 'beep
            :events 'tone (sine 'a4 :lvl 0.5 :dur 500) 
 	   :rules '((tone) tone 100 1000)))
@@ -82,7 +82,7 @@ Now, Mégra has a fairly direct way to create sequence generators based on Marko
 musical *events*. The generator above can be written in Mégra with the following lines of code:
 
 ```lisp
-(sx 'boom t nil nil ;; <- this turns the events into actual sounds. More about that later! 
+(sx 'boom t ;; <- this turns the events into actual sounds. More about that later! 
     (infer 'bal ;; <- this creates the generator (infers it from rules)
            :events 'bassdrum (bd) 'snare (sn) 'hihat (hats) ;; <- here's the event mapping ... pretty prosaic ...
            :rules 
@@ -112,7 +112,7 @@ Can we fix that? Now, earlier there's been mentioned something about *Variable O
 make the following modification to the beat above:
 
 ```lisp
-(sx 'boom t nil nil
+(sx 'boom t
     (infer 'bap
            :events 'bassdrum (bd) 'snare (sn) 'hihat (hats)
            :rules
@@ -128,7 +128,7 @@ Now you'll mostly hear a repeated bassdrum. Wouldn't it be nice if we could add 
 Add another edge in the following way: 
 
 ```lisp
-(sx 'boom t nil nil
+(sx 'boom t
     (infer 'bap
            :events 'bassdrum (bd) 'snare (sn) 'hihat (hats)
            :rules
@@ -146,7 +146,7 @@ on four preceding events. Hence the term *Variable-Order*, sometimes also called
 We can add even more options: 
 
 ```lisp
-(sx 'boom t nil nil
+(sx 'boom t
     (infer 'bap
            :events 'bassdrum (bd) 'snare (sn) 'hihat (hats)
            :rules
@@ -165,7 +165,7 @@ Now it looks like this:
 The labels are arbitrary, so we can reduce the amount of writing (and even more, as we can see later on):
 
 ```lisp
-(sx 'boom t nil nil
+(sx 'boom t
     (infer 'bap
            :events 'b (bd) 's (sn) 'h (hats)
            :rules
