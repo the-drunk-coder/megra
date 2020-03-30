@@ -1,0 +1,11 @@
+(in-package :megra)
+
+;; some acidy, stompy techno ...
+(sx 'acid t nil nil
+    (cmp
+     (evr 8 (haste 2 0.5)) ;; <- every 8 steps, speed up the bassline a bit for two steps 
+     (always (dur 100) (atk 1) (rel 90)) ;; set the sound parameters
+     (cyc 'bass "saw:120 saw:100 saw:80 saw:90 saw:110")) ;; <- the bassline
+    (cyc 'beat "bd hats [bd sn] ~")) ;; <- the beat
+
+
