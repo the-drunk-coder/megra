@@ -102,7 +102,7 @@
                        (alexandria::lastcar rest))))
     (infer-from-rules-fun :type 'naive
                           :name name
-                          :mapping (alexandria::plist-hash-table (list 1 (list event)))
+                          :mapping (alexandria::plist-hash-table (list 1 (alexandria::flatten (list event))))
 	                  :rules (list (list '(1) 1 100 dur))
 	                  :default-dur dur
                           :reset reset
@@ -115,7 +115,7 @@
                        (alexandria::lastcar rest))))
     (infer-from-rules-fun :type 'pfa
                           :name name
-                          :mapping (alexandria::plist-hash-table (list 1 (list event)))
+                          :mapping (alexandria::plist-hash-table (list 1 (alexandria::flatten (list event))))
 	                  :rules (list (list '(1) 1 100 dur))
 	                  :default-dur dur
                           :reset reset
