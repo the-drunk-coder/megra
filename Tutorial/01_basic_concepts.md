@@ -173,9 +173,7 @@ The labels are arbitrary, so we can reduce the amount of writing (and even more,
            '((b) s 10 400) '((b) h 10 200)           
            '((s) b 100 400)           
            '((h) b 100 400)))
-```lisp
-
-
+```
 
 ## 1.4 Visualization
 I recommend above drawing the structures above with pen and paper, but you can also create a visualization by executing the following line:
