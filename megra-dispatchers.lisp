@@ -200,7 +200,7 @@
 (defun sx (basename act &rest rest)
   (let* ((intro (find-keyword-val :intro rest :default nil))
          (sync (find-keyword-val :sync rest :default nil))
-         (shift (find-keyword-val :shift rest  :default nil))
+         (shift (find-keyword-val :shift rest :default 0.0))
          (procs (delete-if #'(lambda (i) (member i (list :sync :shift :intro sync shift intro))) rest))) ;; remove found args      
       (if (not act)
        (loop for name in (gethash basename *multichain-directory*) do (clear name))
@@ -216,7 +216,7 @@
              (progn (handle-event intro 0)
                     (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
 			         #'(lambda () (sx-inner fprocs names sync))))
-             (sx-inner fprocs names sync))))))
+             (sx-inner fprocs names sync shift))))))
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (butlast funs-and-proc)))
