@@ -13,8 +13,7 @@
    (processor :accessor processor :initarg :processor)
    (synced-syncs :accessor synced-syncs :initform nil)
    (synced-progns :accessor synced-progns :initform nil)
-   ;; think of anschluss-zug -> connection train ... 
-   (anschluss-kette :accessor anschluss-kette :initform nil) 
+   ;; think of anschluss-zug -> connection train ...    
    (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
    (shift :accessor sync-shift :initform 0.0 :initarg :shift)))
@@ -215,7 +214,7 @@
          (if intro
              (progn (handle-event intro 0)
                     (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
-			         #'(lambda () (sx-inner fprocs names sync))))
+			         #'(lambda () (sx-inner fprocs names sync shift))))
              (sx-inner fprocs names sync shift))))))
 
 (defun xdup (&rest funs-and-proc)
