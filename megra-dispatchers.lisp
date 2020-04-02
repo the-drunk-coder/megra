@@ -13,7 +13,6 @@
    (processor :accessor processor :initarg :processor)
    (synced-syncs :accessor synced-syncs :initform nil)
    (synced-progns :accessor synced-progns :initform nil)
-   ;; think of anschluss-zug -> connection train ...    
    (wait-for-sync :accessor wait-for-sync :initform nil)
    (active :accessor is-active :initform nil :initarg :is-active)
    (shift :accessor sync-shift :initform 0.0 :initarg :shift)))

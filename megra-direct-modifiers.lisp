@@ -99,3 +99,19 @@
             proc))
       (lambda (nproc) (rep prob max nproc))))
 
+(defun sharpen (factor &optional proc)  
+  (if proc
+      (if (typep proc 'function)
+          (lambda (&optional nproc) (sharpen factor (funcall proc nproc)))         
+          (vom::sharpen-pfa (inner-generator proc) factor))
+      (lambda (nproc) (sharpen factor nproc))))
+
+(defun blur (factor &optional proc)  
+  (if proc
+      (if (typep proc 'function)
+          (lambda (&optional nproc) (blur factor (funcall proc nproc)))         
+          (vom::blur-pfa (inner-generator proc) factor))
+      (lambda (nproc) (blur factor nproc))))
+
+
+
