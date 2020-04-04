@@ -125,7 +125,7 @@
     (let* ((shift-time (sync-shift sync))
            (trans-time (* (if (typep *global-tempo-mod* 'param-mod-object) (evaluate *global-tempo-mod*) *global-tempo-mod*)
                           (transition-duration (car (pull-transition sync)))))
-	   (next-incu-time (+ incudine-time #[trans-time ms] #[shit-time ms])))      
+	   (next-incu-time (+ incudine-time #[trans-time ms] #[shift-time ms])))      
       (incudine:aat next-incu-time #'perform-dispatch sync it))))
 
 (defun handle-events (events osc-timestamp)
