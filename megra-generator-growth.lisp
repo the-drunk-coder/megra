@@ -50,5 +50,4 @@
 	       (gethash graph-or-id *processor-directory*)
 	       graph-or-id)))
     ;; remove symbol from ages !!!
-    (vom::prune-pfa (inner-generator g) :exclude exclude
-                                        :node-id node-id)))
+    (vom::prune-pfa (inner-generator g) :exclude exclude :node-id node-id)))

@@ -113,5 +113,19 @@
           (vom::blur-pfa (inner-generator proc) factor))
       (lambda (nproc) (blur factor nproc))))
 
+(defun discourage (factor &optional proc)  
+  (if proc
+      (if (typep proc 'function)
+          (lambda (&optional nproc) (discourage factor (funcall proc nproc)))
+          (vom::discourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
+      (lambda (nproc) (discourage factor nproc))))
+
+(defun encourage (factor &optional proc)  
+  (if proc
+      (if (typep proc 'function)
+          (lambda (&optional nproc) (encourage factor (funcall proc nproc)))         
+          (vom::encourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
+      (lambda (nproc) (encourage factor nproc))))
+
 
 
