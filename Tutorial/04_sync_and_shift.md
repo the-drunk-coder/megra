@@ -6,50 +6,38 @@ So far, we've only worked with a single structure. While this might bring us qui
 want to work with more than just one. 
 
 ```lisp
-(s 'beat ()  
+(sx 'beat t
   (cyc 'one "bd:'boom sn:'tschack" :dur 400))
 
-(s 'hats ()  
+(sx 'hats t  
   (cyc 'three "hats hats hats hats" :dur 200))
 
-(s 'bass ()  
+(sx 'bass t
   (nuc 'two (saw 90 :lp-dist 0.5 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)                  
        :dur 100))      
 ```
 
 If you run those one by one, you might have a hard time synchronizing them. 
 
-You could try to run them at the same time using the `(progn ...)` function, a classic lisp function to execute functions 
-in succession, which in our case means *practically at the same time* (even though it's not technically the case).
+The easiest way to synchronize them is to group them to a single sink
 
 ```lisp
-(progn
-  (s 'beat ()  
-    (cyc 'one "bd:'laid sn:'dub" :dur 400))  
-  (s 'hats ()  
-    (cyc 'three "hats hats hats hats" :dur 200))  
-  (s 'bass ()  
+(sx 'beat-hats-bass t  
     (nuc 'two (saw 90 :lp-dist 0.5 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)                  
-         :dur 100)))
+       :dur 100)
+    (cyc 'three "hats hats hats hats" :dur 200)
+    (cyc 'one "bd:'boom sn:'tschack" :dur 400))
 ```
 
-This is helpful, but if you execute it multiple times, you might notice it's not super-reliable. Also, what if you don't want to 
-execute everything at the same time ? that's what the `sync` parameter is for:
+That'll ensure the three generators are in sync. If you want to synchronize another generator (or group of generators)
+to this one, that's fairly easy as well:
 
 ```lisp
-(s 'beat ()  
-  (cyc 'one "bd:'boom sn:'tschack" :dur 400))
-
-(s 'hats (:sync 'beat) ;; <- sync to beat ... 
-  (cyc 'three "hats hats hats hats" :dur 200))
-
-(s 'bass (:sync 'beat) ;; <- also sync to beat  
-  (nuc 'two (saw 90 :lp-dist 0.5 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5)                  
-       :dur 100))      
+(sx 'treble t :sync 'beat-hats-bass ;; <- just set the sync flag ...
+    (nuc 'waves1 (saw 360 :lp-dist 0.5 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 100)
+    (nuc 'waves2 (saw 360 :lp-dist 0.5 :lp-freq 1000 :atk 1 :rel 99 :dur 100 :lvl 0.5) :dur 150))
 ```
 
-That way, the `hats` and `bass` sinks will wait until `beat` emits its next event. That way, the generators can be synchronized. 
-Note that this only synchronizes for one point in time.
 
 # Shifting
 
