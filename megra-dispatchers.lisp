@@ -122,9 +122,10 @@
 	(incudine::msg error "cannot pull and handle events: ~D" e)))
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...    
-    (let* ((trans-time (* (if (typep *global-tempo-mod* 'param-mod-object) (evaluate *global-tempo-mod*) *global-tempo-mod*)
+    (let* ((shift-time (sync-shift sync))
+           (trans-time (* (if (typep *global-tempo-mod* 'param-mod-object) (evaluate *global-tempo-mod*) *global-tempo-mod*)
                           (transition-duration (car (pull-transition sync)))))
-	   (next-incu-time (+ incudine-time #[trans-time ms])))      
+	   (next-incu-time (+ incudine-time #[trans-time ms] #[shit-time ms])))      
       (incudine:aat next-incu-time #'perform-dispatch sync it))))
 
 (defun handle-events (events osc-timestamp)
@@ -171,6 +172,7 @@
 	  (t (let ((new-sync (make-instance 'processor-sync :name name :shift shift :processor (if (functionp proc) (funcall proc) proc) :is-active nil)))
                ;; store sync flag 
                (setf (gethash name *global-syncs*) new-sync)
+               (setf (sync-shift new-sync) shift)
                (if intro
                    (progn (handle-event intro 0)
                           (incudine:at (+ (incudine:now) #[(event-duration intro) ms])

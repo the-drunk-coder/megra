@@ -196,4 +196,4 @@
          (ig (inner-generator g)))
     (if (typep ig 'vom::adj-list-pfa)
         (vom::adj-list-pfa->svg ig (symbol-name (name g)) :renderer renderer)
-        (vom::graph->svg ig (symbol-name (name g)) :renderer renderer))))
+        (vom::graph->svg ig (symbol-name (name g))))))
