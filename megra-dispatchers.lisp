@@ -168,7 +168,16 @@
     (cond ((and old-sync (wait-for-sync old-sync))) ;; don't do anything, as there's a sync for this already ...  
 	  (old-sync	   	   
            (setf (sync-shift old-sync) (max 0 (- shift (sync-shift old-sync))))
-           (setf (processor old-sync) (if (functionp proc) (funcall proc) proc))) 	  
+           (setf (processor old-sync) (if (functionp proc) (funcall proc) proc))
+           (unless (is-active old-sync)
+             (if intro
+                 (progn (handle-event intro 0)
+                        (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
+			             #'(lambda ()     
+                                         (inner-dispatch
+                                          old-sync
+                                          sync-to))))
+                 (inner-dispatch old-sync sync-to)))) 	  
 	  (t (let ((new-sync (make-instance 'processor-sync :name name :shift shift :processor (if (functionp proc) (funcall proc) proc) :is-active nil)))
                ;; store sync flag 
                (setf (gethash name *global-syncs*) new-sync)
