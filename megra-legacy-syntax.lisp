@@ -4,9 +4,9 @@
 
 
 ;; old dispatch function ...
-(defmacro dispatch-old (name (&key (sync nil) (branch nil) (shift 0.0) (intro nil)) &body proc-body)
+(defmacro dispatch-old (name (&key (sync nil) (shift 0.0) (intro nil)) &body proc-body)
   `(funcall (lambda ()
-              (sx ',name t :sync ',sync :shift ,shift :intro ,intro
+              (sx ,name t :sync ,sync :shift ,shift :intro ,intro
                   (cmp ,@proc-body)))))
 
 ;; "sink" alias for "dispatch" ... shorter and maybe more intuitive ... 
