@@ -42,3 +42,17 @@
 	                            :rules (loop for i in (list ,@graphdata)
                                                  when (equal (car i) 'edge)
                                                  collect (nconc (list (list (cadr i))) (cddr i)))))))
+
+(defun lifemodel (act growth-cycle lifespan &rest rest)
+  (let ((variance (find-keyword-val :var rest :default 0.2)))
+    (if act
+        (apply 'life growth-cycle lifespan variance rest)
+        (alexandria::lastcar rest))))
+
+(defun lm (act growth-cycle lifespan &rest rest)
+  (let ((variance (find-keyword-val :var rest :default 0.2)))
+    (if act
+        (apply 'life growth-cycle lifespan variance rest)
+        (alexandria::lastcar rest))))
+
+
