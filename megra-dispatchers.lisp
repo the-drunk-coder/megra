@@ -70,10 +70,8 @@
     ;; again, secure this, so that the sync can be restarted
     ;; without having to clear everything ...
     (handler-case (handle-events (pull-events sync) osc-time)
-      (simple-error (e)
-	(incudine::msg error "cannot pull and handle events: ~D" e)
-	;;(setf (is-active sync) nil)
-	))   
+      (error (e)
+	(incudine::msg error "cannot pull and handle events: ~D" e)))   
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...
     ;; this method works only with SC,
@@ -118,10 +116,10 @@
     ;; again, secure this, so that the sync can be restarted
     ;; without having to clear everything ...
     (handler-case (handle-events (pull-events sync) (incudine::rt-time-offset))
-      (simple-error (e)
+      (error (e)
 	(incudine::msg error "cannot pull and handle events: ~D" e)))
     ;; here, the transition time between events is determinend,
-    ;; and the next evaluation is scheduled ...    
+    ;; and the next evaluation is scheduled ...        
     (let* ((shift-time (sync-shift sync))
            (trans-time (* (if (typep *global-tempo-mod* 'param-mod-object) (evaluate *global-tempo-mod*) *global-tempo-mod*)
                           (transition-duration (car (pull-transition sync)))))
