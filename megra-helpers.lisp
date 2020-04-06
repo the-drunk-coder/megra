@@ -103,10 +103,7 @@
 		;; if it's a chain, stop the chain ...
                 (if (gethash id *global-syncs*)
                     (deactivate (gethash id *global-syncs*))
-                    (mapc #'(lambda (id2) (deactivate (gethash id2 *global-syncs*))) (gethash id *multichain-directory*)))
-                
-
-                )
+                    (mapc #'(lambda (id2) (deactivate (gethash id2 *global-syncs*))) (gethash id *multichain-directory*))))
 	    chains)))
 
 ;; convenience functions to set params in some object ...
