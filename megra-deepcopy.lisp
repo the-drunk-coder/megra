@@ -34,28 +34,65 @@
 			     exclude-keywords
 			     precise-keywords
 			     functors)
-  (remove nil ;; in case an element wasn't copied ...
-	  (mapcar #'(lambda (thing)	      
-		      (deepcopy thing
-				:imprecision imprecision
-				:exclude-keywords exclude-keywords
-				:precise-keywords precise-keywords
-				:functors functors)) list)))
+  (if (not (listp (cdr list))) ;; special dotted pair case
+      (cons (deepcopy (car list)) (deepcopy (cdr list)))
+      (remove nil ;; in case an element wasn't copied ...
+	      (mapcar #'(lambda (thing)	      
+		          (deepcopy thing
+				    :imprecision imprecision
+				    :exclude-keywords exclude-keywords
+				    :precise-keywords precise-keywords
+				    :functors functors))
+                      list))))
 
 (defun deepcopy-hash-table (orig &key (imprecision 0.0)
-				   exclude-keywords
-				   precise-keywords
-				   functors)
+				      exclude-keywords
+				      precise-keywords
+				      functors)
   (let ((new-table (make-hash-table :test (hash-table-test orig))))
     (loop for key being the hash-keys of orig
-       do (setf (gethash key new-table)
-		(deepcopy (gethash key orig)
-			  :imprecision imprecision
-			  :exclude-keywords exclude-keywords
-			  :precise-keywords precise-keywords
-			  :functors functors)))
+          do (setf (gethash key new-table)
+		   (deepcopy (gethash key orig)
+			     :imprecision imprecision
+			     :exclude-keywords exclude-keywords
+			     :precise-keywords precise-keywords
+			     :functors functors)))
     new-table))
 
+(defmethod deepcopy-object ((o standard-object)
+			    &key (imprecision 0.0)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
+  (deepcopy-generic-object o
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords precise-keywords
+			   :functors functors))
+
+
+(defmethod deepcopy-object ((g generator)
+			    &key (imprecision 0.0)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
+  (let ((ng (deepcopy-generic-object g
+			             :imprecision imprecision
+			             :exclude-keywords exclude-keywords
+			             :precise-keywords precise-keywords
+			             :functors functors)))
+    ;; this dirty little trick helps us keeping the state of the copied gen ...
+    (setf (generator-name ng) (intern (concatenate 'string (symbol-name (name g)) "-" (symbol-name (gensym)))))
+    (setf (gethash (generator-name ng) *processor-directory*) ng)))
+
+
+(defmethod deepcopy-query-result ((q vom::query-result)  &key (imprecision 0.0)
+				                              exclude-keywords
+				                              precise-keywords
+				                              functors)
+  (vom::make-query-result :last-state (vom::query-result-last-state q)
+                          :current-state (vom::query-result-current-state q)
+                          :symbol (vom::query-result-symbol q)))
 
 (defmethod deepcopy-generic-object (object
 				    &key (imprecision 0.0)
@@ -76,8 +113,14 @@
 		      :exclude-keywords exclude-keywords
 		      :precise-keywords precise-keywords
 		      :object-name (slot-definition-name slot)
-		      :functors functors))		    
-		    (t (deepcopy
+		      :functors functors))
+                    ;; this is pretty rough and i want something better, but that way we can make sure the
+                    ;; right thing is sent out
+                    ;; this is kind dirty because the deepcopy operation modifies the copied object's state.
+                    ;; on the other hand, that's exactly what we need here
+                    ((typep (slot-value object (slot-definition-name slot)) 'param-mod-object)
+                     (eval-slot-value (slot-value object (slot-definition-name slot))))
+                    (t (deepcopy
 			(slot-value object (slot-definition-name slot))
 			:imprecision imprecision
 			:exclude-keywords exclude-keywords
@@ -88,44 +131,20 @@
 
 (defmethod deepcopy-object ((o standard-object)
 			    &key (imprecision 0.0)
-			      exclude-keywords
-			      precise-keywords
-			      functors)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
   (deepcopy-generic-object o
 			   :imprecision imprecision
 			   :exclude-keywords exclude-keywords
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
-
-(defmethod deepcopy-object ((n node) &key (imprecision 0.0)
-				       exclude-keywords
-				       precise-keywords
-				       functors)
-  (deepcopy-generic-object n
-			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords '(global-id id age))
-			   :precise-keywords precise-keywords
-			   :functors functors))
-
-(defmethod deepcopy-object ((e edge) &key (imprecision 0.0)
-				       exclude-keywords
-				       precise-keywords
-				       functors)
-  (deepcopy-generic-object e
-			   :imprecision imprecision
-			   :exclude-keywords (append exclude-keywords
-						     '(source destination))
-			   :precise-keywords (append precise-keywords
-						     '(probability))
-			   :functors functors))
-
 (defmethod deepcopy-object ((tr transition-event)
 			    &key (imprecision 0.0)
-			      exclude-keywords
-			      precise-keywords
-			      functors)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
   (deepcopy-generic-object tr
 			   :imprecision imprecision
 			   :exclude-keywords  exclude-keywords
@@ -133,22 +152,22 @@
 						     '(dur))
 			   :functors functors))
 
-(defmethod deepcopy-object ((g graph) &key (imprecision 0.0)
-					exclude-keywords
-					precise-keywords
-					functors)
-  (deepcopy-generic-object g
-			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords
-					      '(id
-						max-id
-						highest-edge-order
-						source))
-			   :precise-keywords precise-keywords
-			   :functors functors))
-
-
+(defmethod deepcopy-object ((g vom::adj-list-pfa)
+			    &key (imprecision 0.0)
+			         exclude-keywords
+			         precise-keywords
+			         functors)
+  (let ((gc (deepcopy-generic-object g
+			             :imprecision imprecision
+			             :exclude-keywords  exclude-keywords
+			             :precise-keywords (append precise-keywords
+						               '(dur))
+			             :functors functors)))
+    (format t "~D~%" gc)
+    (setf (vom::pst-root gc) (vom::make-pst-node :label nil :children (make-hash-table :test 'equal) :child-prob (make-hash-table :test 'equal)))
+    (format t "~D~%" (vom::pst-root gc))
+    (mapc #'(lambda (k) (vom::add-node (vom::pst-root gc) k)) (alexandria::hash-table-keys (vom::children gc)))
+    gc))
 
 (defmethod deepcopy-object ((e event-processor) &key (imprecision 0.0)
 						  exclude-keywords
@@ -156,9 +175,7 @@
 						  functors)
   (deepcopy-generic-object e
 			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords
-					      '(successor predecessor))
+			   :exclude-keywords exclude-keywords
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
@@ -174,48 +191,6 @@
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
-(defmethod deepcopy-object ((e event-processor-wrapper) &key (imprecision 0.0)
-							  exclude-keywords
-							  precise-keywords
-							  functors)
-  (let ((clone (deepcopy-generic-object e
-					:imprecision imprecision
-					:exclude-keywords (append
-							   exclude-keywords
-							   '(successor predecessor))
-					:precise-keywords precise-keywords
-					:functors functors))
-	(proc-name (name (wrapper-wrapped-processor e))))
-    ;; give copied wrapped processor a new name 
-    (setf (name (wrapper-wrapped-processor clone))
-	  (intern (concatenate
-		   'string
-		   (symbol-name proc-name)
-		   "-"
-		   (symbol-name (gensym)))))
-    ;; this is sooo legacy ..
-    (when (typep (wrapper-wrapped-processor clone) 'graph-event-processor)
-      (update-graph-name (source-graph (wrapper-wrapped-processor clone)) (name (wrapper-wrapped-processor clone))))    
-    ;; store reference in global processor directory
-    (setf (gethash (name (wrapper-wrapped-processor clone)) *processor-directory*)
-	  (wrapper-wrapped-processor clone))
-    clone))
-
-(defmethod deepcopy-object ((g graph-event-processor) &key (imprecision 0.0)
-							exclude-keywords
-							precise-keywords
-							functors)
-  (deepcopy-generic-object g
-			   :imprecision imprecision
-			   :exclude-keywords (append
-					      exclude-keywords
-					      '(successor predecessor))
-			   :precise-keywords (append precise-keywords
-						     '(current-node
-						       node-steps
-						       traced-path
-						       trace-length))
-			   :functors functors))
 
 (defmethod deepcopy-object ((e shrink-event) &key (imprecision 0.0)
 					       exclude-keywords
@@ -295,6 +270,12 @@
 			  :functors functors))
     ((typep object 'string)
      (copy-seq object))
+    ((typep object 'vom::query-result) 
+     (deepcopy-query-result object
+		            :imprecision imprecision
+		            :exclude-keywords exclude-keywords
+		            :precise-keywords precise-keywords
+		            :functors functors))
     ((typep object 'standard-object) 
      (deepcopy-object object
 		      :imprecision imprecision

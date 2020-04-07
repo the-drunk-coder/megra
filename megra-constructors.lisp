@@ -27,7 +27,7 @@
 			  (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 			  (setf (gethash ,name *processor-directory*)
 				(make-instance 'graph-event-processor :name ,name
-						                      :graph new-graph :copy-events t
+						                      :graph new-graph 
 						                      :current-node 1 :combine-mode ,combine-mode
 						                      :affect-transition ,affect-transition
 						                      :combine-filter #'all-p)))))))
@@ -63,7 +63,7 @@
 		      (setf (source-graph (gethash ,name *processor-directory*)) new-graph)
 		      (setf (gethash ,name *processor-directory*)
 			    (make-instance 'graph-event-processor :name ,name
-					                          :graph new-graph :copy-events t
+					                          :graph new-graph
 					                          :current-node 1 :combine-mode ,combine-mode
 					                          :affect-transition ,affect-transition
 					                          :combine-filter #'all-p)))))))
@@ -96,7 +96,7 @@
 	(setf (source-graph (gethash name *processor-directory*)) new-graph)
 	(setf (gethash name *processor-directory*)
 	      (make-instance 'graph-event-processor :name name
-			                            :graph new-graph :copy-events t
+			                            :graph new-graph 
 			                            :current-node 1 :combine-mode 'append
 			                            :combine-filter #'all-p)))))
 
@@ -106,7 +106,7 @@
   (let* ((graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
-					                       :graph nil :copy-events t
+					                       :graph nil 
 					                       :current-node 1 :combine-mode 'append
 					                       :combine-filter #'all-p
 					                       :affect-transition nil)))
@@ -143,7 +143,7 @@
 	 (graph-proc (if (gethash name *processor-directory*)
 			 (gethash name *processor-directory*)
 			 (make-instance 'graph-event-processor :name name
-					                       :graph nil :copy-events t
+					                       :graph nil 
 					                       :current-node 1 :combine-mode cmode
 					                       :combine-filter #'all-p
 					                       :affect-transition nil)))
@@ -196,27 +196,6 @@
 ;; brownian pan on something
 (defmacro bpan (&body selector)
   `(for ,@selector (always (pos (brownian -1.0 1.0)))))
-
-;; parameter sequence
-(defmacro pseq (param &rest rest)
-  (let ((p-events (loop for val in rest
-                        collect `(,param ,val))))
-    `(funcall (lambda () (cyc ',(gensym) (list ,@p-events))))))
-
-(defmacro chop (name template num &key (start 0.0))
-  (let ((p-events (loop for val from 0 to num
-		        collect `(let ((cur-ev ,template))                                   
-                                   (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
-                                   cur-ev))))
-    `(funcall (lambda () (cyc ,name (list ,@p-events))))))
-
-(defmacro chop2 (name template num &key (start 0.0))
-  (let ((p-events (loop for val from 0 to num
-		        collect `(let ((cur-ev ,template))
-                                   (setf (event-start cur-ev) (+ ,start (* ,val (coerce (/  (- 1.0 ,start) ,num) 'float))))
-                                   cur-ev))))
-    `(funcall (lambda () (cyc2 ,name (list ,@p-events))))))
-
 
 ;; star
 ;; tstar

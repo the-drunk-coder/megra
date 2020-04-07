@@ -45,8 +45,8 @@
   ;; start recieving midi 
   ;;(incudine::recv-start *midiin*))
 
-(incudine::set-sharp-square-bracket-syntax)
-(incudine::add-sharp-square-bracket-syntax)
+;;(incudine::set-sharp-square-bracket-syntax)
+;;(incudine::add-sharp-square-bracket-syntax)
 
 ;; now everything should be ready to load the megra package ... 
 (load (concatenate 'string *megra-root* "/megra-package.lisp"))

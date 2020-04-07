@@ -34,7 +34,6 @@
   buffer-frames)
 
 ;; storage for sample buffers 
-(defparameter *incu-buffer-directory* (make-hash-table :test 'equal))
 (defparameter *sc-buffer-directory* (make-hash-table :test 'equal))
 
 ;; consecutive buffer numbers for scsynth
@@ -48,33 +47,26 @@
 
 (defvar *global-tempo-mod* 1.0)
 
-(defun tmod (mod)
-  (setf *global-tempo-mod* mod))
+(defun tmod (mod) (setf *global-tempo-mod* mod))
 
 (defvar *encourage-percentage* 5)
+
 ;; what might be the justification for this split ?
 ;; "Un-Learning" things is harder for humans, but for machines ?
-;;(in-package :megra)
 (defvar *discourage-percentage* 5)
 
 (in-package :megra)
 
-;; main storage for emvent processors (a processor can be used without
+;; main storage for stateful event processors (a processor can be used without
 ;; being kept here, but at least historically it has been practical
 ;; to keep track of certain things)
 (defparameter *processor-directory* (make-hash-table :test 'eql))
 
-;; when branching, keep the previous states ... 
-(defparameter *prev-processor-directory* (make-hash-table :test 'eql))
+(defparameter *global-silence-symbol* '~)
 
-;; chains and branches 
-(defparameter *chain-directory* (make-hash-table :test 'eql))
-(defparameter *branch-directory* (make-hash-table :test 'eql))
-(defparameter *clock-directory* (make-hash-table :test 'eql))
+;; chains 
+(defparameter *global-syncs* (make-hash-table :test 'eql))
 (defparameter *multichain-directory* (make-hash-table :test 'eql))
-
-;; chain groups ... 
-(defparameter *group-directory* (make-hash-table :test 'eql))
 
 (defparameter *pi* 3.14159265359)
 
@@ -87,8 +79,6 @@
 (defparameter *global-midi-delay* 0.16)
 
 (defparameter *global-osc-delay* 0.24)
-
-(defparameter *current-group* 'DEFAULT)
 
 (defparameter *global-default-duration* 200)
 
@@ -107,7 +97,7 @@
 ;; redefine sample root in megra package ...
 (defparameter *sample-root* cm::*sample-root*)
 
-;;(defparameter *default-dsp-backend* 'inc)
+;; only option for now ...
 (defparameter *default-dsp-backend* 'sc)
 
 ;; load the megra stuff except for dsp ...
@@ -123,24 +113,20 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-24ch")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-32ch")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-event-handlers-ambi")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-incudine-event-handlers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-helpers")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-pfa")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-growth-parameters")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-base")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-event-processor")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-pfa-event-processor")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-growth")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-generators")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-processor-wrappers")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-disencourage")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-lifemodel")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-probctrl")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-direct-modifiers")))
+;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-stream-event-processors")))
+;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-disencourage")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-dispatchers")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-deepcopy")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-constructors")))
-;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-controllers-interfaces")))
+;;(load (compile-file (concatenate 'string cm::*megra-root* "/megra-constructors")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-event-filters")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualize")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-naive-pfa-growth")))
-(load (compile-file (concatenate 'string cm::*megra-root* "/megra-clock-receiver")))
 (load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))
