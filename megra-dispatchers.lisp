@@ -1,3 +1,4 @@
+
 ;; event dispatching and related stuff ... 
 
 ;; simple time-recursive dispatching
@@ -226,23 +227,36 @@
              (sx-inner fprocs names sync shift))))))
 
 (defun xdup (&rest funs-and-proc)
-  (let* ((funs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (butlast funs-and-proc)))
+  (let* ((funs (butlast funs-and-proc))
          (proc (if (functionp (car (last funs-and-proc)))
                    (funcall (car (last funs-and-proc)))
                    (car (last funs-and-proc))))
          (duplicates (loop for p from 0 to (- (length funs) 1)
-                           collect (let ((proc-dup (deepcopy proc))
-                                         (pp (nth p funs)))
-                                     (when (typep pp 'event-processor-wrapper)
-                                       
-                                       (setf (wrapper-wrapped-processor pp)
-                                             proc-dup)
-
-                                       )
-                                     (when (typep pp 'generator)
-                                       
-                                       (setf (successor pp) proc-dup)
-
-                                       )
-                                     pp))))
+                           collect (funcall (nth p funs) (lambda () (deepcopy proc))))))    
     (nconc duplicates (list proc))))
+
+
+(defun xdup (&rest funs-and-proc)
+  (let* ((funs (butlast funs-and-proc))
+         (proc (if (functionp (car (last funs-and-proc)))
+                   (funcall (car (last funs-and-proc)))
+                   (car (last funs-and-proc))))
+         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (deepcopy proc)))) funs)))    
+    (nconc duplicates (list proc))))
+
+;; calculate spreading intervals
+(defun spread-pos (n)
+  (if (eql n 1)
+      (list 0.0) 
+      (loop for i from 0 to (- n 1)
+            collect (coerce (- (* i (/ 2 (- n 1))) 1) 'float))))
+
+(defun xspread2 (&rest funs-and-proc)
+  (let* ((positions (spread-pos (length funs-and-proc)))
+         (funs (butlast funs-and-proc))
+         (proc (if (functionp (car (last funs-and-proc)))
+                   (funcall (car (last funs-and-proc)))
+                   (car (last funs-and-proc))))
+         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (deepcopy proc)))) funs)))   
+    (mapcar #'(lambda (pr po) (pear (pos po) pr)) (nconc duplicates (list (lambda () proc))) positions)))
+
