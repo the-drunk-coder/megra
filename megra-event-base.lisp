@@ -12,6 +12,9 @@
 			   :initarg :cfun
 			   :initform #'replace-value)))
 
+;; default event filter
+(defmethod all-p ((e event) &key) t)
+
 ;; upper and lower limits for parameters. Refer to those when using
 ;; "blind" modificators that don't set explicit limits ... 
 (defparameter *parameter-limits* (make-hash-table :test 'equal))
