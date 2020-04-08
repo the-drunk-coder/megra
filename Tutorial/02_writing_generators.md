@@ -71,8 +71,29 @@ You can also turn the result back into code by running the following code that'l
 print the code to the command prompt:
 
 ```lisp
-(to-code 'bass t) ;; to repl or file 
+(to-code 'bass t) ;; to repl 
 ```
+
+If you want to export to a file, just provide a filename:
+
+```lisp
+(to-code 'bass "bass") ;; to file
+```
+
+If you want to be able to load the result directly from the file, make it loadable:
+
+```lisp
+(to-code 'bass "bass" :loadable t) ;; to file, loadable ...
+```
+Now, you can load the result directly and fetch it via `(getgen)`:
+
+```lisp
+(load "bass.megra")
+
+(sx 'ga t
+    (getgen 'bass))
+```
+
 ### 2.2.2 Creating Generators from an Abstract Description
 
 Mégra contains a sub-language to describe loops (that are called *Cycles* here).
