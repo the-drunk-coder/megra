@@ -106,6 +106,9 @@
                     (mapc #'(lambda (id2) (deactivate (gethash id2 *global-syncs*))) (gethash id *multichain-directory*))))
 	    chains)))
 
+(defun getgen (name)
+  (gethash name *processor-directory*))
+
 ;; convenience functions to set params in some object ...
 (defun pset (object param value)
   (setf (slot-value (gethash object *processor-directory*) param) value))
