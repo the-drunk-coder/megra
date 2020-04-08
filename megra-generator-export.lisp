@@ -21,8 +21,7 @@
 
 (defun to-code (gen stream &key loadable)
   (let ((act-gen (if (typep gen 'generator) gen (gethash gen *processor-directory*)))
-        (filename (cond ((stringp stream) stream) ((symbolp stream) (symbol-name stream)) (t nil))))
-    (format t "~D~%" filename)
+        (filename (cond ((stringp stream) stream) (t nil))))
     (if filename
         (with-open-file (str (concatenate 'string filename ".megra")
                              :direction :output
