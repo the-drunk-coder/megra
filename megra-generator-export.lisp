@@ -10,13 +10,19 @@
 	  (loop for key being the hash-keys of (vom::children (inner-generator g))
 	        nconc (loop for dest in (gethash key (vom::children (inner-generator g)))
                             collect (if (typep (inner-generator g) 'vom::naive-pfa)
-                                        (format nil "'(~D ~D ~D)~%" key (cdr dest) (car dest))
-                                        (format nil "'(~D ~D ~D)~%" key (alexandria::lastcar (cadr dest)) (round (* 100 (car dest)))))))))
+                                        (format nil "'(~D ~D ~D ~D)~%" key (cdr dest) (car dest) (if (gethash (cons key (cdr dest)) (transition-durations g))
+                                                                                                     (gethash (cons key (cdr dest)) (transition-durations g))
+                                                                                                     ""))
+                                        (format nil "'(~D ~D ~D ~D)~%" key (alexandria::lastcar (cadr dest)) (round (* 100 (car dest)))
+                                                (if (gethash (cons key (alexandria::lastcar (cadr dest))) (transition-durations g))
+                                                    (gethash (cons key (alexandria::lastcar (cadr dest))) (transition-durations g))
+                                                    "")))))))
 
 
 (defun to-code (gen stream &key loadable)
   (let ((act-gen (if (typep gen 'generator) gen (gethash gen *processor-directory*)))
-        (filename (cond ((stringp stream) stream) ((symbolp stream) (symbol-name stream)) (t nil)) ) )
+        (filename (cond ((stringp stream) stream) ((symbolp stream) (symbol-name stream)) (t nil))))
+    (format t "~D~%" filename)
     (if filename
         (with-open-file (str (concatenate 'string filename ".megra")
                              :direction :output
