@@ -39,10 +39,11 @@
     (push (name g) (event-tags tr))
     (list tr)))
 
-(defun infer-naive (name mapping default-dur rules &key successor)
+(defun infer-naive (name mapping default-dur rules &key successor (combine-filter 'all-p))
   (let* ((normalized-rules (mapc #'(lambda (r) (if (floatp (nth 2 r)) (setf (nth 2 r) (floor (* (nth 2 r) 100))))) rules))
          (g (make-instance 'generator
                            :name name
+                           :combine-filter combine-filter
                            :generator (vom::infer-naive-pfa-list normalized-rules)
                            :events mapping
                            :default-duration default-dur
@@ -58,11 +59,12 @@
               (nth 3 rule)))
     g))
 
-(defun infer-adj-pfa (name mapping default-dur rules &key successor)
+(defun infer-adj-pfa (name mapping default-dur rules &key successor (combine-filter 'all-p))
   (let* ((normalized-rules (mapc #'(lambda (r) (if (integerp (nth 2 r)) (setf (nth 2 r) (coerce (/ (nth 2 r) 100) 'float)))) rules))
          (g (make-instance 'generator :name name
                                       :generator (vom::infer-adj-list-pfa-list normalized-rules)
                                       :events mapping
+                                      :combine-filter combine-filter
                                       :default-duration default-dur
                                       :successor successor)))    
     (setf (vom::current-state (inner-generator g)) (caar rules))
@@ -78,18 +80,18 @@
               (nth 3 rule)))
     g))
 
-(defun infer-generator (name type mapping default-dur rules &key successor)
-  (cond ((equal type 'naive) (infer-naive name mapping default-dur rules :successor successor))
-        ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules :successor successor))
-        (t (infer-naive name mapping default-dur rules))))
+(defun infer-generator (name type mapping default-dur rules &key successor (combine-filter 'all-p))
+  (cond ((equal type 'naive) (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))
+        ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules :successor successor :combine-filter combine-filter))
+        (t (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))))
 
-(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor)  
+(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p))  
   "infer a generator from rules"
   (define-filter name)
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
          (g-old (gethash name *processor-directory*))
          (g (if (or (not g-old) (and g-old reset))
-                (infer-generator name type event-mapping default-dur rules :successor successor))))
+                (infer-generator name type event-mapping default-dur rules :successor successor :combine-filter combine-filter))))
     (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
@@ -100,7 +102,7 @@
         (progn (setf (gethash name *processor-directory*) g) g)
         g-old)))
 
-(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor)
+(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p))
   (lambda (&optional next)      
     (cond ((not next)
            (infer-from-rules :type type
@@ -108,6 +110,7 @@
                              :events events
                              :mapping mapping
                              :rules rules
+                             :combine-filter combine-filter
                              :default-dur default-dur
                              :reset reset
                              :successor (if successor (funcall successor))))
@@ -116,6 +119,7 @@
                                            :events events
                                            :mapping mapping
                                            :rules rules
+                                           :combine-filter combine-filter
                                            :default-dur default-dur
                                            :reset reset
                                            :successor (funcall successor next)))
@@ -124,11 +128,12 @@
                                    :events events
                                    :mapping mapping
                                    :rules rules
+                                   :combine-filter combine-filter
                                    :default-dur default-dur
                                    :reset reset
                                    :successor next)))))
   
-(defun learn-generator (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t) successor)  
+(defun learn-generator (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t) successor combine-filter)
   "infer a generator from rules"
   (define-filter name)
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
@@ -142,6 +147,7 @@
                                                       size
                                                       sample)
                                           :events mapping
+                                          :combine-filter combine-filter
                                           :default-duration default-dur
                                           :successor successor))))
     (setf (gethash *global-silence-symbol* mapping) (list (silence)))
@@ -158,7 +164,8 @@
           g)
         g-old)))
 
-(defun learn-generator-fun (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t) successor)
+(defun learn-generator-fun (&key name events sample mapping (size 40) (bound 3) (epsilon 0.01) (default-dur *global-default-duration*) (reset t)
+                                 successor combine-filter)
   (lambda (&optional next)      
     (cond ((not next)
            (learn-generator :name name
@@ -168,6 +175,7 @@
                             :bound bound
                             :reset reset                     
                             :mapping mapping
+                            :combine-filter combine-filter
                             :default-dur default-dur
                             :successor (if successor (funcall successor))))
           (successor (learn-generator-fun :name name
@@ -177,6 +185,7 @@
                                           :bound bound
                                           :reset reset                     
                                           :mapping mapping
+                                          :combine-filter combine-filter
                                           :default-dur default-dur
                                           :successor (funcall successor next)))
           (t (learn-generator-fun :name name
@@ -186,6 +195,7 @@
                                   :bound bound
                                   :reset reset                     
                                   :mapping mapping
+                                  :combine-filter combine-filter
                                   :default-dur default-dur
                                   :successor next)))))  
 

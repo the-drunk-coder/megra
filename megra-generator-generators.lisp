@@ -77,27 +77,32 @@
 
 (defun cyc (name cyc-def &rest rest)
   (let* ((rep (find-keyword-val :rep rest :default 0))
-        (max-rep (find-keyword-val :max-rep rest :default 2))
-        (dur (find-keyword-val :dur rest :default *global-default-duration*))
-        (reset (find-keyword-val :reset rest :default t))         
-        (successor (if (typep (alexandria::lastcar rest) 'function)
-                       (alexandria::lastcar rest)))
-        (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
-    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset :successor successor)))
+         (max-rep (find-keyword-val :max-rep rest :default 2))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (reset (find-keyword-val :reset rest :default t))
+         (filters (find-keyword-list :for rest))         
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
+    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun cyc2 (name cyc-def &rest rest)
   (let* ((rep (find-keyword-val :rep rest :default 0))
-        (max-rep (find-keyword-val :max-rep rest :default 2))
-        (dur (find-keyword-val :dur rest :default *global-default-duration*))
-        (reset (find-keyword-val :reset rest :default t))         
-        (successor (if (typep (alexandria::lastcar rest) 'function)
-                       (alexandria::lastcar rest)))
-        (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
-    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur :reset reset :successor successor)))
+         (max-rep (find-keyword-val :max-rep rest :default 2))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (reset (find-keyword-val :reset rest :default t))
+         (filters (find-keyword-list :for rest))         
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
+    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun nuc (name event &rest rest)
   (let ((dur (find-keyword-val :dur rest :default *global-default-duration*))
-        (reset (find-keyword-val :reset rest :default t))         
+        (reset (find-keyword-val :reset rest :default t))
+        (filters (find-keyword-list :for rest))         
         (successor (if (typep (alexandria::lastcar rest) 'function)
                        (alexandria::lastcar rest))))
     (infer-from-rules-fun :type 'naive
@@ -106,11 +111,13 @@
 	                  :rules (list (list '(1) 1 100 dur))
 	                  :default-dur dur
                           :reset reset
-                          :successor successor)))
+                          :successor successor
+                          :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun nuc2 (name event &rest rest)
   (let ((dur (find-keyword-val :dur rest :default *global-default-duration*))
-        (reset (find-keyword-val :reset rest :default t))         
+        (reset (find-keyword-val :reset rest :default t))
+        (filters (find-keyword-list :for rest))         
         (successor (if (typep (alexandria::lastcar rest) 'function)
                        (alexandria::lastcar rest))))
     (infer-from-rules-fun :type 'pfa
@@ -119,7 +126,8 @@
 	                  :rules (list (list '(1) 1 100 dur))
 	                  :default-dur dur
                           :reset reset
-                          :successor successor)))
+                          :successor successor
+                          :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun infer (name &rest params)
   "infer a generator from rules"
@@ -128,6 +136,7 @@
         (dur (find-keyword-val :dur params :default *global-default-duration*))
         (type (find-keyword-val :type params :default 'pfa))
         (reset (find-keyword-val :reset params :default t))
+        (filters (find-keyword-list :for rest))
         (successor (if (typep (alexandria::lastcar params) 'function)
                        (alexandria::lastcar params))))
     (infer-from-rules-fun :type type 
@@ -136,7 +145,8 @@
 	                  :rules rules
 	                  :default-dur dur
                           :reset reset
-                          :successor successor)))
+                          :successor successor
+                          :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun sstring (string-as-sym)
   "convenience method to enter sample strings without spaces"
@@ -152,6 +162,7 @@
          (reset (find-keyword-val :reset params :default t))
          (bound (find-keyword-val :bound params :default 3))
          (size (find-keyword-val :size params :default 40))
+         (filters (find-keyword-list :for params))
          (epsilon (find-keyword-val :epsilon params :default 0.01))
          (dur (find-keyword-val :dur params :default *global-default-duration*))
          (events (delete sample (find-keyword-list :events params) :test 'equal))
@@ -165,17 +176,19 @@
                          :reset reset                     
                          :mapping (p-events-list events)
                          :default-dur dur
-                         :successor successor)))
+                         :successor successor
+                         :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 ;;;;;;;;;;;;; SOME SHORTHANDS ;;;;;;;;;;;;;;;;;;;
 
 ;; parameter sequence
 (defmacro pseq (name param &rest rest)
-  (let ((p-events (loop for val in rest collect `(,param ,val))))
+  (let ((p-events (loop for val in rest collect `(,param ,val)))
+        (filters (find-keyword-list :for rest)))
     `(funcall (lambda ()
                 (let* ((raw-succ ,(alexandria::lastcar rest))
                        (successor (if (or (typep raw-succ 'event-processor) (typep raw-succ 'function)) successor)))
-                  (cyc ,name (list ,@p-events) successor))))))
+                  (cyc ,name (list ,@p-events) successor :for ,@filters))))))
 
 ;; chop a sample
 (defmacro chop (name template num &rest rest)
