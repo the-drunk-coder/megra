@@ -28,6 +28,7 @@
                           ("sharpen" . font-lock-keyword-face)
                           ("always" . font-lock-keyword-face)     
                           ("fully2" . 'font-lock-inner-face)
+                          ("shrink" . font-lock-keyword-face)
                           ("fully" . 'font-lock-inner-face)
                           ("apple" . font-lock-keyword-face)
                           ("grown" . font-lock-keyword-face)                          
