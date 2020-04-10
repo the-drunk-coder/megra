@@ -57,6 +57,7 @@
                           ("env" . font-lock-keyword-face)
                           ("rew" . font-lock-keyword-face)
                           ("rep" . font-lock-keyword-face)
+                          ("rnd" . font-lock-keyword-face)
                           ("evr" . font-lock-keyword-face)
                           ("cmp" . 'font-lock-compose-face)
                           ("cyc" . 'font-lock-inner-face)

@@ -127,5 +127,11 @@
           (vom::encourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
       (lambda (nproc) (encourage factor nproc))))
 
+(defun rnd (chance &optional proc)
+  (if proc
+      (if (typep proc 'function)
+          (lambda (&optional nproc) (rnd chance (funcall proc nproc)))         
+          (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance))
+      (lambda (nproc) (rnd chance nproc))))
 
 
