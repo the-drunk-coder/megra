@@ -158,16 +158,18 @@
 
 (defun learn (name &rest params)
   "lear a generator from a sample"
-  (let* ((sample (alexandria::lastcar params))         
-         (reset (find-keyword-val :reset params :default t))
+  (let* ((reset (find-keyword-val :reset params :default t))
          (bound (find-keyword-val :bound params :default 3))
          (size (find-keyword-val :size params :default 40))
          (filters (find-keyword-list :for params))
          (epsilon (find-keyword-val :epsilon params :default 0.01))
-         (dur (find-keyword-val :dur params :default *global-default-duration*))
-         (events (delete sample (find-keyword-list :events params) :test 'equal))
+         (dur (find-keyword-val :dur params :default *global-default-duration*))         
          (successor (if (typep (alexandria::lastcar params) 'function)
-                        (alexandria::lastcar params))))
+                        (alexandria::lastcar params)))
+         (sample (if successor
+                     (alexandria::lastcar (butlast params))
+                     (alexandria::lastcar params)))
+         (events (delete successor (delete sample (find-keyword-list :events params) :test 'equal) :test 'equal)))
     (learn-generator-fun :name name
                          :sample (if (listp sample) sample (sstring sample))
                          :size size
@@ -178,6 +180,43 @@
                          :default-dur dur
                          :successor successor
                          :combine-filter (if filters (multi-filter filters) 'all-p))))
+
+(defun fully-connected (events)
+  (let ((count 1)
+        (rep-prob (ceiling (/ 100 (length events))))
+        (gen-prob (floor (/ 100 (length events))))
+        (rules (list))
+        (event-mapping (make-hash-table :test #'equal)))
+    (loop for ev in events
+          do (setf (gethash count event-mapping) ev)
+          do (loop for i from 1 to (length events)
+                   when (not (eql i count))
+                   do (push (list (list count) i gen-prob) rules))
+          do (push (list (list count) count rep-prob) rules)
+          do (incf count))
+    (list event-mapping rules)))
+
+(defun fully (name &rest rest)
+  (let* ((filters (find-keyword-list :for rest))
+         (reset (find-keyword-val :rest rest :default nil))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))         
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
+         (gen-ev (fully-connected events)))    
+    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
+
+(defun fully2 (name &rest rest)
+  (let* ((filters (find-keyword-list :for rest))
+         (reset (find-keyword-val :rest rest :default nil))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
+         (gen-ev (fully-connected events))) 
+    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 ;;;;;;;;;;;;; SOME SHORTHANDS ;;;;;;;;;;;;;;;;;;;
 
