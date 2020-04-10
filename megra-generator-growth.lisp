@@ -1,11 +1,11 @@
 (in-package :megra)
 
-(defmethod grow (graph-or-id &key (var 0)		        
-			          durs
-			          functors
-			          (method 'old)
-			          (rnd 0)
-			          (higher-order 0))
+(defmethod grow-generator (graph-or-id &key (var 0)		        
+			                    durs
+			                    functors
+			                    (method 'old)
+			                    (rnd 0)
+			                    (higher-order 0))
   (let* ((g (if (typep graph-or-id 'symbol)
 		(gethash graph-or-id *processor-directory*)
 		graph-or-id))
@@ -45,7 +45,7 @@
                 do (setf (gethash added (transition-durations g)) appropiate-duration)))
       (list result appropiate-duration))))
 
-(defmethod prune (graph-or-id &key exclude node-id)
+(defmethod prune-generator (graph-or-id &key exclude node-id)
   (let ((g (if (typep graph-or-id 'symbol)
 	       (gethash graph-or-id *processor-directory*)
 	       graph-or-id)))

@@ -15,7 +15,7 @@
             iproc))
       (lambda (nproc) (skip num nproc))))
 
-(defun inner-grown (n var rest proc)
+(defun inner-grown (n rest proc)
   (if (typep proc 'function)
       (lambda (&optional nproc) (inner-grown n var rest (funcall proc nproc)))
       (let ((method (find-keyword-val :method rest :default 'triloop))
@@ -25,19 +25,39 @@
 	    ;;(hoe (find-keyword-val :hoe rest :default 4))
             (rnd (find-keyword-val :rnd rest :default 0)))
         (progn (loop for a from 0 to n
-                     do (grow proc :higher-order hoe-max :rnd rnd :var variance :method method :durs durs))
+                     do (grow-generator proc :higher-order hoe-max :rnd rnd :var variance :method method :durs durs))
                proc))))
 
 ;; GROWN
-(defun grown (n var &rest opt-params)
-  (let* ((proc (if (or (typep (alexandria::lastcar opt-params) 'event-processor)
-                       (typep (alexandria::lastcar opt-params) 'function))
-                   (alexandria::lastcar opt-params)
+(defun grown (n &rest opt-params)
+  (let* ((last (alexandria::lastcar opt-params))
+         (proc (if (or (typep last 'event-processor)
+                       (typep last 'function)
+                       (typep last 'symbol))
+                   (if (typep last 'symbol)
+                       (gethash last *processor-directory*)
+                       last)
                    nil))
          (params (if proc (butlast opt-params) opt-params)))
     (if proc
-        (inner-grown n var params proc)
-        (lambda (pproc) (inner-grown n var params pproc)))))
+        (inner-grown n params proc)
+        (lambda (pproc) (inner-grown n params pproc)))))
+
+;; GROWN
+(defun grow (&rest opt-params)
+  (let* ((last (alexandria::lastcar opt-params))
+         (proc (if (or (typep last 'event-processor)
+                       (typep last 'function)
+                       (typep last 'symbol))
+                   (if (typep last 'symbol)
+                       (gethash last *processor-directory*)
+                       last)
+                   nil))
+         (params (if proc (butlast opt-params) opt-params)))
+    (if proc
+        (inner-grown 1 params proc)
+        (lambda (pproc) (inner-grown 1 params pproc)))))
+
 
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
 (defun haste (num mod &optional proc)  
