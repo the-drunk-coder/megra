@@ -218,6 +218,46 @@
     (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
+(defun friendship-connected (events)
+  (let* ((count 1)
+         (center (car events))
+         (outer (cdr events))
+         (outer-pad (if (oddp (length outer)) (nconc outer (list (deepcopy (alexandria::lastcar outer)))) outer))
+         (center-exit-prob (round (/ 100 (/ (length outer-pad) 2))))
+         (rules (list))
+         (event-mapping (make-hash-table :test #'equal)))
+    (setf (gethash count event-mapping) (list center))
+    (loop for (a b) on outer-pad by #'cddr
+          do (setf (gethash (+ count 1) event-mapping) (list a))
+          do (setf (gethash (+ count 2) event-mapping) (list b))
+          do (push (list (list 1) (+ count 1) center-exit-prob) rules)
+          do (push (list (list (+ count 1)) (+ count 2) 100) rules)
+          do (push (list (list (+ count 2)) 1 100) rules)
+          do (setf count (+ count 2)))    
+    (list event-mapping rules)))
+
+(defun friendship (name &rest rest)
+  (let* ((filters (find-keyword-list :for rest))
+         (reset (find-keyword-val :rest rest :default nil))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))         
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
+         (gen-ev (friendship-connected events)))    
+    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
+
+(defun friendship2 (name &rest rest)
+  (let* ((filters (find-keyword-list :for rest))
+         (reset (find-keyword-val :rest rest :default nil))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
+         (gen-ev (friendship-connected events))) 
+    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
+
 ;;;;;;;;;;;;; SOME SHORTHANDS ;;;;;;;;;;;;;;;;;;;
 
 ;; parameter sequence

@@ -20,7 +20,8 @@
 (make-face 'font-lock-compose-face)
 (set-face-foreground 'font-lock-compose-face "khaki")
 (font-lock-add-keywords 'incudine-mode
-                        '(("pulspread" . font-lock-keyword-face)                          
+                        '(("friendship2" . 'font-lock-inner-face)
+                          ("friendship" . 'font-lock-inner-face)
                           ("discourage" . font-lock-keyword-face)
                           ("encourage" . font-lock-keyword-face)
                           ("xspread2" . font-lock-keyword-face)
