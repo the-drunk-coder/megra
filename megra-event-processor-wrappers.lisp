@@ -43,18 +43,18 @@
 (defmethod combine-filter ((w event-processor-wrapper))
   (combine-filter (wrapper-wrapped-processor w)))
 
-(defmethod grow ((w event-processor-wrapper)
-                 &key (var 0)		        
-		      durs
-		      functors
-		      (method 'old)
-		      (rnd 0)
-		      higher-order)
-  (grow (wrapper-wrapped-processor w) :var var :durs durs :functors functors
+(defmethod grow-generator ((w event-processor-wrapper)
+                           &key (var 0)		        
+		                durs
+		                functors
+		                (method 'old)
+		                (rnd 0)
+		                higher-order)
+  (grow-generator (wrapper-wrapped-processor w) :var var :durs durs :functors functors
                                       :method method :rnd rnd :higher-order higher-order))
 
-(defmethod prune ((w event-processor-wrapper) &key exclude node-id)
-  (prune (wrapper-wrapped-processor w) :exclude exclude :node-id node-id))
+(defmethod prune-generator ((w event-processor-wrapper) &key exclude node-id)
+  (prune-generator (wrapper-wrapped-processor w) :exclude exclude :node-id node-id))
 
 (defmethod post-processing ((w event-processor-wrapper) &key))
 
