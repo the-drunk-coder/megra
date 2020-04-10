@@ -948,7 +948,7 @@
 		 (handle-sine-event-sc-8ch evt timestamp))))
 
 (define-event
-  :long-name triangle-event
+    :long-name triangle-event
   :short-name tri
   :abstract-event nil
   :parent-events (level-event		 
@@ -965,6 +965,18 @@
   :handler (progn
 	     (if (member 'sc (event-backends evt))
 		 (handle-triangle-event-sc evt timestamp))))
+
+(define-event
+  :long-name long-triangle-event
+  :short-name longtri
+  :abstract-event nil
+  :parent-events (triangle-event)
+  :parent-defaults ((lp-freq 5000) (dur 800) (atk 1) (rel 600) (lp-dist 1.0) (lvl 0.32))
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'sc (event-backends evt))
+		 (handle-triangle-event-sc evt timestamp))))
+
 
 (define-event
   :long-name triangle-event-8ch
