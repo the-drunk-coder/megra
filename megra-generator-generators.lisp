@@ -198,7 +198,7 @@
 
 (defun fully (name &rest rest)
   (let* ((filters (find-keyword-list :for rest))
-         (reset (find-keyword-val :rest rest :default nil))
+         (reset (find-keyword-val :reset rest :default nil))
          (dur (find-keyword-val :dur rest :default *global-default-duration*))         
          (successor (if (typep (alexandria::lastcar rest) 'function)
                         (alexandria::lastcar rest)))
@@ -209,7 +209,7 @@
 
 (defun fully2 (name &rest rest)
   (let* ((filters (find-keyword-list :for rest))
-         (reset (find-keyword-val :rest rest :default nil))
+         (reset (find-keyword-val :reset rest :default nil))
          (dur (find-keyword-val :dur rest :default *global-default-duration*))
          (successor (if (typep (alexandria::lastcar rest) 'function)
                         (alexandria::lastcar rest)))
@@ -238,7 +238,7 @@
 
 (defun friendship (name &rest rest)
   (let* ((filters (find-keyword-list :for rest))
-         (reset (find-keyword-val :rest rest :default nil))
+         (reset (find-keyword-val :reset rest :default t))
          (dur (find-keyword-val :dur rest :default *global-default-duration*))         
          (successor (if (typep (alexandria::lastcar rest) 'function)
                         (alexandria::lastcar rest)))
@@ -249,7 +249,7 @@
 
 (defun friendship2 (name &rest rest)
   (let* ((filters (find-keyword-list :for rest))
-         (reset (find-keyword-val :rest rest :default nil))
+         (reset (find-keyword-val :reset rest :default t))
          (dur (find-keyword-val :dur rest :default *global-default-duration*))
          (successor (if (typep (alexandria::lastcar rest) 'function)
                         (alexandria::lastcar rest)))
