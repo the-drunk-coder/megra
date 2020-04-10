@@ -58,6 +58,25 @@
         (inner-grown 1 params proc)
         (lambda (pproc) (inner-grown 1 params pproc)))))
 
+(defun shrink (&rest params)  
+  (let ((last (alexandria::lastcar opt-params))
+        (proc (if (or (typep last 'event-processor)
+                      (typep last 'function)
+                      (typep last 'symbol))
+                  (if (typep last 'symbol)
+                      (gethash last *processor-directory*)
+                      last)
+                  nil)))
+    (if proc
+        (if (typep proc 'function)
+            (lambda (&optional nproc) (apply 'shrink (nconc params (list (funcall proc nproc)))))
+            (let ((node-id (find-keyword-val :node-id params :default nil))
+                  (exclude (find-keyword-val :exclude params :default nil))
+                  (iproc (if (symbolp proc) (gethash proc *processor-directory*) proc))) 
+              (prune-generator iproc :node-id node-id :exclude exclude)
+              iproc))
+        (lambda (nproc) (apply 'shrink (nconc params (list nproc)))))))
+
 
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
 (defun haste (num mod &optional proc)  

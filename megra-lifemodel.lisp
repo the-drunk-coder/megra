@@ -51,13 +51,13 @@
 	  ;; first case: enough resoures available for this generator to grow ... 
 	  (progn
 	    ;; grow graph 
-	    (grow (wrapper-wrapped-processor l)
-		  :var (population-control-var l)
-		  :durs (population-control-durs l)
-		  :method (population-control-method l)
-		  :higher-order (if (< (random 100) (population-control-higher-order-probability l))
-			            (+ 2 (random (- (population-control-higher-order-max-order l) 2)))
-			            0))	    
+	    (grow-generator (wrapper-wrapped-processor l)
+		            :var (population-control-var l)
+		            :durs (population-control-durs l)
+		            :method (population-control-method l)
+		            :higher-order (if (< (random 100) (population-control-higher-order-probability l))
+			                      (+ 2 (random (- (population-control-higher-order-max-order l) 2)))
+			                      0))
 	    ;; decrease resources
 	    (if (>= (lmc-local-resources l) (lmc-local-cost l))
 		(setf (lmc-local-resources l) (- (lmc-local-resources l) (lmc-local-cost l)))
@@ -73,7 +73,7 @@
 	    ;; send prune/shrink
 	    (let ((rnd-symbol (alexandria::random-elt (vom::alphabet (inner-generator (wrapper-wrapped-processor l))))))
               ;;(incudine::msg error "AUTOPHAGIA: ~D~%" rnd-symbol)
-              (prune (wrapper-wrapped-processor l) :node-id rnd-symbol)
+              (prune-generator (wrapper-wrapped-processor l) :node-id rnd-symbol)
 	      (setf eaten-node rnd-symbol))	    
 	    ;; add regain to local	    
 	    (setf (lmc-local-resources l)
@@ -90,7 +90,7 @@
         ;; unless the current symbol has randomly been eaten before, remove it ...
         (unless (eql cur-symbol eaten-node)
           ;;(incudine::msg error "APOPTOSIS: ~D ~D~%" (name l) cur-symbol)
-          (prune (wrapper-wrapped-processor l) :node-id cur-symbol)
+          (prune-generator (wrapper-wrapped-processor l) :node-id cur-symbol)
           ;; add gained resources back ... 
 	  (setf (lmc-local-resources l) (+ (lmc-local-resources l) (lmc-local-apoptosis-regain l))))))))
 
