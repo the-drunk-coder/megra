@@ -299,12 +299,28 @@
   :direct-parameters (start))
 
 (define-event
-  :long-name reverb-event
+    :long-name reverb-event
   :short-name rev
   :arithmetic t
   :parent-events (event)
   :parameters ((rev event-reverb 0.0 0.0 0.4)) 
   :direct-parameters (rev))
+
+(define-event
+    :long-name echo-event
+  :short-name echo
+  :arithmetic t
+  :parent-events (event)
+  :parameters ((echo event-echo 0.0 0.0 0.6)) 
+  :direct-parameters (echo))
+
+(define-event
+  :long-name echorev-event
+  :short-name echorev
+  :arithmetic t
+  :parent-events (event)
+  :parameters ((echorev event-echorev 0.0 0.0 0.6)) 
+  :direct-parameters (echorev))
 
 (define-event
   :long-name highpass-frequency-event
@@ -393,7 +409,9 @@
                   peak-frequency-event
                   peak-gain-event
                   peak-q-event
-		  reverb-event)
+		  reverb-event
+                  echo-event
+                  echorev-event)
   :parameters ((sample-folder grain-sample-folder)
 	       (sample-file grain-sample-file)
 	       (sample-location grain-sample-location)) 
@@ -585,6 +603,8 @@
 	          peak-frequency-event
                   peak-gain-event
                   peak-q-event
+                  echo-event
+                  echorev-event
 		  reverb-event)
   :parameters ((sample-folder nores-sample-folder)
 	       (sample-file nores-sample-file)
@@ -638,6 +658,8 @@
 	          peak-frequency-event
                   peak-gain-event
                   peak-q-event
+                  echo-event
+                  echorev-event
 		  reverb-event)
   :parameters ((sample-folder twofourdb-sample-folder)
 	       (sample-file twofourdb-sample-file)
@@ -756,7 +778,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :parent-defaults ((atk 1) (rel 80) (dur 100))
@@ -799,7 +823,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -819,7 +845,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -838,7 +866,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :parent-defaults ((lp-freq 2100) (lvl 0.25) (lp-dist 0.4) (atk 1) (rel 20) (dur 100))
@@ -865,8 +895,6 @@
 	     (if (member 'sc (event-backends evt))
 		 (handle-saw-event-sc-8ch evt timestamp))))
 
-
-
 (define-event
   :long-name square-event
   :short-name sqr
@@ -881,6 +909,8 @@
                   lowpass-distortion-event
                   lowpass-q-event
 		  pulsewidth-event
+                  echo-event
+                  echorev-event
 		  reverb-event)
   :parent-defaults ((lp-freq 5000) (dur 220) (atk 2) (rel 80) (lvl 0.21))
   :direct-parameters (pitch)
@@ -908,7 +938,6 @@
 	     (if (member 'sc (event-backends evt))
 		 (handle-square-event-sc-8ch evt timestamp))))
 
-
 (define-event
   :long-name sine-event
   :short-name sine
@@ -921,7 +950,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+                  echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -940,7 +971,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -948,7 +981,7 @@
 		 (handle-sine-event-sc-8ch evt timestamp))))
 
 (define-event
-    :long-name triangle-event
+  :long-name triangle-event
   :short-name tri
   :abstract-event nil
   :parent-events (level-event		 
@@ -959,7 +992,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -972,6 +1007,17 @@
   :abstract-event nil
   :parent-events (triangle-event)
   :parent-defaults ((lp-freq 5000) (dur 800) (atk 1) (rel 600) (lp-dist 1.0) (lvl 0.32))
+  :direct-parameters (pitch)
+  :handler (progn
+	     (if (member 'sc (event-backends evt))
+		 (handle-triangle-event-sc evt timestamp))))
+
+(define-event
+  :long-name short-triangle-event
+  :short-name shortri
+  :abstract-event nil
+  :parent-events (triangle-event)
+  :parent-defaults ((lp-freq 5000) (dur 100) (atk 1) (rel 99) (lp-dist 1.0) (lvl 0.32))
   :direct-parameters (pitch)
   :handler (progn
 	     (if (member 'sc (event-backends evt))
@@ -1010,7 +1056,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -1048,7 +1096,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn
@@ -1087,7 +1137,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -1107,7 +1159,9 @@
 		  release-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :parent-defaults ((lvl 0.23))
   :direct-parameters (pitch)
@@ -1145,7 +1199,9 @@
 		  pitch-event		  
 		  lowpass-frequency-event
                   lowpass-distortion-event
-                  lowpass-q-event	          
+                  lowpass-q-event
+	          echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -1180,6 +1236,8 @@
 		  level-lfo-event
 		  mix-event
 		  mod-index-event
+                  echo-event
+                  echorev-event
 		  reverb-event)
   :direct-parameters (pitch)
   :handler (progn	     
@@ -1289,7 +1347,7 @@
 	        (let ((resolved-id (if (eql (event-growth-graph-id evt) 'self)
 				       (car (event-source evt))
 				       (event-growth-graph-id evt))))
-		  (grow resolved-id
+		  (grow-generator resolved-id
 			:variance (event-growth-variance evt)		        
 			:durs (event-growth-durs evt)
 			:method (event-growth-method evt)
@@ -1312,7 +1370,7 @@
 	        (let ((resolved-id (if (eql (event-shrink-graph-id evt) 'self)
 				       (car (event-source evt))
 				       (event-shrink-graph-id evt))))
-		  (prune resolved-id
+		  (prune-generator resolved-id
 			 :exclude (event-shrink-exclude evt)
 			 :node-id (event-shrink-node-id evt)))
 	      (simple-error (e)

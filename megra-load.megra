@@ -59,5 +59,6 @@
 
 ;; load ir data for reverb (contains hardcoded stuff)
 (prepare-ir)
-
-
+(init-2ch-rev)
+(init-2ch-echo)
+(init-2ch-echorev)

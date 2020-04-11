@@ -28,8 +28,26 @@
   (osc:message cm::*oscout* "/b_gen" "isii" *ir-spectral-bufnum* "PreparePartConv" 0 *chapel-ir-length*)
   (sleep 0.5))
 
+(defun init-2ch-rev ()
+  (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "reverb_2ch" -1 0 1))
+
+(defun init-2ch-echo ()
+  (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "echo_2ch" -1 0 1))
+
+(defun init-2ch-echorev ()
+  (osc:message cm::*oscout*   
+	       "/s_new"	    
+	       "siii"
+	       "echorev_2ch" -1 0 1))
+
 (defun init-4ch-rev ()
-    (osc:message cm::*oscout*   
+  (osc:message cm::*oscout*   
 	       "/s_new"	    
 	       "siii"
 	       "reverb_4ch" -1 0 1))

@@ -35,6 +35,8 @@
 	      (pf-freq (find-keyword-val :pf-freq args :default 1000))
 	      (pf-gain (find-keyword-val :pf-gain args :default 0.0))
 	      (rev (find-keyword-val :rev args :default 0.0))
+              (echo (find-keyword-val :echo args :default 0.0))
+              (echorev (find-keyword-val :echorev args :default 0.0))
 	      (tags (find-keyword-val :tags args :default '(,(read-from-string name))))
 	      (cfun (find-keyword-val :cfun args :default #'replace-value))
 	      (param-keywords (loop for key in rest if (typep key 'keyword) collect key))
@@ -44,7 +46,7 @@
 		:dur dur
 		:lvl lvl :rate rate :start start :atk atk :rel rel
 		:lp-dist lp-dist :lp-freq lp-freq :rev rev :pos pos
-		:tags tags 
+		:tags tags :echo echo :echorev echorev
 		:hp-freq hp-freq :hp-q hp-q :lp-q lp-q :pf-q pf-q
 	        :lp-freq-lfo-depth lp-freq-lfo-depth
 		:lp-freq-lfo-speed lp-freq-lfo-speed
