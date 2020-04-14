@@ -3,46 +3,66 @@
 Table of Contents
 =================
 
-* [always - Event Stream Modificator Probablity](#always---event-stream-modificator-probablity)           
-* [brownian - Bounded Brownian Motion](#brownian---bounded-brownian-motion)   
-* [chop - Chop a sample](#chop---chop-a-sample)
-* [clear - Clear Session](#clear---clear-session)
-* [cmp - Compose Generators](#cmp---compose-generators)
-* [ctrl - Control Functions](#ctrl---control-functions)
+**Generator Generators**:
+
 * [cyc - Cycle Generator](#cyc---cycle-generator)
 * [cyc2 - Cycle Generator](#cyc2---cycle-generator)
+* [chop - Chop a sample](#chop---chop-a-sample)
+* [friendship - Create Friendship (or Windmill) Generator](#friendship---create-friendship-generator)
+* [friendship2 - Create Friendship (or Windmill) Generator](#friendship2---create-friendship-generator)
+* [fully - Create Fully Connected Generator](#fully---create-fully-connected-generator)
+* [fully2 - Create Fully Connected Generator](#fully2---create-fully-connected-generator)
+* [infer - Infer Generator from Rules](#infer---infer-generator-from-rules)
+* [nuc - Nucleus Generator](#nuc---nucleus-generator)
+* [nuc2 - Nucleus Generator](#nuc2---nucleus-generator)
+* [learn - Learn Generator from Distribution](#learn---learn-generator-from-distribution)
+* [pseq - Event Sequence Generated from Parameters](#pseq---event-sequence-generated-from-parameters)
+
+**Generator Modifiers**:
+
+* [apple - Event Stream Manipulator Probablity](#pprob---event-stream-manipulator-probablity)
+* [blur - Blur Probabilities](#blur---blur-probabilities)
 * [discourage - Stir Up Generator](#discourage---stir-up-generator)
 * [encourage - Consolidate Generator](#encourage---consolidate-generator)
-* [env - Parameter Envelope](#env---parameter-envelope)
 * [evr - Count-Based Generator Manipulators](#evr---count-based-generator-manipulators)
-* [exh - Event Stream Manipulator](#exh---event-stream-manipulator)
-* [fade - Parameter Fader](#fade---parameter-fader)
 * [grow - Enlarge Generator](#grow---enlarge-generator)
 * [grown - Enlarge Generator n times](#grown---enlarge-generator-n-times)
 * [haste - speed up evaluation](#haste---speed-up-evaluation)
-* [infer - Infer Generator from Rules](#sinfer---infer-generator-from-rules)
-* [inh - Event Stream Manipulator](#inh---event-stream-manipulator)
 * [life - Manipulate Generator](#lifemodel---manipulate-generator)
-* [nuc - Nucleus Generator](#nuc---nucleus-generator)
-* [nuc2 - Nucleus Generator](#nuc2---nucleus-generator)
-* [oscil - Parameter Oscillator](#oscil---parameter-oscillator)
-* [pear - Apply Modifiers](#pear---apply-modifiers)
 * [probctrl - Manipulate Generator](#probctrl---manipulate-generator)
-* [prob - Event Stream Manipulator Probablity](#prob---event-stream-manipulator-probablity)
-* [pprob - Event Stream Manipulator Probablity](#pprob---event-stream-manipulator-probablity)
-* [pseq - Event Sequence Generated from Parameters](#pseq---event-sequence-generated-from-parameters)
 * [relax - Slow Down Generator](#relax---slow-down-generator)
+* [sharpen - Sharpen Probabilities](#blur---sharpen-probabilities)
 * [shrink - Shrink Generator](#shrink---shrink-generator)
 * [skip - Skip Events](#skip---skip-events)
-* [sx - Event Sinks](#sx---multiple-event-sinks)
-* [learn - Learn Generator from Distribution](#slearn---learn-generator-from-distribution)
-* [stop - Stop Event Processing](#stop---stop-event-processing)
 * [xdup - Multiply Generators with Modifiers](#xdup---multiply-generators-independently)
 * [xspread2 - Multiply Generators with Modifiers, Spread over Stereo Spectrum](#xdup---multiply-generators-independently)
 
+**Parameter or Event Stream Modifiers**:
+
+* [always - Event Stream Modificator Probablity](#always---event-stream-modificator-probablity)           
+* [brownian - Bounded Brownian Motion](#brownian---bounded-brownian-motion)   
+* [env - Parameter Envelope](#env---parameter-envelope)
+* [exh - Event Stream Manipulator](#exh---event-stream-manipulator)
+* [fade - Parameter Fader](#fade---parameter-fader)
+* [inh - Event Stream Manipulator](#inh---event-stream-manipulator)
+* [oscil - Parameter Oscillator](#oscil---parameter-oscillator)
+* [pear - Apply Modifiers](#pear---apply-modifiers)
+* [ppear - Apply Modifiers](#pear---apply-modifiers)
+* [prob - Event Stream Manipulator Probablity](#prob---event-stream-manipulator-probablity)
+
+**Misc**:
+
+* [cmp - Compose Generators](#cmp---compose-generators)
+* [clear - Clear Session](#clear---clear-session)     
+* [ctrl - Control Functions](#ctrl---control-functions)
+* [sx - Event Sinks](#sx---multiple-event-sinks)
+* [stop - Stop Event Processing](#stop---stop-event-processing)
+
+**Legacy Functions**:
+
 ## `always` - Event Stream Modificator Probablity
 
-Applies an event stream modificator with probability one.
+Applies an event stream modificator with probability one. Same as `pear`.
 
 ### Parameters
 
@@ -60,8 +80,8 @@ Always apply reverb to events:
 
 ```lisp
 (sx 'some t
-  (always (rev 0.1))
-  (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~"))
+  (cmp (always (rev 0.1)) ;; <- compose !
+       (cyc 'beat "bd ~ ~ ~ sn ~ ~ ~")))
 ```
 ## `brownian` - Bounded Brownian Motion 
 
@@ -85,8 +105,8 @@ Define a bounded brownian motion on a parameter.
 
 ```lisp
 (sx 'some t
-  (always (rate (brownian 0.8 1.2)))
-  (nuc 'violin (violin 'a3)))
+    (cmp (always (rate (brownian 0.8 1.2)))
+         (nuc 'violin (violin 'a3 :dur 200))))
 ```
 
 ## `chop` - Chop a sample
@@ -96,32 +116,51 @@ Chop a sample into parts, that will be played as a loop.
 ### Examples
 
 ```lisp
+;; chop violin sample into 8 parts (each of which is 200ms long)
 (sx 'some t
-  (chop 'chops (violin 'a3) 8)) ;; chop violin sample into 8 parts
+  (chop 'chops (violin 'a3 :dur 200) 8)) 
 ```
 
 ## `clear` - Clear Session
 
 Stops and deletes all present generators.
 
+### Examples
+
+```lisp
+(sx 'some t
+  (cyc 'bear "bd ~ hats ~ sn ~ hats ~"))
+
+(sx 'more t :sync 'some
+  (cyc 'bass "saw:100 ~"))
+
+(clear 'more) ;; only clear bassline
+(clear) ;; clear everything
+```
+
 ## `cmp` - Compose Generators
+
+### Syntax
+```lisp
+(cmp <generators>)
+```
 
 ### Examples
 
 ```lisp
-;; this is nice and functional, but hard to disable individual
-;; parts ...
-(pear (rate 0.2)
-      (evr 20 (haste 2 0.5)
-           (cyc 'bl "bd ~ ~ sn ~ ~"))) 
+(sx 'composed t
+    (pear (rev 0.1)
+          (evr 20 (haste 2 0.5)
+               (cyc 'bl "bd ~ ~ sn ~ ~"))) )
 
 ;; with cmp, it can be re-written as:
-(cmp
-    (pear (rate 0.2))
-    (evr 20 (haste 2 0.5))
-    (cyc 'bl "bd ~ ~ sn ~ ~")) 
-;; now individual modifiers can easily be commented out
+(sx 'composed t
+    (cmp
+     (pear (rev 0.1))
+     (evr 20 (haste 2 0.5))
+     (cyc 'bl "bd ~ ~ sn ~ ~")) )
 
+;; now individual modifiers can easily be commented out
 ```
 
 ## `ctrl` - Control Functions
@@ -203,8 +242,13 @@ Looks at the last path through the graph and decreases the probablity for that s
 ### Syntax
 
 ```lisp
-(discourage <graph>)
+(discourage <factor> <generator>)
 ```
+
+### Parameters
+
+* factor - discouragement factor ... the higher, the more effective
+* generator - the generator to be discouraged (optional) ... name or directly
 
 ### Example
 
@@ -212,19 +256,23 @@ Looks at the last path through the graph and decreases the probablity for that s
 (sx 'chaos t
   (cyc 'gen "bd ~ ~ sn sn ~ casio ~" :rep 80 :rnd 80 :max-rep 4))
   
-(grow 'gen :var 0.3) ;; execute a couple times
+(grow :var 0.3 'gen ) ;; execute a couple times
 
-(discourage 'gen) ;; hear what happens
+(discourage 0.2 'gen) ;; hear what happens
 ```
 
 ## `encourage` - Consolidate Generator
 
 Looks at the last path through the graph and increases the probablity for that sequence to happen again, effectively decreasing entropy of the results. 
 
-### Syntax
-
 ```lisp
-(encourage <graph>)
+(encourage <factor> <generator>)
+```
+
+### Parameters
+
+* factor - encouragement factor ... the higher, the more effective
+* generator - the generator to be encouraged (optional) ... name or directly
 ```
 
 ### Example
@@ -241,6 +289,7 @@ Looks at the last path through the graph and increases the probablity for that s
 ## `env` - Parameter Envelope
 
 Define an envelope on any parameter. Length of list of levels must be one more than length of list of durations.
+Durations are step based, so the absolute durations depend on the speed your generator runs at.
 
 ### Paramters
 
@@ -312,13 +361,15 @@ Inhibit event type, that is, mute event of that type, with a certain probability
 
 ```lisp
 (sx 'simple t
-  (cmp (inh 30 hats)
-       (inh 30 bd)
-       (inh 30 sn)
+  (cmp (inh 30 'hats)
+       (inh 30 'bd)
+       (inh 30 'sn)
        (nuc 'beat (~ (bd) (sn) (hats)))))
 ```
 
 ## `life` - Manipulate Generator
+
+This is one of the more complex generator manipulations.
 
 ## `nuc` - Nucleus Generator
 
