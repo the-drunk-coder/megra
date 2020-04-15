@@ -265,7 +265,7 @@ Looks at the last path through the graph and decreases the probablity for that s
 (sx 'chaos t
   (cyc 'gen "bd ~ ~ sn sn ~ casio ~" :rep 80 :rnd 80 :max-rep 4))
   
-(grow :var 0.3 'gen ) ;; execute a couple times
+(grow :var 0.3 'gen) ;; execute a couple times
 
 (discourage 0.2 'gen) ;; hear what happens
 ```
@@ -344,6 +344,29 @@ Exhibit event type, that is, mute all other events, with a certain probability.
        (nuc 'beat (~ (bd) (sn) (hats)))))
 ```
 ## `fade` - Parameter Fader
+
+## `fully` - Create Fully Connected Generator
+
+Each node follows each other node with equal probablity ... so basically a random generator.
+
+### Syntax
+```lisp
+(fully <name> <list of events>)
+```
+
+### Example
+
+```lisp
+(sx 'full t
+    (fully 'mel (saw 'a3) (saw 'f2) (saw 'c3) (saw 'e3)))
+
+```
+
+![Fully connected](./fully_conncted.svg)    
+
+## `fully2` - Create Fully Connected Generator
+
+Same as `fully`, with advanced PFA model.
 
 ## `grow` - Enlarge Generator
 

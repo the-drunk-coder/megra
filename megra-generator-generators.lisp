@@ -188,7 +188,7 @@
         (rules (list))
         (event-mapping (make-hash-table :test #'equal)))
     (loop for ev in events
-          do (setf (gethash count event-mapping) ev)
+          do (setf (gethash count event-mapping) (nconc (gethash count event-mapping) (list ev)))
           do (loop for i from 1 to (length events)
                    when (not (eql i count))
                    do (push (list (list count) i gen-prob) rules))
