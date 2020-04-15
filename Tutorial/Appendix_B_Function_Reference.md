@@ -189,11 +189,10 @@ Executes any function, can be used to conduct execution of generators.
                  (nuc 'cello (cello 'c1))))
 
 (sx 'control t
-  (cyc 'conduct
-     (list
-        (ctrl #'(lambda () (sx 'orch t part-a))) 3000
-        (ctrl #'(lambda () (sx 'orch t part-b))) 3000)))
-
+    (cyc 'conduct
+         (list
+          (ctrl (sx 'orch t part-a)) 3000
+          (ctrl (sx 'orch t part-b)) 3000)))
 ```
 
 ## `cyc` - Cycle Generator

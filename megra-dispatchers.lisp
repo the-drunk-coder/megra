@@ -1,4 +1,3 @@
-
 ;; event dispatching and related stuff ... 
 
 ;; simple time-recursive dispatching
@@ -162,7 +161,7 @@
   (let ((sync-to (cond ((gethash sync *global-syncs*) sync)
                        ((gethash sync *multichain-directory*) (car (last (gethash sync *multichain-directory*))))
                        (t sync)))
-        (old-sync (gethash name *global-syncs*)))
+        (old-sync (gethash name *global-syncs*)))    
     ;; first, construct the sync ...
     (cond ((and old-sync (wait-for-sync old-sync))) ;; don't do anything, as there's a sync for this already ...  
 	  (old-sync	   	   
@@ -189,6 +188,7 @@
                                             new-sync
                                             sync-to))))
                    (inner-dispatch new-sync sync-to)))))))
+
 
 (defun once (event)
   (handle-event event 0))

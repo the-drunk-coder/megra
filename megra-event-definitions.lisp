@@ -1278,12 +1278,12 @@
   :direct-parameters (control-function)
   ;; don't create accessors here, as we want the control
   ;; function to be called in the handler function ... 
-  :create-accessors t
+  :create-accessors nil
   ;; just call the specified control function ... 
   :handler (incudine:nrt-funcall
 	    (handler-case 	        
 		(event-control-function evt)
-	      (simple-error (e)
+	      (error (e)
 		(incudine::msg
 		 error "something went wrong executing ctrl ~D" e)))))
 

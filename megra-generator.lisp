@@ -86,8 +86,7 @@
         (t (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))))
 
 (defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p))  
-  "infer a generator from rules"
-  (define-filter name)
+  "infer a generator from rules"  
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
          (g-old (gethash name *processor-directory*))
          (g (if (or (not g-old) (and g-old reset))
