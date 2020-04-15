@@ -349,7 +349,7 @@ Fade a parameter (sinusoidal).
 
 ### Syntax
 
-`(fade <from> <to> :steps <steps>)
+`(fade <from> <to> :steps <steps>)`
 
 ### Example
 ```lisp
