@@ -216,9 +216,19 @@ Generates a cycle (aka loop) from a simple sequencing language.
 
 ### Example 
 ```lisp
+;; plain
 (sx 'simple t
   (cyc 'beat "bd ~ hats ~ sn ~ hats ~"))
 ```
+
+![A plain beat](./beat_plain.svg) 
+
+```lisp
+;; with a 40% chance of repetition, 4 times at max
+(sx 'simple t
+    (cyc 'beat "bd ~ hats ~ sn ~ hats ~" :rep 40 :max-rep 4))
+```
+![A plain beat](./beat_plain.svg)    
 
 ## `cyc2` - Cycle Generator
 
