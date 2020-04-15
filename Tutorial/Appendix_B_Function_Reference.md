@@ -362,7 +362,7 @@ Each node follows each other node with equal probablity ... so basically a rando
 
 ```
 
-![Fully connected](./fully_conncted.svg)    
+![Fully connected](./fully_connected.svg)    
 
 ## `fully2` - Create Fully Connected Generator
 
