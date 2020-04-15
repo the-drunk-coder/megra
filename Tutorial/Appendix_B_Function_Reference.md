@@ -228,7 +228,7 @@ Generates a cycle (aka loop) from a simple sequencing language.
 (sx 'simple t
     (cyc 'beat "bd ~ hats ~ sn ~ hats ~" :rep 40 :max-rep 4))
 ```
-![A plain beat](./beat_plain.svg)    
+![A beat with repetitions](./beat_rep.svg)    
 
 ## `cyc2` - Cycle Generator
 
