@@ -339,12 +339,41 @@ Exhibit event type, that is, mute all other events, with a certain probability.
 ### Example
 ```lisp
 (sx 'simple t 
-  (cmp (exh 30 hats)
-       (exh 30 bd)
-       (nuc 'beat (~ (bd) (sn) (hats)))))
+  (cmp (exh 30 'hats)
+       (exh 30 'bd)
+       (nuc 'beat (list (bd) (sn) (hats))))) 
 ```
 ## `fade` - Parameter Fader
 
+Fade a parameter (sinusoidal).
+
+### Syntax
+
+`(fade <from> <to> :steps <steps>)
+
+### Example
+```lisp
+
+;; fade cutoff frequency
+(sx 'osc t
+    (nuc 'ill (saw 300 :lp-freq (fade 300 2200 :steps 20))))
+
+;; same, but a different position 
+(sx 'osc t
+    (cmp
+     (always (lp-freq (fade 300 2200 :steps 4)))
+     (nuc 'ill (saw 300))))
+
+;; fade duration
+(sx 'osc t         
+    (nuc 'ill (saw 300) :dur (fade 100 400)))
+
+;; fade probablility
+(sx 'osc t
+    (cmp
+     (prob (fade 0 100) (lvl 0.0))
+     (nuc 'ill (saw 300))))
+```
 ## `fully` - Create Fully Connected Generator
 
 Each node follows each other node with equal probablity ... so basically a random generator.
