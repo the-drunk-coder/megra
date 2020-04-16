@@ -148,12 +148,15 @@ Stops and deletes all present generators.
 ### Examples
 
 ```lisp
+;; The plain lisp approach would be:
 (sx 'composed t
     (pear (rev 0.1)
           (evr 20 (haste 2 0.5)
                (cyc 'bl "bd ~ ~ sn ~ ~"))) )
 
-;; with cmp, it can be re-written as:
+;; this makes it somewhat inconvenient to add/disable certain parts.
+
+;; With cmp, it can be re-written as:
 (sx 'composed t
     (cmp
      (pear (rev 0.1))
@@ -281,8 +284,7 @@ Looks at the last path through the graph and increases the probablity for that s
 ### Parameters
 
 * factor - encouragement factor ... the higher, the more effective
-* generator - the generator to be encouraged (optional) ... name or directly
-```
+* generator (optional) - the generator to be encouraged (optional) ... name or directly
 
 ### Example
 
@@ -374,6 +376,35 @@ Fade a parameter (sinusoidal).
      (prob (fade 0 100) (lvl 0.0))
      (nuc 'ill (saw 300))))
 ```
+
+## `friendship` - Create Friendship Generator
+
+This creates a directed version of a Friendship- or Windmill graph.
+
+### Syntax
+
+`(friendship <name> <list of events>)`
+
+### Parameters
+
+* `name` - The generator name.
+* `list of events` - a list of events (more than 3, odd number)
+
+### Example
+
+```lisp
+(sx 'friend t        
+    (cmp
+     (always (atk 1) (rel 90) (dur 100) (rev 0.07))
+     (friendship 'ship (saw 'a2) (saw 'c3) (saw 'e3) (saw 'b3) (saw 'd3) (saw 'f3) (saw 'c4))))
+```
+
+![A beat with repetitions](./friendship.svg)
+
+## `friendship2` - Create Friendship Generator
+
+Same as `friendship`, with advanced PFA model.
+
 ## `fully` - Create Fully Connected Generator
 
 Each node follows each other node with equal probablity ... so basically a random generator.
