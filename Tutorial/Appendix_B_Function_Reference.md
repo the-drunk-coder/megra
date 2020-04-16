@@ -606,7 +606,39 @@ Stop event processing without deleting generators, thus maintaining current stat
 
 ## `xdup` - Multiply Generators Independently
 
+If you want to juxtapose (obvious reference here) a generator with a modified copy of itself,
+without re-writing the whole generator. 
+
+### Example
+```lisp
+(sx 'more t
+    (xdup
+     (cmp ;; this is the copy with modifiers ...
+      (always (pitch-mul 2.0) (rev 0.1))
+      (evr 20 (haste 2 0.5)))     
+     ;; this is the "original" 
+     (cyc 'one "shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~ ~ shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~")))
+```
+
 ## `xspread` - Multiply Generators Independently
+
+If you want to juxtapose (obvious reference here) a generator with a modified copy of itself,
+without re-writing the whole generator. As opposed to `xdup`, this one spreads the copies over
+the stereo spectrum.
+
+### Example
+```lisp
+(sx 'more t
+    (xspread2
+     (cmp ;; this is the copy with modifiers ...
+          (always (pitch-mul 2.0) (rev 0.1))
+          (evr 20 (haste 2 0.5)))
+     (cmp ;; this is another copy with modifiers ...
+          (always (pitch-mul 4.02) (rev 0.1))
+          (evr 20 (haste 3 0.5)))     
+     ;; this is the "original" 
+     (cyc 'one "shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~ ~ shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~")))
+```
 
 
 
