@@ -136,7 +136,7 @@
         (dur (find-keyword-val :dur params :default *global-default-duration*))
         (type (find-keyword-val :type params :default 'pfa))
         (reset (find-keyword-val :reset params :default t))
-        (filters (find-keyword-list :for rest))
+        (filters (find-keyword-list :for params))
         (successor (if (typep (alexandria::lastcar params) 'function)
                        (alexandria::lastcar params))))
     (infer-from-rules-fun :type type 

@@ -564,6 +564,42 @@ Allows for temporal independece of generators, unlike old `(s ...)`
 
 ## `infer` - Infer Generator from Rules
 
+Infer a generator from arbitrary rules. Make sure every event has
+at least one exit, otherwise the generator will stop.
+
+Also, exit probablities for each node should add up to 100.
+
+### Parameters
+
+* `name` - generator name
+* `:events` - event mapping
+* `:type` - pfa type ('naive or 'pfa) (optional)
+* `:rules' - transition rules - Format '((<source>) <destination> <probability> <duration (optional)>)
+
+### Example
+
+```lisp
+(sx 'from t
+    (infer 'rules
+           :events 'x (bd) 'o (sn) '~ (silence) 'h (hats)
+           :rules
+           '((x) x 40)
+           '((x x x) ~ 40) ;; 3 reps max
+           '((x) ~ 30) '((x) h 30)
+           '((h) ~ 30)
+           '((h) o 50)
+           '((h) h 20)
+           '((h h h) o 20)
+           '((~) o 33)
+           '((~) h 33)
+           '((~) x 34)
+           '((o) ~ 50)
+           '((o) o 25)
+           '((o) x 25)
+           '((o o o) ~ 100)))
+```
+![inferred beat](./fromrules.svg)
+
 ## `stop` - Stop Event Processing
 
 Stop event processing without deleting generators, thus maintaining current state.
