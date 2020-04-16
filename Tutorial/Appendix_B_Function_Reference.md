@@ -550,6 +550,18 @@ Allows for temporal independece of generators, unlike old `(s ...)`
 
 ## `learn` - Learn Generator from Distribution
 
+### Example
+```lisp
+(sx 'from t
+    (learn 'data
+           :events 'x (bd) 'o (sn) '~ (silence) 'h (hats)
+           "xoxoxoxox~~o~h~~~h~h~h~~h~h~~hhh~x~o~x~o~x~o~x
+            ~o~xh~h~~hhh~x~o~x~o~x~o~xox~xox~xox~xoxo~xoxo
+            ~xoxox~oooo~xxxx~xoxoxox~ohxhohxhohxhxhxhxhxhx
+            hxhohohoh"))
+```
+![learned beat](./learned.svg)    
+
 ## `infer` - Infer Generator from Rules
 
 ## `stop` - Stop Event Processing
