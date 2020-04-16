@@ -31,6 +31,7 @@ Table of Contents
 * [life - Manipulate Generator](#lifemodel---manipulate-generator)
 * [probctrl - Manipulate Generator](#probctrl---manipulate-generator)
 * [relax - Slow Down Generator](#relax---slow-down-generator)
+* [rew - Rewind Generator](#rew---rewind-generator)
 * [sharpen - Sharpen Probabilities](#blur---sharpen-probabilities)
 * [shrink - Shrink Generator](#shrink---shrink-generator)
 * [skip - Skip Events](#skip---skip-events)
@@ -432,7 +433,21 @@ Same as `fully`, with advanced PFA model.
 
 ## `grown` - Enlarge Generator n times
 
-## `haste` - speed up evaluation
+## `haste` - Speed Up Evaluation
+
+Speed up evaluation for a specified number of steps, by a certain ratio.
+
+### Examples
+
+```lisp
+(sx 'more t
+    (xspread2     
+     (cmp ;; this is another copy with modifiers ...
+          (always (pitch-mul 3.0))
+          (evr 20 (haste 4 0.5))) ;; <- every 20 steps, double-time for four steps. Change to 0.25 for quadruple-time, etc
+     ;; this is the "original" 
+     (cyc 'one "shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~ ~ shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~")))
+```
 
 ## `inh` - Event Stream Manipulator
 
@@ -529,6 +544,37 @@ Appl-ys and Pears ...
 ## `pseq` - Event Sequence Generated from Parameters
 
 ## `relax` - Slow Down Generator
+
+Slows down generator for a specified number of steps, by a certain ratio.
+
+### Examples
+
+```lisp
+(sx 'more t
+    (xspread2     
+     (cmp ;; this is another copy with modifiers ...
+          (always (pitch-mul 3.0))
+          (evr 20 (relax 4 0.5))) ;; <- every 20 steps, half-time for four steps
+     ;; this is the "original" 
+     (cyc 'one "shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~ ~ shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~")))
+```
+
+## `rew` - Rewind Generator
+
+Re-winds the generator by a specified number of steps. The further unfolding might
+be different from the previous one, obviously.
+
+### Examples
+
+```lisp
+(sx 'more t
+    (xspread2     
+     (cmp ;; this is another copy with modifiers ...
+          (always (pitch-mul 3.0))
+          (evr 20 (rew 2))) ;; <- every 20 steps, rewind 2 steps (only the copy)
+     ;; this is the "original" 
+     (cyc 'one "shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~ ~ shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~")))
+```
 
 ## `shrink` - Shrink Generator
 
