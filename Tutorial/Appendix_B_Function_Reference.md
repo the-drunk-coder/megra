@@ -482,9 +482,10 @@ Generates a one-node repeating generator, i.e. as a starting point for growing.
 ### Example
 
 ```lisp
-(sx 'simple t
-  (nuc 'beat (bd) :dur 400))
+(sx 'just t
+  (nuc 'bassdrum (bd) :dur 400))
 ```
+![Just a Bassdrum](./nucleus.svg)    
 
 ## `nuc2` - Nucleus Generator
 
