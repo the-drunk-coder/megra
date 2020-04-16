@@ -574,7 +574,7 @@ Also, exit probablities for each node should add up to 100.
 * `name` - generator name
 * `:events` - event mapping
 * `:type` - pfa type ('naive or 'pfa) (optional)
-* `:rules' - transition rules - Format '((<source>) <destination> <probability> <duration (optional)>)
+* `:rules` - transition rules - Format '((<source>) <destination> <probability> <duration (optional)>)
 
 ### Example
 
