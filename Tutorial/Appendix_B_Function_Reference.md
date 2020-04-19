@@ -10,6 +10,8 @@ Table of Contents
 * [chop - Chop a sample](#chop---chop-a-sample)
 * [friendship - Create Friendship (or Windmill) Generator](#friendship---create-friendship-generator)
 * [friendship2 - Create Friendship (or Windmill) Generator](#friendship2---create-friendship-generator)
+* [flower - Create Flower Generator](#flower---create-flower-generator)
+* [flower2 - Create Flower Generator](#flower2---create-flower-generator)
 * [fully - Create Fully Connected Generator](#fully---create-fully-connected-generator)
 * [fully2 - Create Fully Connected Generator](#fully2---create-fully-connected-generator)
 * [infer - Infer Generator from Rules](#infer---infer-generator-from-rules)
@@ -124,7 +126,7 @@ Chop a sample into parts, that will be played as a loop.
 
 ## `clear` - Clear Session
 
-Stops and deletes all present generators.
+Stops and deletes some or all present generators.
 
 ### Examples
 
@@ -165,6 +167,7 @@ Stops and deletes all present generators.
      (cyc 'bl "bd ~ ~ sn ~ ~")) )
 
 ;; now individual modifiers can easily be commented out
+
 ```
 
 ## `ctrl` - Control Functions
@@ -184,6 +187,7 @@ Executes any function, can be used to conduct execution of generators.
 ### Example
 
 ```lisp
+;; define some parts
 (defvar part-a (cmp
                  (always (rev 0.1))
                  (nuc 'violin (violin 'a3))))
@@ -192,6 +196,8 @@ Executes any function, can be used to conduct execution of generators.
                  (always (rev 0.1))
                  (nuc 'cello (cello 'c1))))
 
+;; Define a score, here as a cycle, even though any other generator
+;; might be used.
 (sx 'control t
     (cyc 'conduct
          (list
@@ -319,11 +325,22 @@ Durations are step based, so the absolute durations depend on the speed your gen
 
 ```lisp
 (sx 'simple t
-  (cmp (always (lvl (env '(0.0 0.4 0.0) '(20 30))))
-       (cyc 'beat "bd ~ hats ~ sn ~ hats ~")))
+    (cmp (always (lvl (env '(0.0 0.4 0.0) '(20 30))))
+         (cyc 'beat "bd ~ hats ~ sn ~ hats ~")))        
 ```
 
 ## `evr` - Count-Based Generator Manipulators
+
+Every so-and-so steps, do something with the generator.
+Does not work as a sound modifier (so far).
+
+### Examples
+
+```lisp
+(sx 'simple t
+    (cmp (evr 20 (skip 2)) ;; <- every 20 steps, skip 2
+         (cyc 'beat "bd ~ hats ~ sn ~ hats ~")))        
+```
 
 ## `exh` - Event Stream Manipulator
 
@@ -406,6 +423,43 @@ This creates a directed version of a Friendship- or Windmill graph.
 
 Same as `friendship`, with advanced PFA model.
 
+## `flower` - Create Flower Generator
+
+Create ... well, look at the examples.
+
+### Syntax:
+`(flower <name> [:layers <layers>] <events>)`
+
+### Parameters:
+
+* `name` - generator name
+* `:layers` - number of layers
+* `events` - list of events (will be padded to appropriate lenght if necessary)
+
+### Examples
+
+Flower with 1 layer:
+```lisp
+(sx 'a-rose-is-a t
+    (flower 'rose (saw 100)
+             (saw 200) (saw 300) (saw 400)
+             (saw 150) (saw 300) (saw 450)
+             (saw 180) (saw 360) (saw 540)))
+```
+![flower one](./flower_1layer.svg)
+
+Flower with 2 layers:
+```lisp
+(sx 'a-rose-is-a t
+    (flower 'rose :layers 2 (saw 100)
+             (saw 200) (saw 300) (saw 400)
+             (saw 150) (saw 300) (saw 450)
+             (saw 180) (saw 360) (saw 540)))
+```
+![flower two](./flower_2layer.svg)
+
+## `flower2` - Create Flower Generator
+
 ## `fully` - Create Fully Connected Generator
 
 Each node follows each other node with equal probablity ... so basically a random generator.
@@ -430,6 +484,8 @@ Each node follows each other node with equal probablity ... so basically a rando
 Same as `fully`, with advanced PFA model.
 
 ## `grow` - Enlarge Generator
+
+
 
 ## `grown` - Enlarge Generator n times
 
