@@ -460,6 +460,8 @@ Flower with 2 layers:
 
 ## `flower2` - Create Flower Generator
 
+Same as `flower`.
+
 ## `fully` - Create Fully Connected Generator
 
 Each node follows each other node with equal probablity ... so basically a random generator.
