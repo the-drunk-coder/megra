@@ -258,6 +258,51 @@
     (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
+(defun flower-connected (events layers)
+  (let* ((center (car events))
+         (outer (cdr events))
+         (outer-pad (if (not (eq (rem (length outer) layers) 0))
+                        (nconc outer (make-list (rem (length outer) layers) :initial-element (deepcopy (alexandria::lastcar outer))))
+                        outer))
+         (center-exit-prob (round (/ 100 (/ (length outer-pad) layers))))
+         (rules (list))
+         (event-mapping (make-hash-table :test #'equal)))
+    (setf (gethash 0 event-mapping) (list center))
+    (loop for i from 1 to (- (+ 1 (length outer-pad)) layers) by layers
+          do (push (list (list 0) i center-exit-prob) rules)
+          do (loop for l from 0 to (- layers 1)
+                   do (setf (gethash (+ i l) event-mapping) (list (nth (- (+ i l) 1) outer-pad)))
+                   do (let ((next (if (< l (- layers 1)) (+ i l 1) nil))
+                            (prev (if (eq l 0) 0 (- (+ i l) 1))))
+                        (push (list (list (+ i l)) prev (if next 50 100)) rules)
+                        (if next (push (list (list (+ i l)) next 50) rules)))))    
+    (list event-mapping rules)))
+
+(defun flower (name &rest rest)
+  (let* ((filters (find-keyword-list :for rest))
+         (reset (find-keyword-val :reset rest :default t))
+         (layers (find-keyword-val :layers rest :default 1))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))         
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
+         (gen-ev (flower-connected events layers)))    
+    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
+
+(defun flower2 (name &rest rest)
+  (let* ((filters (find-keyword-list :for rest))
+         (reset (find-keyword-val :reset rest :default t))
+         (layers (find-keyword-val :layers rest :default 1))
+         (dur (find-keyword-val :dur rest :default *global-default-duration*))
+         (successor (if (typep (alexandria::lastcar rest) 'function)
+                        (alexandria::lastcar rest)))
+         (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
+         (gen-ev (flower-connected events layers))) 
+    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
+
+
 ;;;;;;;;;;;;; SOME SHORTHANDS ;;;;;;;;;;;;;;;;;;;
 
 ;; parameter sequence
