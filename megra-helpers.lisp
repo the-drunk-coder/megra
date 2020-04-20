@@ -97,7 +97,7 @@
   "stop a chain or (if no argument given) everything"
   (if (<= (length chains) 0)
       (loop for chain being the hash-values of *global-syncs*
-	 do (deactivate chain))
+	    do (deactivate chain))
       (mapc #'(lambda (id)
 		(incudine::msg error "stop ~D" id)
 		;; if it's a chain, stop the chain ...
@@ -105,6 +105,20 @@
                     (deactivate (gethash id *global-syncs*))
                     (mapc #'(lambda (id2) (deactivate (gethash id2 *global-syncs*))) (gethash id *multichain-directory*))))
 	    chains)))
+
+(defun solo (&rest chains)
+  "solo one or more chain"
+  (loop for chain in chains
+        when (gethash chain *multichain-directory*)
+        do (loop for multichain being the hash-keys of *multichain-directory*
+                 when (not (member multichain chains))
+                 do (loop for dchain in (gethash multichain *multichain-directory*)
+                          do (deactivate (gethash dchain *global-syncs*))))
+        when (gethash chain *global-syncs*)
+        do (loop for ichain being the hash-keys of *global-syncs*
+                 when (not (member ichain chains))
+                 do (format t "stop ~D~%" ichain)
+                 and do (deactivate (gethash ichain *global-syncs*)))))
 
 (defun getgen (name)
   (gethash name *processor-directory*))
