@@ -205,4 +205,23 @@
          (ig (inner-generator g)))
     (if (typep ig 'vom::adj-list-pfa)
         (vom::adj-list-pfa->svg ig (symbol-name (name g)) :renderer renderer)
-        (vom::graph->svg ig (symbol-name (name g)):renderer renderer))))
+        (vom::graph->svg ig (symbol-name (name g)) :renderer renderer))))
+
+(defmethod to-plain-dot ((g generator) &key (output nil))
+  (format output "digraph{~%")
+  (format output "node \[shape=\"ellipse\"\]~%")
+  (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
+        do (progn
+
+             (if (equal (vom::current-state (inner-generator g)) label)
+                 (format output "\"~{~a~^, ~}\" \[style=\"fill: #f77; font-weight: bold\"\];~%" label)
+                 (format output "\"~{~a~^, ~}\";~%" label)
+                 )
+
+             (loop for ch in chs
+                   do (format output "\"~{~a~^, ~}\"->\"~a\";~%"
+	                      label
+                              (cdr ch)))))
+  (format output "}"))
+
+

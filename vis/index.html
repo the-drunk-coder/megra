@@ -1,0 +1,123 @@
+<!doctype html>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://dagrejs.github.io/project/graphlib-dot/v0.6.3/graphlib-dot.js"></script>
+<script src="https://dagrejs.github.io/project/dagre-d3/latest/dagre-d3.js"></script>
+
+<style>
+  svg {
+      border: 0px;
+      overflow: hidden;
+  }
+
+  .node {
+      white-space: nowrap;
+  }
+
+  .node rect,
+  .node circle,
+  .node ellipse {
+      stroke: #333;
+      fill: #fff;
+      stroke-width: 1.5px;
+  }
+
+  .cluster rect {
+      stroke: #333;
+      fill: #000;
+      fill-opacity: 0.1;
+      stroke-width: 1.5px;
+  }
+
+  .edgePath path.path {
+      stroke: #333;
+      stroke-width: 1.5px;
+      fill: none;
+  }
+</style>
+
+<style>
+  h1, h2 {
+      color: #333;
+  }
+
+  textarea {
+      width: 800px;
+  }
+
+  label {
+      margin-top: 1em;
+      display: block;
+  }
+
+  .error {
+      color: red;
+  }
+</style>
+
+<body>
+  
+  <h1>This is the current Mégra Session !!1</h1>
+  
+</body>
+
+<script>
+  
+  // Create and configure the renderer (well, not much to configure so far)
+  var render = dagreD3.render();
+
+  var last = 0;
+  var updateInterval = 50; // update roughly every 50 ms ... given that a typical time interval in megra is 100ms, this should be ok
+
+  var svgDict = {};
+  
+  function draw(timestamp) {
+      
+      if((timestamp - last) > updateInterval) {
+          // set timestamp
+          last = timestamp;
+          
+          fetch("../list").then(function(proclist) {
+              proclist.text().then(function(listtext) {
+                  var procs = listtext.split(";").filter(Boolean);
+
+                  Object.keys(svgDict).forEach(function(key) {
+                      if(!procs.includes(key)) {
+                          svgDict[key].remove();
+                          delete svgDict[key];
+                      }                    
+                  });
+                                                      
+                  procs.forEach(function(procname, index, array) {
+                                            
+                      fetch(`../proc?name=${procname}`).then(function(graph) {
+                          graph.text().then(function(graphtext) {
+                              try {
+                                  var g = graphlibDot.read(graphtext);
+
+                                  // inject into DOM
+                                  if(!svgDict.hasOwnProperty(procname)) {
+                                      svgDict[procname] = d3.select("body").append("svg").attr("width", 400).attr("height", 400).attr("id", procname);
+                                      svgDict[procname].append("g");
+                                  }
+                                  
+                                  svgDict[procname].select("g").call(render, g);
+                              } catch (e) {
+                                  // sth sth error handling
+                                  console.log(e);
+                                  throw e;
+                              }              
+                          });
+                      });
+                  });
+              });                                                      
+          });
+      }
+      
+      window.requestAnimationFrame(draw);            
+  }
+
+  // start animating
+  window.requestAnimationFrame(draw);
+  
+</script>
