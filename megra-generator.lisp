@@ -211,17 +211,14 @@
   (format output "digraph ~D {~%" (name g))
   (format output "node \[shape=\"ellipse\"\]~%")
   (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
-        do (progn
-
+        do (let ((src-hash (sxhash label)))
              (if (equal (vom::current-state (inner-generator g)) label)
-                 (format output "\"~{~a~^, ~}\" \[style=\"fill: #f77; font-weight: bold\"\];~%" label)
-                 (format output "\"~{~a~^, ~}\";~%" label)
-                 )
-
+                 (format output "\"~D\" \[style=\"fill: #f77; font-weight: bold\"\];~%" src-hash)
+                 (format output "\"~D\";~%" src-hash))
              (loop for ch in chs
-                   do (format output "\"~{~a~^, ~}\"->\"~a\";~%"
-	                      label
-                              (cdr ch)))))
+                   do (let ((dest-hash (sxhash (if (listp (cdr ch))
+                                                   (cadr ch)
+                                                   (list (cdr ch))))))
+                        (format t "~D" (cdr ch))
+                        (format output "\"~D\"->\"~D\";~%" src-hash dest-hash)))))
   (format output "}"))
-
-
