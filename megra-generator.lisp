@@ -208,7 +208,7 @@
         (vom::graph->svg ig (symbol-name (name g)) :renderer renderer))))
 
 (defmethod to-plain-dot ((g generator) &key (output nil))
-  (format output "digraph{~%")
+  (format output "digraph ~D {~%" (name g))
   (format output "node \[shape=\"ellipse\"\]~%")
   (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
         do (progn

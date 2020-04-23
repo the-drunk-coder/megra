@@ -76,42 +76,49 @@
       if((timestamp - last) > updateInterval) {
           // set timestamp
           last = timestamp;
-          
-          fetch("../list").then(function(proclist) {
-              proclist.text().then(function(listtext) {
-                  var procs = listtext.split(";").filter(Boolean);
 
-                  Object.keys(svgDict).forEach(function(key) {
-                      if(!procs.includes(key)) {
+          fetch("../all").then(function(plain_dot) {                          
+              plain_dot.text().then(function(text_dot) {
+
+                  // nothing else to do in that case
+                  if(text_dot === "") {
+                      Object.keys(svgDict).forEach(function(key) {                          
                           svgDict[key].remove();
-                          delete svgDict[key];
-                      }                    
-                  });
-                                                      
-                  procs.forEach(function(procname, index, array) {
-                                            
-                      fetch(`../proc?name=${procname}`).then(function(graph) {
-                          graph.text().then(function(graphtext) {
-                              try {
-                                  var g = graphlibDot.read(graphtext);
-
-                                  // inject into DOM
-                                  if(!svgDict.hasOwnProperty(procname)) {
-                                      svgDict[procname] = d3.select("body").append("svg").attr("width", 400).attr("height", 400).attr("id", procname);
-                                      svgDict[procname].append("g");
-                                  }
-                                  
-                                  svgDict[procname].select("g").call(render, g);
-                              } catch (e) {
-                                  // sth sth error handling
-                                  console.log(e);
-                                  throw e;
-                              }              
-                          });
+                          delete svgDict[key];                          
                       });
-                  });
-              });                                                      
-          });
+                      return;
+                  }
+                  
+                  try {
+                      var procs = graphlibDot.readMany(text_dot);
+                      var procnames = [];
+
+                      procs.forEach(function(p, index, array) {
+                          var procname = p._label.id;
+                          procnames.push(procname);
+                          // inject into DOM
+                          if(!svgDict.hasOwnProperty(procname)) {
+                              svgDict[procname] = d3.select("body").append("svg").attr("width", 400).attr("height", 400).attr("id", procname);
+                              svgDict[procname].append("g");
+                          }
+                          
+                          svgDict[procname].select("g").call(render, p);                          
+                      });
+
+                      Object.keys(svgDict).forEach(function(key) {
+                          if(!procnames.includes(key)) {
+                              svgDict[key].remove();
+                              delete svgDict[key];
+                          }                    
+                      });
+                      
+                  } catch (e) {
+                      // sth sth error handling
+                      console.log(e);
+                      throw e;
+                  }
+              });
+          });          
       }
       
       window.requestAnimationFrame(draw);            
