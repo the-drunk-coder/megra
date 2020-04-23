@@ -14,9 +14,6 @@ git clone https://github.com/ormf/fudi-incudine
 git clone https://github.com/ghollisjr/cl-libsndfile
 git clone https://github.com/edicl/cl-fad
 git clone https://gitlab.com/ellipsenpark/vom.git
-cd vom
-git checkout 1.0.0
-cd ..
 cd ..
 
 cd megra/sc_synths
@@ -33,6 +30,7 @@ cp megra/incudinerc_samples/incudinerc_osx ~/.incudinerc
 
 # copy tutorial folder
 cp -R megra/Tutorial ./megra-tutorial
+cp -R megra/vis ./vis
 
 # generate sketchbook folder
 mkdir megra-sketchbook
