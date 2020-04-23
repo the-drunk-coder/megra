@@ -207,14 +207,24 @@
         (vom::adj-list-pfa->svg ig (symbol-name (name g)) :renderer renderer)
         (vom::graph->svg ig (symbol-name (name g)) :renderer renderer))))
 
+(type-of (saw 100))
+
 (defmethod to-plain-dot ((g generator) &key (output nil))
   (format output "digraph ~D {~%" (name g))
   (format output "node \[shape=\"ellipse\"\]~%")
   (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
-        do (let ((src-hash (sxhash label)))
+        do (let ((src-hash (sxhash label))
+                 (src-label (with-output-to-string (stream)
+                              ;; now, stream is bound to an output stream 
+                              ;; that writes into a string. The whole form 
+                              ;; returns that string.
+                              (loop for s in label
+                                    do (if (numberp s)
+                                           (format stream "~{~a ~}" (mapcar 'event-tags (gethash s (event-dictionary g))))
+                                           s)))))
              (if (equal (vom::current-state (inner-generator g)) label)
-                 (format output "\"~D\" \[style=\"fill: #f77; font-weight: bold\"\];~%" src-hash)
-                 (format output "\"~D\";~%" src-hash))
+                 (format output "\"~D\" \[label=\"~D\" style=\"fill: #f77; font-weight: bold\"\];~%" src-hash src-label)
+                 (format output "\"~D\" \[label=\"~D\"\];~%" src-hash src-label))
              (loop for ch in chs
                    do (let ((dest-hash (sxhash (if (listp (cdr ch))
                                                    (cadr ch)
