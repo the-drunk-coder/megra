@@ -210,25 +210,26 @@
 (type-of (saw 100))
 
 (defmethod to-plain-dot ((g generator) &key (output nil))
-  (format output "digraph ~D {~%" (name g))
+  (format output "digraph \"~D\" {~%" (name g))
   (format output "node \[shape=\"ellipse\"\]~%")
   (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
-        do (let ((src-hash (sxhash label))
-                 (src-label (with-output-to-string (stream)
-                              ;; now, stream is bound to an output stream 
-                              ;; that writes into a string. The whole form 
-                              ;; returns that string.
-                              (loop for s in label
-                                    do (if (numberp s)
-                                           (format stream "~{~a ~}" (mapcar 'event-tags (gethash s (event-dictionary g))))
-                                           s)))))
-             (if (equal (vom::current-state (inner-generator g)) label)
-                 (format output "\"~D\" \[label=\"~D\" style=\"fill: #f77; font-weight: bold\"\];~%" src-hash src-label)
-                 (format output "\"~D\" \[label=\"~D\"\];~%" src-hash src-label))
+        do (progn
+             (if (equal (vom::query-result-last-state (last-transition g)) label)
+                 ;; active node
+                 (progn
+                   (format output "\"~D\" \[style=\"fill: #f77; font-weight: bold\" label=\"" (sxhash label))
+                   (loop for s in label
+                         do (format output "~D " (alexandria::lastcar (event-tags (car (gethash s (event-dictionary g)))))))                  
+                   (format output "\"\];~%" (sxhash label)))
+                 ;; non-active node 
+                 (progn
+                   (format output "\"~D\" \[label=\"" (sxhash label))
+                   (loop for s in label
+                         do (format output "~D " (alexandria::lastcar (event-tags (car (gethash s (event-dictionary g)))))))                   
+                   (format output "\"\];~%" (sxhash label))))             
              (loop for ch in chs
-                   do (let ((dest-hash (sxhash (if (listp (cdr ch))
-                                                   (cadr ch)
-                                                   (list (cdr ch))))))
-                        (format t "~D" (cdr ch))
-                        (format output "\"~D\"->\"~D\";~%" src-hash dest-hash)))))
+                   do (progn                        
+                        (format output "\"~D\"->\"~D\";~%"
+                                (sxhash label)
+                                (sxhash (if (listp (cdr ch)) (cadr ch) (list (cdr ch)))))))))
   (format output "}"))

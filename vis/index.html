@@ -17,41 +17,35 @@
   .node rect,
   .node circle,
   .node ellipse {
-      stroke: #333;
+      stroke: #ffffff;
       fill: #fff;
       stroke-width: 1.5px;
   }
-
-  .cluster rect {
-      stroke: #333;
-      fill: #000;
-      fill-opacity: 0.1;
+  
+  .edgePath path {
+      stroke: #ffffff;
       stroke-width: 1.5px;
+      fill: #ffffff;
+      border: 0.5px;
+      border-color: #999999;
   }
 
-  .edgePath path.path {
-      stroke: #333;
-      stroke-width: 1.5px;
-      fill: none;
-  }
 </style>
 
 <style>
-  h1, h2 {
-      color: #333;
+  body {
+      font-family: Comic Mono, monospace;
+      background: #000000;
   }
-
-  textarea {
-      width: 800px;
+  
+  h1 {
+      font-size: 14pt;
+      color: #ffffff;
   }
-
+  
   label {
       margin-top: 1em;
       display: block;
-  }
-
-  .error {
-      color: red;
   }
 </style>
 
@@ -67,7 +61,7 @@
   var render = dagreD3.render();
 
   var last = 0;
-  var updateInterval = 50; // update roughly every 50 ms ... given that a typical time interval in megra is 100ms, this should be ok
+  var updateInterval = 100; // update roughly every 50 ms ... given that a typical time interval in megra is 100ms, this should be ok
 
   var svgDict = {};
   
@@ -96,13 +90,17 @@
                       procs.forEach(function(p, index, array) {
                           var procname = p._label.id;
                           procnames.push(procname);
+                          
                           // inject into DOM
-                          if(!svgDict.hasOwnProperty(procname)) {
-                              svgDict[procname] = d3.select("body").append("svg").attr("width", 400).attr("height", 400).attr("id", procname);
-                              svgDict[procname].append("g");
+                          if(!svgDict.hasOwnProperty(procname)) {                                  
+                              svgDict[procname] = d3.select("body")
+                                  .append("svg")                                  
+                                  .attr("id", procname);
+                              svgDict[procname].append("g");                                                                                                      
                           }
                           
-                          svgDict[procname].select("g").call(render, p);                          
+                          svgDict[procname].select("g").call(render, p);
+                          svgDict[procname].attr("width", p.graph().width).attr("height", p.graph().height);
                       });
 
                       Object.keys(svgDict).forEach(function(key) {
