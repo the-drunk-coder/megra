@@ -50,8 +50,9 @@
   (setf (hunchentoot:content-type*) "text/plain")  
   (let ((s (make-string-output-stream)))
     (loop for p being the hash-values of *processor-directory*
+          when (is-active p)
           do (to-plain-dot p :output s)
-          do (format s "~%"))    
+          and do (format s "~%"))    
     (format nil "~D" (get-output-stream-string s))))
 
 

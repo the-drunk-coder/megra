@@ -93,7 +93,8 @@
       (loop for synced-sync in (synced-syncs sync)	     
 	    ;; don't check if it's active, as only deactivated procs
 	    ;; are added to sync list
-	    do (let ((sync-shift (sync-shift synced-sync)))	        
+	    do (let ((sync-shift (sync-shift synced-sync)))
+                 (incudine::msg error "sync-start: ~D" (name synced-sync))
 	         (activate synced-sync)
 	         (setf (wait-for-sync synced-sync) nil)
 	         (setf (sync-shift synced-sync) 0)
@@ -168,7 +169,7 @@
     (cond ((and old-sync (wait-for-sync old-sync))) ;; don't do anything, as there's a sync for this already ...  
 	  (old-sync	   	   
            (setf (sync-shift old-sync) (max 0 (- shift (sync-shift old-sync))))
-           (setf (processor old-sync) (if (functionp proc) (funcall proc) proc))
+           (setf (processor old-sync) (activate (if (functionp proc) (funcall proc) proc)))
            (unless (is-active old-sync)
              (if intro
                  (progn (handle-event intro 0)
@@ -212,21 +213,21 @@
          (sync (find-keyword-val :sync rest :default nil))
          (shift (find-keyword-val :shift rest :default 0.0))
          (procs (delete-if #'(lambda (i) (member i (list :sync :shift :intro sync shift intro))) rest))) ;; remove found args      
-      (if (not act)
-       (loop for name in (gethash basename *multichain-directory*) do (clear name))
-       (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
-              (names (loop for n from 0 to (- (length fprocs) 1)
-                           collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
-         ;; check if anything else is running under this name ... 
-         (if (gethash basename *multichain-directory*)
-             (loop for name in (gethash basename *multichain-directory*)
-                   do (unless (member name names) (clear name))))
-         (setf (gethash basename *multichain-directory*) names)
-         (if intro
-             (progn (handle-event intro 0)
-                    (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
-			         #'(lambda () (sx-inner fprocs names sync shift))))
-             (sx-inner fprocs names sync shift))))))
+    (if (not act)
+        (loop for name in (gethash basename *multichain-directory*) do (clear name))
+        (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
+               (names (loop for n from 0 to (- (length fprocs) 1)
+                            collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
+          ;; check if anything else is running under this name ... 
+          (if (gethash basename *multichain-directory*)
+              (loop for name in (gethash basename *multichain-directory*)
+                    do (unless (member name names) (clear name))))
+          (setf (gethash basename *multichain-directory*) names)
+          (if intro
+              (progn (handle-event intro 0)
+                     (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
+			          #'(lambda () (sx-inner fprocs names sync shift))))
+              (sx-inner fprocs names sync shift))))))
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))

@@ -100,7 +100,7 @@
                           }
                                                     
                           svgDict[procname].select("g").call(render, p);
-                          svgDict[procname].attr("width", p.graph().width).attr("height", p.graph().height);
+                          svgDict[procname].attr("width", p.graph().width + 80).attr("height", p.graph().height + 80);
                       });
 
                       Object.keys(svgDict).forEach(function(key) {
