@@ -90,7 +90,7 @@
                       procs.forEach(function(p, index, array) {
                           var procname = p._label.id;
                           procnames.push(procname);
-                          
+                                                    
                           // inject into DOM
                           if(!svgDict.hasOwnProperty(procname)) {                                  
                               svgDict[procname] = d3.select("body")
@@ -98,7 +98,7 @@
                                   .attr("id", procname);
                               svgDict[procname].append("g");                                                                                                      
                           }
-                          
+                                                    
                           svgDict[procname].select("g").call(render, p);
                           svgDict[procname].attr("width", p.graph().width).attr("height", p.graph().height);
                       });

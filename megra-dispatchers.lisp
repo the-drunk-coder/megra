@@ -17,14 +17,16 @@
    (active :accessor is-active :initform nil :initarg :is-active)
    (shift :accessor sync-shift :initform 0.0 :initarg :shift)))
 
-(defun activate (sync)  
+(defmethod activate ((sync processor-sync))  
   (setf (wait-for-sync sync) nil)
-  (setf (is-active sync) t))
+  (setf (is-active sync) t)
+  (if (processor sync) (activate (processor sync))))
 
 ;; deactivate ... if it's a modifying event processor, delete it ...
-(defun deactivate (sync)
+(defmethod deactivate ((sync processor-sync))
   (setf (wait-for-sync sync) nil)
-  (setf (is-active sync) nil))
+  (setf (is-active sync) nil)
+  (if (processor sync) (deactivate (processor sync))))
 
 (defmethod pull-events ((p processor-sync) &key)
   (pull-events (processor p)))

@@ -5,6 +5,12 @@
    (filters-excl :accessor filters-excl :initarg :filters-excl)
    (wrapped-processor :accessor wrapper-wrapped-processor :initarg :wrapped-processor)))
 
+(defmethod activate ((w event-processor-wrapper))
+  (activate (wrapper-wrapped-processor w)))
+
+(defmethod deactivate ((w event-processor-wrapper))
+  (deactivate (wrapper-wrapped-processor w)))
+
 ;; pass everything on to inner processor 
 (defmethod push-tmod ((w event-processor-wrapper) tmod &key)
   (push-tmod (wrapper-wrapped-processor w) tmod))
