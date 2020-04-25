@@ -102,9 +102,13 @@
 		(incudine::msg error "stop ~D" id)
 		;; if it's a chain, stop the chain ...
                 (if (gethash id *global-syncs*)
-                    (deactivate (gethash id *global-syncs*))
-                    (mapc #'(lambda (id2) (deactivate (gethash id2 *global-syncs*))) (gethash id *multichain-directory*))))
+                    (stop-sync (gethash id *global-syncs*))
+                    (mapc #'(lambda (id2) (stop-sync (gethash id2 *global-syncs*))) (gethash id *multichain-directory*))))
 	    chains)))
+
+(defun stop-sync (sync)
+  (deactivate sync)
+  (if *vis-active* (vis-clear (processor sync))))
 
 (defun solo (&rest chains)
   "solo one or more chain"
