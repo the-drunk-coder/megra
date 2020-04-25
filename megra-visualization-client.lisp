@@ -35,7 +35,10 @@
                                        key
                                        dest-key
                                        (symbol-name (alexandria::lastcar (event-tags (car (gethash (alexandria::lastcar dest) (event-dictionary g))))))
-                                       (car ch)))))))
+                                       (if (integerp (car ch))
+                                           (car ch)
+                                           (ceiling (* (car ch) 100)))
+                                       ))))))
   (osc:message *oscout-vis* "/render" "s" (symbol-name (generator-name g))))
 
 

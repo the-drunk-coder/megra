@@ -76,6 +76,8 @@
 (defun clear-all ()
   ;; first of all stop all events already passed to incudine ...
   (incudine::flush-pending)
+  (if *vis-active* (loop for g being the hash-value of *processor-directory*
+                         do (vis-clear g)))
   (setf *processor-directory* (make-hash-table :test 'eql))
   (loop for chain being the hash-values of *global-syncs*
      do (deactivate chain))       
