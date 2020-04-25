@@ -38,7 +38,7 @@
   body {
       font-family: Comic Mono, monospace;
       background: #000000;
-      font-size: 8pt;
+      font-size: 6pt;
   }
   
   h1 {
@@ -109,7 +109,7 @@
       case "/graph/add": {
 	  var name = msg.args[0].value;	  	  
 	  graphs[name] = new graphlib.Graph().setGraph({});
-	  console.log("add graph " + name);
+	  //console.log("add graph " + name);
 	  break;
       }
       case "/node/add": {
