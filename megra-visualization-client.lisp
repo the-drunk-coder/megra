@@ -10,9 +10,8 @@
 (defmethod vis-update-create ((g generator) &key)
   ;; create graph in vis server
   (osc:message *oscout-vis* "/graph/add" "s" (symbol-name (generator-name g)))
-  ;; keep labels so we don't have to generate them all the time ...
-  (if (not (gethash (generator-name g) *label-map*))
-      (setf (gethash (generator-name g) *label-map*) (make-hash-table :test 'equal)))
+  ;; keep labels so we don't have to generate them all the time ...  
+  (setf (gethash (generator-name g) *label-map*) (make-hash-table :test 'equal))
   (let ((the-labels (gethash (generator-name g) *label-map*)))
     ;; add nodes
     (loop for n being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
@@ -41,7 +40,8 @@
 
 (defmethod vis-update ((g generator) &key)
   (if (is-modified g)
-      (vis-update-create g))
+      (vis-update-create g)
+      (setf (is-modified g) nil))
   (if (and (is-active g) (vom::query-result-last-state (last-transition g)))
       (vis-update-active-node g))
   (if (successor g)
@@ -49,6 +49,13 @@
 
 (defmethod vis-update ((w event-processor-wrapper) &key)
   (vis-update (wrapper-wrapped-processor w)))
+
+(defmethod vis-clear ((g generator) &key)
+  (osc:message *oscout-vis* "/clear" "s" (symbol-name (generator-name g))))
+
+(defmethod vis-clear ((w event-processor-wrapper) &key)
+  (vis-clear (wrapper-wrapped-processor w)))
+
 
 
   

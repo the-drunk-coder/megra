@@ -142,35 +142,44 @@
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (sharpen factor (funcall proc nproc)))         
-          (vom::sharpen-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
+          (progn
+            (vom::sharpen-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
+            (setf (is-modified proc) t)))
       (lambda (nproc) (sharpen factor nproc))))
 
 (defun blur (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (blur factor (funcall proc nproc)))         
-          (vom::blur-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
+          (progn (vom::blur-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
+                 (setf (is-modified proc) t)))
       (lambda (nproc) (blur factor nproc))))
 
 (defun discourage (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (discourage factor (funcall proc nproc)))
-          (vom::discourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
+          (progn
+            (vom::discourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
+            (setf (is-modified proc) t)))
       (lambda (nproc) (discourage factor nproc))))
 
 (defun encourage (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (encourage factor (funcall proc nproc)))         
-          (vom::encourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor))
+          (progn
+            (vom::encourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
+            (setf (is-modified proc) t)))
       (lambda (nproc) (encourage factor nproc))))
 
 (defun rnd (chance &optional proc)
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (rnd chance (funcall proc nproc)))         
-          (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance))
+          (progn
+            (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance)
+            (setf (is-modified proc) t)))
       (lambda (nproc) (rnd chance nproc))))
 
 

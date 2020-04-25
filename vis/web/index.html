@@ -180,8 +180,18 @@
 	  renderSingle(msg.args[0].value);	  
 	  break;
       }
+      case "/clear": {	  	  
+	  var name = msg.args[0].value;
+	  if(graph_svgs.hasOwnProperty(name)) {
+	      graph_svgs[name].remove();
+	      delete graph_svgs[name];
+	  }
+	  if(graphs.hasOwnProperty(name)) {	      
+	      delete graphs[name];
+	  }
+	  break;
       }
-            
+      }            
   });
   
 </script>
