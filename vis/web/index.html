@@ -72,7 +72,7 @@
   var last_label = {};
 
   function renderSingle(name) {
-      console.log("render " + name);
+      //console.log("render " + name);
 
       if(!graph_svgs.hasOwnProperty(name)) {
           graph_svgs[name] = d3.select("body")
@@ -117,7 +117,7 @@
 	  var node_id = msg.args[1].value;
 	  var node_label = msg.args[2].value.trim();
 
-	  console.log("add node " + node_id + " with label " + node_label + " to graph " + name);
+	  //console.log("add node " + node_id + " with label " + node_label + " to graph " + name);
 
 	  if(!graphs.hasOwnProperty(name)) {
 	      graphs[name] = new graphlib.Graph().setGraph({});
@@ -163,14 +163,22 @@
 	  var name = msg.args[0].value;
 	  var src = msg.args[1].value;
 	  var dest = msg.args[2].value;
-
-	  console.log("add edge " + src + " -> " + dest + " to graph " + name);
+	  var label = msg.args[3].value;
+	  var prob = msg.args[4].value;
+	  
+	  console.log("add edge " + src + " -> " + dest + " to graph " + name + " label " + label + " prob " + prob );
 
 	  if(!graphs.hasOwnProperty(name)) {
 	      graphs[name] = new graphlib.Graph().setGraph({});
 	  }
+
+	  var thickness = 0.2 + (3.0 * (prob / 100.0));
+	  //var thickness = 4.0;
 	  
 	  graphs[name].setEdge(src, dest, {	      
+	      label: label,
+	      labelStyle: "fill: #dd77ff; font-weight: bold",
+	      style: `stroke: #ffffff; fill: none; border: 0.5px; border-color: #999999; stroke-width: ${thickness}px`,
 	      curve: d3.curveBasis 
 	  });
 

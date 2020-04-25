@@ -30,13 +30,20 @@
                (loop for ch in chs
                      do (let* ((dest (if (listp (cdr ch)) (cadr ch) (list (cdr ch))))
                                (dest-key (sxhash dest)))                        
-                          (osc:message *oscout-vis* "/edge/add" "sii" (symbol-name (generator-name g)) key dest-key))))))
+                          (osc:message *oscout-vis* "/edge/add" "siisi"
+                                       (symbol-name (generator-name g))
+                                       key
+                                       dest-key
+                                       (symbol-name (alexandria::lastcar (event-tags (car (gethash (alexandria::lastcar dest) (event-dictionary g))))))
+                                       (car ch)))))))
   (osc:message *oscout-vis* "/render" "s" (symbol-name (generator-name g))))
+
 
 (defmethod vis-update-active-node ((g generator) &key)
   (let* ((key (sxhash (vom::query-result-last-state (last-transition g))))
-         (label (gethash key (gethash (generator-name g) *label-map*))))
-    (osc:message *oscout-vis* "/node/active" "sis" (symbol-name (generator-name g)) key label)))
+         (label (gethash key (gethash (generator-name g) *label-map*))))    
+    (if (and key label)
+        (osc:message *oscout-vis* "/node/active" "sis" (symbol-name (generator-name g)) key label))))
 
 (defmethod vis-update ((g generator) &key)
   (if (is-modified g)
