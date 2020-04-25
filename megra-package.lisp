@@ -126,5 +126,5 @@
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-deepcopy")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-supercollider-interface")))
 (load (compile-file (concatenate 'string cm::*megra-root* "/megra-generator-export")))
+(load (compile-file (concatenate 'string cm::*megra-root* "/megra-visualization-client")))
 (load (concatenate 'string cm::*megra-root* "/megra-generate-sample-category-events"))
-(load (concatenate 'string cm::*megra-root* "/megra-visualization-server"))

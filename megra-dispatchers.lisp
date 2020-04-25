@@ -121,6 +121,7 @@
     (handler-case (handle-events (pull-events sync) (incudine::rt-time-offset))
       (error (e)
 	(incudine::msg error "cannot pull and handle events: ~D" e)))
+    (if *vis-active* (incudine::nrt-funcall (vis-update (processor sync))))
     ;; here, the transition time between events is determinend,
     ;; and the next evaluation is scheduled ...        
     (let* ((shift-time (sync-shift sync))
@@ -148,7 +149,7 @@
 		      (list sync)))))		      
       (t (unless (or (is-active sync) (wait-for-sync sync))
 	   (incudine::msg error "start sync ~D" (name sync))
-	   (activate sync)
+	   (activate sync)           
            ;; different methods work, unfortunately, better on different operating systems ...
            #-linux (incudine:at (+ (incudine:now) #[(sync-shift sync) ms])
 	   	                #'perform-dispatch-sep-times

@@ -3,6 +3,7 @@
 (defclass generator (event-processor)
   ((name :accessor generator-name :initarg :name)
    (is-active :accessor is-active :initform nil)
+   (modified :accessor is-modified :initform t)
    (inner-generator :accessor inner-generator :initarg :generator)
    (combine-filter :accessor combine-filter :initarg :combine-filter :initform #'all-p)
    (symbol-ages :accessor ages :initarg :ages :initform (make-hash-table :test 'equal)) ;; move this to core model, so that all operations can be defined there !
@@ -218,54 +219,3 @@
         (vom::adj-list-pfa->svg ig (symbol-name (name g)) :renderer renderer)
         (vom::graph->svg ig (symbol-name (name g)) :renderer renderer))))
 
-(type-of (saw 100))
-
-(defmethod to-plain-dot ((g generator) &key (output nil))
-  (format output "digraph \"~D\" {~%" (name g))
-  (format output "node \[shape=\"ellipse\"\]~%")
-  (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
-        do (progn
-             (if (equal (vom::query-result-last-state (last-transition g)) label)
-                 ;; active node
-                 (progn
-                   (format output "\"~D\" \[style=\"fill: #f77; font-weight: bold\" label=\"" (sxhash label))
-                   (loop for s in label
-                         do (format output "~D " (alexandria::lastcar (event-tags (car (gethash s (event-dictionary g)))))))                  
-                   (format output "\"\];~%" (sxhash label)))
-                 ;; non-active node 
-                 (progn
-                   (format output "\"~D\" \[label=\"" (sxhash label))
-                   (loop for s in label
-                         do (format output "~D " (alexandria::lastcar (event-tags (car (gethash s (event-dictionary g)))))))                   
-                   (format output "\"\];~%" (sxhash label))))             
-             (loop for ch in chs
-                   do (progn                        
-                        (format output "\"~D\"->\"~D\";~%"
-                                (sxhash label)
-                                (sxhash (if (listp (cdr ch)) (cadr ch) (list (cdr ch)))))))))
-  (format output "}"))
-
-(defmethod to-plain-dot ((g generator) &key (output nil))
-  (format output "digraph \"~D\" {~%" (name g))
-  (format output "node \[shape=\"ellipse\"\]~%")
-  (loop for label being the hash-keys of (vom::children (inner-generator g)) using (hash-value chs)
-        do (progn
-             (if (equal (vom::query-result-last-state (last-transition g)) label)
-                 ;; active node
-                 (progn
-                   (format output "\"~D\" \[style=\"fill: #f77; font-weight: bold\" label=\"" (sxhash label))
-                   (loop for s in label
-                         do (format output "~D " (alexandria::lastcar (event-tags (car (gethash s (event-dictionary g)))))))                  
-                   (format output "\"\];~%" (sxhash label)))
-                 ;; non-active node 
-                 (progn
-                   (format output "\"~D\" \[label=\"" (sxhash label))
-                   (loop for s in label
-                         do (format output "~D " (alexandria::lastcar (event-tags (car (gethash s (event-dictionary g)))))))                   
-                   (format output "\"\];~%" (sxhash label))))             
-             (loop for ch in chs
-                   do (progn                        
-                        (format output "\"~D\"->\"~D\";~%"
-                                (sxhash label)
-                                (sxhash (if (listp (cdr ch)) (cadr ch) (list (cdr ch)))))))))
-  (format output "}"))

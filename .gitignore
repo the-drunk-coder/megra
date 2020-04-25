@@ -4,3 +4,5 @@
 *~
 reflect.org
 MISC_OLD*
+*node_modules
+*package-lock.json
