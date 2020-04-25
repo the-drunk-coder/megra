@@ -170,7 +170,8 @@
     (cond ((and old-sync (wait-for-sync old-sync))) ;; don't do anything, as there's a sync for this already ...  
 	  (old-sync	   	   
            (setf (sync-shift old-sync) (max 0 (- shift (sync-shift old-sync))))
-           (setf (processor old-sync) (activate (if (functionp proc) (funcall proc) proc)))
+           (setf (processor old-sync) (if (functionp proc) (funcall proc) proc))
+           (activate (processor old-sync))
            (unless (is-active old-sync)
              (if intro
                  (progn (handle-event intro 0)
