@@ -3,7 +3,7 @@
 (defclass generator (event-processor)
   ((name :accessor generator-name :initarg :name)
    (is-active :accessor is-active :initform nil)
-   (modified :accessor is-modified :initform t)
+   (modified :accessor modified :initform t)
    (inner-generator :accessor inner-generator :initarg :generator)
    (combine-filter :accessor combine-filter :initarg :combine-filter :initform #'all-p)
    (symbol-ages :accessor ages :initarg :ages :initform (make-hash-table :test 'equal)) ;; move this to core model, so that all operations can be defined there !
@@ -11,6 +11,11 @@
    (event-dictionary :accessor event-dictionary :initarg :events :initform (make-hash-table :test #'equal))   
    (default-duration :accessor default-duration :initarg :default-duration :initform 0)
    (last-transition :accessor last-transition :initarg :last-transition :initform (vom::make-query-result))))
+
+(defmethod is-modified ((g generator))
+  (if (successor g)
+      (and (modified g) (is-modified (successor g)))
+      (modified g)))
 
 (defmethod activate ((g generator))
   (setf (is-active g) t)

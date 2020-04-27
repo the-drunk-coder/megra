@@ -49,9 +49,9 @@
         (osc:message *oscout-vis* "/node/active" "sis" (symbol-name (generator-name g)) key label))))
 
 (defmethod vis-update ((g generator) &key)
-  (if (is-modified g)
-      (vis-update-create g)
-      (setf (is-modified g) nil))
+  (when (modified g) 
+    (vis-update-create g)
+    (setf (modified g) nil))
   (if (and (is-active g) (vom::query-result-last-state (last-transition g)))
       (vis-update-active-node g))
   (if (successor g)

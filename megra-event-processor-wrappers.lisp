@@ -11,6 +11,9 @@
 (defmethod deactivate ((w event-processor-wrapper))
   (deactivate (wrapper-wrapped-processor w)))
 
+(defmethod is-modified ((w event-processor-wrapper))
+  (is-modified (wrapper-wrapped-processor w)))
+
 ;; pass everything on to inner processor 
 (defmethod push-tmod ((w event-processor-wrapper) tmod &key)
   (push-tmod (wrapper-wrapped-processor w) tmod))
