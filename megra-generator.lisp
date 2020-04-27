@@ -14,7 +14,7 @@
 
 (defmethod is-modified ((g generator))
   (if (successor g)
-      (and (modified g) (is-modified (successor g)))
+      (or (modified g) (is-modified (successor g)))
       (modified g)))
 
 (defmethod activate ((g generator))
