@@ -71,13 +71,15 @@
   :parent-events (tuned-instrument-event)  
   :parameters ((channel event-channel 0))
   :direct-parameters (pitch)
-  :handler (events (cm::new cm::midi
-		     :time *global-midi-delay*			  
-		     :channel (event-channel evt)
-		     :keynum (event-pitch evt)
-		     :duration (coerce
-				(* (event-duration evt) 0.001) 'single-float)
-		     :amplitude (round (* 127 (event-level evt))))))
+  :handler (cm::output (cm::new cm::midi
+		         :time *global-midi-delay*			  
+		         :channel (event-channel evt)
+		         :keynum (if (numberp (event-pitch evt))
+                                     (event-pitch evt)
+                                     (cm::keynum (event-pitch evt)))
+		         :duration (coerce
+				    (* (event-duration evt) 0.001) 'single-float)
+		         :amplitude (round (* 127 (event-level evt))))))
 
 (define-event-alias
   :long-name midi-event

@@ -97,6 +97,10 @@
 ;; redefine sample root in megra package ...
 (defparameter *sample-root* cm::*sample-root*)
 
+(defun start-midi ()
+  (ql:quickload :cm-incudine)
+  (cm::rts))
+
 ;; only option for now ...
 (defparameter *default-dsp-backend* 'sc)
 
