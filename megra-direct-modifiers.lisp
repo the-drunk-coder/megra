@@ -144,7 +144,7 @@
           (lambda (&optional nproc) (sharpen factor (funcall proc nproc)))         
           (progn
             (vom::sharpen-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-            (setf (is-modified proc) t)))
+            (set-modified proc)))
       (lambda (nproc) (sharpen factor nproc))))
 
 (defun blur (factor &optional proc)  
@@ -152,7 +152,7 @@
       (if (typep proc 'function)
           (lambda (&optional nproc) (blur factor (funcall proc nproc)))         
           (progn (vom::blur-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-                 (setf (is-modified proc) t)))
+                 (set-modified proc)))
       (lambda (nproc) (blur factor nproc))))
 
 (defun discourage (factor &optional proc)  
@@ -161,7 +161,7 @@
           (lambda (&optional nproc) (discourage factor (funcall proc nproc)))
           (progn
             (vom::discourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-            (setf (is-modified proc) t)))
+            (set-modified proc)))
       (lambda (nproc) (discourage factor nproc))))
 
 (defun encourage (factor &optional proc)  
@@ -170,7 +170,7 @@
           (lambda (&optional nproc) (encourage factor (funcall proc nproc)))         
           (progn
             (vom::encourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-            (setf (is-modified proc) t)))
+            (set-modified proc)))
       (lambda (nproc) (encourage factor nproc))))
 
 (defun rnd (chance &optional proc)
@@ -179,7 +179,7 @@
           (lambda (&optional nproc) (rnd chance (funcall proc nproc)))         
           (progn
             (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance)
-            (setf (is-modified proc) t)))
+            (set-modified proc)))
       (lambda (nproc) (rnd chance nproc))))
 
 

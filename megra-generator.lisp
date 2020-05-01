@@ -17,6 +17,9 @@
       (or (modified g) (is-modified (successor g)))
       (modified g)))
 
+(defmethod set-modified ((g generator))
+  (setf (modified g) t))
+
 (defmethod activate ((g generator))
   (setf (is-active g) t)
   (if (successor g)

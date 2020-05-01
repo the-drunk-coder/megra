@@ -5,6 +5,9 @@
    (filters-excl :accessor filters-excl :initarg :filters-excl)
    (wrapped-processor :accessor wrapper-wrapped-processor :initarg :wrapped-processor)))
 
+(defmethod set-modified ((w event-processor-wrapper))
+  (set-modified (wrapper-wrapped-processor w)))
+
 (defmethod activate ((w event-processor-wrapper))
   (activate (wrapper-wrapped-processor w)))
 

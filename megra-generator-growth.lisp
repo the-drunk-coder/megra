@@ -44,7 +44,7 @@
       (if appropiate-duration
           (loop for added in (vom::growth-result-added-transitions result)
                 do (setf (gethash added (transition-durations g)) appropiate-duration)))
-      (setf (is-modified g) t)
+      (set-modified g)
       (list result appropiate-duration))))
 
 (defmethod prune-generator (graph-or-id &key exclude node-id)
@@ -53,4 +53,4 @@
 	       graph-or-id)))
     ;; remove symbol from ages !!!
     (vom::prune-pfa (inner-generator g) :exclude exclude :node-id node-id)
-    (setf (is-modified g) t)))
+    (set-modified g)))
