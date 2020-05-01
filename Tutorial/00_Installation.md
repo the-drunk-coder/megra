@@ -43,6 +43,9 @@ also install the following:
 * git
 * wget
 
+The exact names might vary from distro to distro. As paddywwoof reported, on Ubuntu 18.04 (and I assume derived systems), the correct packages are:
+`libsndfile-dev fftw-dev portaudio19-dev libportmidi-dev libgsl-dev graphviz`
+
 ### 2. Download Portacle
 Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend your home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
 
