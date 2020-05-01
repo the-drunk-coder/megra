@@ -56,6 +56,7 @@
   var graphs = {};
   var layouts = {};
   var graph_svgs = {};
+
   var last_active = {};
   var last_label = {};
 
@@ -98,7 +99,7 @@
   }
   
   function renderSingle(name) {      
-      var width = 960;
+      var width = 500;
       var height = 500;
 
       var force = d3.forceSimulation(graphs[name].nodes)
@@ -162,9 +163,7 @@
 	  link.attr("d", linkArc);
 	  node.attr("transform", d => `translate(${d.x},${d.y})`);
       });
-
-      invalidation.then(() => force.stop());
-
+      
       graph_svgs[name] = svg;
       layouts[name] = force;
   }
@@ -234,7 +233,7 @@
       case "/render": {
 	  var name = msg.args[0].value;
 
-	  if(graphs.hasOwnProperty(name)) {
+	  if(graphs.hasOwnProperty(name) && !graph_svgs.hasOwnProperty(name)) {
 	      renderSingle(name);
 	  }
 	  
@@ -242,6 +241,18 @@
       }
       case "/clear": {	  	  
 	  var name = msg.args[0].value;
+
+	  if(layouts.hasOwnProperty(name)) {	      
+	      delete layouts[name];
+	  }
+	  
+	  if(graph_svgs.hasOwnProperty(name)) {
+	      graph_svgs[name].remove();
+	      delete graph_svgs[name];
+	  }
+	  if(graphs.hasOwnProperty(name)) {	      
+	      delete graphs[name];
+	  }
 	  
 	  break;
       }
