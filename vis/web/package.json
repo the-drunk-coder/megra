@@ -4,6 +4,7 @@
     "ignore": [],
     "dependencies": {
         "osc": "2.4.0",
-        "dagre-d3": "0.6.4"
+        "dagre-d3": "0.6.4",
+        "d3-ellipse-force": "0.1.1"
     }
 }

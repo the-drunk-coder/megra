@@ -4,51 +4,42 @@
   <title>Mégra Visualizer</title>
   <meta charset="UTF-8" />        
   <script src="/node_modules/osc/dist/osc-browser.js"></script>
-  <script src="/node_modules/d3/dist/d3.js"></script>
-  <script src="/node_modules/dagre-d3/dist/dagre-d3.js"></script>  
+  <script src="/node_modules/d3/dist/d3.js"></script> 
 </head>
 
 <style>
-
+  body {
+      font-family: Comic Mono, monospace;
+      background: #000;
+      font-size: 6pt;
+  }
+  
   svg {
       border: 0px;
       overflow: hidden;
   }
-
-  .node {
-      white-space: nowrap;
-  }
-
-  .node rect,
-  .node circle,
-  .node ellipse {
-      stroke: #ffffff;
-      fill: #fff;
-      stroke-width: 1.5px;
-  }
   
-  .edgePath path {
-      stroke: #ffffff;
-      stroke-width: 1.5px;
+  path.link {
       fill: none;
-      border: 0.5px;
-      border-color: #999999;
+      stroke: #fff;
+      stroke-width: 1.5px;
   }
 
-  body {
-      font-family: Comic Mono, monospace;
-      background: #000000;
-      font-size: 6pt;
+  circle {
+      fill: #fff;
+      stroke: #fff;
+      stroke-width: 1.5px;
   }
-  
+
+  text {
+      fill: #000;
+      font: 10px sans-serif;
+      pointer-events: none;
+  }
+
   h1 {
       font-size: 12pt;
       color: #ffffff;
-  }
-  
-  label {
-      margin-top: 1em;
-      display: block;
   }
   
 </style>
@@ -60,42 +51,124 @@
 </body>
 
 <script>
-
-  // Create and configure the renderer (well, not much to configure so far)
-  var render = dagreD3.render();
-  var graphlib = dagreD3.graphlib;
-
+  
   // keep graphs and svgs here ...
   var graphs = {};
+  var layouts = {};
   var graph_svgs = {};
   var last_active = {};
   var last_label = {};
 
-  function renderSingle(name) {
-      //console.log("render " + name);
+  function fixna(x) {
+      if (isFinite(x)) return x;
+      return 0;
+  }
 
-      if(!graph_svgs.hasOwnProperty(name)) {
-          graph_svgs[name] = d3.select("body")
-	      .append("svg")                                  
-	      .attr("id", name);
-          graph_svgs[name].append("g");                                                                                                      
+  function linkArc(d) {
+      const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
+      return `
+    M${d.source.x},${d.source.y}
+    A${r},${r} 0 0,1 ${d.target.x},${d.target.y}
+  `;
+  }
+
+  drag = simulation => {
+      
+      function dragstarted(d) {
+	  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+	  d.fx = d.x;
+	  d.fy = d.y;
       }
-
-      var inner = graph_svgs[name].select("g"); 
-      inner.call(render, graphs[name]);
-      // Center the graph
-
-      graph_svgs[name].attr("width", graphs[name].graph().width + 80).attr("height", graphs[name].graph().height + 80);
-      var xCenterOffset = (graph_svgs[name].attr("width") - graphs[name].graph().width) / 2;
-      inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
+      
+      function dragged(d) {
+	  d.fx = d3.event.x;
+	  d.fy = d3.event.y;
+      }
+      
+      function dragended(d) {
+	  if (!d3.event.active) simulation.alphaTarget(0);
+	  d.fx = null;
+	  d.fy = null;
+      }
+      
+      return d3.drag()
+	  .on("start", dragstarted)
+	  .on("drag", dragged)
+	  .on("end", dragended);
   }
   
-  function renderAll() {
-      Object.keys(graphs).forEach(function(key) {
-	  renderSingle(key);	  
+  function renderSingle(name) {      
+      var width = 960;
+      var height = 500;
+
+      var force = d3.forceSimulation(graphs[name].nodes)
+	  .force("link", d3.forceLink(graphs[name].links).id(d => d.id))
+	  .force("charge", d3.forceManyBody().strength(-400))
+	  .force("center", d3.forceCenter(width / 2, height / 2))
+	  .force("x", d3.forceX())
+	  .force("y", d3.forceY());
+      
+      var svg = d3.select("body").append("svg")
+	  .attr("width", width)
+	  .attr("height", height);
+      
+      // Per-type markers, as they don't inherit styles.
+      svg.append("defs").selectAll("marker")          
+	  .join("marker")
+	  .attr("id", "arrow-all")
+	  .attr("viewBox", "0 -5 10 10")
+	  .attr("refX", 15)
+	  .attr("refY", -0.5)
+	  .attr("markerWidth", 6)
+	  .attr("markerHeight", 6)
+	  .attr("orient", "auto")
+	  .append("path")
+	  .attr("fill", "#fff")    
+	  .attr("d", "M0,-5L10,0L0,5");
+      
+      var link = svg.append("g")
+	  .attr("fill", "none")	  
+	  .attr("stroke-width", 1.5)      	  
+	  .selectAll("path")
+	  .data(graphs[name].links)
+	  .join("path")
+	  .attr("stroke", "#fff")
+	  .attr("marker-end", "url(${new URL(#arrow-all, location)})");
+
+      var node = svg.append("g")
+	  .attr("fill", "currentColor")
+	  .attr("stroke-linecap", "round")
+	  .attr("stroke-linejoin", "round")
+	  .selectAll("g")
+	  .data(graphs[name].nodes)
+	  .join("g")
+	  .call(drag(force));
+      
+      node.append("circle")
+	  .attr("stroke", "white")
+	  .attr("stroke-width", 1.5)
+	  .attr("r", 15)
+      	  
+      node.append("text")
+	  .attr("x", 0)
+	  .attr("y", 0)
+	  .text(d => d.label)
+	  .clone(true).lower()
+	  .attr("fill", "none")
+	  .attr("stroke", "white")
+	  .attr("stroke-width", 3);
+
+      force.on("tick", () => {
+	  link.attr("d", linkArc);
+	  node.attr("transform", d => `translate(${d.x},${d.y})`);
       });
-  };
-    
+
+      invalidation.then(() => force.stop());
+
+      graph_svgs[name] = svg;
+      layouts[name] = force;
+  }
+  
   var oscPort = new osc.WebSocketPort({
       url: "ws://localhost:8081", // URL to your Web Socket server.
       metadata: true
@@ -107,27 +180,25 @@
 
       switch(msg.address) {
       case "/graph/add": {
-	  var name = msg.args[0].value;	  	  
-	  graphs[name] = new graphlib.Graph().setGraph({});
-	  //console.log("add graph " + name);
+	  var name = msg.args[0].value;
+	  
+	  console.log("add graph: " + name);
+
+	  graphs[name] = {};
+	  
+	  graphs[name].nodes = [];
+	  graphs[name].links = [];
+	  
 	  break;
       }
       case "/node/add": {
-	  var name = msg.args[0].value;
+	  var graph_name = msg.args[0].value;
 	  var node_id = msg.args[1].value;
 	  var node_label = msg.args[2].value.trim();
 
-	  //console.log("add node " + node_id + " with label " + node_label + " to graph " + name);
-
-	  if(!graphs.hasOwnProperty(name)) {
-	      graphs[name] = new graphlib.Graph().setGraph({});
-	  }
-
-	  graphs[name].setNode(node_id, {
-	      label: node_label,
-	      style: "fill: #afa",
-	      shape: 'ellipse'
-	  });
+	  console.log("add node with id " + node_id + " and label " + node_label + " to graph: " + graph_name);
+	  
+	  graphs[graph_name]['nodes'].push({id: node_id, label: node_label})
 	  
 	  break;
       }
@@ -138,24 +209,7 @@
 	      var src = msg.args[1].value;
 	      var label = msg.args[2].value.trim();
 	      
-	      if(last_active.hasOwnProperty(name)) {
-		  graphs[name].setNode(last_active[name], {
-		      label: last_label[name],
-		      style: "fill: #afa",
-		      shape: 'ellipse'
-		  });
-	      }
 	      
-	      graphs[name].setNode(src, {
-		  label: label,
-		  style: "fill: #f77",
-		  shape: 'ellipse'
-	      });
-	      
-	      last_active[name] = src;
-	      last_label[name] = label;
-
-	      renderSingle(name);
 	  }
 	  break;
       }
@@ -166,37 +220,29 @@
 	  var label = msg.args[3].value;
 	  var prob = msg.args[4].value;
 	  
-	  //console.log("add edge " + src + " -> " + dest + " to graph " + name + " label " + label + " prob " + prob );
+	  console.log("add edge " + src + " -> " + dest + " to graph " + name + " label " + label + " prob " + prob );
 
-	  if(!graphs.hasOwnProperty(name)) {
-	      graphs[name] = new graphlib.Graph().setGraph({});
+	  if(graphs.hasOwnProperty(name)) {
+	      graphs[name].links.push ({
+		  source: src,
+		  target: dest,
+	      });	      
 	  }
-
-	  var thickness = 0.2 + (3.0 * (prob / 100.0));
-	  //var thickness = 4.0;
 	  
-	  graphs[name].setEdge(src, dest, {	      
-	      label: label,
-	      labelStyle: "fill: #dd77ff; font-weight: bold",
-	      style: `stroke: #ffffff; fill: none; border: 0.5px; border-color: #999999; stroke-width: ${thickness}px`,
-	      curve: d3.curveBasis 
-	  });
-
 	  break;
       }
-      case "/render": {	  	  
-	  renderSingle(msg.args[0].value);	  
+      case "/render": {
+	  var name = msg.args[0].value;
+
+	  if(graphs.hasOwnProperty(name)) {
+	      renderSingle(name);
+	  }
+	  
 	  break;
       }
       case "/clear": {	  	  
 	  var name = msg.args[0].value;
-	  if(graph_svgs.hasOwnProperty(name)) {
-	      graph_svgs[name].remove();
-	      delete graph_svgs[name];
-	  }
-	  if(graphs.hasOwnProperty(name)) {	      
-	      delete graphs[name];
-	  }
+	  
 	  break;
       }
       }            
