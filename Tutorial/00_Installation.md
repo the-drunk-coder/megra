@@ -43,8 +43,15 @@ also install the following:
 * git
 * wget
 
-The exact names might vary from distro to distro. As paddywwoof reported, on Ubuntu 18.04 (and I assume derived systems), the correct packages are:
+The exact names might vary from distro to distro. As paddywwoof reported, on *Ubuntu 18.04* (and I assume derived systems), the correct packages are:
 `libsndfile-dev fftw-dev portaudio19-dev libportmidi-dev libgsl-dev graphviz`
+
+**Important:** Make sure you have real-time permissions on your system, otherwise Mégra won't start (and JACK will start in non-realtime mode, which isn't really useful for what we want to do here). That does *NOT* mean you need a real-time kernel!
+
+The exact way to achieve this differs a bit between Linux distributions, here's some hints:
+
+* General: https://jackaudio.org/faq/linux_rt_config.html
+* On Arch Linux, install this package: https://www.archlinux.org/packages/community/any/realtime-privileges/ (should come as a JACK dependency already)
 
 ### 2. Download Portacle
 Now, download **Portacle** from https://portacle.github.io and extract it to a location of your choice (I'd recommend your home folder). **NOTE:** if you already have portacle in use, I heavily recommend using a separate installation dedicated to Mégra.
