@@ -26,7 +26,7 @@
   }
 
   circle {
-      fill: #afa;
+      //fill: #afa;
       stroke: #fff;
       stroke-width: 1.5px;
   }
@@ -59,7 +59,6 @@
   var graph_svgs = {};
 
   var last_active = {};
-  var last_label = {};
 
   function fixna(x) {
       if (isFinite(x)) return x;
@@ -165,7 +164,7 @@
 	  .selectAll("path")
 	  .data(graphs[name].links)
 	  .join("path")
-	  .attr("id", d => `${d.source.id}-${d.target.id}`)
+	  .attr("id", d => name + `-${d.source.id}-${d.target.id}`)
 	  .attr("stroke", "#fff")	  
 	  .attr("stroke-width", d => thickness(d.prob))
 	  .attr("marker-end", d => d.source == d.target ? '' : `url(${new URL(`#arrow-${d.type}`, location)})`);
@@ -176,7 +175,7 @@
 	  .join("text")	  
           .append("textPath")
       	  .attr("startOffset", "39%")
-	  .attr('xlink:href', d => `#${d.source.id}-${d.target.id}`)
+	  .attr('xlink:href', d => `#${name}-${d.source.id}-${d.target.id}`)
 	  .text(d => `${d.label}`)
 	  .clone(true).lower()
 	  .attr("fill", "none")
@@ -185,19 +184,20 @@
 
       // nodes
       var node = svg.append("g")
-	  .attr("fill", "currentColor")
 	  .attr("stroke-linecap", "round")
 	  .attr("stroke-linejoin", "round")
 	  .selectAll("g")
 	  .data(graphs[name].nodes)
-	  .join("g")
+	  .join("g")	  
 	  .call(drag(force));
 
       // node circles
       node.append("circle")
+	  .attr("id", d => name + "-" + d.id)
 	  .attr("stroke", "white")
 	  .attr("stroke-width", 1.5)
 	  .attr("r", 9)
+	  .attr("fill", "#afa");
 
       // node text
       node.append("text")
@@ -256,9 +256,13 @@
 
 	  if(graphs.hasOwnProperty(name)) {
 	      var src = msg.args[1].value;
-	      var label = msg.args[2].value.trim();
-	      
-	      
+
+	      d3.select(`#${name}-${last_active[name]}`).attr("fill", "#afa");
+	      d3.select(`#${name}-${src}`).attr("fill", "#f77");
+
+	      //console.log("set act" + `#${name}-${src}`);
+
+	      last_active[name] = src;
 	  }
 	  break;
       }
