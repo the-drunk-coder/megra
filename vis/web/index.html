@@ -26,14 +26,15 @@
   }
 
   circle {
-      fill: #fff;
+      fill: #afa;
       stroke: #fff;
       stroke-width: 1.5px;
   }
 
   text {
       fill: #000;
-      font: 10px sans-serif;
+      font-size: 6pt;
+      font-family: Comic Mono, monospace;
       pointer-events: none;
   }
 
@@ -66,13 +67,42 @@
   }
 
   function linkArc(d) {
-      const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
-      return `
-    M${d.source.x},${d.source.y}
-    A${r},${r} 0 0,1 ${d.target.x},${d.target.y}
-  `;
+      // Self edge.
+      var x1 = d.source.x;
+      var x2 = d.target.x;
+      var y1 = d.source.y;
+      var y2 = d.target.y;
+      if ( x1 === x2 && y1 === y2 ) {
+          // Fiddle with this angle to get loop oriented.
+          xRotation = -80;
+
+          // Needs to be 1.
+          largeArc = 1;
+
+          // Change sweep to change orientation of loop. 
+          sweep = 0;
+
+          // Make drx and dry different to get an ellipse
+          // instead of a circle.
+          drx = 17;
+          dry = 12;
+
+          // For whatever reason the arc collapses to a point if the beginning
+          // and ending points of the arc are the same, so kludge it.
+          x2 = x2 + 1;
+          y2 = y2 + 1;
+	  return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + x2 + "," + y2;
+      } else {
+	  const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
+	  return `M${d.source.x},${d.source.y} A${r},${r} 0 0,1 ${d.target.x},${d.target.y}`;
+      }      
   }
 
+  // calculate edge thickness from probablity
+  function thickness(prob) {
+      return 0.2 + (3.0 * (prob / 100.0));
+  }
+  
   drag = simulation => {
       
       function dragstarted(d) {
@@ -104,7 +134,7 @@
 
       var force = d3.forceSimulation(graphs[name].nodes)
 	  .force("link", d3.forceLink(graphs[name].links).id(d => d.id))
-	  .force("charge", d3.forceManyBody().strength(-400))
+	  .force("charge", d3.forceManyBody().strength(-1300))
 	  .force("center", d3.forceCenter(width / 2, height / 2))
 	  .force("x", d3.forceX())
 	  .force("y", d3.forceY());
@@ -113,29 +143,47 @@
 	  .attr("width", width)
 	  .attr("height", height);
       
-      // Per-type markers, as they don't inherit styles.
-      svg.append("defs").selectAll("marker")          
+      // end markers (the little arrows)
+      svg.append("defs").selectAll("marker")
+	  .data(["regular"])
 	  .join("marker")
-	  .attr("id", "arrow-all")
+	  .attr("id", "arrow-regular")
+	  .attr("markerUnits", "userSpaceOnUse") // this let's us define marker dimensions independent from the parent path
 	  .attr("viewBox", "0 -5 10 10")
-	  .attr("refX", 15)
+	  .attr("refX", 16)
 	  .attr("refY", -0.5)
-	  .attr("markerWidth", 6)
-	  .attr("markerHeight", 6)
+	  .attr("markerWidth", 12)
+	  .attr("markerHeight", 12)
 	  .attr("orient", "auto")
 	  .append("path")
-	  .attr("fill", "#fff")    
+	  .attr("fill", "#fff")
 	  .attr("d", "M0,-5L10,0L0,5");
-      
+
+      // edges
       var link = svg.append("g")
 	  .attr("fill", "none")	  
-	  .attr("stroke-width", 1.5)      	  
 	  .selectAll("path")
 	  .data(graphs[name].links)
 	  .join("path")
-	  .attr("stroke", "#fff")
-	  .attr("marker-end", "url(${new URL(#arrow-all, location)})");
+	  .attr("id", d => `${d.source.id}-${d.target.id}`)
+	  .attr("stroke", "#fff")	  
+	  .attr("stroke-width", d => thickness(d.prob))
+	  .attr("marker-end", d => d.source == d.target ? '' : `url(${new URL(`#arrow-${d.type}`, location)})`);
 
+      // edge labels
+      svg.selectAll("text")
+	  .data(graphs[name].links)	  
+	  .join("text")	  
+          .append("textPath")
+      	  .attr("startOffset", "39%")
+	  .attr('xlink:href', d => `#${d.source.id}-${d.target.id}`)
+	  .text(d => `${d.label}`)
+	  .clone(true).lower()
+	  .attr("fill", "none")
+	  .attr("stroke", "#fdd")
+	  .attr("stroke-width", 3);
+
+      // nodes
       var node = svg.append("g")
 	  .attr("fill", "currentColor")
 	  .attr("stroke-linecap", "round")
@@ -144,19 +192,21 @@
 	  .data(graphs[name].nodes)
 	  .join("g")
 	  .call(drag(force));
-      
+
+      // node circles
       node.append("circle")
 	  .attr("stroke", "white")
 	  .attr("stroke-width", 1.5)
-	  .attr("r", 15)
-      	  
+	  .attr("r", 9)
+
+      // node text
       node.append("text")
-	  .attr("x", 0)
-	  .attr("y", 0)
+	  .attr("x", -3)
+	  .attr("y", 2)
 	  .text(d => d.label)
 	  .clone(true).lower()
 	  .attr("fill", "none")
-	  .attr("stroke", "white")
+	  .attr("stroke", "#afa")
 	  .attr("stroke-width", 3);
 
       force.on("tick", () => {
@@ -225,6 +275,9 @@
 	      graphs[name].links.push ({
 		  source: src,
 		  target: dest,
+		  type: "regular",
+		  prob: prob,
+		  label: label
 	      });	      
 	  }
 	  

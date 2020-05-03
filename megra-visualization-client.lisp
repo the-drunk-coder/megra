@@ -34,7 +34,8 @@
                                        (symbol-name (generator-name g))
                                        key
                                        dest-key
-                                       (symbol-name (alexandria::lastcar (event-tags (car (gethash (alexandria::lastcar dest) (event-dictionary g))))))
+                                       (symbol-name (let ((lab (alexandria::lastcar (event-tags (car (gethash (alexandria::lastcar dest) (event-dictionary g)))))))
+                                                      (if (equal lab 'silence) '~ lab)))
                                        (if (integerp (car ch))
                                            (car ch)
                                            (ceiling (* (car ch) 100)))
