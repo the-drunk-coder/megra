@@ -105,8 +105,8 @@
       var init_links = Object.values(graphs[name].links);
 
       var force = d3.forceSimulation(init_nodes)
-	  .force("charge", d3.forceManyBody().strength(-1300))
-	  .force("link", d3.forceLink(init_links).id(d => d.id))	  
+      	  .force("link", d3.forceLink(init_links).id(d => d.id))
+	  .force("charge", d3.forceManyBody().strength(-1300))	  
 	  .force("center", d3.forceCenter(width / 2, height / 2))
 	  .force("x", d3.forceX())
 	  .force("y", d3.forceY());
@@ -131,9 +131,11 @@
 	  .attr("fill", "#fff")
 	  .attr("d", "M0,-5L10,0L0,5");
 
-      var nodeGroup = svg.append("g");
+      var nodeGroup = svg.append("g")
+	  .attr("stroke-linecap", "round")
+	  .attr("stroke-linejoin", "round");
       var linkGroup = svg.append("g")
-	  .attr("fill", "none");
+	  .attr("fill", "none").lower();
       
       var node;
       var link;
@@ -142,11 +144,32 @@
 
 	  var nodes = Object.values(graphs[name].nodes);
 	  var links = Object.values(graphs[name].links);
-	  	  	  
+
+	  // edges
+	  link = linkGroup
+	      .selectAll("path")
+	      .data(links)
+	      .join("path")
+	      .attr("id", d => name + `-${d.source.id}-${d.target.id}`)
+	      .attr("stroke", "#fff")	  
+	      .attr("stroke-width", d => thickness(d.prob))
+	      .attr("marker-end", d => d.source == d.target ? '' : `url(${new URL(`#arrow-${d.type}`, location)})`);
+	  
+	  // edge labels
+	  linkGroup.selectAll("text")
+	      .data(links)	  
+	      .join("text")	  
+              .append("textPath")
+      	      .attr("startOffset", "39%")
+	      .attr('xlink:href', d => `#${name}-${d.source.id}-${d.target.id}`)
+	      .text(d => d.label)
+	      .clone(true).lower()
+	      .attr("fill", "none")
+	      .attr("stroke", "#fdd")
+	      .attr("stroke-width", 3);
+	  
 	  // nodes
-	  node = nodeGroup
-	      .attr("stroke-linecap", "round")
-	      .attr("stroke-linejoin", "round")
+	  node = nodeGroup	      
 	      .selectAll("g")
 	      .data(nodes)
 	      .join("g")
@@ -168,33 +191,11 @@
 	      .attr("stroke", "#afa")
 	      .attr("stroke-width", 3);
 
-	  // edges
-	  link = linkGroup
-	      .selectAll("path")
-	      .data(links)
-	      .join("path")
-	      .attr("id", d => name + `-${d.source.id}-${d.target.id}`)
-	      .attr("stroke", "#fff")	  
-	      .attr("stroke-width", d => thickness(d.prob))
-	      .attr("marker-end", d => d.source == d.target ? '' : `url(${new URL(`#arrow-${d.type}`, location)})`);
-
-	  // edge labels
-	  linkGroup.selectAll("text")
-	      .data(links)	  
-	      .join("text")	  
-              .append("textPath")
-      	      .attr("startOffset", "39%")
-	      .attr('xlink:href', d => `#${name}-${d.source.id}-${d.target.id}`)
-	      .text(d => d.label)
-	      .clone(true).lower()
-	      .attr("fill", "none")
-	      .attr("stroke", "#fdd")
-	      .attr("stroke-width", 3);
 	  
 	  // Update and restart the simulation.
 	  force.nodes(nodes);
-	  force.force("link").links(links);
-	  force.alpha(0.8).restart();	  
+	  force.force("link").links(links);	  
+	  force.alpha(1).restart();	  
       }
 
       force.on("tick", () => {
