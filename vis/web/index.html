@@ -96,7 +96,7 @@
   function thickness(prob) {
       return 0.2 + (3.0 * (prob / 100.0));
   }
-  
+
   function renderSingle(name) {      
       var width = 500;
       var height = 500;
@@ -132,9 +132,12 @@
 	  .attr("d", "M0,-5L10,0L0,5");
 
       var nodeGroup = svg.append("g")
+	  .attr("id", "nodeGroup")
 	  .attr("stroke-linecap", "round")
 	  .attr("stroke-linejoin", "round");
+
       var linkGroup = svg.append("g")
+	  .attr("id", "linkGroup")
 	  .attr("fill", "none").lower();
       
       var node;
@@ -158,40 +161,58 @@
 	  // edge labels
 	  linkGroup.selectAll("text")
 	      .data(links)	  
-	      .join("text")	  
-              .append("textPath")
-      	      .attr("startOffset", "39%")
-	      .attr('xlink:href', d => `#${name}-${d.source.id}-${d.target.id}`)
-	      .text(d => d.label)
-	      .clone(true).lower()
-	      .attr("fill", "none")
-	      .attr("stroke", "#fdd")
-	      .attr("stroke-width", 3);
+	      .join(
+		  function (enter) {
+		      enter = enter.append("text");
+		      enter.append("textPath")
+      			  .attr("startOffset", "39%")
+			  .attr('xlink:href', d => `#${name}-${d.source.id}-${d.target.id}`)
+			  .text(d => d.label)
+			  .clone(true).lower()
+			  .attr("fill", "none")
+			  .attr("stroke", "#fdd")
+			  .attr("stroke-width", 3);
+		      return enter
+		  },
+		  function(update) {
+		      update.selectAll("textPath").text(d => d.label);
+		      return update;
+		  }
+	      );	  
+              
 	  
 	  // nodes
 	  node = nodeGroup	      
 	      .selectAll("g")
 	      .data(nodes)
-	      .join("g")
-
-	  node.append("circle")
-	      .attr("id", d => name + "-" + d.id)
-	      .attr("stroke", "white")
-	      .attr("stroke-width", 1.5)
-	      .attr("r", 9)
-	      .attr("fill", "#afa");
-
-	  // node text
-	  node.append("text")
-	      .attr("x", -3)
-	      .attr("y", 2)
-	      .text(d => d.label)
-	      .clone(true).lower()
-	      .attr("fill", "none")
-	      .attr("stroke", "#afa")
-	      .attr("stroke-width", 3);
-
-	  
+	      .join(
+		  function (enter) {
+		      enter = enter.append("g");
+		      enter.append("circle")	      
+			  .attr("id", d => name + "-" + d.id)
+			  .attr("stroke", "white")
+			  .attr("stroke-width", 1.5)
+			  .attr("r", 9)
+			  .attr("fill", "#afa");
+		      
+		      // node text
+		      enter.append("text")
+			  .attr("id", d => "text-" + name + "-" + d.id)
+			  .attr("x", -3)
+			  .attr("y", 2)
+			  .text(d => d.label)
+			  .clone(true).lower()
+			  .attr("id", d => "text-shade-" + name + "-" + d.id)
+			  .attr("fill", "none")
+			  .attr("stroke", "#afa")
+			  .attr("stroke-width", 3);
+		      return enter;
+		  },
+		  function (update) {
+		      update.selectAll("text").text(d => d.label);		      		      
+		      return update;
+		  });
+	  	  
 	  // Update and restart the simulation.
 	  force.nodes(nodes);
 	  force.force("link").links(links);	  
@@ -202,7 +223,7 @@
 	  link.attr("d", linkArc);
 	  node.attr("transform", d => `translate(${d.x},${d.y})`);
       });
-            
+      
       // keep for easy remval ...
       graph_svgs[name] = svg;
       layouts[name] = force;
