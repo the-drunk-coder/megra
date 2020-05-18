@@ -177,8 +177,9 @@
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (rnd chance (funcall proc nproc)))         
-          (progn
-            (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance)
+          (progn            
+            (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance :prop chance)
+            (vom::rebalance-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (set-modified proc)))
       (lambda (nproc) (rnd chance nproc))))
 

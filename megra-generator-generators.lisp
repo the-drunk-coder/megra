@@ -78,25 +78,27 @@
 (defun cyc (name cyc-def &rest rest)
   (let* ((rep (find-keyword-val :rep rest :default 0))
          (max-rep (find-keyword-val :max-rep rest :default 2))
+         (rnd (find-keyword-val :rnd rest :default 0))         
          (dur (find-keyword-val :dur rest :default *global-default-duration*))
          (reset (find-keyword-val :reset rest :default t))
-         (filters (find-keyword-list :for rest))         
+         (filters (find-keyword-list :for rest)) 
          (successor (if (typep (alexandria::lastcar rest) 'function)
                         (alexandria::lastcar rest)))
          (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
-    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rnd rnd :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun cyc2 (name cyc-def &rest rest)
   (let* ((rep (find-keyword-val :rep rest :default 0))
          (max-rep (find-keyword-val :max-rep rest :default 2))
+         (rnd (find-keyword-val :rnd rest :default 0))
          (dur (find-keyword-val :dur rest :default *global-default-duration*))
          (reset (find-keyword-val :reset rest :default t))
          (filters (find-keyword-list :for rest))         
          (successor (if (typep (alexandria::lastcar rest) 'function)
                         (alexandria::lastcar rest)))
          (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
-    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :rnd rnd :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun nuc (name event &rest rest)

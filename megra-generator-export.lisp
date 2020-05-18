@@ -27,7 +27,7 @@
                              :direction :output
                              :if-exists :supersede
                              :if-does-not-exist :create)
-          (format str "(in-package :megra)")
+          (format str "(in-package :megra)~%")
           (when loadable (format str "(funcall~%"))
           (generator-to-code act-gen :out-stream str)
           (when loadable (format str ")")))

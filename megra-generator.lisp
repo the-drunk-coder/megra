@@ -106,7 +106,7 @@
         ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules :successor successor :combine-filter combine-filter))
         (t (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))))
 
-(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p))  
+(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) rnd)  
   "infer a generator from rules"  
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
          (g-old (gethash name *processor-directory*))
@@ -119,10 +119,13 @@
         (setf (last-transition g) (last-transition g-old)))
       (vom::transfer-state (inner-generator g-old) (inner-generator g)))    
     (if g
-        (progn (setf (gethash name *processor-directory*) g) g)
+        (progn
+          (if (> rnd 0) (rnd rnd g))
+          (setf (gethash name *processor-directory*) g)
+          g)
         g-old)))
 
-(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p))
+(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) rnd)
   (lambda (&optional next)      
     (cond ((not next)
            (infer-from-rules :type type
@@ -130,6 +133,7 @@
                              :events events
                              :mapping mapping
                              :rules rules
+                             :rnd rnd
                              :combine-filter combine-filter
                              :default-dur default-dur
                              :reset reset
@@ -138,6 +142,7 @@
                                            :name name
                                            :events events
                                            :mapping mapping
+                                           :rnd rnd
                                            :rules rules
                                            :combine-filter combine-filter
                                            :default-dur default-dur
@@ -148,6 +153,7 @@
                                    :events events
                                    :mapping mapping
                                    :rules rules
+                                   :rnd rnd
                                    :combine-filter combine-filter
                                    :default-dur default-dur
                                    :reset reset
