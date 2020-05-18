@@ -42,12 +42,10 @@
                                        ))))))
   (osc:message *oscout-vis* "/render" "s" (symbol-name (generator-name g))))
 
-
 (defmethod vis-update-active-node ((g generator) &key)
-  (let* ((key (sxhash (vom::query-result-last-state (last-transition g))))
-         (label (gethash key (gethash (generator-name g) *label-map*))))    
-    (if (and key label)
-        (osc:message *oscout-vis* "/node/active" "sis" (symbol-name (generator-name g)) key label))))
+  (let* ((key (sxhash (vom::query-result-last-state (last-transition g)))))
+    ;;(incudine::msg error "act ~D ~D" (vom::query-result-last-state (last-transition g)) key)    
+    (osc:message *oscout-vis* "/node/active" "si" (symbol-name (generator-name g)) key)))
 
 (defmethod vis-update ((g generator) &key)
   (when (modified g) 

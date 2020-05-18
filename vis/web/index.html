@@ -147,7 +147,7 @@
 
 	  var nodes = Object.values(graphs[name].nodes);
 	  var links = Object.values(graphs[name].links);
-
+	  
 	  // edges
 	  link = linkGroup
 	      .selectAll("path")
@@ -197,25 +197,32 @@
 		      
 		      // node text
 		      enter.append("text")
-			  .attr("id", d => "text-" + name + "-" + d.id)
 			  .attr("x", -3)
 			  .attr("y", 2)
 			  .text(d => d.label)
-			  .clone(true).lower()
-			  .attr("id", d => "text-shade-" + name + "-" + d.id)
+			  .clone(true).lower()			  
 			  .attr("fill", "none")
 			  .attr("stroke", "#afa")
 			  .attr("stroke-width", 3);
+		      console.log("ENTER")
 		      return enter;
 		  },
 		  function (update) {
-		      update.selectAll("text").text(d => d.label);		      		      
+		      update.selectAll("text").text(d => d.label);
+		      update.selectAll("circle").attr("id", d => name + "-" + d.id)
+		      console.log("UPDATE")
 		      return update;
-		  });
-	  	  
-	  // Update and restart the simulation.
+		  },
+		  function (exit) {		      
+		      console.log(exit)
+		      return exit;
+		  }
+	      );
+
 	  force.nodes(nodes);
-	  force.force("link").links(links);	  
+	  force.force("link").links(links);
+	  
+	  // Update and restart the simulation.	  
 	  force.alpha(1).restart();	  
       }
 
@@ -300,7 +307,7 @@
       switch(msg.address) {
       case "/graph/add": {
 	  var name = msg.args[0].value;
-	  
+	  //console.log("NEW")
 	  // always gets renewed
 	  graph_sources[name] = {};
 	  graph_sources[name].nodes = {};
@@ -312,7 +319,9 @@
 	  var name = msg.args[0].value;
 	  var node_id = msg.args[1].value;
 	  var node_label = msg.args[2].value.trim();
-	  
+
+	  //console.log("NODE")
+	  	  
 	  graph_sources[name].nodes[node_id] = {id: node_id, label: node_label};
 	  
 	  break;
@@ -325,7 +334,7 @@
 
 	      d3.select(`#${name}-${last_active[name]}`).attr("fill", "#afa");
 	      d3.select(`#${name}-${src}`).attr("fill", "#f77");
-	      
+	      //console.log('active ' + src);
 	      last_active[name] = src;
 	  }
 	  break;
@@ -336,6 +345,8 @@
 	  var dest = msg.args[2].value;
 	  var label = msg.args[3].value;
 	  var prob = msg.args[4].value;
+
+	  //console.log("EDGE")
 	  
 	  if(graph_sources.hasOwnProperty(name)) {
 	      var key = "" + src + "->" + dest;
@@ -352,6 +363,7 @@
 	  break;
       }
       case "/render": {
+	  //console.log("RENDER")
 	  var name = msg.args[0].value;	  
 	  
 	  if(updateGraph(name)) { 	      
