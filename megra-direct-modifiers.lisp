@@ -17,7 +17,7 @@
 
 (defun inner-grown (n rest proc)
   (if (typep proc 'function)
-      (lambda (&optional nproc) (inner-grown n var rest (funcall proc nproc)))
+      (lambda (&optional nproc) (inner-grown n rest (funcall proc nproc)))
       (let ((method (find-keyword-val :method rest :default 'triloop))
 	    (variance (find-keyword-val :var rest :default 0.2))	    
 	    (durs (find-keyword-val :durs rest :default nil))
