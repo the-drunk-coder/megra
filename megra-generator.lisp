@@ -18,7 +18,8 @@
       (modified g)))
 
 (defmethod set-modified ((g generator))
-  (setf (modified g) t))
+  (setf (modified g) t)
+  g)
 
 (defmethod activate ((g generator))
   (setf (is-active g) t)
