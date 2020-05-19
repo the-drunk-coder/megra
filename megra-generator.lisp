@@ -106,7 +106,7 @@
         ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules :successor successor :combine-filter combine-filter))
         (t (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))))
 
-(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) rnd)  
+(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) (rnd 0))  
   "infer a generator from rules"  
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
          (g-old (gethash name *processor-directory*))

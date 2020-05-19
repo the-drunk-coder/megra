@@ -94,11 +94,12 @@
                           :current-state (vom::query-result-current-state q)
                           :symbol (vom::query-result-symbol q)))
 
+
 (defmethod deepcopy-generic-object (object
 				    &key (imprecision 0.0)
-				      exclude-keywords
-				      precise-keywords
-				      functors)
+				         exclude-keywords
+				         precise-keywords
+				         functors)
   (let ((copy (allocate-instance (class-of object))))
     (loop for slot in (class-slots (class-of object))
        do (when (slot-boundp-using-class (class-of object) object slot)
@@ -159,14 +160,12 @@
 			         functors)
   (let ((gc (deepcopy-generic-object g
 			             :imprecision imprecision
-			             :exclude-keywords  exclude-keywords
+			             :exclude-keywords exclude-keywords
 			             :precise-keywords (append precise-keywords
 						               '(dur))
-			             :functors functors)))
-    (format t "~D~%" gc)
-    (setf (vom::pst-root gc) (vom::make-pst-node :label nil :children (make-hash-table :test 'equal) :child-prob (make-hash-table :test 'equal)))
-    (format t "~D~%" (vom::pst-root gc))
-    (mapc #'(lambda (k) (vom::add-node (vom::pst-root gc) k)) (alexandria::hash-table-keys (vom::children gc)))
+			             :functors functors)))  
+    (setf (vom::pst-root gc) (vom::make-pst-node :label nil :children (make-hash-table :test 'equal) :child-prob (make-hash-table :test 'equal)))    
+    (mapc #'(lambda (k) (vom::add-node (vom::pst-root gc) k)) (alexandria::hash-table-keys (vom::children gc)))    
     gc))
 
 (defmethod deepcopy-object ((e event-processor) &key (imprecision 0.0)
@@ -180,9 +179,9 @@
 			   :functors functors))
 
 (defmethod deepcopy-object ((e event) &key (imprecision 0.0)
-					exclude-keywords
-					precise-keywords
-					functors)
+					   exclude-keywords
+					   precise-keywords
+					   functors)
   (deepcopy-generic-object e
 			   :imprecision imprecision
 			   :exclude-keywords (append
@@ -191,6 +190,20 @@
 			   :precise-keywords precise-keywords
 			   :functors functors))
 
+(defmethod deepcopy-object ((e pitch-event) &key (imprecision 0.0)
+					         exclude-keywords
+					         precise-keywords
+					         functors)
+  (let ((ne (deepcopy-generic-object e
+			             :imprecision imprecision
+			             :exclude-keywords (append
+					                exclude-keywords
+					                '(source))
+			             :precise-keywords precise-keywords
+			             :functors functors)))
+    (if (and (> imprecision 0.0) (symbolp (event-pitch e)))
+        (setf (event-pitch ne) (add-pitch-imprecision (event-pitch e) imprecision)))
+    ne))
 
 (defmethod deepcopy-object ((e shrink-event) &key (imprecision 0.0)
 					       exclude-keywords
@@ -236,10 +249,10 @@
 				 :functors functors))
 
 (defmethod deepcopy (object &key (imprecision 0.0)
-			      exclude-keywords
-			      precise-keywords
-			      object-name
-			      functors)
+			         exclude-keywords
+			         precise-keywords
+			         object-name
+			         functors)
   (cond
     ((typep object 'number)
      (let ((temp (if (> imprecision 0.0)
@@ -250,12 +263,9 @@
 	      do (when (member object-name (car functor))
 		   (setf temp
 			 (funcall (caadr functor) temp (cadadr functor))))))
-       temp))
-    ((typep object 'symbol)
-     (if (is-note-name object)
-	 (add-pitch-imprecision object imprecision)
-	 object))
-    ((typep object 'function) object)    
+       temp))    
+    ((typep object 'function) object)
+    ((typep object 'symbol) object)    
     ((typep object 'list)
      (deepcopy-list object
 		    :imprecision imprecision
