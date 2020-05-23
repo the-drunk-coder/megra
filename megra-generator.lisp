@@ -42,7 +42,9 @@
   ;; increment symbol age ...
   (incf (gethash (vom::query-result-symbol (last-transition g)) (ages g)))
   (let ((cev (deepcopy (gethash (vom::query-result-symbol (last-transition g)) (event-dictionary g)))))
-    (loop for ev in cev do (push (generator-name g) (event-tags ev)))
+    (loop for ev in cev
+          when (typep ev 'event)
+          do (push (generator-name g) (event-tags ev)))
     ;; unique source id, as in old graphs ??
     cev))
 
@@ -125,7 +127,7 @@
           g)
         g-old)))
 
-(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) rnd)
+(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) (rnd 0))
   (lambda (&optional next)      
     (cond ((not next)
            (infer-from-rules :type type

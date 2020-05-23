@@ -173,6 +173,28 @@
 ;; more sane alias ..
 (setf (fdefinition 'always) #'pear)
 
+;; this one's not really public ...
+(defclass event-mapper (event-processor-wrapper)
+  ((event-name :accessor mapper-name :initarg :event-name)))
+
+(defmethod pull-events ((w event-mapper) &key)
+  (let* ((other-events (current-events w)))    
+    (mapcar (lambda (e) (if (typep e 'event)
+                       e
+                       (funcall (mapper-name w) e)))
+            other-events)))
+
+(defun mapev (ev &rest events-and-proc)
+  (let ((proc (if (functionp (car (last events-and-proc)))                      
+                  (car (last events-and-proc)))))
+    (lambda (&optional next)      
+      (cond ((not next)             
+             (make-instance 'event-mapper                        
+                            :event-name ev
+                            :wrapped-processor (if proc (funcall proc))))
+            (proc (mapev ev (funcall proc next)))
+            (t (mapev ev next))))))
+
 (defclass prob-applicator (event-processor-wrapper)
   ((prob-event-mapping :accessor prob-mapping :initarg :mapping)))
 
