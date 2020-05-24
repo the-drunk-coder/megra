@@ -196,19 +196,13 @@
 
 
 (defun once (event)
+  "one-shot sound event"
   (handle-event event 0))
 
-(defun sx-inner (fprocs names sync shift)
-  (loop for n from (- (length fprocs) 1) downto 0
-        do (let ((sync-to (if sync
-                              sync
-                              (if (gethash (nth n names) *global-syncs*)                                               
-                                  nil
-                                  (if (< n (- (length fprocs) 1) )
-                                      (car (last names))
-                                      nil)))))
-             ;;(incudine::msg error " >>>>>> PROC ~D ----- SYNC ~D" (nth n fprocs) sync-to)                              
-             (dispatch (nth n names) (nth n fprocs) :sync sync-to :shift shift))))
+(defun sx-inner (procs-and-names new sync shift)
+  (loop for pn in procs-and-names
+        when (member (cadr pn) new)
+        do (dispatch (cadr pn) (car pn) :sync (if (not (equal (cadr pn) sync)) sync) :shift shift)))
 
 (defun sx (basename act &rest rest)
   (let* ((intro (find-keyword-val :intro rest :default nil))
@@ -219,17 +213,27 @@
         (loop for name in (gethash basename *multichain-directory*) do (clear name))
         (let* ((fprocs (mapcar #'(lambda (p) (if (functionp p) (funcall p) p)) (alexandria::flatten procs)))
                (names (loop for n from 0 to (- (length fprocs) 1)
-                            collect (intern (format nil "~D-~D" basename (name (nth n fprocs)))))))
-          ;; check if anything else is running under this name ... 
-          (if (gethash basename *multichain-directory*)
-              (loop for name in (gethash basename *multichain-directory*)
-                    do (unless (member name names) (clear name))))
+                            collect (intern (format nil "~D-~D" basename (name (nth n fprocs))))))
+               (all-in (mapcar 'list fprocs names))
+               (prev-names (gethash basename *multichain-directory*))
+               (remaining (intersection names prev-names))
+               (gone (remove-if #'(lambda (c) (member c names)) prev-names))
+               (new (remove-if #'(lambda (c) (member c prev-names)) names))
+               (sync-to (if sync sync
+                            (if remaining
+                                (alexandria::lastcar remaining)
+                                (alexandria::lastcar new)))))
+          ;; set current names
           (setf (gethash basename *multichain-directory*) names)
+          ;;(format t "~D ~D ~D ~D ~D~%" names prev-names new gone remaining) 
+          ;; clear old
+          (mapc #'(lambda (s) (clear s)) gone)
+          ;; start new after handling eventual intro          
           (if intro
               (progn (handle-event intro 0)
                      (incudine:at (+ (incudine:now) #[(event-duration intro) ms])
-			          #'(lambda () (sx-inner fprocs names sync shift))))
-              (sx-inner fprocs names sync shift))))))
+			          #'(lambda () (sx-inner all-in new sync-to shift))))
+              (sx-inner all-in new sync-to shift))))))
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))
@@ -239,7 +243,6 @@
          (duplicates (loop for p from 0 to (- (length funs) 1)
                            collect (funcall (nth p funs) (lambda () (deepcopy proc))))))    
     (nconc duplicates (list proc))))
-
 
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))
