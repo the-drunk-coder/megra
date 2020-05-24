@@ -201,7 +201,6 @@
 
 (defun sx-inner (procs-and-names new sync shift)
   (loop for pn in procs-and-names
-        when (member (cadr pn) new)
         do (dispatch (cadr pn) (car pn) :sync (if (not (equal (cadr pn) sync)) sync) :shift shift)))
 
 (defun sx (basename act &rest rest)
@@ -244,12 +243,29 @@
                            collect (funcall (nth p funs) (lambda () (deepcopy proc))))))    
     (nconc duplicates (list proc))))
 
+;; helper functions for copy names
+(defun fix-copy (gen copy-num)
+  (cond ((typep gen 'generator)
+         (setf (generator-name gen) (intern (concatenate 'string (symbol-name (name gen)) "-" (write-to-string copy-num))))
+         (setf (gethash (generator-name gen) *processor-directory*) gen)
+         (when (successor gen) (fix-copy (successor gen) copy-num)))
+        ((typep gen 'event-processor-wrapper)
+         (fix-copy (wrapper-wrapped-processor gen) copy-num)))
+  gen)
+
+
 (defun xdup (&rest funs-and-proc)
   (let* ((funs (butlast funs-and-proc))
          (proc (if (functionp (car (last funs-and-proc)))
                    (funcall (car (last funs-and-proc)))
                    (car (last funs-and-proc))))
-         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (deepcopy proc)))) funs)))    
+         (count 0)
+         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (let ((ng (deepcopy proc)))
+                                                         (fix-copy ng count)
+                                                         (incf count)
+                                                         ng))))
+                             funs)))
+    (format t "~D~%" duplicates)
     (nconc duplicates (list proc))))
 
 ;; calculate spreading intervals
@@ -265,6 +281,11 @@
          (proc (if (functionp (car (last funs-and-proc)))
                    (funcall (car (last funs-and-proc)))
                    (car (last funs-and-proc))))
-         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (deepcopy proc)))) funs)))   
+         (count 0)
+         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (let ((ng (deepcopy proc)))
+                                                         (fix-copy ng count)
+                                                         (incf count)
+                                                         ng))))
+                             funs)))
     (mapcar #'(lambda (pr po) (pear (pos po) pr)) (nconc duplicates (list (lambda () proc))) positions)))
 

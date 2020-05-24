@@ -76,14 +76,11 @@
 			         exclude-keywords
 			         precise-keywords
 			         functors)
-  (let ((ng (deepcopy-generic-object g
-			             :imprecision imprecision
-			             :exclude-keywords exclude-keywords
-			             :precise-keywords precise-keywords
-			             :functors functors)))
-    ;; this dirty little trick helps us keeping the state of the copied gen ...
-    (setf (generator-name ng) (intern (concatenate 'string (symbol-name (name g)) "-" (symbol-name (gensym)))))
-    (setf (gethash (generator-name ng) *processor-directory*) ng)))
+  (deepcopy-generic-object g
+			   :imprecision imprecision
+			   :exclude-keywords exclude-keywords
+			   :precise-keywords precise-keywords
+			   :functors functors))
 
 
 (defmethod deepcopy-query-result ((q vom::query-result)  &key (imprecision 0.0)
