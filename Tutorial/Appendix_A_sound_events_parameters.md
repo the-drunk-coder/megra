@@ -40,6 +40,8 @@
 | `:pf-q`      | 10      | peak filter q factor |
 | `:pf-gain`   | 0.0     | peak filter gain |
 | `:rev`       | 0.0     | reverb amount |
+| `:echo`      | 0.0     | echo amount |
+| `:echorev`   | 0.0     | echo-reverb amount (experimental) |
 | `:lp-freq-lfo-speed` | 0.0 | lowpass frequency lfo speed (experimental) |
 | `:lp-freq-lfo-depth` | 0.0 | lowpass frequency lfo depth (experimental) |
 | `:lp-freq-lfo-phase` | 0.0 | lowpass frequency lfo phase (experimental) |
@@ -82,6 +84,8 @@
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
+| `:echo`      | 0.0     | echo amount |
+| `:echorev`   | 0.0     | echo-reverb amount (experimental) |
 | `:pw`        | 0.5     | pulsewidth (ONLY `sqr`) |
 | `:harm`      | 3       | number of harmonics (ONLY `buzz`), be careful with values over 10 ! |
 
@@ -114,6 +118,8 @@ A simple risset bell event.
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
+| `:echo`      | 0.0     | echo amount |
+| `:echorev`   | 0.0     | echo-reverb amount (experimental) |
 
 ## Pluck Event
 
@@ -142,6 +148,8 @@ Karplus-Strong type pluck event.
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
+| `:echo`      | 0.0     | echo amount |
+| `:echorev`   | 0.0     | echo-reverb amount (experimental) |
 
 ## DX Rhodes Event
 
@@ -170,13 +178,14 @@ A DX7 Rhodes type of event.
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
-|`:lvl-lfo-speed` | 0.0 | level lfo speed |
-|`:lvl-lfo-depth` | 0.0 | level lfo depth |
-|`:lvl-lfo-phase` | 0.0 | level lfo phase |
-|`:mix` | 0.2 | mix  |
-|`:vel` | 0.8 | velocity (think of key velocity on a keyboard) |
-|`:mod-idx` | 0.3 | FM modulation index |
-
+| `:echo`      | 0.0     | echo amount |
+| `:echorev`   | 0.0     | echo-reverb amount (experimental) |
+| `:lvl-lfo-speed` | 0.0 | level lfo speed |
+| `:lvl-lfo-depth` | 0.0 | level lfo depth |
+| `:lvl-lfo-phase` | 0.0 | level lfo phase |
+| `:mix` | 0.2 | mix  |
+| `:vel` | 0.8 | velocity (think of key velocity on a keyboard) |
+| `:mod-idx` | 0.3 | FM modulation index |
 
 ## Meow Event
 
@@ -205,6 +214,8 @@ Meow.
 | `:lp-q`      | 0.4     | lowpass filter q factor |
 | `:lp-dist`   | 0.0     | lowpass filter distortion|
 | `:rev`       | 0.0     | reverb amount |
+| `:echo`      | 0.0     | echo amount |
+| `:echorev`   | 0.0     | echo-reverb amount (experimental) |
 
 ## A Note about Note Names
 Note names follow the Common Music 2.x convention, where `'a4` is the concert pitch of 440hz, above the *middle c* which is `'c4`. `'cs4` denotes a sharp note, `'cf4` denotes a flat note. The sharp/flat schema is consistent over all notes.

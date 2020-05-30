@@ -1,3 +1,4 @@
+
 # Mégra Function Reference
 
 Table of Contents
@@ -487,6 +488,19 @@ Same as `fully`, with advanced PFA model.
 
 ## `grow` - Enlarge Generator
 
+The growth algorithm allows adding information to an already existing generator.
+It does so by picking an event the generator yielded in the past, shaking up the values
+a little, and adding it to the generator following certain principles.
+
+### Modes
+
+Each growth mode pushes the generator in a certain direction.
+
+* `'default`
+* `'triloop`  
+* `'quadloop`
+* `'flower`
+* `'loop` 
 
 
 ## `grown` - Enlarge Generator n times
@@ -724,7 +738,7 @@ without re-writing the whole generator.
      (cyc 'one "shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~ ~ shortri:'f3 shortri:'a3 shortri:'c4 shortri:'e4 ~")))
 ```
 
-## `xspread` - Multiply Generators Independently
+## `xspread2` - Multiply Generators Independently
 
 If you want to juxtapose (obvious reference here) a generator with a modified copy of itself,
 without re-writing the whole generator. As opposed to `xdup`, this one spreads the copies over
