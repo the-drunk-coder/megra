@@ -147,6 +147,8 @@
 
 	  var nodes = Object.values(graphs[name].nodes);
 	  var links = Object.values(graphs[name].links);
+	  force.nodes(nodes);
+	  force.force("link").links(links);
 	  
 	  // edges
 	  link = linkGroup
@@ -204,23 +206,22 @@
 			  .attr("fill", "none")
 			  .attr("stroke", "#afa")
 			  .attr("stroke-width", 3);
-		      console.log("ENTER")
+		      //console.log("ENTER")
 		      return enter;
 		  },
 		  function (update) {
-		      update.selectAll("text").text(d => d.label);
 		      update.selectAll("circle").attr("id", d => name + "-" + d.id)
-		      console.log("UPDATE")
+		      update.selectAll("text").text(d => d.label);
+		      
+		      //console.log("UPDATE")
 		      return update;
 		  },
 		  function (exit) {		      
-		      console.log(exit)
+		      //console.log(exit)
 		      return exit;
 		  }
 	      );
 
-	  force.nodes(nodes);
-	  force.force("link").links(links);
 	  
 	  // Update and restart the simulation.	  
 	  force.alpha(1).restart();	  
@@ -252,6 +253,7 @@
       // first, check for removed nodes
       Object.keys(graphs[name].nodes).forEach(function (key) {
 	  if(!graph_sources[name].nodes.hasOwnProperty(key)){
+	      console.log("delete node " + key + " WAS id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label);
 	      delete graphs[name].nodes[key];
 	  }
       });
@@ -259,6 +261,7 @@
       //and for removed edged 
       Object.keys(graphs[name].links).forEach(function (key) {
 	  if(!graph_sources[name].links.hasOwnProperty(key)){
+	      console.log("delete link " + key + " WAS label: " + graphs[name].links[key].label)
 	      delete graphs[name].links[key];
 	  }
       });
@@ -266,21 +269,26 @@
       // then, add or updated nodes ...
       Object.keys(graph_sources[name].nodes).forEach(function (key) {
 	  if(graphs[name].nodes.hasOwnProperty(key)) {
+	      console.log("update node " + key + " WAS id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label)
 	      graphs[name].nodes[key].id = graph_sources[name].nodes[key].id;
 	      graphs[name].nodes[key].label = graph_sources[name].nodes[key].label;
+	      console.log("-- NOW id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label)
 	  } else {
 	      graphs[name].nodes[key] = {
 		  id: graph_sources[name].nodes[key].id,
 		  label: graph_sources[name].nodes[key].label
 	      };
+	      console.log("addes node id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label)
 	  }
       });
 
       // and edges ..
       Object.keys(graph_sources[name].links).forEach(function (key) {
 	  if(graphs[name].links.hasOwnProperty(key)) {
+	      console.log("update link " + key + " WAS " + graphs[name].links[key].label + " " + graphs[name].links[key].prob)
 	      graphs[name].links[key].prob = graph_sources[name].links[key].prob;
-	      graphs[name].links[key].label = graph_sources[name].links[key].label;	     
+	      graphs[name].links[key].label = graph_sources[name].links[key].label;
+	      console.log(" -- NOW " + graphs[name].links[key].label + " " + graphs[name].links[key].prob)
 	  } else {
 	      graphs[name].links[key] = {
 		  source: graph_sources[name].links[key].source,
@@ -289,6 +297,7 @@
 		  prob: graph_sources[name].links[key].prob,
 		  label: graph_sources[name].links[key].label
 	      };
+	      console.log("add link " + key + " " + graphs[name].links[key].label + " " + graphs[name].links[key].prob)
 	  }		  
       });
       
@@ -307,7 +316,7 @@
       switch(msg.address) {
       case "/graph/add": {
 	  var name = msg.args[0].value;
-	  //console.log("NEW")
+	   console.log("NEW")
 	  // always gets renewed
 	  graph_sources[name] = {};
 	  graph_sources[name].nodes = {};
@@ -320,7 +329,7 @@
 	  var node_id = msg.args[1].value;
 	  var node_label = msg.args[2].value.trim();
 
-	  //console.log("NODE")
+	  console.log("NODE " + node_id + " " + node_label);
 	  	  
 	  graph_sources[name].nodes[node_id] = {id: node_id, label: node_label};
 	  
@@ -346,11 +355,13 @@
 	  var label = msg.args[3].value;
 	  var prob = msg.args[4].value;
 
-	  //console.log("EDGE")
+	  
 	  
 	  if(graph_sources.hasOwnProperty(name)) {
 	      var key = "" + src + "->" + dest;
 
+	      console.log("EDGE " + key)
+	      
 	      graph_sources[name].links[key] = {
 		  source: src,
 		  target: dest,
