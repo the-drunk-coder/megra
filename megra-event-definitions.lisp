@@ -309,7 +309,7 @@
   :direct-parameters (rev))
 
 (define-event
-    :long-name echo-event
+  :long-name echo-event
   :short-name echo
   :arithmetic t
   :parent-events (event)
@@ -392,7 +392,7 @@
 ;; GRAIN EVENT (slightly longer);;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-event
-  :long-name grain-event
+    :long-name grain-event
   :short-name grain
   :abstract-event nil
   :parent-events (level-event
@@ -1378,6 +1378,31 @@
 	      (simple-error (e)
 		(incudine::msg
 		 error "something went wrong executing shrink:~% ~D" e)))))
+
+(define-event
+  :long-name white-noise-event
+  :short-name wnoise
+  :abstract-event nil
+  :parent-events (level-event
+		  duration-event
+		  pan-event
+		  attack-event
+		  release-event
+                  highpass-frequency-event
+                  highpass-q-event
+                  lowpass-frequency-event
+                  lowpass-distortion-event
+                  lowpass-q-event
+		  lowpass-frequency-lfo-event
+                  peak-frequency-event
+                  peak-gain-event
+                  peak-q-event
+		  reverb-event
+                  echo-event
+                  echorev-event)
+  :handler (progn
+	     (if (member 'sc (event-backends evt)) (handle-white-noise-event-sc evt timestamp))))
+
 
 ;; the transition between events is just a different type of event,
 ;; if you ask me ... 

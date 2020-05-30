@@ -1,5 +1,32 @@
 (in-package :megra)
 
+(defmethod handle-white-noise-event-sc ((g white-noise-event) timestamp &key) 
+  ;; might save a hashtable access here ... later ...
+  (osc:simple-bundle cm::*oscout* timestamp  
+		     "/s_new"	    
+		     "siiisfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsfsf"
+		     "noise_2ch" -1 0 1
+		     "lvl" (coerce (event-level g) 'float)
+		     "lp_freq" (coerce (event-lp-freq g) 'float)
+		     "lp_q" (coerce (event-lp-q g) 'float)
+		     "lp_dist" (coerce (event-lp-dist g) 'float)
+		     "lp_freq_lfo_freq" (coerce (event-lp-freq-lfo-speed g) 'float)
+		     "lp_freq_lfo_depth" (coerce (event-lp-freq-lfo-depth g) 'float)
+		     "lp_freq_lfo_phase" (coerce (event-lp-freq-lfo-phase g) 'float)
+		     "pf_freq" (coerce (event-pf-freq g) 'float)
+		     "pf_q" (coerce (event-pf-q g) 'float)
+		     "pf_gain" (coerce (event-pf-gain g) 'float)
+		     "hp_freq" (coerce (event-hp-freq g) 'float)
+		     "hp_q" (coerce (event-hp-q g)  'float)
+		     "a" (coerce (* (event-attack g) 0.001) 'float)
+		     "length" (coerce (* (- (event-duration g) (event-attack g) (event-release g)) 0.001) 'float)
+		     "r" (coerce (* (event-release g) 0.001) 'float)
+		     "pos" (coerce (event-position g) 'float)
+		     "rev" (coerce (event-reverb g) 'float)
+                     "echo" (coerce (event-echo g) 'float)
+                     "echorev" (coerce (event-echorev g) 'float)))
+
+
 (defmethod handle-grain-event-sc ((g grain-event) timestamp &key)
   (unless (gethash (grain-sample-location g) *sc-buffer-directory*)
     (register-sample (grain-sample-location g)))
