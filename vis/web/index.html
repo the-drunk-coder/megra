@@ -4,42 +4,30 @@
   <title>Mégra Visualizer</title>
   <meta charset="UTF-8" />        
   <script src="/node_modules/osc/dist/osc-browser.js"></script>
-  <script src="/node_modules/d3/dist/d3.js"></script> 
+  <script src="/node_modules/cytoscape/dist/cytoscape.min.js"></script> 
 </head>
 
 <style>
   body {
       font-family: Comic Mono, monospace;
+      color: #fff;
       background: #000;
-      font-size: 6pt;
+      font-size: 12px;
   }
   
-  svg {
-      border: 0px;
-      overflow: hidden;
-  }
-  
-  path.link {
-      fill: none;
-      stroke: #fff;
-      stroke-width: 1.5px;
-  }
-
-  circle {      
-      stroke: #fff;
-      stroke-width: 1.5px;
-  }
-
-  text {
-      fill: #000;
-      font-size: 6pt;
-      font-family: Comic Mono, monospace;
-      pointer-events: none;
+  #cy {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      z-index: 999;
   }
   
   h1 {
-      font-size: 12pt;
-      color: #ffffff;
+      opacity: 0.5;
+      font-size: 1em;
+      font-weight: bold;
   }
   
 </style>
@@ -48,260 +36,19 @@
 
   <h1>Current Mégra Session !</h1>
   
+  <div id="cy"></div>
+  
 </body>
 
 <script>
-  
-  // keep graphs and svgs here ...
-  var graph_sources = {};
-  var graphs = {};
   var layouts = {};
-  var restarts = {};
-  var graph_svgs = {};    
+  var edges = {};
+  var nodes = {};
   var last_active = {};
-  
-  function linkArc(d) {
-      // Self edge.
-      var x1 = d.source.x;
-      var x2 = d.target.x;
-      var y1 = d.source.y;
-      var y2 = d.target.y;
-      if ( x1 === x2 && y1 === y2 ) {
-          // Fiddle with this angle to get loop oriented.
-          xRotation = -80;
-
-          // Needs to be 1.
-          largeArc = 1;
-
-          // Change sweep to change orientation of loop. 
-          sweep = 0;
-
-          // Make drx and dry different to get an ellipse
-          // instead of a circle.
-          drx = 17;
-          dry = 12;
-
-          // For whatever reason the arc collapses to a point if the beginning
-          // and ending points of the arc are the same, so kludge it.
-          x2 = x2 + 1;
-          y2 = y2 + 1;
-	  return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + x2 + "," + y2;
-      } else {
-	  const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
-	  return `M${d.source.x},${d.source.y} A${r},${r} 0 0,1 ${d.target.x},${d.target.y}`;
-      }      
-  }
 
   // calculate edge thickness from probablity
   function thickness(prob) {
       return 0.2 + (3.0 * (prob / 100.0));
-  }
-
-  function renderSingle(name) {      
-      var width = 500;
-      var height = 500;
-
-      var init_nodes = Object.values(graphs[name].nodes);
-      var init_links = Object.values(graphs[name].links);
-
-      var force = d3.forceSimulation(init_nodes)
-      	  .force("link", d3.forceLink(init_links).id(d => d.id))
-	  .force("charge", d3.forceManyBody().strength(-1300))	  
-	  .force("center", d3.forceCenter(width / 2, height / 2))
-	  .force("x", d3.forceX())
-	  .force("y", d3.forceY());
-      
-      var svg = d3.select("body").append("svg")
-	  .attr("width", width)
-	  .attr("height", height);
-      
-      // end markers (the little arrows)
-      svg.append("defs").selectAll("marker")
-	  .data(["regular"])
-	  .join("marker")
-	  .attr("id", "arrow-regular")
-	  .attr("markerUnits", "userSpaceOnUse") // this let's us define marker dimensions independent from the parent path
-	  .attr("viewBox", "0 -5 10 10")
-	  .attr("refX", 16)
-	  .attr("refY", -0.5)
-	  .attr("markerWidth", 12)
-	  .attr("markerHeight", 12)
-	  .attr("orient", "auto")
-	  .append("path")
-	  .attr("fill", "#fff")
-	  .attr("d", "M0,-5L10,0L0,5");
-
-      var nodeGroup = svg.append("g")
-	  .attr("id", "nodeGroup")
-	  .attr("stroke-linecap", "round")
-	  .attr("stroke-linejoin", "round");
-
-      var linkGroup = svg.append("g")
-	  .attr("id", "linkGroup")
-	  .attr("fill", "none").lower();
-      
-      var node;
-      var link;
-      
-      restarts[name] = function () {
-
-	  var nodes = Object.values(graphs[name].nodes);
-	  var links = Object.values(graphs[name].links);
-	  force.nodes(nodes);
-	  force.force("link").links(links);
-	  
-	  // edges
-	  link = linkGroup
-	      .selectAll("path")
-	      .data(links)
-	      .join("path")
-	      .attr("id", d => name + `-${d.source.id}-${d.target.id}`)
-	      .attr("stroke", "#fff")	  
-	      .attr("stroke-width", d => thickness(d.prob))
-	      .attr("marker-end", d => d.source == d.target ? '' : `url(${new URL(`#arrow-${d.type}`, location)})`);
-	  
-	  // edge labels
-	  linkGroup.selectAll("text")
-	      .data(links)	  
-	      .join(
-		  function (enter) {
-		      enter = enter.append("text");
-		      enter.append("textPath")
-      			  .attr("startOffset", "39%")
-			  .attr('xlink:href', d => `#${name}-${d.source.id}-${d.target.id}`)
-			  .text(d => d.label)
-			  .clone(true).lower()
-			  .attr("fill", "none")
-			  .attr("stroke", "#fdd")
-			  .attr("stroke-width", 3);
-		      return enter
-		  },
-		  function(update) {
-		      update.selectAll("textPath").text(d => d.label);
-		      return update;
-		  }
-	      );	  
-              
-	  
-	  // nodes
-	  node = nodeGroup	      
-	      .selectAll("g")
-	      .data(nodes)
-	      .join(
-		  function (enter) {
-		      enter = enter.append("g");
-		      enter.append("circle")	      
-			  .attr("id", d => name + "-" + d.id)
-			  .attr("stroke", "white")
-			  .attr("stroke-width", 1.5)
-			  .attr("r", 9)
-			  .attr("fill", "#afa");
-		      
-		      // node text
-		      enter.append("text")
-			  .attr("x", -3)
-			  .attr("y", 2)
-			  .text(d => d.label)
-			  .clone(true).lower()			  
-			  .attr("fill", "none")
-			  .attr("stroke", "#afa")
-			  .attr("stroke-width", 3);
-		      //console.log("ENTER")
-		      return enter;
-		  },
-		  function (update) {
-		      update.selectAll("circle").attr("id", d => name + "-" + d.id)
-		      update.selectAll("text").text(d => d.label);
-		      
-		      //console.log("UPDATE")
-		      return update;
-		  },
-		  function (exit) {		      
-		      //console.log(exit)
-		      return exit;
-		  }
-	      );
-
-	  
-	  // Update and restart the simulation.	  
-	  force.alpha(1).restart();	  
-      }
-
-      force.on("tick", () => {
-	  link.attr("d", linkArc);
-	  node.attr("transform", d => `translate(${d.x},${d.y})`);
-      });
-      
-      // keep for easy remval ...
-      graph_svgs[name] = svg;
-      layouts[name] = force;
-
-      // initial restart ...
-      restarts[name]();
-  }
-
-  function updateGraph(name) {
-      var created = false;
-
-      if(!graphs.hasOwnProperty(name)) {
-	  graphs[name] = {};
-	  graphs[name].nodes = {};
-	  graphs[name].links = {};
-	  created = true;
-      }
-
-      // first, check for removed nodes
-      Object.keys(graphs[name].nodes).forEach(function (key) {
-	  if(!graph_sources[name].nodes.hasOwnProperty(key)){
-	      console.log("delete node " + key + " WAS id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label);
-	      delete graphs[name].nodes[key];
-	  }
-      });
-
-      //and for removed edged 
-      Object.keys(graphs[name].links).forEach(function (key) {
-	  if(!graph_sources[name].links.hasOwnProperty(key)){
-	      console.log("delete link " + key + " WAS label: " + graphs[name].links[key].label)
-	      delete graphs[name].links[key];
-	  }
-      });
-
-      // then, add or updated nodes ...
-      Object.keys(graph_sources[name].nodes).forEach(function (key) {
-	  if(graphs[name].nodes.hasOwnProperty(key)) {
-	      console.log("update node " + key + " WAS id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label)
-	      graphs[name].nodes[key].id = graph_sources[name].nodes[key].id;
-	      graphs[name].nodes[key].label = graph_sources[name].nodes[key].label;
-	      console.log("-- NOW id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label)
-	  } else {
-	      graphs[name].nodes[key] = {
-		  id: graph_sources[name].nodes[key].id,
-		  label: graph_sources[name].nodes[key].label
-	      };
-	      console.log("addes node id: " + graphs[name].nodes[key].id + " label: " + graphs[name].nodes[key].label)
-	  }
-      });
-
-      // and edges ..
-      Object.keys(graph_sources[name].links).forEach(function (key) {
-	  if(graphs[name].links.hasOwnProperty(key)) {
-	      console.log("update link " + key + " WAS " + graphs[name].links[key].label + " " + graphs[name].links[key].prob)
-	      graphs[name].links[key].prob = graph_sources[name].links[key].prob;
-	      graphs[name].links[key].label = graph_sources[name].links[key].label;
-	      console.log(" -- NOW " + graphs[name].links[key].label + " " + graphs[name].links[key].prob)
-	  } else {
-	      graphs[name].links[key] = {
-		  source: graph_sources[name].links[key].source,
-		  target: graph_sources[name].links[key].target,
-		  type: graph_sources[name].links[key].type,
-		  prob: graph_sources[name].links[key].prob,
-		  label: graph_sources[name].links[key].label
-	      };
-	      console.log("add link " + key + " " + graphs[name].links[key].label + " " + graphs[name].links[key].prob)
-	  }		  
-      });
-      
-      return created;
   }
   
   var oscPort = new osc.WebSocketPort({
@@ -310,42 +57,99 @@
   });
   
   oscPort.open();
-
+  
   oscPort.on("message", function (msg) {
 
       switch(msg.address) {
       case "/graph/add": {
 	  var name = msg.args[0].value;
-	   console.log("NEW")
-	  // always gets renewed
-	  graph_sources[name] = {};
-	  graph_sources[name].nodes = {};
-	  graph_sources[name].links = {};	      
+
+	  if(!edges.hasOwnProperty(name)){
+	      edges[name] = {};
+	  }
+	  if(!nodes.hasOwnProperty(name)){
+	      nodes[name] = {};
+	  }
+	  if(!edges[name].hasOwnProperty('current')){
+	      edges[name]['current'] = [];
+	  }
+	  if(!nodes[name].hasOwnProperty('current')){
+	      nodes[name]['current'] = [];
+	  }
+	  
+	  edges[name]['added'] = [];
+	  nodes[name]['added'] = [];
+
+	  if(!layouts.hasOwnProperty(name)) {
+
+	      layouts[name] = cytoscape({
+		  container: document.getElementById('cy'),
+		  style: [
+		      {
+			  selector: 'node',
+			  style: {
+			      'background-color': '#afa',
+			      'color' : '#fff',
+			      'font-family' : 'Comic Mono, monospace',
+			      'shape': 'ellipse',
+			      'content': 'data(name)'
+			  }
+		      },
+		      {
+			  selector: ':selected',
+			  style: {
+			      'background-color': '#f77',
+			      'color' : '#fff',			      
+			  }
+		      },
+		      {
+			  selector: 'edge',
+			  style: {
+			      'curve-style': 'bezier',
+			      'target-arrow-shape': 'triangle',
+			      'width' : 'data(width)',
+			      'content' : 'data(label)',
+			      'font-family' : 'Comic Mono, monospace',
+			      'color' : '#fff',
+			  }
+		      },
+		  ]
+	      });
+	  }
 	  
 	  break;
       }
       case "/node/add": {
 	  var name = msg.args[0].value;
-	  var node_id = msg.args[1].value;
+	  var node_id = 'n' + msg.args[1].value;
 	  var node_label = msg.args[2].value.trim();
 
-	  console.log("NODE " + node_id + " " + node_label);
-	  	  
-	  graph_sources[name].nodes[node_id] = {id: node_id, label: node_label};
+	  var n = layouts[name].$('#' + node_id);
+	  if(n.length > 0) {
+	      n.data("name", node_label);
+	  } else {
+	      layouts[name].add([{
+		  group: "nodes",
+		  data: {
+		      id: node_id,
+		      name: node_label
+		  }
+	      }]);
+	  }
+	  nodes[name].added.push(node_id);
 	  
 	  break;
       }
       case "/node/active": {
 	  var name = msg.args[0].value;	  	  
 
-	  if(graphs.hasOwnProperty(name)) {
+	  if(layouts.hasOwnProperty(name)) {
 	      var src = msg.args[1].value;
-
-	      d3.select(`#${name}-${last_active[name]}`).attr("fill", "#afa");
-	      d3.select(`#${name}-${src}`).attr("fill", "#f77");
-	      //console.log('active ' + src);
-	      last_active[name] = src;
+	      layouts[name].$(last_active[name]).unselect();
+	      layouts[name].$('#n' + src).select();
+	      last_active[name] = '#n' + src;
 	  }
+	  
 	  break;
       }
       case "/edge/add": {
@@ -355,54 +159,61 @@
 	  var label = msg.args[3].value;
 	  var prob = msg.args[4].value;
 
-	  
-	  
-	  if(graph_sources.hasOwnProperty(name)) {
-	      var key = "" + src + "->" + dest;
+	  var edge_id = 'edge-n' + src + '-n' + dest;
 
-	      console.log("EDGE " + key)
-	      
-	      graph_sources[name].links[key] = {
-		  source: src,
-		  target: dest,
-		  type: "regular",
-		  prob: prob,
+	  var e = layouts[name].$('#' + edge_id);
+	  if(e.length > 0) {
+	      e.data("label", label);
+	      e.data("width", thickness(prob));
+	  } 
+
+	  edges[name].added.push({
+	      group: "edges",
+	      data: {
+		  id: edge_id,  // giving edges an id helps avoid duplicates
+		  source: 'n' + src,
+		  target: 'n' + dest,
+		  width: thickness(prob),
 		  label: label
-	      };	      	      
-	  }
+	      }
+	  });
+	  
 	  
 	  break;
       }
-      case "/render": {
-	  //console.log("RENDER")
+      case "/render": {	  
 	  var name = msg.args[0].value;	  
 	  
-	  if(updateGraph(name)) { 	      
-	      renderSingle(name);
-	  } else {	      	      
-	      restarts[name]();
-	  }
+	  nodes[name].current.forEach(function(nid) {
+	      if(!nodes[name].added.includes(nid)) {
+		  layouts[name].$('#' + nid).remove();
+	      }
+	  });
+
+	  nodes[name].current = nodes[name].added.slice();
 	  
+	  edges[name].current.forEach(function(edge) {
+	      if(!edges[name].added.includes(edge)) {
+		  layouts[name].$('#' + edge.data.id).remove();
+	      }
+	  });
+
+	  edges[name].current = edges[name].added.slice();
+
+	  layouts[name].add(edges[name].current);
+	  
+	  layouts[name].layout( {
+	      name: 'circle'
+	  }).run();
+	 
 	  break;
       }
       case "/clear": {	  	  
 	  var name = msg.args[0].value;
-	  if(graph_sources.hasOwnProperty(name)) {	      
-	      delete graph_sources[name];
-	  }
 
-	  if(graphs.hasOwnProperty(name)) {	      
-	      delete graphs[name];
-	  }
+	  layouts[name].destroy();
+	  delete layouts[name];
 	  
-	  if(layouts.hasOwnProperty(name)) {	      
-	      delete layouts[name];
-	  }
-	  
-	  if(graph_svgs.hasOwnProperty(name)) {
-	      graph_svgs[name].remove();
-	      delete graph_svgs[name];
-	  }	  	  	  	  
 	  break;
       }
       }            
