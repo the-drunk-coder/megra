@@ -79,7 +79,6 @@
               iproc))
         (lambda (nproc) (apply 'shrink (nconc params (list nproc)))))))
 
-
 ;; haste 4 0.5 - apply tempo mod for the next n times (only on base proc)
 (defun haste (num mod &optional proc)  
   (if proc
@@ -135,52 +134,51 @@
                                                                          next 1.0))
                          ;;(format t "MAX RULE ~D~% " (list (make-list max :initial-element sym) next 1.0))
                          (vom::rebalance-state (inner-generator iproc) (list sym)))))
-            iproc))
+            (set-modified iproc)))
       (lambda (nproc) (rep prob max nproc))))
 
 (defun sharpen (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (sharpen factor (funcall proc nproc)))         
-          (progn
-            (vom::sharpen-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-            (set-modified proc)))
+          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
+            (vom::sharpen-pfa (inner-generator p ) factor)
+            (set-modified p)))
       (lambda (nproc) (sharpen factor nproc))))
 
 (defun blur (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (blur factor (funcall proc nproc)))         
-          (progn (vom::blur-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-                 (set-modified proc)))
+          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)1))
+            (vom::blur-pfa (inner-generator p) factor)
+            (set-modified p)))
       (lambda (nproc) (blur factor nproc))))
 
 (defun discourage (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (discourage factor (funcall proc nproc)))
-          (progn
-            (vom::discourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-            (set-modified proc)))
+          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
+            (vom::discourage-pfa (inner-generator p) factor)
+            (set-modified p)))
       (lambda (nproc) (discourage factor nproc))))
 
 (defun encourage (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (encourage factor (funcall proc nproc)))         
-          (progn
-            (vom::encourage-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) factor)
-            (set-modified proc)))
+          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
+            (vom::encourage-pfa (inner-generator p) factor)
+            (set-modified p)))
       (lambda (nproc) (encourage factor nproc))))
 
 (defun rnd (chance &optional proc)
   (if proc
       (if (typep proc 'function)
           (lambda (&optional nproc) (rnd chance (funcall proc nproc)))         
-          (progn            
-            (vom::randomize-edges (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)) chance :prop chance)
-            (vom::rebalance-pfa (inner-generator (if (symbolp proc) (gethash proc *processor-directory*) proc)))
-            (set-modified proc)))
+          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
+            (vom::randomize-edges (inner-generator p) chance :prop chance)
+            (vom::rebalance-pfa (inner-generator p))
+            (set-modified p)))
       (lambda (nproc) (rnd chance nproc))))
-
-
