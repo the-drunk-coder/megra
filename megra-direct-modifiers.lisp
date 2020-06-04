@@ -134,8 +134,8 @@
                          (vom::insert-rule (inner-generator iproc) (list (make-list max :initial-element sym)
                                                                          next 1.0))
                          ;;(format t "MAX RULE ~D~% " (list (make-list max :initial-element sym) next 1.0))
-                         (vom::rebalance-state (inner-generator iproc) (list sym))))))
-          iproc)
+                         (vom::rebalance-state (inner-generator iproc) (list sym)))))
+            iproc))
       (lambda (nproc) (rep prob max nproc))))
 
 (defun sharpen (factor &optional proc)  
