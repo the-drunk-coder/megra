@@ -4,6 +4,7 @@
   ((name :accessor generator-name :initarg :name)
    (is-active :accessor is-active :initform nil)
    (modified :accessor modified :initform t)
+   (vis-hint :accessor vis-hint :initform 'cose :initarg :vis-hint)
    (inner-generator :accessor inner-generator :initarg :generator)
    (combine-filter :accessor combine-filter :initarg :combine-filter :initform #'all-p)
    (symbol-ages :accessor ages :initarg :ages :initform (make-hash-table :test 'equal)) ;; move this to core model, so that all operations can be defined there !
@@ -37,7 +38,6 @@
       (generator-name g)))
 
 ;; tagging - this would need a name for the generator ? - also, the symbol could be added to the tags
-
 (defmethod current-events ((g generator) &key)
   ;; increment symbol age ...
   (incf (gethash (vom::query-result-symbol (last-transition g)) (ages g)))
@@ -62,11 +62,12 @@
     (push (name g) (event-tags tr))
     (list tr)))
 
-(defun infer-naive (name mapping default-dur rules &key successor (combine-filter 'all-p))
+(defun infer-naive (name mapping default-dur rules &key successor (combine-filter 'all-p) (vis-hint 'cose))
   (let* ((normalized-rules (mapc #'(lambda (r) (if (floatp (nth 2 r)) (setf (nth 2 r) (floor (* (nth 2 r) 100))))) rules))
          (g (make-instance 'generator
                            :name name
                            :combine-filter combine-filter
+                           :vis-hint vis-hint
                            :generator (vom::infer-naive-pfa-list normalized-rules)
                            :events mapping
                            :default-duration default-dur
@@ -82,11 +83,12 @@
               (nth 3 rule)))
     g))
 
-(defun infer-adj-pfa (name mapping default-dur rules &key successor (combine-filter 'all-p))
+(defun infer-adj-pfa (name mapping default-dur rules &key successor (combine-filter 'all-p) (vis-hint 'cose))
   (let* ((normalized-rules (mapc #'(lambda (r) (if (integerp (nth 2 r)) (setf (nth 2 r) (coerce (/ (nth 2 r) 100) 'float)))) rules))
          (g (make-instance 'generator :name name
                                       :generator (vom::infer-adj-list-pfa-list normalized-rules)
                                       :events mapping
+                                      :vis-hint vis-hint
                                       :combine-filter combine-filter
                                       :default-duration default-dur
                                       :successor successor)))    
@@ -103,17 +105,17 @@
               (nth 3 rule)))
     g))
 
-(defun infer-generator (name type mapping default-dur rules &key successor (combine-filter 'all-p))
-  (cond ((equal type 'naive) (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))
-        ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules :successor successor :combine-filter combine-filter))
-        (t (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter))))
+(defun infer-generator (name type mapping default-dur rules &key successor (combine-filter 'all-p) (vis-hint 'cose))
+  (cond ((equal type 'naive) (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter :vis-hint vis-hint))
+        ((equal type 'pfa) (infer-adj-pfa name mapping default-dur rules :successor successor :combine-filter combine-filter :vis-hint vis-hint))
+        (t (infer-naive name mapping default-dur rules :successor successor :combine-filter combine-filter :vis-hint vis-hint))))
 
-(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) (rnd 0))  
+(defun infer-from-rules (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) (rnd 0) (vis-hint 'cose))
   "infer a generator from rules"  
   (let* ((event-mapping (if mapping mapping (alexandria::plist-hash-table events))) ;; mapping has precedence         
          (g-old (gethash name *processor-directory*))
          (g (if (or (not g-old) (and g-old reset))
-                (infer-generator name type event-mapping default-dur rules :successor successor :combine-filter combine-filter))))
+                (infer-generator name type event-mapping default-dur rules :successor successor :combine-filter combine-filter :vis-hint vis-hint))))
     (setf (gethash *global-silence-symbol* mapping) (list (silence)))
     ;; state preservation, if possible
     (when (and g g-old)
@@ -134,6 +136,7 @@
                              :name name
                              :events events
                              :mapping mapping
+                             :vis-hint vis-hint
                              :rules rules
                              :rnd rnd
                              :combine-filter combine-filter
@@ -144,6 +147,7 @@
                                            :name name
                                            :events events
                                            :mapping mapping
+                                           :vis-hint vis-hint
                                            :rnd rnd
                                            :rules rules
                                            :combine-filter combine-filter
@@ -153,6 +157,7 @@
           (t (infer-from-rules-fun :type type
                                    :name name
                                    :events events
+                                   :vis-hint vis-hint
                                    :mapping mapping
                                    :rules rules
                                    :rnd rnd
@@ -175,6 +180,7 @@
                                                       size
                                                       sample)
                                           :events mapping
+                                          :vis-hint 'cose ;; maybe circular is better ?
                                           :combine-filter combine-filter
                                           :default-duration default-dur
                                           :successor successor))))

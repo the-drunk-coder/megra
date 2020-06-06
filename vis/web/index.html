@@ -182,7 +182,11 @@
 	  break;
       }
       case "/render": {	  
-	  var name = msg.args[0].value;	  
+	  var name = msg.args[0].value;
+	  var layout = msg.args[1].value.toLowerCase();	  
+
+
+	  console.log(layout)
 	  
 	  nodes[name].current.forEach(function(nid) {
 	      if(!nodes[name].added.includes(nid)) {
@@ -203,7 +207,7 @@
 	  layouts[name].add(edges[name].current);
 	  
 	  layouts[name].layout( {
-	      name: 'circle'
+	      name: layout 
 	  }).run();
 	 
 	  break;

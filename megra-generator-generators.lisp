@@ -94,7 +94,7 @@
         (mapev map (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rnd rnd :rules (cadr gen-ev) :default-dur dur
                                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))
 
-        (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rnd rnd :rules (cadr gen-ev) :default-dur dur
+        (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :vis-hint 'circle :rnd rnd :rules (cadr gen-ev) :default-dur dur 
                               :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))))
 
 (defun cyc2 (name cyc-def &rest rest)
@@ -109,7 +109,7 @@
                         (alexandria::lastcar rest)))
          (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
     (if map
-        (mapev map (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :rnd rnd :default-dur dur
+        (mapev map (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :vis-hint 'circle :rules (cadr gen-ev) :rnd rnd :default-dur dur
                                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))
         (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :rnd rnd :default-dur dur
                               :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))))
@@ -122,6 +122,7 @@
                        (alexandria::lastcar rest))))
     (infer-from-rules-fun :type 'naive
                           :name name
+                          :vis-hint 'cose
                           :mapping (alexandria::plist-hash-table (list 1 (alexandria::flatten (list event))))
 	                  :rules (list (list '(1) 1 100 dur))
 	                  :default-dur dur
@@ -137,6 +138,7 @@
                        (alexandria::lastcar rest))))
     (infer-from-rules-fun :type 'pfa
                           :name name
+                          :vis-hint 'cose
                           :mapping (alexandria::plist-hash-table (list 1 (alexandria::flatten (list event))))
 	                  :rules (list (list '(1) 1 100 dur))
 	                  :default-dur dur
@@ -158,6 +160,7 @@
                           :name name
                           :mapping (p-events-list events)
 	                  :rules rules
+                          :vis-hint 'cose
 	                  :default-dur dur
                           :reset reset
                           :successor successor
@@ -219,7 +222,7 @@
                         (alexandria::lastcar rest)))
          (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
          (gen-ev (fully-connected events)))    
-    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'naive :name name :vis-hint 'circle :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun fully2 (name &rest rest)
@@ -230,7 +233,7 @@
                         (alexandria::lastcar rest)))
          (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
          (gen-ev (fully-connected events))) 
-    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'pfa :name name :vis-hint 'circle :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun friendship-connected (events)
@@ -259,7 +262,7 @@
                         (alexandria::lastcar rest)))
          (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
          (gen-ev (friendship-connected events)))    
-    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'naive :name name :vis-hint 'cose :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun friendship2 (name &rest rest)
@@ -270,7 +273,7 @@
                         (alexandria::lastcar rest)))
          (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
          (gen-ev (friendship-connected events))) 
-    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'pfa :name name :vis-hint 'cose :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun flower-connected (events layers)
@@ -302,7 +305,7 @@
                         (alexandria::lastcar rest)))
          (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
          (gen-ev (flower-connected events layers)))    
-    (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'naive :name name :vis-hint 'cose :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 (defun flower2 (name &rest rest)
@@ -314,7 +317,7 @@
                         (alexandria::lastcar rest)))
          (events (delete nil (mapcar #'(lambda (e) (if (typep e 'event) e)) rest)))
          (gen-ev (flower-connected events layers))) 
-    (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
+    (infer-from-rules-fun :type 'pfa :name name :vis-hint 'cose :mapping (car gen-ev) :rules (cadr gen-ev) :default-dur dur
                           :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p))))
 
 

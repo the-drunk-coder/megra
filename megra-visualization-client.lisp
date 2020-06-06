@@ -40,7 +40,7 @@
                                            (car ch)
                                            (ceiling (* (car ch) 100)))
                                        ))))))
-  (osc:message *oscout-vis* "/render" "s" (symbol-name (generator-name g))))
+  (osc:message *oscout-vis* "/render" "ss" (symbol-name (generator-name g)) (symbol-name (vis-hint g))))
 
 (defmethod vis-update-active-node ((g generator) &key)
   (let* ((key (sxhash (vom::query-result-last-state (last-transition g)))))
