@@ -91,7 +91,7 @@
                         (alexandria::lastcar rest)))
          (gen-ev (parse-cycle cyc-def :rep rep :max-rep max-rep :dur dur)))
     (if map
-        (mapev map (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :rnd rnd :rules (cadr gen-ev) :default-dur dur
+        (mapev map (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :vis-hint 'circle :rnd rnd :rules (cadr gen-ev) :default-dur dur
                                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))
 
         (infer-from-rules-fun :type 'naive :name name :mapping (car gen-ev) :vis-hint 'circle :rnd rnd :rules (cadr gen-ev) :default-dur dur 
@@ -111,7 +111,7 @@
     (if map
         (mapev map (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :vis-hint 'circle :rules (cadr gen-ev) :rnd rnd :default-dur dur
                                          :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))
-        (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :rules (cadr gen-ev) :rnd rnd :default-dur dur
+        (infer-from-rules-fun :type 'pfa :name name :mapping (car gen-ev) :vis-hint 'circle :rules (cadr gen-ev) :rnd rnd :default-dur dur
                               :reset reset :successor successor :combine-filter (if filters (multi-filter filters) 'all-p)))))
 
 (defun nuc (name event &rest rest)

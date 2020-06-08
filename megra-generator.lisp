@@ -129,7 +129,7 @@
           g)
         g-old)))
 
-(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) reset successor (combine-filter 'all-p) (rnd 0))
+(defun infer-from-rules-fun (&key type name events rules mapping (default-dur *global-default-duration*) (vis-hint 'cose) reset successor (combine-filter 'all-p) (rnd 0))
   (lambda (&optional next)      
     (cond ((not next)
            (infer-from-rules :type type
