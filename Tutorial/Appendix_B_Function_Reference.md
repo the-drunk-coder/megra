@@ -31,7 +31,7 @@ Table of Contents
 * [grow - Enlarge Generator](#grow---enlarge-generator)
 * [grown - Enlarge Generator n times](#grown---enlarge-generator-n-times)
 * [haste - speed up evaluation](#haste---speed-up-evaluation)
-* [life - Manipulate Generator](#lifemodel---manipulate-generator)
+* [life - Manipulate Generator](#life---manipulate-generator)
 * [probctrl - Manipulate Generator](#probctrl---manipulate-generator)
 * [relax - Slow Down Generator](#relax---slow-down-generator)
 * [rew - Rewind Generator](#rew---rewind-generator)
