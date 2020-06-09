@@ -548,7 +548,87 @@ Inhibit event type, that is, mute event of that type, with a certain probability
 
 ## `life` - Manipulate Generator
 
-This is one of the more complex generator manipulations.
+This is one of the more complex generator manipulations. To understand it, it's helpful to play around 
+with the `(grow ...)` function first. What the `(life ...)` method does is basically the same, but automated
+and bound to resources, in the fashion of a primitive life-modeling algorithm:
+
+* There's a global pool of resources (which is just an abstract number).
+* Each generator is assigned an amount of local resources (same as above).
+* Each time the generator grows, it comes at a cost, which is subtracted first from the local, then from the global resources.
+* If all resources are used up, nothing can grow any further.
+
+Each symbol in the current alphabet is assigned an age (the number of times it has been evaluated), so at a certain, specified
+age they can perish, freeing a certain amount of resources (which are added to the local resource pool).
+
+Furthermore, if specified, the generator can be configured to "eat itself up" when a shortage of resources occurs. That means 
+that an element will be removed before its time, freeing resources for further growth (which, again, are added to the local resources).
+
+### Parameters
+
+* growth cycle (int)
+* average lifespan (int)
+* variation (float)
+* `:method` - growth method (see `(grow ...)`)
+* `:durs` - list of possible durations to choose from
+* `:apoptosis` (bool) - if `nil`, symbols never die
+* `:autophagia` (bool) - if `t`, the generator will eat its own symbols to generate energy for further growth
+
+### Global Config 
+
+You can configure some parameters globally (here's their defaults):
+
+```lisp
+(setf *global-resources* 100.0) ;; global resources
+(setf *growth-cost* 1.0) ;; cost to grow one node
+(setf *autophage-regain* 0.7) ;; resource regain when forced by shortage
+(setf *apoptosis-regain* 0.5) ;; generic regain through planned expiration
+(setf *default-local-resources* 8) ;; initial local resources for new instances
+(setf *node-lifespan-variance* 0.1) ;; add some variation to the lifespan
+(setf *dont-let-die* t) ;; always keep at least one node so the generator doesn't stop  
+
+;; there's a convenience method for global resources:
+(global-resources 30000)
+```
+
+### Examples
+
+The algorithm is quite configurable, but to use the default configuration, you can simply use:
+
+```lisp
+(sx 'the-circle t
+    (life 10 12 0.4 ;; first arg: growth cycle, second arg: average lifespan, third arg: variation factor
+          (cyc 'of-life "shortri:100 shortri:120 ~ ~ shortri:120 shortri:180 ~ shortri:200")))
+```
+
+This means that every ten steps the generator will grow, while the average lifespan of an element is 12 evaluations.
+The a variantion factor of 0.4 will be applied when generating the new elements.
+
+You can specify a growth method (see the paragraph on `(grow ...)` for details):
+
+```lisp
+(sx 'the-circle t
+    (life 10 12 0.4 :method 'flower
+          (cyc 'of-life "shortri:100 shortri:120 ~ ~ shortri:120 shortri:180 ~ shortri:200")))
+```
+
+To add some rhythmical variation, you can mix in other durations (chosen at random):
+
+```lisp
+(sx 'the-circle t
+    (life 10 12 0.4 :method 'flower :durs '(100 200 200 200 400 100)
+          (cyc 'of-life "shortri:100 shortri:120 ~ ~ shortri:120 shortri:180 ~ shortri:200")))
+```
+
+Another interesting way to use this is to juxtapose it with a static generator (note the reset flag is nil'd so
+we can change parameters without starting from scratch every time):
+
+```lisp
+(sx 'the-circle t
+    (xspread2
+      (pear (pitch-mul 1.5) (life 10 12 0.4 :method 'flower :durs '(100 200 200 200 200 400)))
+      (cyc 'of-life "shortri:100 shortri:120 ~ ~ shortri:120 shortri:180 ~ shortri:200" :reset nil)))
+```
+
 
 ## `nuc` - Nucleus Generator
 
