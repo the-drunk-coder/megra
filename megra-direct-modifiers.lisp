@@ -6,7 +6,9 @@
 (defun skip (num &optional proc)    
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (skip num (funcall proc nproc)))
+          (lambda (&optional nproc) (skip num (if nproc
+                                             (funcall proc nproc)
+                                             (funcall proc))))
           (let ((iproc (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (loop for a from 0 to (- num 1)
                   do (progn                              
@@ -17,7 +19,9 @@
 
 (defun inner-grown (n rest proc)
   (if (typep proc 'function)
-      (lambda (&optional nproc) (inner-grown n rest (funcall proc nproc)))
+      (lambda (&optional nproc) (inner-grown n rest (if nproc
+                                                   (funcall proc nproc)
+                                                   (funcall proc))))
       (let ((method (find-keyword-val :method rest :default 'triloop))
 	    (variance (find-keyword-val :var rest :default 0.2))	    
 	    (durs (find-keyword-val :durs rest :default nil))
@@ -66,10 +70,12 @@
                    (if (typep last 'symbol)
                        (gethash last *processor-directory*)
                        last)
-                  nil)))
+                   nil)))
     (if proc
         (if (typep proc 'function)
-            (lambda (&optional nproc) (apply 'shrink (nconc params (list (funcall proc nproc)))))
+            (lambda (&optional nproc) (apply 'shrink (nconc params (list (if nproc
+                                                                        (funcall proc nproc)
+                                                                        (funcall proc))))))
             (let ((node-id (find-keyword-val :node-id params :default nil))
                   (exclude (find-keyword-val :exclude params :default nil))
                   (iproc (if (symbolp proc) (gethash proc *processor-directory*) proc)))
@@ -83,7 +89,9 @@
 (defun haste (num mod &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (haste num mod (funcall proc nproc)))
+          (lambda (&optional nproc) (haste num mod (if nproc
+                                                  (funcall proc nproc)
+                                                  (funcall proc))))
           (let ((iproc (if (symbolp proc) (gethash proc *processor-directory*) proc))) 
             (loop for a from 0 to (- num 1) do (push-tmod iproc mod)) iproc))
       (lambda (nproc) (haste num mod nproc))))
@@ -92,7 +100,9 @@
 (defun relax (num mod &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (relax num mod (funcall proc nproc)))
+          (lambda (&optional nproc) (relax num mod (if nproc
+                                                  (funcall proc nproc)
+                                                  (funcall proc))))
           (let ((iproc (if (symbolp proc) (gethash proc *processor-directory*) proc)))            
             (loop for a from 0 to (- num 1) do (push-tmod iproc (coerce (/ 1.0 mod) 'float))) iproc))
       (lambda (nproc) (relax num mod nproc))))
@@ -101,7 +111,9 @@
 (defun rew (num &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (rew num (funcall proc nproc)))
+          (lambda (&optional nproc) (rew num (if nproc
+                                            (funcall proc nproc)
+                                            (funcall proc))))
           (let ((iproc (if (symbolp proc) (gethash proc *processor-directory*) proc)))            
             (if (typep (inner-generator iproc) 'vom::adj-list-pfa) 
                 (progn
@@ -120,7 +132,9 @@
 (defun rep (prob max &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (rep prob max (funcall proc nproc)))                   
+          (lambda (&optional nproc) (rep prob max (if nproc
+                                                 (funcall proc nproc)
+                                                 (funcall proc))))                   
           (let ((iproc (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (loop for sym in (vom::alphabet (inner-generator iproc))
                   do (let ((next (if (cadr (member sym (vom::alphabet (inner-generator iproc))))
@@ -140,7 +154,9 @@
 (defun sharpen (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (sharpen factor (funcall proc nproc)))         
+          (lambda (&optional nproc) (sharpen factor (if nproc
+                                                   (funcall proc nproc)
+                                                   (funcall proc))))         
           (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (vom::sharpen-pfa (inner-generator p ) factor)
             (set-modified p)))
@@ -149,8 +165,10 @@
 (defun blur (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (blur factor (funcall proc nproc)))         
-          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)1))
+          (lambda (&optional nproc) (blur factor (if nproc
+                                                (funcall proc nproc)
+                                                (funcall proc))))         
+          (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (vom::blur-pfa (inner-generator p) factor)
             (set-modified p)))
       (lambda (nproc) (blur factor nproc))))
@@ -158,7 +176,9 @@
 (defun discourage (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (discourage factor (funcall proc nproc)))
+          (lambda (&optional nproc) (discourage factor (if nproc
+                                                      (funcall proc nproc)
+                                                      (funcall proc))))
           (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (vom::discourage-pfa (inner-generator p) factor)
             (set-modified p)))
@@ -167,7 +187,9 @@
 (defun encourage (factor &optional proc)  
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (encourage factor (funcall proc nproc)))         
+          (lambda (&optional nproc) (encourage factor (if nproc
+                                                     (funcall proc nproc)
+                                                     (funcall proc))))         
           (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (vom::encourage-pfa (inner-generator p) factor)
             (set-modified p)))
@@ -176,7 +198,9 @@
 (defun rnd (chance &optional proc)
   (if proc
       (if (typep proc 'function)
-          (lambda (&optional nproc) (rnd chance (funcall proc nproc)))         
+          (lambda (&optional nproc) (rnd chance (if nproc
+                                               (funcall proc nproc)
+                                               (funcall proc))))         
           (let ((p (if (symbolp proc) (gethash proc *processor-directory*) proc)))
             (vom::randomize-edges (inner-generator p) chance :prop chance)
             (vom::rebalance-pfa (inner-generator p))
