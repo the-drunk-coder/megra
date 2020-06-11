@@ -15,15 +15,6 @@
       font-size: 12px;
   }
   
-  #cy {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      z-index: 999;
-  }
-  
   h1 {
       opacity: 0.5;
       font-size: 1em;
@@ -36,16 +27,15 @@
 
   <h1>Current Mégra Session !</h1>
   
-  <div id="cy"></div>
-  
 </body>
 
 <script>
+
   var layouts = {};
   var edges = {};
   var nodes = {};
   var last_active = {};
-
+  
   // calculate edge thickness from probablity
   function thickness(prob) {
       return 0.2 + (3.0 * (prob / 100.0));
@@ -55,6 +45,42 @@
       url: "ws://localhost:8081", // URL to your Web Socket server.
       metadata: true
   });
+
+  function resizeAll() {
+      
+      var objKeys = Object.keys(layouts);
+      var numLayouts = objKeys.length;
+      var rows = Math.floor((numLayouts + 1) / 2);
+
+      if(numLayouts > 1) {
+	  var height = (100 / rows) - 0.01;
+	  var curTop = 0;
+	 
+	  var i;
+	  for (i = 0; i < numLayouts; i++) {
+
+	      var el = document.getElementById('div-' + objKeys[i]);
+	      
+	      el.style.top = `${curTop}%`;    
+	      el.style.height = `${height}%`;
+	      el.style.width = "49.9%";
+	      
+	      if(i % 2 == 0) {
+		  el.style.left = "0";
+	      } else {
+		  el.style.left = "50%";
+	      }
+	      
+	      layouts[objKeys[i]].resize();
+	      layouts[objKeys[i]].fit();
+	      
+	      if(i % 2 === 1){
+		  curTop += height;
+	      }
+	      console.log("top: " + curTop);
+	  } 
+      }
+  }
   
   oscPort.open();
   
@@ -76,14 +102,20 @@
 	  if(!nodes[name].hasOwnProperty('current')){
 	      nodes[name]['current'] = [];
 	  }
-	  
+
 	  edges[name]['added'] = [];
 	  nodes[name]['added'] = [];
-
+	  
 	  if(!layouts.hasOwnProperty(name)) {
-
+	      var divkey = 'div-' + name;
+	      
+	      let newCytoscapeInstanceContainer = document.createElement('div');
+	      newCytoscapeInstanceContainer.id = divkey;
+	      newCytoscapeInstanceContainer.style.cssText = `position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 999;`;
+	      document.body.appendChild(newCytoscapeInstanceContainer);
+	      
 	      layouts[name] = cytoscape({
-		  container: document.getElementById('cy'),
+		  container: document.getElementById(divkey),
 		  style: [
 		      {
 			  selector: 'node',
@@ -131,7 +163,7 @@
       }
       case "/node/add": {
 	  var name = msg.args[0].value;
-	  var node_id = 'n' + msg.args[1].value;
+	  var node_id = name + '-n' + msg.args[1].value;
 	  var node_label = msg.args[2].value.trim();
 
 	  var n = layouts[name].$('#' + node_id);
@@ -156,8 +188,8 @@
 	  if(layouts.hasOwnProperty(name)) {
 	      var src = msg.args[1].value;
 	      layouts[name].$(last_active[name]).unselect();
-	      layouts[name].$('#n' + src).select();
-	      last_active[name] = '#n' + src;
+	      layouts[name].$(`#${name}-n` + src).select();
+	      last_active[name] = `#${name}-n` + src;
 	  }
 	  
 	  break;
@@ -169,7 +201,7 @@
 	  var label = msg.args[3].value;
 	  var prob = msg.args[4].value;
 
-	  var edge_id = 'edge-n' + src + '-n' + dest;
+	  var edge_id = name + '-edge-n' + src + '-n' + dest;
 
 	  var e = layouts[name].$('#' + edge_id);
 	  if(e.length > 0) {
@@ -181,22 +213,18 @@
 	      group: "edges",
 	      data: {
 		  id: edge_id,  // giving edges an id helps avoid duplicates
-		  source: 'n' + src,
-		  target: 'n' + dest,
+		  source: name + '-n' + src,
+		  target: name + '-n' + dest,
 		  width: thickness(prob),
 		  label: label
 	      }
 	  });
-	  
 	  
 	  break;
       }
       case "/render": {	  
 	  var name = msg.args[0].value;
 	  var layout = msg.args[1].value.toLowerCase();	  
-
-
-	  console.log(layout)
 	  
 	  nodes[name].current.forEach(function(nid) {
 	      if(!nodes[name].added.includes(nid)) {
@@ -212,14 +240,18 @@
 	      }
 	  });
 
+	  // add edges
 	  edges[name].current = edges[name].added.slice();
-
 	  layouts[name].add(edges[name].current);
-	  
-	  layouts[name].layout( {
+
+	  // run current layout
+	  layouts[name].layout({
 	      name: layout 
 	  }).run();
-	 
+
+	  // resize containers
+	  resizeAll();
+	  
 	  break;
       }
       case "/clear": {	  	  
@@ -227,10 +259,17 @@
 
 	  layouts[name].destroy();
 	  delete layouts[name];
-	  
+
+	  delete edges[name];
+	  delete nodes[name];
+  
+	  var elem = document.getElementById('div-' + name);
+	  elem.parentNode.removeChild(elem);
+
+	  //resizeAll();
 	  break;
       }
       }            
   });
-  
+
 </script>
