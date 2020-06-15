@@ -1,4 +1,3 @@
-
 # Mégra Function Reference
 
 Table of Contents
