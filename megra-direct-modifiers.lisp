@@ -47,7 +47,7 @@
         (inner-grown n params proc)
         (lambda (pproc) (inner-grown n params pproc)))))
 
-;; GROWN
+;; GROW
 (defun grow (&rest opt-params)
   (let* ((last (alexandria::lastcar opt-params))
          (proc (if (or (typep last 'event-processor)
