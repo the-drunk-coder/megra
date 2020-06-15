@@ -491,16 +491,43 @@ The growth algorithm allows adding information to an already existing generator.
 It does so by picking an event the generator yielded in the past, shaking up the values
 a little, and adding it to the generator following certain principles.
 
+### Parameters
+
+* `:var` (float) - variation factor (smaller -> less variation)
+* `:method` (symbol) - growth method/mode (see below)
+* `:durs` (list of ints) - durations to mix in
+* `:rnd` (int) - chance to add random edges after growth
+
+### Examples
+
+Manual use:
+
+```lisp
+(sx 'al t
+	(nuc 'gae (shortri 120)))
+
+;; Run this a couple of times and see what happens !
+(grow :var 0.3 'gae)
+```
+
+Time-based use (careful, might get too big at some point!):
+
+```lisp
+(sx 'al t
+	(evr 22 (grow :var 0.4 :method 'flower) (nuc 'ga (shortri 120))))
+```
+
 ### Modes
 
 Each growth mode pushes the generator in a certain direction.
 
 * `'default`
-* `'triloop`  
+* `'triloop`
 * `'quadloop`
 * `'flower`
 * `'loop` 
 
+I'd recommend trying them out and listen (and observe in the visualizer) what they do.
 
 ## `grown` - Enlarge Generator n times
 
