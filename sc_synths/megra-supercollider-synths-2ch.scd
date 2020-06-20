@@ -90,6 +90,39 @@ SynthDef(\grain_2ch, {
 	Out.ar(6, out * echorev);
 }).store;
 
+// filtered noise
+SynthDef(\noise_2ch, {
+
+	|
+	lvl=0.5,
+
+	//lowpass
+	lp_freq=19000, lp_q=0.1, lp_dist=0.0, lp_freq_lfo_freq=0.0, lp_freq_lfo_depth = 0.0, lp_freq_lfo_phase = 0.0,
+
+	// peak
+	pf_freq=4000, pf_q=0.1, pf_gain=0.0,
+
+	// hi-pass
+	hp_freq=20, hp_q=0.3,
+
+	// env
+	a=0.01, length=1, r=0.02, pos=0.0, rev=0.0, echo=0.0, echorev=0.0
+	|
+
+	var lim_gain = min(lvl, 1.0);
+	var cutenv = Env.new([0, lim_gain, lim_gain, 0], [a, length, r]);
+	var outenv = Env.new([0, lim_gain, lim_gain, 0], [a, length + 1.5, r]);
+	var sample = WhiteNoise.ar() * EnvGen.ar(cutenv);
+	var sample_hp = BHiPass.ar(sample, hp_freq, hp_q);
+	var sample_peak = BPeakEQ.ar(sample_hp, pf_freq, pf_q, pf_gain);
+	var sample_lp = LPF18.ar(sample_peak, lp_freq - ((lp_freq * lp_freq_lfo_depth) * SinOsc.ar(lp_freq_lfo_freq, lp_freq_lfo_phase)), lp_q, lp_dist);
+	var out =  Pan2.ar(sample_lp * EnvGen.ar(outenv, doneAction:2), pos);
+	Out.ar(0, out * (1.0 - rev));
+	Out.ar(2, out * rev);
+	Out.ar(4, out * echo);
+	Out.ar(6, out * echorev);
+}).store;
+
 // the typical filtered grain player, for two channels, wit 24db filters
 SynthDef(\grain_2ch_24db, {
 
