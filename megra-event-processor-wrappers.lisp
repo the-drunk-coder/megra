@@ -6,7 +6,8 @@
    (wrapped-processor :accessor wrapper-wrapped-processor :initarg :wrapped-processor)))
 
 (defmethod set-modified ((w event-processor-wrapper))
-  (set-modified (wrapper-wrapped-processor w)))
+  (set-modified (wrapper-wrapped-processor w))
+  w)
 
 (defmethod activate ((w event-processor-wrapper))
   (activate (wrapper-wrapped-processor w)))
