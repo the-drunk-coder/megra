@@ -25,12 +25,12 @@
 (defmethod activate ((g generator))
   (setf (is-active g) t)
   (if (successor g)
-      (activate successor)))
+      (activate (successor g))))
 
 (defmethod deactivate ((g generator))
   (setf (is-active g) nil)
   (if (successor g)
-      (deactivate successor)))
+      (deactivate (successor g))))
 
 (defmethod name ((g generator))
   (if (successor g)
