@@ -275,6 +275,8 @@
       (loop for i from 0 to (- n 1)
             collect (coerce (- (* i (/ 2 (- n 1))) 1) 'float))))
 
+
+
 (defun xspread2 (&rest funs-and-proc)
   (let* ((positions (spread-pos (length funs-and-proc)))
          (funs (butlast funs-and-proc))
@@ -289,3 +291,24 @@
                              funs)))
     (mapcar #'(lambda (pr po) (pear (pos po) pr)) (nconc duplicates (list (lambda () proc))) positions)))
 
+;; calculate spreading intervals
+(defun spread-pos-8 (n)
+  (if (eql n 1)
+      (list 1.0) 
+      (loop for i from 0 to (- n 1)
+            collect (coerce  (+ 1 (* i (/ 7 (- n 1))))  'float))))
+
+
+(defun xspread8 (&rest funs-and-proc)
+  (let* ((positions (spread-pos (length funs-and-proc)))
+         (funs (butlast funs-and-proc))
+         (proc (if (functionp (car (last funs-and-proc)))
+                   (funcall (car (last funs-and-proc)))
+                   (car (last funs-and-proc))))
+         (count 0)
+         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (let ((ng (deepcopy proc)))
+                                                         (fix-copy ng count)
+                                                         (incf count)
+                                                         ng))))
+                             funs)))
+    (mapcar #'(lambda (pr po) (pear (pos po) pr)) (nconc duplicates (list (lambda () proc))) positions)))

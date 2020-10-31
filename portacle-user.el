@@ -25,6 +25,7 @@
                           ("discourage" . font-lock-keyword-face)
                           ("encourage" . font-lock-keyword-face)
                           ("xspread2" . font-lock-keyword-face)
+                          ("xspread8" . font-lock-keyword-face)
                           ("sharpen" . font-lock-keyword-face)
                           ("flower2" . 'font-lock-inner-face)     
                           ("always" . font-lock-keyword-face)
