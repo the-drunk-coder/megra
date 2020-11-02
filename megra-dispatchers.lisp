@@ -259,7 +259,7 @@
          (proc (if (functionp (car (last funs-and-proc)))
                    (funcall (car (last funs-and-proc)))
                    (car (last funs-and-proc))))
-         (count 0)
+         (Count 0)
          (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (let ((ng (deepcopy proc)))
                                                          (fix-copy ng count)
                                                          (incf count)
@@ -300,7 +300,7 @@
 
 
 (defun xspread8 (&rest funs-and-proc)
-  (let* ((positions (spread-pos (length funs-and-proc)))
+  (let* ((positions (spread-pos-8 (length funs-and-proc)))
          (funs (butlast funs-and-proc))
          (proc (if (functionp (car (last funs-and-proc)))
                    (funcall (car (last funs-and-proc)))
