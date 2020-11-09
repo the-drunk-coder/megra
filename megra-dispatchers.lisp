@@ -312,3 +312,20 @@
                                                          ng))))
                              funs)))
     (mapcar #'(lambda (pr po) (pear (pos po) pr)) (nconc duplicates (list (lambda () proc))) positions)))
+
+
+
+(defun xrot8 (offset range &rest funs-and-proc)
+  (let* ((offsets (mapcar #'(lambda (o) (* offset o)) (loop for i from 0 to (length funs-and-proc) collect i)))
+         (funs (butlast funs-and-proc))
+         (proc (if (functionp (car (last funs-and-proc)))
+                   (funcall (car (last funs-and-proc)))
+                   (car (last funs-and-proc))))
+         (count 0)
+         (duplicates (mapcar #'(lambda (f) (funcall f (lambda () (let ((ng (deepcopy proc)))
+                                                         (fix-copy ng count)
+                                                         (incf count)
+                                                         ng))))
+                             funs)))
+    (mapcar #'(lambda (pr po) (pear (pos (oscil po (+ po range))) pr))
+            (nconc duplicates (list (lambda () proc))) offsets)))
