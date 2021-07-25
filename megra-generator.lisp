@@ -174,7 +174,7 @@
          (g (if (or (not g-old) (and g-old reset))
                 (make-instance 'generator :name name
                                           :generator (vom::learn-adj-list-pfa
-                                                      (delete-duplicates sample)
+                                                      (remove-duplicates sample)
                                                       bound
                                                       epsilon
                                                       size
