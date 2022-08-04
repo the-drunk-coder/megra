@@ -1,5 +1,9 @@
 # Mégra
 
+**THIS IS THE OLD COMMON LISP VERSION!! IT HAS BEEN SUPERSEDED BY A RE-CODE IN RUST:**
+**https://github.com/the-drunk-coder/megra.rs**
+**THE RUST VERSION IS WAY EASIER TO INSTALL AND USE ETC**
+
 Mégra is a mini-language to make music with variable-order markov chains
 and some other stochastic shenanigans.
 
